@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <map>
 
 #include <iostream>
 
@@ -91,11 +92,84 @@ struct Atom {
     }
 };
    
+struct Type {
+
+    enum types_t {
+        ATOM,
+        ARR,
+        SET,
+        MAP,
+        NONE
+    };
+    
+    enum atom_types_t {
+        INT,
+        UINT,
+        REAL,
+        STRING
+    };
+
+    types_t type;
+    atom_types_t arg1;
+    atom_types_t arg2;
+
+    Type(types_t t = NONE, atom_types_t a1 = INT, atom_types_t a2 = INT) : type(t), arg1(a1), arg2(a2) {}
+
+    Type(const Atom& a) : type(ATOM), arg2(INT) {
+        switch (a.which) {
+        case INT: arg1 = INT; break;
+        case UINT: arg1 = UINT; break;
+        case REAL: arg1 = REAL; break;
+        case STRING: arg1 = STRING; break;
+        }
+    }
+
+    bool operator!=(const Type& t) const {
+        return !(t.type == type && t.arg1 == arg1 && t.arg2 == arg2);
+    }
+    
+    static std::string print(Type t) {
+        std::string ret;
+
+        switch (t.type) {
+        case NONE: ret += "NONE("; break;
+        case ATOM: ret += "ATOM("; break;
+        case ARR:  ret += "ARRAY("; break;
+        case SET:  ret += "SET("; break;
+        case MAP:  ret += "MAP("; break;
+        }
+
+        if (t.type != NONE) {
+            switch (t.arg1) {
+            case INT: ret += "INT"; break;
+            case UINT: ret += "UINT"; break;
+            case REAL: ret += "REAL"; break;
+            case STRING: ret += "STRING"; break;
+            }
+        }
+
+        if (t.type == MAP) {
+            ret += ",";
+
+            switch (t.arg2) {
+            case INT: ret += "INT"; break;
+            case UINT: ret += "UINT"; break;
+            case REAL: ret += "REAL"; break;
+            case STRING: ret += "STRING"; break;
+            }
+        }
+        
+        ret += ")";
+        return ret;
+    }
+
+};
 
 struct Command {
 
     enum cmd_t {
         VAL,
+        VAW,
         VAR,
         NOT,
         NEG,
@@ -123,6 +197,8 @@ struct Command {
     typedef std::shared_ptr< std::vector<Command> > closure_t;
 
     std::vector<closure_t> closure;
+
+    Type type;
     
     Command(cmd_t c) : cmd(c) {}
 
@@ -132,6 +208,7 @@ struct Command {
     static std::string print(cmd_t c) {
         switch (c) {
         case VAL: return "VAL";
+        case VAW: return "VAW";
         case VAR: return "VAR";
         case NOT: return "NOT";
         case NEG: return "NEG";
@@ -154,6 +231,308 @@ struct Command {
     }
 };
 
+struct Functions {
+
+    std::map<String, Type::atom_types_t> types;
+
+    Functions() {
+
+        types["sin"]  = Type::REAL;
+        types["cos"]  = Type::REAL;
+        types["tan"]  = Type::REAL;
+        types["sqrt"] = Type::REAL;
+        types["exp"]  = Type::REAL;
+        types["log"]  = Type::REAL;
+    }
+};
+
+const Functions& functions() {
+    static Functions ret;
+    return ret;
+}
+
+Type::atom_types_t function_type(const std::string& name) {
+
+    const Functions& f = functions();
+
+    auto i = f.types.find(name);
+    
+    if (i == f.types.end())
+        throw std::runtime_error("Unknown function: '" + name + "'");
+
+    return i->second;
+}
+    
+bool check_integer(Type t) {
+    return (t.type == Type::ATOM && (t.arg1 == Type::INT || t.arg1 == Type::UINT));
+}
+
+bool check_real(Type t) {
+    return (t.type == Type::ATOM && t.arg1 == Type::REAL);
+}
+
+bool check_numeric(Type t) {
+    return (t.type == Type::ATOM && (t.arg1 == Type::INT || t.arg1 == Type::UINT || t.arg1 == Type::REAL));
+}
+
+bool check_string(Type t) {
+    return (t.type == Type::ATOM && t.arg1 == Type::STRING);
+}
+
+void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
+
+    Type t1 = stack.back();
+    stack.pop_back();
+    Type t2 = stack.back();
+    stack.pop_back();
+
+    if (!check_numeric(t1) || !check_numeric(t2))
+        throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
+
+    stack.emplace_back(Type::ATOM, Type::REAL);
+}
+
+void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
+
+    Type t1 = stack.back();
+    stack.pop_back();
+    Type t2 = stack.back();
+    stack.pop_back();
+
+    if (!check_integer(t1) || !check_integer(t2))
+        throw std::runtime_error("Use of '" + name + "' operator on non-integer value.");
+
+    auto a1 = t1.arg1;
+    auto a2 = t2.arg1;
+
+    if (a1 == Type::UINT && a2 == Type::UINT) {
+        stack.emplace_back(Type::ATOM, Type::UINT);
+
+    } else {
+        stack.emplace_back(Type::ATOM, Type::INT);
+    }
+}
+
+void handle_poly_operator(std::vector<Type>& stack, const std::string& name, bool always_int = false) {
+
+    Type t1 = stack.back();
+    stack.pop_back();
+    Type t2 = stack.back();
+    stack.pop_back();
+
+    if (!check_numeric(t1) || !check_numeric(t2))
+        throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
+
+    auto a1 = t1.arg1;
+    auto a2 = t2.arg1;
+
+    if (a1 == Type::REAL || a2 == Type::REAL) {
+        stack.emplace_back(Type::ATOM, Type::REAL);
+
+    } else if (!always_int && a1 == Type::UINT && a2 == Type::UINT) {
+        stack.emplace_back(Type::ATOM, Type::UINT);
+
+    } else {
+        stack.emplace_back(Type::ATOM, Type::INT);
+    }
+}
+
+Type homo_type(const std::vector<Command>& commands, const std::string& name) {
+
+    if (commands.empty())
+        throw std::runtime_error("Empty sequences are not allowed.");
+
+    bool first = true;
+    Type ret;
+
+    for (const auto& c : commands) {
+
+        if (first) {
+            ret = c.type;
+            first = false;
+
+        } else if (c.type != ret) {
+            throw std::runtime_error(name + " is not homogenous. (Contains values of different types.)");
+        }
+    }
+
+    return ret;
+}
+
+void infer_types(std::vector<Command>& commands, Type toplevel);
+
+Type infer_generator(Command& c, Type toplevel, const std::string& name) {
+
+    if (c.closure.size() < 1 || c.closure.size() > 2)
+        throw std::runtime_error("Sanity error, generator is not a closure.");
+
+    if (c.closure.size() == 2) {
+
+        auto& cfrom = *(c.closure.at(1));
+        infer_types(cfrom, toplevel);
+
+        toplevel = homo_type(cfrom, name);
+    }
+    
+    auto& cto = *(c.closure.at(0));
+    infer_types(cto, toplevel);
+    
+    return homo_type(cto, name);
+}
+
+Type infer_map_generator(Command& c, Type toplevel, const std::string& name) {
+
+    if (c.closure.size() < 2 || c.closure.size() > 3)
+        throw std::runtime_error("Sanity error, generator is not a map closure.");
+
+    if (c.closure.size() == 3) {
+
+        auto& cfrom = *(c.closure.at(2));
+        infer_types(cfrom, toplevel);
+
+        toplevel = homo_type(cfrom, name);
+    }
+    
+    auto& cto_k = *(c.closure.at(0));
+    infer_types(cto_k, toplevel);
+
+    auto& cto_v = *(c.closure.at(1));
+    infer_types(cto_v, toplevel);
+    
+    Type out1 = homo_type(cto_k, name);
+    Type out2 = homo_type(cto_v, name);
+
+    return Type(Type::MAP, out1.arg1, out2.arg2);
+}
+
+void infer_types(std::vector<Command>& commands, Type toplevel) {
+
+    std::vector<Type> stack;
+    std::map<String, Type> vars;
+
+    vars["$"] = toplevel;
+    
+    for (auto& c : commands) {
+
+        switch (c.cmd) {
+        case Command::VAL:
+            stack.emplace_back(c.arg);
+            break;
+
+        case Command::VAW:
+            vars[c.arg.str] = Type(stack.back());
+            stack.pop_back();
+            break;
+            
+        case Command::VAR:
+        {
+            auto i = vars.find(c.arg.str);
+
+            if (i == vars.end())
+                throw std::runtime_error("Use of undefined variable: " + c.arg.str);
+
+            stack.emplace_back(i->second);
+            break;
+        }
+        
+        case Command::NOT:
+            stack.pop_back();
+            stack.emplace_back(Type::ATOM, Type::INT);
+            break;
+
+        case Command::NEG:
+        {
+            Type t = stack.back();
+
+            if (!check_integer(t)) 
+                throw std::runtime_error("Use of '~' numeric operator on something other than integer or unsigned integer.");
+
+            break;
+        }
+            
+        case Command::EXP:
+            handle_real_operator(stack, "**");
+            break;
+
+        case Command::MUL:
+            handle_poly_operator(stack, "*");
+            break;
+
+        case Command::DIV:
+            handle_poly_operator(stack, "/");
+            break;
+
+        case Command::MOD:
+            handle_int_operator(stack, "%");
+            break;
+
+        case Command::ADD:
+            handle_poly_operator(stack, "+");
+            break;
+
+        case Command::SUB:
+            handle_poly_operator(stack, "-", true);
+            break;
+
+        case Command::AND:
+            handle_int_operator(stack, "&");
+            break;
+
+        case Command::OR:
+            handle_int_operator(stack, "|");
+            break;
+
+        case Command::XOR:
+            handle_int_operator(stack, "^");
+            break;
+
+        case Command::REGEX:
+        {
+            Type t = stack.back();
+            stack.pop_back();
+            
+            if (!check_string(t)) 
+                throw std::runtime_error("Use of '~' regex operator on something other than string.");
+
+            stack.emplace_back(Type::ARR, Type::STRING);
+            break;
+        }
+
+        case Command::ARR:
+        {
+            Type t = infer_generator(c, toplevel, "Array");
+            stack.emplace_back(Type::ARR, t.arg1);
+            break;
+        }
+
+        case Command::SET:
+        {
+            Type t = infer_generator(c, toplevel, "Set");
+            stack.emplace_back(Type::SET, t.arg1);
+            break;
+        }
+
+        case Command::MAP:
+        {
+            Type t = infer_map_generator(c, toplevel, "Map");
+            stack.emplace_back(Type::MAP, t.arg1, t.arg2);
+            break;
+        }
+
+        case Command::FUN:
+        {
+            Type::atom_types_t t = function_type(c.arg.str);
+            stack.emplace_back(Type::ATOM, t);
+            break;
+        }
+        }
+
+        if (c.cmd != Command::VAW) {
+            c.type = stack.back();
+        }
+    }
+}
+
 struct Stack {
 
     std::vector<Command> stack;
@@ -168,6 +547,7 @@ struct Stack {
     }
 
     std::vector< std::pair<size_t,String> > _mark;
+    std::vector< String> names;
     
     void mark() {
         _mark.emplace_back(stack.size(), String());
@@ -225,7 +605,6 @@ struct Stack {
     }
 };
 
-
 template <typename I>
 void parse(I beg, I end) {
 
@@ -280,7 +659,7 @@ void parse(I beg, I end) {
 
     auto x_literal = x_float | x_uint | x_int | x_string;
 
-    auto x_var = axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0);
+    auto x_var = axe::r_lit('$') | (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
 
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(std::string(b, e)); });
@@ -360,8 +739,14 @@ void parse(I beg, I end) {
 
     x_expr_atom = x_expr_regex;
 
+    auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(b, e); });
+    auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back()); stack.names.pop_back(); });
+    
     auto x_expr_assign =
-        (x_ws & x_var & x_ws & axe::r_lit('=') & x_ws & x_expr_atom) |
+        (x_ws &
+         (x_var >> y_expr_assign_var) &
+         x_ws &
+         axe::r_lit('=') & x_ws & (x_expr_atom >> y_expr_assign)) |
         x_expr_atom;
 
     auto x_expr_seq = x_expr_assign & *(axe::r_lit(',') & x_expr_assign);
@@ -377,8 +762,14 @@ void parse(I beg, I end) {
     
     x_go(beg, end);
 
-                            
+
     stack.print();
+
+    infer_types(stack.stack, Type(Type::ATOM, Type::STRING));
+
+    for (const auto& c : stack.stack) {
+        std::cout << Type::print(c.type) << std::endl;
+    }
 }
 
 int main(int argc, char** argv) {
