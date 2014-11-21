@@ -34,14 +34,25 @@ struct Atom {
     };
 
     Atom(Int i = 0) : which(INT), inte(i) { }
-    Atom(UInt i) : which(UINT), uint(i)  {}
-    Atom(Real i) : which(REAL), real(i)  {}
+    Atom(UInt i) : which(UINT), uint(i)  { }
+    Atom(Real i) : which(REAL), real(i)  { }
 
     Atom(const String& i) : which(STRING) {
-        new (&str) String(i);
+        new (&str) String();
+        str.assign(i.begin(), i.end());
+        std::cout << "  ..ctr.. " << str << std::endl;
     }
 
     void copy(const Atom& a) {
+
+        if (this == &a)
+            return;
+
+        if (a.which == 3)
+            std::cout << " ~~ " << a.str << std::endl;
+        
+        std::cout << "COPY " << which << ":" << print() << " <- " << a.which << ":" << a.print() << std::endl;
+        
         if (which == STRING)
             str.~String();
 
@@ -56,7 +67,8 @@ struct Atom {
             real = a.real;
             break;
         case STRING:
-            new (&str) String(a.str);
+            new (&str) String();
+            str.assign(a.str.begin(), a.str.end());
             break;
         };
 
@@ -64,6 +76,9 @@ struct Atom {
     }
     
     Atom(const Atom& a) {
+
+        std::cout << " ..copy ctr.. " << std::endl;
+        
         copy(a);
     }
 
@@ -73,6 +88,7 @@ struct Atom {
     }
 
     Atom& operator=(const Atom& a) {
+        std::cout << " ..assign op.. " << std::endl;
         copy(a);
         return *this;
     }
@@ -211,7 +227,7 @@ struct Command {
 
     Type type;
     
-    Command(cmd_t c) : cmd(c) {}
+    Command(cmd_t c = VAL) : cmd(c) {}
 
     template <typename T>
     Command(cmd_t c, const T& t) : cmd(c), arg(t) {}
@@ -245,16 +261,22 @@ struct Command {
 
 struct Functions {
 
-    std::map<String, Type::atom_types_t> types;
+    std::map<String, Type> types;
 
     Functions() {
 
-        types["sin"]  = Type::REAL;
-        types["cos"]  = Type::REAL;
-        types["tan"]  = Type::REAL;
-        types["sqrt"] = Type::REAL;
-        types["exp"]  = Type::REAL;
-        types["log"]  = Type::REAL;
+        add_type("sin",  Type(Type::ATOM, Type::REAL));
+        add_type("cos",  Type(Type::ATOM, Type::REAL));
+        //add_type(std::string("tan"),  Type(Type::ATOM, Type::REAL));
+        add_type("sqrt", Type(Type::ATOM, Type::REAL));
+        add_type("exp",  Type(Type::ATOM, Type::REAL));
+        add_type("log",  Type(Type::ATOM, Type::REAL));
+
+        add_type("cut",  Type(Type::ARR, Type::STRING));
+    }
+
+    void add_type(const String& s, const Type& t) {
+        types.insert(types.end(), std::make_pair(s, t));
     }
 };
 
@@ -263,7 +285,7 @@ const Functions& functions() {
     return ret;
 }
 
-Type::atom_types_t function_type(const std::string& name) {
+Type function_type(const std::string& name) {
 
     const Functions& f = functions();
 
@@ -617,8 +639,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel) {
 
         case Command::FUN:
         {
-            Type::atom_types_t t = function_type(c.arg.str);
-            stack.emplace_back(Type::ATOM, t);
+            Type t = function_type(c.arg.str);
+            stack.emplace_back(t);
             break;
         }
         }
@@ -633,12 +655,29 @@ struct Stack {
 
     std::vector<Command> stack;
 
-    void push(Command::cmd_t c) { stack.emplace_back(c); }
+    void push(Command::cmd_t c) { std::cout << "  push0" << std::endl; std::cout << Command::print(c) << std::endl; std::cout << stack.size() << std::endl;
+        //stack.emplace_back(c);
+        for (const auto& i : stack) {
+            std::cout << "!!! " << Command::print(i.cmd) << " " << i.arg.which << " " << i.closure.size() << std::endl;
+            for (const auto& ii : i.closure) {
+                for (const auto& iii : *ii) {
+                    std::cout << "   . " << Command::print(iii.cmd) << " " << iii.arg.which;
+                    if (iii.arg.which == 3) std::cout << iii.arg.str;
+                    std::cout << std::endl;
+                }
+            }
+        }
+        stack.emplace_back(c);
+        std::cout << "PUSH0" << std::endl; }
 
     template <typename T>
-    void push(Command::cmd_t c, const T& t) { stack.emplace_back(c, t); }
+    void push(Command::cmd_t c, const T& t) { std::cout << "  push1" << std::endl; stack.emplace_back(c, t); std::cout << "PUSH1" << std::endl; }
 
     Atom& back() {
+
+        if (stack.empty())
+            throw std::runtime_error("Sanity check.");
+
         return stack.back().arg;
     }
 
@@ -657,6 +696,8 @@ struct Stack {
 
         auto m = _mark.back();
         _mark.pop_back();
+
+        std::cout << "CLOSE " << m.first << " " << stack.size() << std::endl;
         
         auto c = std::make_shared< std::vector<Command> >(stack.begin() + m.first, stack.end());
         stack.erase(stack.begin() + m.first, stack.end());
@@ -676,6 +717,8 @@ struct Stack {
         auto m = _mark.back();
         _mark.pop_back();
 
+        std::cout << "CLOSE_ " << m.first << " " << stack.size() << std::endl;
+                
         auto c = std::make_shared< std::vector<Command> >(stack.begin() + m.first, stack.end());
         stack.erase(stack.begin() + m.first, stack.end());
 
@@ -757,13 +800,13 @@ void parse(I beg, I end) {
 
     auto x_var = axe::r_lit('$') | (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
 
-    auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
-    auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(std::string(b, e)); });
-    auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
-    auto y_close_set = axe::e_ref([&](I b, I e) { stack.close(Command::SET); });
-    auto y_close_arr = axe::e_ref([&](I b, I e) { stack.close(Command::ARR); });
-    auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+    auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); std::cout << "Mark" << std::endl; });
+    auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(std::string(b, e)); std::cout << "marked funname " << std::string(b, e) << std::endl; });
+    auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); std::cout << "Close arg" << std::endl; });
+    auto y_close_set = axe::e_ref([&](I b, I e) { stack.close(Command::SET); std::cout << "Close set" << std::endl; });
+    auto y_close_arr = axe::e_ref([&](I b, I e) { stack.close(Command::ARR); std::cout << "Close arr" << std::endl; });
+    auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); std::cout << "Close map" << std::endl; });
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); std::cout << "closed fun" << std::endl; });
     
     auto x_from = ~((axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg));
     
@@ -778,9 +821,9 @@ void parse(I beg, I end) {
         (axe::r_lit("->") >> y_mark) & (x_expr >> y_close_arg) & x_from & axe::r_lit('}');
     
     auto x_funcall =
-        (x_var >> y_mark_name) & x_ws & axe::r_lit('(') & (x_expr >> y_close_fun) & axe::r_lit(')');
+        (x_var >> y_mark_name) & x_ws & axe::r_lit('(') & (x_expr >> y_close_fun) & axe::r_lit(')') >> axe::e_ref([](I b, I e) { std::cout << "Funcall done" << std::endl; });
 
-    auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, std::string(b, e)); });
+    auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, std::string(b, e)); std::cout << "read var " << std::string(b, e) << std::endl; });
     
     auto x_var_read = x_var >> y_var_read;
 
@@ -793,7 +836,7 @@ void parse(I beg, I end) {
     auto y_expr_idx = axe::e_ref([&](I b, I e) { stack.push(Command::IDX); });
     
     auto x_expr_idx =
-        x_expr_bottom & ~(x_array >> y_expr_idx);
+        x_expr_bottom & ~(x_array >> y_expr_idx) >> axe::e_ref([](I b, I e) { std::cout << "x_expr_idx" << std::endl; });
     
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
     auto y_expr_neg = axe::e_ref([&](I b, I e) { stack.push(Command::NEG); });
@@ -806,7 +849,7 @@ void parse(I beg, I end) {
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });
     
     auto x_expr_exp =
-        x_expr_neg & ~(axe::r_lit("**") & x_expr_atom >> y_expr_exp);
+        x_expr_neg & ~(axe::r_lit("**") & x_expr_atom >> y_expr_exp) >> axe::e_ref([](I b, I e) { std::cout << "x_expr_exp" << std::endl; });
 
     auto y_expr_mul = axe::e_ref([&](I b, I e) { stack.push(Command::MUL); });
     auto y_expr_div = axe::e_ref([&](I b, I e) { stack.push(Command::DIV); });
@@ -836,33 +879,36 @@ void parse(I beg, I end) {
     auto y_expr_regex = axe::e_ref([&](I b, I e) { stack.stack.back().cmd = Command::REGEX; });
 
     auto x_expr_regex =
-        x_expr_bit & ~(axe::r_lit("~") & x_ws & x_string >> y_expr_regex);
+        x_expr_bit & ~(axe::r_lit("~") & x_ws & x_string >> y_expr_regex) >> axe::e_ref([](I b, I e) { std::cout << "x_expr_regex" << std::endl; });
 
-    x_expr_atom = x_expr_regex;
+    x_expr_atom = x_expr_regex >> axe::e_ref([](I b, I e) { std::cout << "x_expr_atom" << std::endl; });
 
-    auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(b, e); });
-    auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back()); stack.names.pop_back(); });
+    auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(b, e); std::cout << "Assign " << std::string(b, e) << std::endl; });
+    auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back()); stack.names.pop_back(); std::cout << "Assign OK" << std::endl; });
+
+    auto y_no_assign = axe::e_ref([&](I b, I e) { stack.names.pop_back(); std::cout << "No assign" << std::endl; });
     
-    auto x_expr_assign =
+    auto x_expr_assign = 
         (x_ws &
          (x_var >> y_expr_assign_var) &
          x_ws &
-         axe::r_lit('=') & x_ws & (x_expr_atom >> y_expr_assign)) |
-        x_expr_atom;
+         (axe::r_lit('=') | r_fail(y_no_assign)) &
+         x_ws &
+         (x_expr_atom >> y_expr_assign)) | 
+        x_expr_atom >> axe::e_ref([](I b, I e) { std::cout << "x_expr_assign" << std::endl; });
 
     auto x_expr_seq = x_expr_assign & *(axe::r_lit(',') & x_expr_assign);
 
-    x_expr = x_expr_seq;
+    x_expr = x_expr_seq >> axe::e_ref([](I b, I e) { std::cout << "EXPR: " << std::string(b, e) << std::endl; });
 
     auto x_main = x_expr & axe::r_end();
 
-    auto x_go = x_main |
+    auto x_go = x_main >> axe::e_ref([](I b, I e) { std::cout << "DONE" << std::endl; }) |
         axe::r_fail([](I b, I e) {
                 throw std::runtime_error("Syntax error, unparsed input: \"" + std::string(b, e) + "\"");
             });
     
     x_go(beg, end);
-
 
     stack.print();
 
