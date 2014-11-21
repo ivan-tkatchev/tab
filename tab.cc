@@ -110,25 +110,33 @@ struct Type {
     };
 
     types_t type;
-    atom_types_t arg1;
-    atom_types_t arg2;
+    std::vector<atom_types_t> arg1;
+    std::vector<atom_types_t> arg2;
 
-    Type(types_t t = NONE, atom_types_t a1 = INT, atom_types_t a2 = INT) : type(t), arg1(a1), arg2(a2) {}
+    Type(types_t t = NONE) : type(t) {}
 
-    Type(const Atom& a) : type(ATOM), arg2(INT) {
+    Type(types_t t, atom_types_t a) : type(t) {
+        arg1.push_back(a);
+    }
+        
+    Type(const Atom& a) : type(ATOM) {
         switch (a.which) {
-        case INT: arg1 = INT; break;
-        case UINT: arg1 = UINT; break;
-        case REAL: arg1 = REAL; break;
-        case STRING: arg1 = STRING; break;
+        case INT: arg1.push_back(INT); break;
+        case UINT: arg1.push_back(UINT); break;
+        case REAL: arg1.push_back(REAL); break;
+        case STRING: arg1.push_back(STRING); break;
         }
     }
 
-    bool operator!=(const Type& t) const {
+    Type(types_t t, const std::vector<atom_types_t>& a1) : type(t), arg1(a1) {}
+
+    Type(types_t t, const std::vector<atom_types_t>& a1, const std::vector<atom_types_t>& a2) : type(t), arg1(a1), arg2(a2) {}
+
+    bool operator!=(const Type& t) {
         return !(t.type == type && t.arg1 == arg1 && t.arg2 == arg2);
     }
     
-    static std::string print(Type t) {
+    static std::string print(const Type& t) {
         std::string ret;
 
         switch (t.type) {
@@ -139,27 +147,29 @@ struct Type {
         case MAP:  ret += "MAP("; break;
         }
 
-        if (t.type != NONE) {
-            switch (t.arg1) {
-            case INT: ret += "INT"; break;
-            case UINT: ret += "UINT"; break;
-            case REAL: ret += "REAL"; break;
-            case STRING: ret += "STRING"; break;
+        for (auto z : t.arg1) {
+            switch (z) {
+            case INT: ret += " INT"; break;
+            case UINT: ret += " UINT"; break;
+            case REAL: ret += " REAL"; break;
+            case STRING: ret += " STRING"; break;
             }
         }
 
-        if (t.type == MAP) {
-            ret += ",";
+        if (t.arg2.size() > 0) {
+            ret += " ;";
 
-            switch (t.arg2) {
-            case INT: ret += "INT"; break;
-            case UINT: ret += "UINT"; break;
-            case REAL: ret += "REAL"; break;
-            case STRING: ret += "STRING"; break;
+            for (auto z : t.arg2) {
+                switch (z) {
+                case INT: ret += " INT"; break;
+                case UINT: ret += " UINT"; break;
+                case REAL: ret += " REAL"; break;
+                case STRING: ret += " STRING"; break;
+                }
             }
         }
-        
-        ret += ")";
+
+        ret += " )";
         return ret;
     }
 
@@ -182,6 +192,7 @@ struct Command {
         AND,
         OR,
         XOR,
+        IDX,
         REGEX,
 
         ARR,
@@ -221,6 +232,7 @@ struct Command {
         case AND: return "AND";
         case  OR: return "OR";
         case XOR: return "XOR";
+        case IDX: return "IDX";
         case REGEX: return "REGEX";
         case ARR: return "ARR";
         case SET: return "SET";
@@ -263,20 +275,20 @@ Type::atom_types_t function_type(const std::string& name) {
     return i->second;
 }
     
-bool check_integer(Type t) {
-    return (t.type == Type::ATOM && (t.arg1 == Type::INT || t.arg1 == Type::UINT));
+bool check_integer(const Type& t) {
+    return (t.type == Type::ATOM && t.arg1.size() == 1 && (t.arg1[0] == Type::INT || t.arg1[0] == Type::UINT));
 }
 
-bool check_real(Type t) {
-    return (t.type == Type::ATOM && t.arg1 == Type::REAL);
+bool check_real(const Type& t) {
+    return (t.type == Type::ATOM && t.arg1.size() == 1 && t.arg1[0] == Type::REAL);
 }
 
-bool check_numeric(Type t) {
-    return (t.type == Type::ATOM && (t.arg1 == Type::INT || t.arg1 == Type::UINT || t.arg1 == Type::REAL));
+bool check_numeric(const Type& t) {
+    return (t.type == Type::ATOM && t.arg1.size() == 1 && (t.arg1[0] == Type::INT || t.arg1[0] == Type::UINT || t.arg1[0] == Type::REAL));
 }
 
-bool check_string(Type t) {
-    return (t.type == Type::ATOM && t.arg1 == Type::STRING);
+bool check_string(const Type& t) {
+    return (t.type == Type::ATOM && t.arg1.size() == 1 && t.arg1[0] == Type::STRING);
 }
 
 void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
@@ -302,8 +314,8 @@ void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
     if (!check_integer(t1) || !check_integer(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-integer value.");
 
-    auto a1 = t1.arg1;
-    auto a2 = t2.arg1;
+    auto a1 = t1.arg1[0];
+    auto a2 = t2.arg1[0];
 
     if (a1 == Type::UINT && a2 == Type::UINT) {
         stack.emplace_back(Type::ATOM, Type::UINT);
@@ -323,8 +335,8 @@ void handle_poly_operator(std::vector<Type>& stack, const std::string& name, boo
     if (!check_numeric(t1) || !check_numeric(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
 
-    auto a1 = t1.arg1;
-    auto a2 = t2.arg1;
+    auto a1 = t1.arg1[0];
+    auto a2 = t2.arg1[0];
 
     if (a1 == Type::REAL || a2 == Type::REAL) {
         stack.emplace_back(Type::ATOM, Type::REAL);
@@ -342,24 +354,31 @@ Type homo_type(const std::vector<Command>& commands, const std::string& name) {
     if (commands.empty())
         throw std::runtime_error("Empty sequences are not allowed.");
 
-    bool first = true;
     Type ret;
 
+    if (commands.size() == 1) {
+        ret.type = Type::ATOM;
+
+    } else {
+        ret.type = Type::ARR;
+    }
+        
     for (const auto& c : commands) {
 
-        if (first) {
-            ret = c.type;
-            first = false;
-
-        } else if (c.type != ret) {
-            throw std::runtime_error(name + " is not homogenous. (Contains values of different types.)");
+        if (c.type.type != Type::ATOM) {
+            throw std::runtime_error("In " + name + ": nested sequences are not allowed.");
         }
+
+        if (c.type.arg1.size() != 1)
+            throw std::runtime_error("Sanity error.");
+        
+        ret.arg1.emplace_back(c.type.arg1[0]);
     }
 
     return ret;
 }
 
-void infer_types(std::vector<Command>& commands, Type toplevel);
+void infer_types(std::vector<Command>& commands, const Type& toplevel);
 
 Type infer_generator(Command& c, Type toplevel, const std::string& name) {
 
@@ -402,10 +421,46 @@ Type infer_map_generator(Command& c, Type toplevel, const std::string& name) {
     Type out1 = homo_type(cto_k, name);
     Type out2 = homo_type(cto_v, name);
 
-    return Type(Type::MAP, out1.arg1, out2.arg2);
+    out1.arg2.swap(out2.arg2);
+    return out1;
 }
 
-void infer_types(std::vector<Command>& commands, Type toplevel) {
+Type value_type(const Type& t) {
+
+    if (t.arg1.size() == 0)
+        throw std::runtime_error("Sanity error.");
+
+    Type ret = t;
+
+    if (ret.arg1.size() == 1) {
+        ret.type = Type::ATOM;
+    } else {
+        ret.type = Type::ARR;
+    }
+
+    return ret;
+}
+
+Type mapped_type(const Type& t) {
+
+    if (t.arg2.size() == 0)
+        throw std::runtime_error("Sanity error.");
+
+    Type ret = t;
+
+    ret.arg1.swap(ret.arg2);
+    ret.arg2.clear();
+
+    if (t.arg1.size() == 1) {
+        ret.type = Type::ATOM;
+    } else {
+        ret.type = Type::ARR;
+    }
+
+    return ret;
+}
+
+void infer_types(std::vector<Command>& commands, const Type& toplevel) {
 
     std::vector<Type> stack;
     std::map<String, Type> vars;
@@ -498,23 +553,64 @@ void infer_types(std::vector<Command>& commands, Type toplevel) {
             break;
         }
 
+        case Command::IDX:
+        {
+            Type ti = stack.back();
+            stack.pop_back();
+            Type tv = stack.back();
+            stack.pop_back();
+
+            switch (tv.type) {
+
+            case Type::ARR:
+                
+                if (!(ti.type == Type::ARR && ti.arg1.size() == 1 && (ti.arg1[0] == Type::INT || ti.arg1[0] == Type::UINT)))
+                    throw std::runtime_error("Arrays must be accessed with numeric index.");
+
+                
+                stack.emplace_back(value_type(tv));
+                break;
+
+            case Type::SET:
+
+                stack.emplace_back(Type::ATOM, Type::INT);
+
+                if (ti != value_type(tv))
+                    throw std::runtime_error("Invalid key type when accessing set.");
+                break;
+
+            case Type::MAP:
+
+                stack.emplace_back(mapped_type(tv));
+
+                if (ti != value_type(tv))
+                    throw std::runtime_error("Invalid key type when accessing map.");
+                break;
+                    
+            default:
+                throw std::runtime_error("Cannot index a scalar value.");
+            }
+
+            break;
+        }
+        
         case Command::ARR:
         {
-            Type t = infer_generator(c, toplevel, "Array");
+            Type t = infer_generator(c, toplevel, "array");
             stack.emplace_back(Type::ARR, t.arg1);
             break;
         }
 
         case Command::SET:
         {
-            Type t = infer_generator(c, toplevel, "Set");
+            Type t = infer_generator(c, toplevel, "set");
             stack.emplace_back(Type::SET, t.arg1);
             break;
         }
 
         case Command::MAP:
         {
-            Type t = infer_map_generator(c, toplevel, "Map");
+            Type t = infer_map_generator(c, toplevel, "map");
             stack.emplace_back(Type::MAP, t.arg1, t.arg2);
             break;
         }
@@ -694,13 +790,18 @@ void parse(I beg, I end) {
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
+    auto y_expr_idx = axe::e_ref([&](I b, I e) { stack.push(Command::IDX); });
+    
+    auto x_expr_idx =
+        x_expr_bottom & ~(x_array >> y_expr_idx);
+    
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
     auto y_expr_neg = axe::e_ref([&](I b, I e) { stack.push(Command::NEG); });
     
     auto x_expr_neg =
         (axe::r_any("!") & x_expr_atom >> y_expr_not) |
         (axe::r_any("~") & x_expr_atom >> y_expr_neg) |
-        x_expr_bottom;
+        x_expr_idx;
 
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });
     
