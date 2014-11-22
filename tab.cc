@@ -1,11 +1,13 @@
 
 #include <memory>
 #include <stdexcept>
+#include <functional>
 #include <string>
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
 #include <map>
+#include <initializer_list>
 
 #include <iostream>
 
@@ -114,6 +116,8 @@ struct Atom {
         copy(a);
         return *this;
     }
+
+    bool is_string() const { return (which == STRING); }
     
     std::string print() const {
         switch (which) {
@@ -147,68 +151,98 @@ struct Type {
     };
 
     types_t type;
-    std::vector<atom_types_t> arg1;
-    std::vector<atom_types_t> arg2;
-
+    atom_types_t atom;
+    std::shared_ptr< std::vector<Type> > tuple;
+    
     Type(types_t t = NONE) : type(t) {}
 
-    Type(types_t t, atom_types_t a) : type(t) {
-        arg1.push_back(a);
-    }
+    Type(atom_types_t a) : type(ATOM), atom(a) {}
         
     Type(const Atom& a) : type(ATOM) {
         switch (a.which) {
-        case INT: arg1.push_back(INT); break;
-        case UINT: arg1.push_back(UINT); break;
-        case REAL: arg1.push_back(REAL); break;
-        case STRING: arg1.push_back(STRING); break;
+        case INT: atom = INT; break;
+        case UINT: atom = UINT; break;
+        case REAL: atom = REAL; break;
+        case STRING: atom = STRING; break;
         }
     }
 
-    Type(types_t t, const std::vector<atom_types_t>& a1) : type(t), arg1(a1) {}
+    Type(types_t t, const std::initializer_list<Type>& tup) :
+        type(t),
+        tuple(std::make_shared< std::vector<Type> >(tup)) {}
 
-    Type(types_t t, const std::vector<atom_types_t>& a1, const std::vector<atom_types_t>& a2) : type(t), arg1(a1), arg2(a2) {}
-
+    
     bool operator!=(const Type& t) {
-        return !(t.type == type && t.arg1 == arg1 && t.arg2 == arg2);
+        if (t.type != type) return true;
+
+        if (type == ATOM) {
+
+            if (atom != t.atom)
+                return true;
+
+            return false;
+        }
+            
+        if (tuple && t.tuple) {
+
+            if (tuple->size() != t.tuple->size())
+                return true;
+
+            for (size_t i = 0; i < tuple->size(); ++i) {
+                if ((*tuple)[i] != (*t.tuple)[i])
+                    return true;
+            }
+
+            return false;
+
+        } else if (!tuple && !t.tuple) {
+            return false;
+
+        } else {
+            return true;
+        }
     }
     
     static std::string print(const Type& t) {
         std::string ret;
 
         switch (t.type) {
-        case NONE: ret += "NONE("; break;
-        case ATOM: ret += "ATOM("; break;
-        case ARR:  ret += "ARRAY("; break;
-        case MAP:  ret += "MAP("; break;
-        }
-
-        for (auto z : t.arg1) {
-            switch (z) {
-            case INT: ret += " INT"; break;
-            case UINT: ret += " UINT"; break;
-            case REAL: ret += " REAL"; break;
-            case STRING: ret += " STRING"; break;
+        case NONE: ret += "NONE"; break;
+        case ATOM:
+            switch (t.atom) {
+            case INT: ret += "INT"; break;
+            case UINT: ret += "UINT"; break;
+            case REAL: ret += "REAL"; break;
+            case STRING: ret += "STRING"; break;
             }
+            break;
+        case ARR:  ret += "ARRAY"; break;
+        case MAP:  ret += "MAP"; break;
         }
 
-        if (t.arg2.size() > 0) {
-            ret += " ;";
+        if (t.tuple) {
+            ret += "(";
 
-            for (auto z : t.arg2) {
-                switch (z) {
-                case INT: ret += " INT"; break;
-                case UINT: ret += " UINT"; break;
-                case REAL: ret += " REAL"; break;
-                case STRING: ret += " STRING"; break;
-                }
+            for (const Type& tt : *(t.tuple)) {
+                ret += " ";
+                ret += print(tt);
             }
+
+            ret += " )";
         }
 
-        ret += " )";
         return ret;
     }
 
+    Type& push(const Type& t) {
+
+        if (!tuple) {
+            tuple = std::make_shared< std::vector<Type> >();
+        }
+
+        tuple->push_back(t);
+        return tuple->back();
+    }
 };
 
 struct Command {
@@ -245,11 +279,13 @@ struct Command {
     std::vector<closure_t> closure;
 
     Type type;
+    void* object;
+    void* function;
     
-    Command(cmd_t c = VAL) : cmd(c) {}
+    Command(cmd_t c = VAL) : cmd(c), object(nullptr), function(nullptr) {}
 
     template <typename T>
-    Command(cmd_t c, const T& t) : cmd(c), arg(t) {}
+    Command(cmd_t c, const T& t) : cmd(c), arg(t), object(nullptr), function(nullptr) {}
 
     static std::string print(cmd_t c) {
         switch (c) {
@@ -277,58 +313,195 @@ struct Command {
     }
 };
 
+union Raw {
+    Int inte;
+    UInt uint;
+    Real real;
+    void* ptr;
+
+    Raw(Int i = 0) : inte(i) {}
+    Raw(UInt i) : uint(i) {}
+    Raw(Real i) : real(i) {}
+    Raw(void* i) : ptr(i) {}
+    
+    template <typename T>
+    T& get() const {
+        return *((T*)ptr);
+    }
+};
+
+
+namespace funcs {
+
+void print_int(const std::vector<Raw>& in, Raw& out) {
+    std::cout << in[0].inte << std::endl;
+}
+
+void cut(const std::vector<Raw>& in, Raw& out) {
+
+    const std::string& str = in[0].get<std::string>();
+    const std::string& del = in[1].get<std::string>();
+
+    size_t N = str.size();
+    size_t M = del.size();
+
+    size_t prev = 0;
+
+    if (out.ptr == nullptr) {
+        out.ptr = new std::vector<std::string>();
+    }
+
+    std::vector<std::string>& v = out.get< std::vector<std::string> >();
+
+    v.clear();
+    v.emplace_back("");
+    
+    for (size_t i = 0; i < N; ++i) {
+
+        bool matched = true;
+
+        for (size_t j = 0; j < M; ++j) {
+
+            if (i+j < N && str[i+j] == del[j])
+                continue;
+            
+            matched = false;
+            break;
+        }
+
+        if (matched) {
+            v.emplace_back(str.begin() + prev, str.begin() + i);
+            i += M;
+            prev = i;
+        } else {
+            v.back() += str[i];
+        }
+    }
+}
+
+}
+
+namespace std {
+
+template <>
+struct hash<Type> {
+    size_t operator()(const Type& t) const {
+
+        size_t r = hash<size_t>()(t.type);
+
+        if (x.second.type == Type::ATOM) {
+            r += hash<size_t>()(t.atom);
+
+        } else if (tuple) {
+        
+            for (auto i : (*t.tuple)) {
+                r += (*this)(i);
+            }
+        }
+
+        return r;
+    }
+};
+
+template <>
+struct hash< std::pair<String, std::vector<Type> > > {
+    size_t operator()(const std::pair<String, std::vector<Type> >& x) const {
+
+        size_t r = hash<size_t>()(x.first.ix);
+
+        for (const Type& t : x.second) {
+            r += hash<Type>()(t);
+        }
+
+        return r;
+    }
+};
+
+}
+
 struct Functions {
 
+    typedef void (*func_t)(const std::vector<Raw>&, Raw&);
+
+    typedef std::pair< String, std::vector<Type> > key_t;
+
+    std::unordered_map<key_t, func_t> funcs;
     std::unordered_map<String, Type> types;
 
     Functions() {
+        
+        add("cut",
+            { Type(Type::STRING), Type(Type::STRING) },
+            Type(Type::ARR, { Type::STRING }),
+            funcs::cut);
 
-        add_type("sin",  Type(Type::ATOM, Type::REAL));
-        add_type("cos",  Type(Type::ATOM, Type::REAL));
-        add_type("tan",  Type(Type::ATOM, Type::REAL));
-        add_type("sqrt", Type(Type::ATOM, Type::REAL));
-        add_type("exp",  Type(Type::ATOM, Type::REAL));
-        add_type("log",  Type(Type::ATOM, Type::REAL));
-
-        add_type("cut",  Type(Type::ARR, Type::STRING));
+        add("print",
+            { Type(Type::INT) },
+            Type(),
+            funcs::print_int);
     }
 
-    void add_type(const std::string& s, const Type& t) {
-        types.insert(types.end(), std::make_pair(strings().add(s), t));
+    void add(const std::string& name, const std::initializer_list<Type>& args, const Type& out, func_t f) {
+        
+        String n = strings().add(name);
+        funcs.insert(funcs.end(), std::make_pair(key_t(n, std::vector<Type>(args)), f));
+        types.insert(types.end(), std::make_pair(n, out));
     }
-};
+
+    func_t get_func(const String& name, const std::vector<Type>& args) const {
+
+        auto i = funcs.find(key_t(name, args));
+
+        if (i == funcs.end()) {
+
+            std::string tmp;
+            for (auto z : args) {
+                tmp += Type::print(z);
+                tmp += ',';
+            }
+
+            if (tmp.size() > 1) {
+                tmp.pop_back();
+            }
+
+            throw std::runtime_error("Invalid function call: " + strings().get(name) + "(" + tmp + ")");
+        }
+
+        return i->second;
+    }
+
+    Type get_type(const String& name) const {
+
+        auto i = types.find(name);
+    
+        if (i == types.end())
+            throw std::runtime_error("Unknown function: '" + strings().get(name) + "'");
+
+        return i->second;
+    }
+}; 
 
 const Functions& functions() {
     static Functions ret;
     return ret;
 }
 
-Type function_type(String name) {
 
-    const Functions& f = functions();
 
-    auto i = f.types.find(name);
-    
-    if (i == f.types.end())
-        throw std::runtime_error("Unknown function: '" + strings().get(name) + "'");
-
-    return i->second;
-}
-    
 bool check_integer(const Type& t) {
-    return (t.type == Type::ATOM && t.arg1.size() == 1 && (t.arg1[0] == Type::INT || t.arg1[0] == Type::UINT));
+    return (t.type == Type::ATOM && (t.atom == Type::INT || t.atom == Type::UINT));
 }
 
 bool check_real(const Type& t) {
-    return (t.type == Type::ATOM && t.arg1.size() == 1 && t.arg1[0] == Type::REAL);
+    return (t.type == Type::ATOM && t.atom == Type::REAL);
 }
 
 bool check_numeric(const Type& t) {
-    return (t.type == Type::ATOM && t.arg1.size() == 1 && (t.arg1[0] == Type::INT || t.arg1[0] == Type::UINT || t.arg1[0] == Type::REAL));
+    return (t.type == Type::ATOM && (t.atom == Type::INT || t.atom == Type::UINT || t.atom == Type::REAL));
 }
 
 bool check_string(const Type& t) {
-    return (t.type == Type::ATOM && t.arg1.size() == 1 && t.arg1[0] == Type::STRING);
+    return (t.type == Type::ATOM && t.atom == Type::STRING);
 }
 
 void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
@@ -341,7 +514,7 @@ void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
     if (!check_numeric(t1) || !check_numeric(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
 
-    stack.emplace_back(Type::ATOM, Type::REAL);
+    stack.emplace_back(Type::REAL);
 }
 
 void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
@@ -354,14 +527,14 @@ void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
     if (!check_integer(t1) || !check_integer(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-integer value.");
 
-    auto a1 = t1.arg1[0];
-    auto a2 = t2.arg1[0];
+    auto a1 = t1.atom;
+    auto a2 = t2.atom;
 
     if (a1 == Type::UINT && a2 == Type::UINT) {
-        stack.emplace_back(Type::ATOM, Type::UINT);
+        stack.emplace_back(Type::UINT);
 
     } else {
-        stack.emplace_back(Type::ATOM, Type::INT);
+        stack.emplace_back(Type::INT);
     }
 }
 
@@ -375,17 +548,17 @@ void handle_poly_operator(std::vector<Type>& stack, const std::string& name, boo
     if (!check_numeric(t1) || !check_numeric(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
 
-    auto a1 = t1.arg1[0];
-    auto a2 = t2.arg1[0];
+    auto a1 = t1.atom;
+    auto a2 = t2.atom;
 
     if (a1 == Type::REAL || a2 == Type::REAL) {
-        stack.emplace_back(Type::ATOM, Type::REAL);
+        stack.emplace_back(Type::REAL);
 
     } else if (!always_int && a1 == Type::UINT && a2 == Type::UINT) {
-        stack.emplace_back(Type::ATOM, Type::UINT);
+        stack.emplace_back(Type::UINT);
 
     } else {
-        stack.emplace_back(Type::ATOM, Type::INT);
+        stack.emplace_back(Type::INT);
     }
 }
 
@@ -397,43 +570,37 @@ struct TypeResult {
 };
 
 
-Type homo_type(const TypeResult& typer, const std::string& name) {
+Type stack_to_type(const TypeResult& typer, const std::string& name) {
 
+    if (typer.stack.size() == 0)
+        throw std::runtime_error("Empty sequences are not allowed.");
+    
     Type ret;
 
     if (typer.stack.size() == 1) {
-        ret.type = Type::ATOM;
-
+        ret = typer.stack[0];
+        
     } else {
+
         ret.type = Type::ARR;
-    }
         
-    for (const auto& c : typer.stack) {
-        
-        if (c.type != Type::ATOM) {
-            throw std::runtime_error("In " + name + ": nested sequences are not allowed.");
+        for (const auto& c : typer.stack) {
+            ret.push(c);
         }
-
-        if (c.arg1.size() != 1)
-            throw std::runtime_error("Sanity error.");
-        
-        ret.arg1.emplace_back(c.arg1[0]);
     }
-
-    if (ret.arg1.empty())
-        throw std::runtime_error("Empty sequences are not allowed.");
     
     return ret;
 }
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer);
 
-Type infer_generator(Command& c, Type toplevel, const std::string& name) {
+Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() < 1 || c.closure.size() > 2)
         throw std::runtime_error("Sanity error, generator is not a closure.");
 
     TypeResult typer;
+    typer.vars = _tr.vars;
     
     if (c.closure.size() == 2) {
 
@@ -441,74 +608,80 @@ Type infer_generator(Command& c, Type toplevel, const std::string& name) {
 
         infer_types(cfrom, toplevel, typer);
 
-        toplevel = homo_type(typer, name);
+        toplevel = stack_to_type(typer, name);
     }
     
     auto& cto = *(c.closure.at(0));
     infer_types(cto, toplevel, typer);
 
-    return homo_type(typer, name);
+    return stack_to_type(typer, name);
 }
 
-Type infer_map_generator(Command& c, Type toplevel, const std::string& name) {
+Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() < 2 || c.closure.size() > 3)
         throw std::runtime_error("Sanity error, generator is not a map closure.");
 
     TypeResult typer;
+    typer.vars = _tr.vars;
     
     if (c.closure.size() == 3) {
 
         auto& cfrom = *(c.closure.at(2));
         infer_types(cfrom, toplevel, typer);
 
-        toplevel = homo_type(typer, name);
+        toplevel = stack_to_type(typer, name);
     }
     
     auto& cto_k = *(c.closure.at(0));
     infer_types(cto_k, toplevel, typer);
-    Type out1 = homo_type(typer, name);
+    Type out1 = stack_to_type(typer, name);
 
     auto& cto_v = *(c.closure.at(1));
     infer_types(cto_v, toplevel, typer);    
-    Type out2 = homo_type(typer, name);
+    Type out2 = stack_to_type(typer, name);
 
-    out1.arg2.swap(out2.arg1);
-    return out1;
+    Type ret(Type::MAP);
+    ret.push(out1);
+    ret.push(out2);
+    
+    return ret;
 }
 
 Type value_type(const Type& t) {
 
-    if (t.arg1.size() == 0)
-        throw std::runtime_error("Sanity error.");
+    if (!t.tuple || t.tuple->empty())
+        throw std::runtime_error("Indexing an atom.");
 
     Type ret = t;
 
-    if (ret.arg1.size() == 1) {
-        ret.type = Type::ATOM;
-    } else {
-        ret.type = Type::ARR;
-    }
+    if (t.type == Type::ARR) {
 
-    return ret;
+        if (t.tuple->size() == 1) {
+            return (*t.tuple)[0];
+
+        } else {
+            return t;
+        }
+
+    } else if (t.type == Type::MAP) {
+
+        if (t.tuple->size() != 2)
+            throw std::runtime_error("Sanity error, degenerate map");
+
+        return (*t.tuple)[1];
+    }
+        
+    throw std::runtime_error("Sanity error, indexing something that's not array or map");
 }
 
 Type mapped_type(const Type& t) {
 
-    if (t.arg2.size() == 0)
-        throw std::runtime_error("Sanity error.");
+    if (t.type != Type::MAP || !t.tuple || t.tuple->size() != 2)
+        throw std::runtime_error("Sanity error, degenerate map");
 
-    Type ret = t;
-
-    ret.arg1.swap(ret.arg2);
-    ret.arg2.clear();
-
-    if (t.arg1.size() == 1) {
-        ret.type = Type::ATOM;
-    } else {
-        ret.type = Type::ARR;
-    }
-
+    return (*t.tuple)[0];
+    
     return ret;
 }
 
@@ -553,7 +726,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             Type t = stack.back();
 
             if (!check_integer(t)) 
-                throw std::runtime_error("Use of '~' numeric operator on something other than integer or unsigned integer.");
+                throw std::runtime_error("Use of '~' numeric operator on something other "
+                                         "than integer or unsigned integer.");
 
             break;
         }
@@ -617,10 +791,9 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
 
             case Type::ARR:
                 
-                if (!(ti.type == Type::ARR && ti.arg1.size() == 1 && (ti.arg1[0] == Type::INT || ti.arg1[0] == Type::UINT)))
+                if (!(ti.type == Type::ARR && ti.tuple && ti.tuple->size() == 1 && check_numeric(ti.tuple->at(0))))
                     throw std::runtime_error("Arrays must be accessed with numeric index.");
 
-                
                 stack.emplace_back(value_type(tv));
                 break;
 
@@ -641,22 +814,25 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
         
         case Command::ARR:
         {
-            Type t = infer_generator(c, toplevel, "array");
+            Type t = infer_arr_generator(c, toplevel, typer, "array");
             stack.emplace_back(Type::ARR, t.arg1);
             break;
         }
 
         case Command::MAP:
         {
-            Type t = infer_map_generator(c, toplevel, "map");
+            Type t = infer_map_generator(c, toplevel, typer, "map");
             stack.emplace_back(Type::MAP, t.arg1, t.arg2);
             break;
         }
 
         case Command::FUN:
         {
-            Type t = function_type(c.arg.str);
+            Type t = functions().get_type(c.arg.str);
             stack.emplace_back(t);
+
+            Type args = infer_arr_generator(c, toplevel, typer, "function call");
+            c.function = (void*)functions().get_func(c.arg.str, args.arg1);
             break;
         }
         }
@@ -725,7 +901,8 @@ struct Stack {
 
         for (const auto& i : c) {
             std::cout << " " << std::string(level*2, ' ')
-                      << Command::print(i.cmd) << " " << i.arg.which << ": " << i.arg.print() << std::endl;
+                      << Command::print(i.cmd) << " " << i.arg.which << ": " << i.arg.print()
+                      << " // " << Type::print(i.type) << std::endl;
 
             for (const auto& ii : i.closure) {
                 std::cout << " " << std::string(level*2, ' ') << "=" << std::endl;
@@ -745,7 +922,7 @@ String make_string(I beg, I end) {
 }
 
 template <typename I>
-void parse(I beg, I end) {
+void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
 
     Stack stack;
     std::string str_buff;
@@ -826,8 +1003,8 @@ void parse(I beg, I end) {
         (x_var >> y_mark_name) &
         x_ws &
         (axe::r_lit('(') | r_fail(y_unmark_name)) &
-        (x_expr >> y_close_fun) &
-        axe::r_lit(')');
+        ~x_expr &
+        axe::r_lit(')') >> y_close_fun;
 
     auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, make_string(b, e)); });
     
@@ -917,28 +1094,106 @@ void parse(I beg, I end) {
     
     x_go(beg, end);
 
-    stack.print();
 
-    TypeResult typer;
-    infer_types(stack.stack, Type(Type::ATOM, Type::STRING), typer);
+    // Wrap the result in an implicit 'print(...)' function.
 
-    for (const auto& c : stack.stack) {
-        std::cout << Type::print(c.type) << std::endl;
-    }
+    Stack trustack;
+
+    trustack.push(Command::FUN, strings().add("print"));
+    Command& print = trustack.stack.back();
+    print.closure.clear();
+    print.closure.emplace_back(new std::vector<Command>);
+    print.closure[0]->swap(stack.stack);
+    
+    infer_types(trustack.stack, Type(Type::ATOM, Type::STRING), typer);
+
+    trustack.print();
+
+    commands.swap(trustack.stack);
 }
 
+struct Runtime {
+    std::unordered_map<String,Raw> vars;
+    std::vector<Raw> stack;
+
+    void set_toplevel(const std::string& s) {
+        vars[strings().add("$")] = Raw((void*)(&s));
+    }
+};
+
+void execute(std::vector<Command>& commands, Runtime& r) {
+    
+    for (auto& c : commands) {
+        switch (c.cmd) {
+
+        case Command::FUN:
+        {
+            Runtime rfun;
+            rfun.vars = r.vars;
+            execute(*(c.closure[0]), rfun);
+
+            r.stack.emplace_back();
+            Raw& out = r.stack.back();
+            out.ptr = c.object;
+            ((Functions::func_t)c.function)(rfun.stack, out);
+            c.object = out.ptr;
+            break;
+        }
+        case Command::VAR:
+        {
+            r.stack.emplace_back(r.vars[c.arg.str]);
+            break;
+        }
+        case Command::VAL:
+        {
+            switch (c.arg.which) {
+            case Atom::STRING:
+                r.stack.emplace_back((void*)(&(strings().get(c.arg.str))));
+                break;
+            case Atom::INT:
+                r.stack.emplace_back(c.arg.inte);
+                break;
+            case Atom::UINT:
+                r.stack.emplace_back(c.arg.uint);
+                break;
+            case Atom::REAL:
+                r.stack.emplace_back(c.arg.real);
+                break;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }        
+}
+
+        
 int main(int argc, char** argv) {
 
     try {
 
-        if (argc != 2) {
-            std::cerr << "Usage: " << argv[0] << " <expression>" << std::endl;
+        if (argc != 2 && argc != 3) {
+            std::cerr << "Usage: " << argv[0] << " <expression> [arg]" << std::endl;
             return 1;
         }
 
-        std::string inp(argv[1]);
-        parse(inp.begin(), inp.end());
+        std::string program(argv[1]);
+        std::string toplevel;
 
+        if (argc == 3) {
+            toplevel.assign(argv[2]);
+        }
+        
+        TypeResult typer;
+        std::vector<Command> commands;
+
+        parse(program.begin(), program.end(), typer, commands);
+
+        Runtime res;
+        res.set_toplevel(toplevel);
+        execute(commands, res);
+        
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
         return 1;
