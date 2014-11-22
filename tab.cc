@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <map>
 #include <initializer_list>
+#include <utility>
 
 #include <iostream>
 
@@ -278,9 +279,15 @@ struct Command {
 
     Atom arg;
 
-    typedef std::shared_ptr< std::vector<Command> > closure_t;
+    struct Closure {
+        std::vector<Command> code;
+        std::vector<Type> type;
+        void* object;
 
-    std::vector<closure_t> closure;
+        Closure() : object(nullptr) {}
+    };
+    
+    std::vector< std::shared_ptr<Closure> > closure;
 
     Type type;
     void* object;
@@ -317,92 +324,6 @@ struct Command {
     }
 };
 
-union Raw {
-    Int inte;
-    UInt uint;
-    Real real;
-    void* ptr;
-
-    Raw(Int i = 0) : inte(i) {}
-    Raw(UInt i) : uint(i) {}
-    Raw(Real i) : real(i) {}
-    Raw(void* i) : ptr(i) {}
-    
-    template <typename T>
-    T& get() const {
-        return *((T*)ptr);
-    }
-};
-
-
-namespace funcs {
-
-void print_int(const std::vector<Raw>& in, Raw& out) {
-    std::cout << in[0].inte << std::endl;
-    out = in[0];
-}
-
-void print_uint(const std::vector<Raw>& in, Raw& out) {
-    std::cout << in[0].uint << std::endl;
-    out = in[0];
-}
-
-void print_real(const std::vector<Raw>& in, Raw& out) {
-    std::cout << in[0].real << std::endl;
-    out = in[0];
-}
-
-void print_string(const std::vector<Raw>& in, Raw& out) {
-    std::cout << in[0].get<std::string>() << std::endl;
-    out = in[0];
-}
-
-
-void cut(const std::vector<Raw>& in, Raw& out) {
-
-    const std::string& str = in[0].get<std::string>();
-    const std::string& del = in[1].get<std::string>();
-
-    std::cout << "cut '" << str << "' '" << del << "'" << std::endl;
-    
-    size_t N = str.size();
-    size_t M = del.size();
-
-    size_t prev = 0;
-
-    if (out.ptr == nullptr) {
-        out.ptr = new std::vector<std::string>();
-    }
-
-    std::vector<std::string>& v = out.get< std::vector<std::string> >();
-
-    v.clear();
-    v.emplace_back("");
-    
-    for (size_t i = 0; i < N; ++i) {
-
-        bool matched = true;
-
-        for (size_t j = 0; j < M; ++j) {
-
-            if (i+j < N && str[i+j] == del[j])
-                continue;
-            
-            matched = false;
-            break;
-        }
-
-        if (matched) {
-            v.emplace_back(str.begin() + prev, str.begin() + i);
-            i += M;
-            prev = i;
-        } else {
-            v.back() += str[i];
-        }
-    }
-}
-
-}
 
 namespace std {
 
@@ -444,25 +365,14 @@ struct hash< std::pair<String, std::vector<Type> > > {
 
 struct Functions {
 
-    typedef void (*func_t)(const std::vector<Raw>&, Raw&);
+    typedef void (*func_t)(const std::vector<void*>&, void*&);
 
     typedef std::pair< String, std::vector<Type> > key_t;
     typedef std::pair< func_t, Type > val_t;
     
     std::unordered_map<key_t, val_t> funcs;
 
-    Functions() {
-        
-        add("cut",
-            { Type(Type::STRING), Type(Type::STRING) },
-            Type(Type::ARR, { Type::STRING }),
-            funcs::cut);
-
-        add("print", { Type(Type::INT) }, Type(Type::INT), funcs::print_int);
-        add("print", { Type(Type::UINT) }, Type(Type::UINT), funcs::print_uint);
-        add("print", { Type(Type::REAL) }, Type(Type::REAL), funcs::print_real);
-        add("print", { Type(Type::STRING) }, Type(Type::STRING), funcs::print_string);
-    }
+    Functions() {}
 
     void add(const std::string& name, const std::initializer_list<Type>& args, const Type& out, func_t f) {
         
@@ -493,11 +403,14 @@ struct Functions {
     }
 }; 
 
-const Functions& functions() {
+Functions& functions_init() {
     static Functions ret;
     return ret;
 }
 
+const Functions& functions() {
+    return functions_init();
+}
 
 
 bool check_integer(const Type& t) {
@@ -615,9 +528,10 @@ std::vector<Type> infer_func_generator(Command& c, Type toplevel, const TypeResu
     typer.vars = _tr.vars;
 
     auto& cto = *(c.closure.at(0));
-    infer_types(cto, toplevel, typer);
-
-    return typer.stack;
+    infer_types(cto.code, toplevel, typer);
+    cto.type.swap(typer.stack);
+    
+    return cto.type;
 }
 
 Type infer_idx_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
@@ -629,7 +543,8 @@ Type infer_idx_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     typer.vars = _tr.vars;
 
     auto& cto = *(c.closure.at(0));
-    infer_types(cto, toplevel, typer);
+    infer_types(cto.code, toplevel, typer);
+    cto.type = typer.stack;
 
     return stack_to_type(typer, name);
 }
@@ -646,14 +561,16 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
         auto& cfrom = *(c.closure.at(1));
 
-        infer_types(cfrom, toplevel, typer);
+        infer_types(cfrom.code, toplevel, typer);
+        cfrom.type = typer.stack;
 
         toplevel = stack_to_type(typer, name);
     }
     
     auto& cto = *(c.closure.at(0));
-    infer_types(cto, toplevel, typer);
-
+    infer_types(cto.code, toplevel, typer);
+    cto.type = typer.stack;
+    
     return stack_to_type(typer, name, false);
 }
 
@@ -668,23 +585,26 @@ Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     if (c.closure.size() == 3) {
 
         auto& cfrom = *(c.closure.at(2));
-        infer_types(cfrom, toplevel, typer);
+        infer_types(cfrom.code, toplevel, typer);
+        cfrom.type = typer.stack;
 
         toplevel = stack_to_type(typer, name);
     }
     
     auto& cto_k = *(c.closure.at(0));
-    infer_types(cto_k, toplevel, typer);
+    infer_types(cto_k.code, toplevel, typer);
+    cto_k.type = typer.stack;
     Type out1 = stack_to_type(typer, name);
 
     auto& cto_v = *(c.closure.at(1));
-    infer_types(cto_v, toplevel, typer);    
+    infer_types(cto_v.code, toplevel, typer);
+    cto_v.type = typer.stack;
     Type out2 = stack_to_type(typer, name);
 
     Type ret(Type::MAP);
     ret.push(out1);
     ret.push(out2);
-    
+
     return ret;
 }
 
@@ -915,7 +835,8 @@ struct Stack {
         auto m = _mark.back();
         _mark.pop_back();
 
-        auto c = std::make_shared< std::vector<Command> >(stack.begin() + m.first, stack.end());
+        auto c = std::make_shared<Command::Closure>();
+        c->code.assign(stack.begin() + m.first, stack.end());
         stack.erase(stack.begin() + m.first, stack.end());
 
         if (m.second.ix == 0) {
@@ -933,7 +854,8 @@ struct Stack {
         auto m = _mark.back();
         _mark.pop_back();
 
-        auto c = std::make_shared< std::vector<Command> >(stack.begin() + m.first, stack.end());
+        auto c = std::make_shared<Command::Closure>();
+        c->code.assign(stack.begin() + m.first, stack.end());
         stack.erase(stack.begin() + m.first, stack.end());
 
         stack.back().closure.resize(stack.back().closure.size() + 1);
@@ -948,8 +870,15 @@ struct Stack {
                       << " // " << Type::print(i.type) << std::endl;
 
             for (const auto& ii : i.closure) {
-                std::cout << " " << std::string(level*2, ' ') << "=" << std::endl;
-                print(*ii, level + 1);
+                std::cout << " " << std::string(level*2, ' ') << "=";
+
+                for (const Type& t : ii->type) {
+                    std::cout << " " << Type::print(t);
+                }
+
+                std::cout << std::endl;
+
+                print(ii->code, level + 1);
             }
         }
     }        
@@ -1031,7 +960,7 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
 
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
     
-    auto x_from = ~((axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg));
+    auto x_from = (axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg);
 
     auto x_array =
         (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_arr) & x_from & axe::r_lit(']');
@@ -1145,8 +1074,8 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     trustack.push(Command::FUN, strings().add("print"));
     Command& print = trustack.stack.back();
     print.closure.clear();
-    print.closure.emplace_back(new std::vector<Command>);
-    print.closure[0]->swap(stack.stack);
+    print.closure.emplace_back(new Command::Closure);
+    print.closure[0]->code.swap(stack.stack);
 #else
     trustack = stack;
 #endif
@@ -1158,16 +1087,432 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     commands.swap(trustack.stack);
 }
 
-struct Runtime {
-    std::unordered_map<String,Raw> vars;
-    std::vector<Raw> stack;
 
-    void set_toplevel(const std::string& s) {
-        vars[strings().add("$")] = Raw((void*)(&s));
+/** ** **/
+
+
+namespace obj {
+
+struct Object {
+
+    virtual ~Object() {}
+    
+    virtual void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+        throw std::runtime_error("Sanity error, indexing a non-indexable Object");
+    }
+
+    virtual size_t hash() const {
+        throw std::runtime_error("Object hash not implemented");
+    }
+
+    virtual bool eq(Object*) const {
+        throw std::runtime_error("Object equality not implemented");
     }
 };
 
+struct Int : public Object {
+    ::Int v;
+
+    Int(::Int i = 0) : v(i) {}
+
+    size_t hash() const { return std::hash<::Int>()(v); }
+    bool eq(Object* a) const { return v == ((Int*)a)->v; }
+};
+
+struct UInt : public Object {
+    ::UInt v;
+
+    UInt(::UInt i = 0) : v(i) {}
+
+    size_t hash() const { return std::hash<::UInt>()(v); }
+    bool eq(Object* a) const { return v == ((UInt*)a)->v; }
+};
+
+struct Real : public Object {
+    ::Real v;
+
+    Real(::Real i = 0) : v(i) {}
+
+    size_t hash() const { return std::hash<::Real>()(v); }
+    bool eq(Object* a) const { return v == ((Real*)a)->v; }
+};
+
+struct String : public Object {
+    std::string v;
+
+    String() {}
+    String(const std::string& i) : v(i) {}
+
+    size_t hash() const { return std::hash<std::string>()(v); }
+    bool eq(Object* a) const { return v == ((String*)a)->v; }
+};
+
+template <typename A>
+size_t __array_index_do(const A& v, const std::vector<Type>& keytype, Object* key) {
+
+    size_t i = v.size();
+
+    switch (keytype[0].atom) {
+    case Type::UINT:
+    {
+        i = ((UInt*)key)->v;
+        break;
+    }
+    case Type::INT:
+    {
+        ::Int z = ((Int*)key)->v;
+        if (z < 0)
+            i = v.size() - z;
+        else
+            i = z;
+        break;
+    }
+    case Type::REAL:
+    {
+        ::Real z = ((Real*)key)->v;
+        if (z >= 0.0 && z <= 1.0)
+            i = v.size() * z;
+    }
+    default:
+        break;
+    }
+
+    if (i >= v.size())
+        throw std::runtime_error("Array index out of bounds");
+
+    return i;
+}
+
+template <typename T>
+struct ArrayAtom : public Object {
+    std::vector<T> v;
+
+    size_t hash() const {
+        size_t ret = 0;
+        for (const T& t : v) {
+            ret += std::hash<T>(t);
+        }
+        return ret;
+    }
+
+    bool eq(Object* a) const {
+        return v == ((ArrayAtom<T>*)a)->v;
+    }
+
+    template <typename S>
+    void _index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+
+        size_t i = __array_index_do(v, keytype, key);
+
+        S* o = (S*)out;
+        o->v = v[i];
+    }
+};
+    
+template <>
+struct ArrayAtom<::Int> : public Object {
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<Int>(keytype, key, out); }
+};
+
+template <>
+struct ArrayAtom<::UInt> : public Object {
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<UInt>(keytype, key, out); }
+};
+
+template <>
+struct ArrayAtom<::Real> : public Object {
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<Real>(keytype, key, out); }
+};
+
+template <>
+struct ArrayAtom<std::string> : public Object {
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<String>(keytype, key, out); }
+};
+
+struct ArrayObject : public Object {
+    std::vector<Object*> v;
+
+    size_t hash() const {
+        size_t ret = 0;
+        for (const T& t : v) {
+            ret += t->hash();
+        }
+        return ret;
+    }
+
+    bool eq(Object* a) const {
+
+        const std::vector<Object*>& b = ((ArrayObject*)a)->v;
+
+        if (v.size() != b.size())
+            return false;
+        
+        for (size_t i = 0; i < v.size(); ++i) {
+            if (!(v[i]->eq(b[i])))
+                return false;
+        }
+
+        return true;
+    }
+
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+
+        size_t i = __array_index_do(v, keytype, key);
+
+        out = v[i];
+    }
+};
+
+struct ObjectHash {
+    size_t operator()(Object* o) const {
+        return o->hash();
+    }
+};
+
+struct ObjectEq {
+    bool operator()(Object* a, Object* b) const {
+        return a->eq(b);
+    }
+};
+
+struct MapObject : public Object {
+
+    typedef std::unordered_map<Object*, Object*, ObjectHash, ObjectEq> map_t;
+    map_t v;
+
+    size_t hash() const {
+        size_t ret = 0;
+        for (const auto& t : v) {
+            ret += t.first->hash();
+            ret += t.second->hash();
+        }
+        return ret;
+    }
+
+    bool eq(Object* a) const {
+
+        const map_t& b = ((MapObject*)a)->v;
+
+        if (v.size() != b.size())
+            return false;
+
+        auto i = v.begin();
+        auto ie = v.end();
+        auto j = b.begin();
+
+        while (i != ie) {
+
+            if (!(i->first->eq(j->first)) ||
+                !(i->second->eq(j->second))) {
+
+                return false;
+            }
+            
+            ++i;
+            ++j;
+        }
+
+        return true;
+    }
+
+    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+
+        auto i = v.find(key);
+
+        if (i == v.end())
+            throw std::runtime_error("Key is not in map");
+        
+        out = i->second;
+    }
+};
+
+
+template <typename T>
+T& get(void* ptr) {
+    return *((T*)ptr);
+}
+
+
+template <typename... Ts>
+Object* make(const Type& t, Ts&&...) {
+
+    if (t.type == Type::ATOM) {
+        switch (t.atom) {
+        case Type::INT:
+            return new Int(std::forward<U>(u)...);
+        case Type::UINT:
+            return new UInt(std::forward<U>(u)...);
+        case Type::REAL:
+            return new Real(std::forward<U>(u)...);
+        case Type::STRING:
+            return new String(std::forward<U>(u)...);
+        }
+    }
+
+    if (!t.tuple || t.tuple->empty())
+        return new Object();
+    
+    if (t.type == Type::ARR) {
+
+        const Type& s = (*t.tuple)[0];
+
+        if (t.tuple->size() == 1) {
+
+            switch (s.atom) {
+            case Type::INT:
+                return new ArrayAtom<::Int>(std::forward<U>(u)...);
+            case Type::UINT:
+                return new ArrayAtom<::UInt>(std::forward<U>(u)...);
+            case Type::REAL:
+                return new ArrayAtom<::Real>(std::forward<U>(u)...);
+            case Type::STRING:
+                return new ArrayAtom<std::string>(std::forward<U>(u)...);
+            }
+        }
+
+        return new ArrayObject(std::forward<U>(u)...);
+    }
+
+    if (t.type == Type::MAP) {
+
+        return new MapObject(std::forward<U>(u)...);
+    }    
+}
+
+}
+
+
+namespace funcs {
+
+void print_int(const std::vector<void*>& in, void*& out) {
+    std::cout << obj::get<obj::Int>(in[0]).v << std::endl;
+    out = in[0];
+}
+
+void print_uint(const std::vector<void*>& in, void*& out) {
+    std::cout << obj::get<obj::UInt>(in[0]).v << std::endl;
+    out = in[0];
+}
+
+void print_real(const std::vector<void*>& in, void*& out) {
+    std::cout << obj::get<obj::Real>(in[0]).v << std::endl;
+    out = in[0];
+}
+
+void print_string(const std::vector<void*>& in, void*& out) {
+    std::cout << obj::get<obj::String>(in[0]).v << std::endl;
+    out = in[0];
+}
+
+
+void cut(const std::vector<void*>& in, void*& out) {
+
+    const std::string& str = obj::get<obj::String>(in[0]).v;
+    const std::string& del = obj::get<obj::String>(in[1]).v;
+
+    std::cout << "cut '" << str << "' '" << del << "'" << std::endl;
+    
+    size_t N = str.size();
+    size_t M = del.size();
+
+    size_t prev = 0;
+
+    obj::ArrayAtom<std::string>& v = obj::get< obj::ArrayAtom<std::string> >(out);
+
+    v.clear();
+    v.emplace_back("");
+    
+    for (size_t i = 0; i < N; ++i) {
+
+        bool matched = true;
+
+        for (size_t j = 0; j < M; ++j) {
+
+            if (i+j < N && str[i+j] == del[j])
+                continue;
+            
+            matched = false;
+            break;
+        }
+
+        if (matched) {
+            v.emplace_back(str.begin() + prev, str.begin() + i);
+            i += M;
+            prev = i;
+        } else {
+            v.back() += str[i];
+        }
+    }
+}
+
+}
+
+void register_functions() {
+
+    Functions& funcs = functions_init();
+    
+    funcs.add("cut",
+              { Type(Type::STRING), Type(Type::STRING) },
+              Type(Type::ARR, { Type::STRING }),
+              funcs::cut);
+
+    funcs.add("print", { Type(Type::INT) }, Type(Type::INT), funcs::print_int);
+    funcs.add("print", { Type(Type::UINT) }, Type(Type::UINT), funcs::print_uint);
+    funcs.add("print", { Type(Type::REAL) }, Type(Type::REAL), funcs::print_real);
+    funcs.add("print", { Type(Type::STRING) }, Type(Type::STRING), funcs::print_string);
+}
+
+
+struct Runtime {
+    std::unordered_map<String,Object*> vars;
+    std::vector<Object*> stack;
+
+    void set_toplevel(Object* o) {
+        vars[strings().add("$")] = o;
+    }
+};
+
+
 void execute(std::vector<Command>& commands, Runtime& r) {
+
+    for (auto& c : commands) {
+        switch (c.cmd) {
+
+        case Command::FUN:
+        {
+            c.object = (void*)obj::make(c.type);
+            break;
+        }
+        case Command::VAL:
+        {
+            switch (c.arg.which) {
+            case Atom::STRING:
+                c.object = (void*)(new obj::String(strings().get(c.arg.str)));
+                break;
+            case Atom::INT:
+                c.object = (void*)(new obj::Int(c.arg.inte));
+                break;
+            case Atom::UINT:
+                c.object = (void*)(new obj::UInt(c.arg.uint));
+                break;
+            case Atom::REAL:
+                c.object = (void*)(new obj::Real(c.arg.real));
+                break;
+            }
+            break;
+        }
+        case Command::IDX:
+        {
+            Command::Closure& closure = *(c.closure[0]);
+            closure.object = (void*)obj::make(closure.type);
+            c.object = (void*)obj::make(c.type);
+        }
+
+        default:
+            break;
+        }
+    }
+    
     
     for (auto& c : commands) {
         switch (c.cmd) {
@@ -1176,18 +1521,17 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         {
             Runtime rfun;
             rfun.vars = r.vars;
-            execute(*(c.closure[0]), rfun);
+            Command::Closure& closure = *(c.closure[0]);
+            execute(closure.code, rfun);
 
-            r.stack.emplace_back();
-            Raw& out = r.stack.back();
-            out.ptr = c.object;
-            ((Functions::func_t)c.function)(rfun.stack, out);
-            c.object = out.ptr;
+            ((Functions::func_t)c.function)(rfun.stack, c.object);
+
+            r.stack.push_back((Object*)c.object);
             break;
         }
         case Command::VAR:
         {
-            r.stack.emplace_back(r.vars[c.arg.str]);
+            r.stack.push_back(r.vars[c.arg.str]);
             break;
         }
         case Command::VAW:
@@ -1198,20 +1542,24 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::VAL:
         {
-            switch (c.arg.which) {
-            case Atom::STRING:
-                r.stack.emplace_back((void*)(&(strings().get(c.arg.str))));
-                break;
-            case Atom::INT:
-                r.stack.emplace_back(c.arg.inte);
-                break;
-            case Atom::UINT:
-                r.stack.emplace_back(c.arg.uint);
-                break;
-            case Atom::REAL:
-                r.stack.emplace_back(c.arg.real);
-                break;
-            }
+            r.stack.push_back((Object*)c.object);
+            break;
+        }
+        case Command::IDX:
+        {
+            Runtime ridx;
+            ridx.vars = r.vars;
+            Command::Closure& closure = *(c.closure[0]);
+            execute(closure.code, ridx);
+
+            Object* cont = r.stack.back();
+            Object* key = (Object*)closure.object;
+            Object* val = (Object*)c.object;
+
+            cont->index(closure.type, key, val);
+            
+            r.stack.pop_back();
+            r.stack.push_back(val);
             break;
         }
         case Command::MAP:
@@ -1235,19 +1583,25 @@ int main(int argc, char** argv) {
         }
 
         std::string program(argv[1]);
-        std::string toplevel;
+        std::string inputs;
 
         if (argc == 3) {
-            toplevel.assign(argv[2]);
+            inputs.assign(argv[2]);
         }
-        
+
+        register_functions();
+
         TypeResult typer;
         std::vector<Command> commands;
 
         parse(program.begin(), program.end(), typer, commands);
 
         Runtime res;
-        res.set_toplevel(toplevel);
+
+        obj::String toplevel;
+        toplevel.v.swap(inputs);
+        res.set_toplevel(&toplevel);
+
         execute(commands, res);
         
     } catch (std::exception& e) {
