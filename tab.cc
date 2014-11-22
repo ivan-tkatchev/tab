@@ -172,7 +172,7 @@ struct Type {
         tuple(std::make_shared< std::vector<Type> >(tup)) {}
 
     
-    bool operator!=(const Type& t) {
+    bool operator!=(const Type& t) const {
         if (t.type != type) return true;
 
         if (type == ATOM) {
@@ -201,6 +201,10 @@ struct Type {
         } else {
             return true;
         }
+    }
+
+    bool operator==(const Type& t) const {
+        return !(t != *this);
     }
     
     static std::string print(const Type& t) {
@@ -389,10 +393,10 @@ struct hash<Type> {
 
         size_t r = hash<size_t>()(t.type);
 
-        if (x.second.type == Type::ATOM) {
+        if (t.type == Type::ATOM) {
             r += hash<size_t>()(t.atom);
 
-        } else if (tuple) {
+        } else if (t.tuple) {
         
             for (auto i : (*t.tuple)) {
                 r += (*this)(i);
@@ -594,6 +598,20 @@ Type stack_to_type(const TypeResult& typer, const std::string& name) {
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer);
 
+std::vector<Type> infer_func_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+
+    if (c.closure.size() != 1)
+        throw std::runtime_error("Sanity error, funcall is not a closure.");
+
+    TypeResult typer;
+    typer.vars = _tr.vars;
+
+    auto& cto = *(c.closure.at(0));
+    infer_types(cto, toplevel, typer);
+
+    return typer.stack;
+}
+
 Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() < 1 || c.closure.size() > 2)
@@ -681,8 +699,6 @@ Type mapped_type(const Type& t) {
         throw std::runtime_error("Sanity error, degenerate map");
 
     return (*t.tuple)[0];
-    
-    return ret;
 }
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer) {
@@ -718,7 +734,7 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
         
         case Command::NOT:
             stack.pop_back();
-            stack.emplace_back(Type::ATOM, Type::INT);
+            stack.emplace_back(Type::INT);
             break;
 
         case Command::NEG:
@@ -776,7 +792,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             if (!check_string(t)) 
                 throw std::runtime_error("Use of '~' regex operator on something other than string.");
 
-            stack.emplace_back(Type::ARR, Type::STRING);
+            stack.emplace_back(Type::ARR);
+            stack.back().push(Type(Type::STRING));
             break;
         }
 
@@ -790,8 +807,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             switch (tv.type) {
 
             case Type::ARR:
-                
-                if (!(ti.type == Type::ARR && ti.tuple && ti.tuple->size() == 1 && check_numeric(ti.tuple->at(0))))
+
+                if (!check_numeric(ti))
                     throw std::runtime_error("Arrays must be accessed with numeric index.");
 
                 stack.emplace_back(value_type(tv));
@@ -815,14 +832,14 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
         case Command::ARR:
         {
             Type t = infer_arr_generator(c, toplevel, typer, "array");
-            stack.emplace_back(Type::ARR, t.arg1);
+            stack.emplace_back(t);
             break;
         }
 
         case Command::MAP:
         {
             Type t = infer_map_generator(c, toplevel, typer, "map");
-            stack.emplace_back(Type::MAP, t.arg1, t.arg2);
+            stack.emplace_back(t);
             break;
         }
 
@@ -831,8 +848,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             Type t = functions().get_type(c.arg.str);
             stack.emplace_back(t);
 
-            Type args = infer_arr_generator(c, toplevel, typer, "function call");
-            c.function = (void*)functions().get_func(c.arg.str, args.arg1);
+            std::vector<Type> args = infer_func_generator(c, toplevel, typer, "function call");
+            c.function = (void*)functions().get_func(c.arg.str, args);
             break;
         }
         }
@@ -1098,14 +1115,16 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     // Wrap the result in an implicit 'print(...)' function.
 
     Stack trustack;
-
+    /*
     trustack.push(Command::FUN, strings().add("print"));
     Command& print = trustack.stack.back();
     print.closure.clear();
     print.closure.emplace_back(new std::vector<Command>);
     print.closure[0]->swap(stack.stack);
+    */
+    trustack = stack;
     
-    infer_types(trustack.stack, Type(Type::ATOM, Type::STRING), typer);
+    infer_types(trustack.stack, Type(Type::STRING), typer);
 
     trustack.print();
 
