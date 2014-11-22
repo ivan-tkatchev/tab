@@ -339,13 +339,32 @@ namespace funcs {
 
 void print_int(const std::vector<Raw>& in, Raw& out) {
     std::cout << in[0].inte << std::endl;
+    out = in[0];
 }
+
+void print_uint(const std::vector<Raw>& in, Raw& out) {
+    std::cout << in[0].uint << std::endl;
+    out = in[0];
+}
+
+void print_real(const std::vector<Raw>& in, Raw& out) {
+    std::cout << in[0].real << std::endl;
+    out = in[0];
+}
+
+void print_string(const std::vector<Raw>& in, Raw& out) {
+    std::cout << in[0].get<std::string>() << std::endl;
+    out = in[0];
+}
+
 
 void cut(const std::vector<Raw>& in, Raw& out) {
 
     const std::string& str = in[0].get<std::string>();
     const std::string& del = in[1].get<std::string>();
 
+    std::cout << "cut '" << str << "' '" << del << "'" << std::endl;
+    
     size_t N = str.size();
     size_t M = del.size();
 
@@ -428,9 +447,9 @@ struct Functions {
     typedef void (*func_t)(const std::vector<Raw>&, Raw&);
 
     typedef std::pair< String, std::vector<Type> > key_t;
-
-    std::unordered_map<key_t, func_t> funcs;
-    std::unordered_map<String, Type> types;
+    typedef std::pair< func_t, Type > val_t;
+    
+    std::unordered_map<key_t, val_t> funcs;
 
     Functions() {
         
@@ -439,21 +458,20 @@ struct Functions {
             Type(Type::ARR, { Type::STRING }),
             funcs::cut);
 
-        add("print",
-            { Type(Type::INT) },
-            Type(),
-            funcs::print_int);
+        add("print", { Type(Type::INT) }, Type(Type::INT), funcs::print_int);
+        add("print", { Type(Type::UINT) }, Type(Type::UINT), funcs::print_uint);
+        add("print", { Type(Type::REAL) }, Type(Type::REAL), funcs::print_real);
+        add("print", { Type(Type::STRING) }, Type(Type::STRING), funcs::print_string);
     }
 
     void add(const std::string& name, const std::initializer_list<Type>& args, const Type& out, func_t f) {
         
         String n = strings().add(name);
-        funcs.insert(funcs.end(), std::make_pair(key_t(n, std::vector<Type>(args)), f));
-        types.insert(types.end(), std::make_pair(n, out));
+        funcs.insert(funcs.end(), std::make_pair(key_t(n, std::vector<Type>(args)), val_t(f, out)));
     }
 
-    func_t get_func(const String& name, const std::vector<Type>& args) const {
-
+    val_t get(const String& name, const std::vector<Type>& args) const {
+            
         auto i = funcs.find(key_t(name, args));
 
         if (i == funcs.end()) {
@@ -470,16 +488,6 @@ struct Functions {
 
             throw std::runtime_error("Invalid function call: " + strings().get(name) + "(" + tmp + ")");
         }
-
-        return i->second;
-    }
-
-    Type get_type(const String& name) const {
-
-        auto i = types.find(name);
-    
-        if (i == types.end())
-            throw std::runtime_error("Unknown function: '" + strings().get(name) + "'");
 
         return i->second;
     }
@@ -574,14 +582,14 @@ struct TypeResult {
 };
 
 
-Type stack_to_type(const TypeResult& typer, const std::string& name) {
+Type stack_to_type(const TypeResult& typer, const std::string& name, bool do_collapse = true) {
 
     if (typer.stack.size() == 0)
         throw std::runtime_error("Empty sequences are not allowed.");
     
     Type ret;
 
-    if (typer.stack.size() == 1) {
+    if (do_collapse && typer.stack.size() == 1) {
         ret = typer.stack[0];
         
     } else {
@@ -612,6 +620,20 @@ std::vector<Type> infer_func_generator(Command& c, Type toplevel, const TypeResu
     return typer.stack;
 }
 
+Type infer_idx_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+
+    if (c.closure.size() != 1)
+        throw std::runtime_error("Sanity error, structure index is not a closure.");
+
+    TypeResult typer;
+    typer.vars = _tr.vars;
+
+    auto& cto = *(c.closure.at(0));
+    infer_types(cto, toplevel, typer);
+
+    return stack_to_type(typer, name);
+}
+
 Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() < 1 || c.closure.size() > 2)
@@ -632,7 +654,7 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     auto& cto = *(c.closure.at(0));
     infer_types(cto, toplevel, typer);
 
-    return stack_to_type(typer, name);
+    return stack_to_type(typer, name, false);
 }
 
 Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
@@ -799,15 +821,18 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
 
         case Command::IDX:
         {
-            Type ti = stack.back();
-            stack.pop_back();
             Type tv = stack.back();
             stack.pop_back();
+
+            Type ti = infer_idx_generator(c, toplevel, typer, "structure index");
+
+            if (ti.type == Type::ARR && ti.tuple && ti.tuple->size() == 1)
+                ti = ti.tuple->at(0);
 
             switch (tv.type) {
 
             case Type::ARR:
-
+                
                 if (!check_numeric(ti))
                     throw std::runtime_error("Arrays must be accessed with numeric index.");
 
@@ -815,11 +840,13 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
                 break;
 
             case Type::MAP:
+                
+                stack.emplace_back(value_type(tv));
 
-                stack.emplace_back(mapped_type(tv));
-
-                if (ti != value_type(tv))
-                    throw std::runtime_error("Invalid key type when accessing map.");
+                if (ti != mapped_type(tv))
+                    throw std::runtime_error("Invalid key type when accessing map: key is " +
+                                             Type::print(mapped_type(tv)) + ", acessing with " +
+                                             Type::print(ti));
                 break;
                     
             default:
@@ -845,11 +872,10 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
 
         case Command::FUN:
         {
-            Type t = functions().get_type(c.arg.str);
-            stack.emplace_back(t);
-
             std::vector<Type> args = infer_func_generator(c, toplevel, typer, "function call");
-            c.function = (void*)functions().get_func(c.arg.str, args);
+            auto tmp = functions().get(c.arg.str, args);
+            c.function = (void*)tmp.first;
+            stack.emplace_back(tmp.second);
             break;
         }
         }
@@ -1033,10 +1059,11 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
-    auto y_expr_idx = axe::e_ref([&](I b, I e) { stack.push(Command::IDX); });
+    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
+    auto x_index = (axe::r_lit('[') >> y_mark) & x_expr & axe::r_lit(']') >> y_close_idx;
     
     auto x_expr_idx =
-        x_expr_bottom & ~(x_array >> y_expr_idx) & x_ws;
+        x_expr_bottom & ~(x_index) & x_ws;
 
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
     auto y_expr_neg = axe::e_ref([&](I b, I e) { stack.push(Command::NEG); });
@@ -1113,16 +1140,16 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
 
 
     // Wrap the result in an implicit 'print(...)' function.
-
     Stack trustack;
-    /*
+#if 0
     trustack.push(Command::FUN, strings().add("print"));
     Command& print = trustack.stack.back();
     print.closure.clear();
     print.closure.emplace_back(new std::vector<Command>);
     print.closure[0]->swap(stack.stack);
-    */
+#else
     trustack = stack;
+#endif
     
     infer_types(trustack.stack, Type(Type::STRING), typer);
 
@@ -1163,6 +1190,12 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             r.stack.emplace_back(r.vars[c.arg.str]);
             break;
         }
+        case Command::VAW:
+        {
+            r.vars[c.arg.str] = r.stack.back();
+            r.stack.pop_back();
+            break;
+        }
         case Command::VAL:
         {
             switch (c.arg.which) {
@@ -1179,6 +1212,10 @@ void execute(std::vector<Command>& commands, Runtime& r) {
                 r.stack.emplace_back(c.arg.real);
                 break;
             }
+            break;
+        }
+        case Command::MAP:
+        {
             break;
         }
         default:
