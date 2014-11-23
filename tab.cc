@@ -367,7 +367,7 @@ struct hash< std::pair<String, Type> > {
 
 struct Functions {
 
-    typedef void (*func_t)(const std::vector<obj::Object*>&, obj::Object*&);
+    typedef void (*func_t)(const obj::Object*, obj::Object*&);
 
     typedef std::pair< String, Type > key_t;
     typedef std::pair< func_t, Type > val_t;
@@ -1605,6 +1605,7 @@ void execute_init(std::vector<Command>& commands) {
 
         for (auto& clo : c.closure) {
 
+            clo.object = obj::make(clo.type);
             execute_init(clo.code);
         }
             
@@ -1635,16 +1636,11 @@ void execute_init(std::vector<Command>& commands) {
         }
         case Command::IDX:
         {
-            Command::Closure& closure = *(c.closure[0]);
-            closure.object = obj::make(closure.type);
             c.object = obj::make(c.type);
             break;
         }
         case Command::MAP:
         {
-            for (auto& closure : c.closure) {
-                closure->object = obj::make(closure->type);
-            }
             c.object = obj::make(c.type);
             break;
         }
@@ -1677,10 +1673,9 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         {
             Runtime rsub;
             rsub.vars = r.vars;
-            Command::Closure& closure = *(c.closure[0]);
-            execute(closure.code, rsub);
+            obj::Object* arg = _exec_closure(rsub, c, 0)
 
-            ((Functions::func_t)c.function)(rsub.stack, c.object);
+            ((Functions::func_t)c.function)(arg, c.object);
 
             r.stack.push_back(c.object);
             break;
