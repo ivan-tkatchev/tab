@@ -528,21 +528,18 @@ Type infer_tup_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
 Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
-    if (c.closure.size() < 1 || c.closure.size() > 2)
+    if (c.closure.size() != 2)
         throw std::runtime_error("Sanity error, generator is not a closure.");
 
     TypeResult typer;
     typer.vars = _tr.vars;
     
-    if (c.closure.size() == 2) {
+    auto& cfrom = *(c.closure.at(1));
 
-        auto& cfrom = *(c.closure.at(1));
+    infer_types(cfrom.code, toplevel, typer);
+    cfrom.type = stack_to_type(typer, name);
 
-        infer_types(cfrom.code, toplevel, typer);
-        cfrom.type = stack_to_type(typer, name);
-
-        toplevel = cfrom.type;
-    }
+    toplevel = cfrom.type;
     
     auto& cto = *(c.closure.at(0));
     infer_types(cto.code, toplevel, typer);
@@ -556,20 +553,17 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
 Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
-    if (c.closure.size() < 2 || c.closure.size() > 3)
+    if (c.closure.size() != 3)
         throw std::runtime_error("Sanity error, generator is not a map closure.");
 
     TypeResult typer;
     typer.vars = _tr.vars;
     
-    if (c.closure.size() == 3) {
+    auto& cfrom = *(c.closure.at(2));
+    infer_types(cfrom.code, toplevel, typer);
+    cfrom.type = stack_to_type(typer, name);
 
-        auto& cfrom = *(c.closure.at(2));
-        infer_types(cfrom.code, toplevel, typer);
-        cfrom.type = stack_to_type(typer, name);
-
-        toplevel = cfrom.type;
-    }
+    toplevel = cfrom.type;
     
     auto& cto_k = *(c.closure.at(0));
     infer_types(cto_k.code, toplevel, typer);
@@ -1110,6 +1104,18 @@ struct Object {
     virtual bool eq(Object*) const {
         throw std::runtime_error("Object equality not implemented");
     }
+
+    virtual void set(const std::vector<Object*>&) {
+        throw std::runtime_error("Object assignment not implemented");
+    }
+
+    virtual void copy(const std::vector<Object*>&) {
+        throw std::runtime_error("Object copying not implemented");
+    }
+
+    virtual void map(Object*, Object*) {
+        throw std::runtime_error("Object map construction not implemented");
+    }
 };
 
 template <typename T>
@@ -1117,42 +1123,24 @@ T& get(Object* o) {
     return *((T*)o);
 }
 
-struct Int : public Object {
-    ::Int v;
 
-    Int(::Int i = 0) : v(i) {}
+template <typename T>
+struct Atom : public Object {
+    T v;
 
-    size_t hash() const { return std::hash<::Int>()(v); }
-    bool eq(Object* a) const { return v == get<Int>(a).v; }
+    Atom(const T& i = 0) : v(i) {}
+
+    size_t hash() const { return std::hash<T>()(v); }
+    bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
+    void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
+    void copy(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
 };
 
-struct UInt : public Object {
-    ::UInt v;
+typedef Atom<::Int> Int;
+typedef Atom<::UInt> UInt;
+typedef Atom<::Real> Real;
+typedef Atom<std::string> String;
 
-    UInt(::UInt i = 0) : v(i) {}
-
-    size_t hash() const { return std::hash<::UInt>()(v); }
-    bool eq(Object* a) const { return v == get<UInt>(a).v; }
-};
-
-struct Real : public Object {
-    ::Real v;
-
-    Real(::Real i = 0) : v(i) {}
-
-    size_t hash() const { return std::hash<::Real>()(v); }
-    bool eq(Object* a) const { return v == get<Real>(a).v; }
-};
-
-struct String : public Object {
-    std::string v;
-
-    String() {}
-    String(const std::string& i) : v(i) {}
-
-    size_t hash() const { return std::hash<std::string>()(v); }
-    bool eq(Object* a) const { return v == get<String>(a).v; }
-};
 
 template <typename A>
 size_t __array_index_do(const A& v, const Type& keytype, Object* key) {
@@ -1190,12 +1178,6 @@ size_t __array_index_do(const A& v, const Type& keytype, Object* key) {
     return i;
 }
 
-template <typename T> struct _atomic_remap;
-
-template <> struct _atomic_remap<::Int> { typedef Int type; };
-template <> struct _atomic_remap<::UInt> { typedef UInt type; };
-template <> struct _atomic_remap<::Real> { typedef Real type; };
-template <> struct _atomic_remap<std::string> { typedef String type; };
 
 template <typename T>
 struct ArrayAtom : public Object {
@@ -1213,13 +1195,19 @@ struct ArrayAtom : public Object {
         return v == get< ArrayAtom<T> >(a).v;
     }
 
+    void set(const std::vector<Object*>& s) {
+        v = get< ArrayAtom<T> >(s[0]).v;
+    }
+
+    void copy(const std::vector<Object*>& s) {
+        v = get< ArrayAtom<T> >(s[0]).v;
+    }
+
     void index(const Type& keytype, Object* key, Object*& out) const {
 
         size_t i = __array_index_do(v, keytype, key);
 
-        typedef typename _atomic_remap<T>::type object_type;
-        
-        object_type* o = (object_type*)out;
+        object_type* o = (Atom<T>*)out;
         o->v = v[i];
     }
 };
@@ -1227,6 +1215,12 @@ struct ArrayAtom : public Object {
 struct ArrayObject : public Object {
     std::vector<Object*> v;
 
+    ~ArrayObject() {
+        for (Object* x : v) {
+            delete x;
+        }
+    }
+    
     size_t hash() const {
         size_t ret = 0;
         for (Object* t : v) {
@@ -1250,6 +1244,21 @@ struct ArrayObject : public Object {
         return true;
     }
 
+    void set(const std::vector<Object*>& s) {
+        v = get<ArrayObject>(s[0]).v;
+    }
+
+    void copy(const std::vector<Object*>& s) {
+
+        for (Object* x : v) {
+            delete x;
+        }
+
+        auto& b = get<ArrayObject>(s[0]).v;
+        v.resize(b.size();)
+        v = get< ArrayAtom<T> >(s[0]).v;
+    }
+
     void index(const Type& keytype, Object* key, Object*& out) const {
 
         size_t i = __array_index_do(v, keytype, key);
@@ -1259,7 +1268,12 @@ struct ArrayObject : public Object {
 };
 
 struct Tuple : public ArrayObject {
-    std::vector<Object*> v;
+
+    // 'set' only for new objects??
+
+    void set(const std::vector<Object*>& s) {
+        v = get< ArrayAtom<T> >(s[0]).v;
+    }
 
     void index(const Type& keytype, Object* key, Object*& out) const {
         out = v[get<UInt>(key).v];
@@ -1282,6 +1296,13 @@ struct MapObject : public Object {
 
     typedef std::unordered_map<Object*, Object*, ObjectHash, ObjectEq> map_t;
     map_t v;
+
+    ~MapObject() {
+        for (const auto& x : v) {
+            delete x.first;
+            delete x.second;
+        }
+    }
 
     size_t hash() const {
         size_t ret = 0;
@@ -1318,6 +1339,10 @@ struct MapObject : public Object {
         return true;
     }
 
+    void set(const std::vector<Object*>& s) {
+        v = get<MapObject>(s[0]).v;
+    }
+
     void index(const Type& keytype, Object* key, Object*& out) const {
 
         auto i = v.find(key);
@@ -1326,6 +1351,19 @@ struct MapObject : public Object {
             throw std::runtime_error("Key is not in map");
         
         out = i->second;
+    }
+
+    void map(Object* k, Object* v) {
+
+        auto i = v.find(k);
+
+        if (i != v.end()) {
+            delete i->second;
+            i->second = v;
+
+        } else {
+            v[k] = v;
+        }
     }
 };
 
@@ -1351,14 +1389,20 @@ Object* make(const Type& t, U&&... u) {
 
     if (t.type == Type::TUP) {
 
-        return new Tuple(std::forward<U>(u)...);
+        Tuple* ret = new Tuple(std::forward<U>(u)...);
+
+        for (const Type& st : (*t.tuple)) {
+            ret->v.push_back(make(st, std::forward<U>(u)...));
+        }
+
+        return ret;
     }
 
     if (t.type == Type::ARR) {
 
         const Type& s = (*t.tuple)[0];
 
-        if (t.tuple->size() == 1) {
+        if (s.type == Type::ATOM) {
 
             switch (s.atom) {
             case Type::INT:
@@ -1478,9 +1522,15 @@ struct Runtime {
 };
 
 
-void execute(std::vector<Command>& commands, Runtime& r) {
+void execute_init(std::vector<Command>& commands) {
 
     for (auto& c : commands) {
+
+        for (auto& clo : c.closure) {
+
+            execute_init(clo.code);
+        }
+            
         switch (c.cmd) {
 
         case Command::FUN:
@@ -1511,25 +1561,34 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             Command::Closure& closure = *(c.closure[0]);
             closure.object = obj::make(closure.type);
             c.object = obj::make(c.type);
+            break;
         }
-
+        case Command::MAP:
+        {
+            Command::Closure& closure = *(c.closure[2]);
+            closure.object = obj::make(closure.type);
+            c.object = obj::make(c.type);
+            break;
+        }
         default:
             break;
         }
     }
-    
+}
+
+void execute(std::vector<Command>& commands, Runtime& r) {
     
     for (auto& c : commands) {
         switch (c.cmd) {
 
         case Command::FUN:
         {
-            Runtime rfun;
-            rfun.vars = r.vars;
+            Runtime rsub;
+            rsub.vars = r.vars;
             Command::Closure& closure = *(c.closure[0]);
-            execute(closure.code, rfun);
+            execute(closure.code, rsub);
 
-            ((Functions::func_t)c.function)(rfun.stack, c.object);
+            ((Functions::func_t)c.function)(rsub.stack, c.object);
 
             r.stack.push_back(c.object);
             break;
@@ -1552,10 +1611,10 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::IDX:
         {
-            Runtime ridx;
-            ridx.vars = r.vars;
+            Runtime rsub;
+            rsub.vars = r.vars;
             Command::Closure& closure = *(c.closure[0]);
-            execute(closure.code, ridx);
+            execute(closure.code, rsub);
 
             obj::Object* cont = r.stack.back();
             obj::Object* key = closure.object;
@@ -1569,6 +1628,48 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::MAP:
         {
+            Runtime rsub;
+            rsub.vars = r.vars;
+            Command::Closure& closure = *(c.closure[2]);
+            execute(closure.code, rsub);
+            
+            obj::Object* src = closure.object;
+            src->set(rsub.stack);
+
+            obj::Object* dst = c.object;
+            
+            while (1) {
+                bool ok;
+                Object* next;
+                
+                src->next(next, ok);
+
+                rsub.set_toplevel(next);
+
+                //-
+                rsub.stack.clear();
+
+                Command::Closure& ckey = *(c.closure[0]);
+                execute(ckey.code, rsub);
+
+                obj::Object* key = obj::make(ckey.type);
+                key->set(rsub.stack);
+                //
+
+                //-
+                rsub.stack.clear();
+                Command::Closure& cval = *(c.closure[1]);
+                execute(cval.code, rsub);
+
+                obj::Object* val = obj::make(cval.type);
+                val->set(rsub.stack);
+                //
+
+                dst->map(key, val);
+                
+                if (!ok) break;
+            }
+
             break;
         }
         default:
