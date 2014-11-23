@@ -957,8 +957,12 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
+
+    auto y_default_from = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, strings().add("$")); });
     
-    auto x_from = ~((axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg));
+    auto x_from =
+        (((axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg)) |
+         (axe::r_empty() >> y_mark >> y_default_from >> y_close_arg));
 
     auto x_array =
         (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_arr) & x_from & axe::r_lit(']');
