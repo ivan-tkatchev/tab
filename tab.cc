@@ -139,6 +139,7 @@ struct Type {
 
     enum types_t {
         ATOM,
+        TUP,
         ARR,
         MAP,
         NONE
@@ -221,8 +222,9 @@ struct Type {
             case STRING: ret += "STRING"; break;
             }
             break;
-        case ARR:  ret += "ARRAY"; break;
-        case MAP:  ret += "MAP"; break;
+        case TUP: ret += "TUPLE"; break;
+        case ARR: ret += "ARRAY"; break;
+        case MAP: ret += "MAP"; break;
         }
 
         if (t.tuple) {
@@ -249,6 +251,12 @@ struct Type {
         return tuple->back();
     }
 };
+
+namespace obj {
+
+struct Object;
+
+}
 
 struct Command {
 
@@ -281,8 +289,8 @@ struct Command {
 
     struct Closure {
         std::vector<Command> code;
-        std::vector<Type> type;
-        void* object;
+        Type type;
+        obj::Object* object;
 
         Closure() : object(nullptr) {}
     };
@@ -290,7 +298,7 @@ struct Command {
     std::vector< std::shared_ptr<Closure> > closure;
 
     Type type;
-    void* object;
+    obj::Object* object;
     void* function;
     
     Command(cmd_t c = VAL) : cmd(c), object(nullptr), function(nullptr) {}
@@ -348,16 +356,10 @@ struct hash<Type> {
 };
 
 template <>
-struct hash< std::pair<String, std::vector<Type> > > {
-    size_t operator()(const std::pair<String, std::vector<Type> >& x) const {
+struct hash< std::pair<String, Type> > {
+    size_t operator()(const std::pair<String, Type>& x) const {
 
-        size_t r = hash<size_t>()(x.first.ix);
-
-        for (const Type& t : x.second) {
-            r += hash<Type>()(t);
-        }
-
-        return r;
+        return hash<size_t>()(x.first.ix) + hash<Type>()(x.second);
     }
 };
 
@@ -365,38 +367,28 @@ struct hash< std::pair<String, std::vector<Type> > > {
 
 struct Functions {
 
-    typedef void (*func_t)(const std::vector<void*>&, void*&);
+    typedef void (*func_t)(const std::vector<obj::Object*>&, obj::Object*&);
 
-    typedef std::pair< String, std::vector<Type> > key_t;
+    typedef std::pair< String, Type > key_t;
     typedef std::pair< func_t, Type > val_t;
     
     std::unordered_map<key_t, val_t> funcs;
 
     Functions() {}
 
-    void add(const std::string& name, const std::initializer_list<Type>& args, const Type& out, func_t f) {
+    void add(const std::string& name, const Type& args, const Type& out, func_t f) {
         
         String n = strings().add(name);
-        funcs.insert(funcs.end(), std::make_pair(key_t(n, std::vector<Type>(args)), val_t(f, out)));
+        funcs.insert(funcs.end(), std::make_pair(key_t(n, args), val_t(f, out)));
     }
 
-    val_t get(const String& name, const std::vector<Type>& args) const {
+    val_t get(const String& name, const Type& args) const {
             
         auto i = funcs.find(key_t(name, args));
 
         if (i == funcs.end()) {
 
-            std::string tmp;
-            for (auto z : args) {
-                tmp += Type::print(z);
-                tmp += ',';
-            }
-
-            if (tmp.size() > 1) {
-                tmp.pop_back();
-            }
-
-            throw std::runtime_error("Invalid function call: " + strings().get(name) + "(" + tmp + ")");
+            throw std::runtime_error("Invalid function call: " + strings().get(name) + " " + Type::print(args));
         }
 
         return i->second;
@@ -495,19 +487,19 @@ struct TypeResult {
 };
 
 
-Type stack_to_type(const TypeResult& typer, const std::string& name, bool do_collapse = true) {
+Type stack_to_type(const TypeResult& typer, const std::string& name) {
 
     if (typer.stack.size() == 0)
         throw std::runtime_error("Empty sequences are not allowed.");
     
     Type ret;
 
-    if (do_collapse && typer.stack.size() == 1) {
+    if (typer.stack.size() == 1) {
         ret = typer.stack[0];
         
     } else {
 
-        ret.type = Type::ARR;
+        ret.type = Type::TUP;
         
         for (const auto& c : typer.stack) {
             ret.push(c);
@@ -519,34 +511,19 @@ Type stack_to_type(const TypeResult& typer, const std::string& name, bool do_col
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer);
 
-std::vector<Type> infer_func_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+Type infer_tup_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() != 1)
-        throw std::runtime_error("Sanity error, funcall is not a closure.");
+        throw std::runtime_error("Sanity error, " + name + " is not a closure.");
 
     TypeResult typer;
     typer.vars = _tr.vars;
 
     auto& cto = *(c.closure.at(0));
     infer_types(cto.code, toplevel, typer);
-    cto.type.swap(typer.stack);
+    cto.type = stack_to_type(typer, name);
     
     return cto.type;
-}
-
-Type infer_idx_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
-
-    if (c.closure.size() != 1)
-        throw std::runtime_error("Sanity error, structure index is not a closure.");
-
-    TypeResult typer;
-    typer.vars = _tr.vars;
-
-    auto& cto = *(c.closure.at(0));
-    infer_types(cto.code, toplevel, typer);
-    cto.type = typer.stack;
-
-    return stack_to_type(typer, name);
 }
 
 Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
@@ -562,16 +539,19 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
         auto& cfrom = *(c.closure.at(1));
 
         infer_types(cfrom.code, toplevel, typer);
-        cfrom.type = typer.stack;
+        cfrom.type = stack_to_type(typer, name);
 
-        toplevel = stack_to_type(typer, name);
+        toplevel = cfrom.type;
     }
     
     auto& cto = *(c.closure.at(0));
     infer_types(cto.code, toplevel, typer);
-    cto.type = typer.stack;
-    
-    return stack_to_type(typer, name, false);
+    cto.type = stack_to_type(typer, name);
+
+    Type ret(Type::ARR);
+    ret.push(cto.type);
+
+    return ret;
 }
 
 Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
@@ -586,24 +566,22 @@ Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
         auto& cfrom = *(c.closure.at(2));
         infer_types(cfrom.code, toplevel, typer);
-        cfrom.type = typer.stack;
+        cfrom.type = stack_to_type(typer, name);
 
-        toplevel = stack_to_type(typer, name);
+        toplevel = cfrom.type;
     }
     
     auto& cto_k = *(c.closure.at(0));
     infer_types(cto_k.code, toplevel, typer);
-    cto_k.type = typer.stack;
-    Type out1 = stack_to_type(typer, name);
+    cto_k.type = stack_to_type(typer, name);
 
     auto& cto_v = *(c.closure.at(1));
     infer_types(cto_v.code, toplevel, typer);
-    cto_v.type = typer.stack;
-    Type out2 = stack_to_type(typer, name);
+    cto_v.type = stack_to_type(typer, name);
 
     Type ret(Type::MAP);
-    ret.push(out1);
-    ret.push(out2);
+    ret.push(cto_k.type);
+    ret.push(cto_v.type);
 
     return ret;
 }
@@ -615,14 +593,15 @@ Type value_type(const Type& t) {
 
     Type ret = t;
 
-    if (t.type == Type::ARR) {
+    if (t.type == Type::TUP) {
+        throw std::runtime_error("Cannot index tuples at runtime");
+        
+    } else if (t.type == Type::ARR) {
 
-        if (t.tuple->size() == 1) {
-            return (*t.tuple)[0];
-
-        } else {
-            return t;
-        }
+        if (t.tuple->size() != 1)
+            throw std::runtime_error("Sanity error, degenerate array");
+        
+        return (*t.tuple)[0];
 
     } else if (t.type == Type::MAP) {
 
@@ -744,13 +723,37 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             Type tv = stack.back();
             stack.pop_back();
 
-            Type ti = infer_idx_generator(c, toplevel, typer, "structure index");
-
-            if (ti.type == Type::ARR && ti.tuple && ti.tuple->size() == 1)
-                ti = ti.tuple->at(0);
+            Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
 
             switch (tv.type) {
 
+            case Type::TUP:
+            {
+                bool ok = false;
+                auto& cl = *(c.closure.at(0));
+                
+                if (cl.code.size() == 1) {
+
+                    const auto& v = cl.code[0];
+
+                    if (v.cmd == Command::VAL && (v.arg.which == Atom::INT || v.arg.which == Atom::UINT)) {
+
+                        UInt i = v.arg.uint;
+
+                        if (tv.tuple && i < tv.tuple->size()) {
+
+                            stack.emplace_back(tv.tuple->at(i));
+                            ok = true;
+                        }
+                    }
+                }
+
+                if (!ok)
+                    throw std::runtime_error("Indexing tuples is only possible with integer literals.");
+
+                break;
+            }
+            
             case Type::ARR:
                 
                 if (!check_numeric(ti))
@@ -792,7 +795,7 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
 
         case Command::FUN:
         {
-            std::vector<Type> args = infer_func_generator(c, toplevel, typer, "function call");
+            Type args = infer_tup_generator(c, toplevel, typer, "function call");
             auto tmp = functions().get(c.arg.str, args);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
@@ -870,13 +873,8 @@ struct Stack {
                       << " // " << Type::print(i.type) << std::endl;
 
             for (const auto& ii : i.closure) {
-                std::cout << " " << std::string(level*2, ' ') << "=";
 
-                for (const Type& t : ii->type) {
-                    std::cout << " " << Type::print(t);
-                }
-
-                std::cout << std::endl;
+                std::cout << " " << std::string(level*2, ' ') << "= " << Type::print(ii->type) << std::endl;
 
                 print(ii->code, level + 1);
             }
@@ -1097,7 +1095,7 @@ struct Object {
 
     virtual ~Object() {}
     
-    virtual void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+    virtual void index(const Type& keytype, Object* key, Object*& out) const {
         throw std::runtime_error("Sanity error, indexing a non-indexable Object");
     }
 
@@ -1110,13 +1108,18 @@ struct Object {
     }
 };
 
+template <typename T>
+T& get(Object* o) {
+    return *((T*)o);
+}
+
 struct Int : public Object {
     ::Int v;
 
     Int(::Int i = 0) : v(i) {}
 
     size_t hash() const { return std::hash<::Int>()(v); }
-    bool eq(Object* a) const { return v == ((Int*)a)->v; }
+    bool eq(Object* a) const { return v == get<Int>(a).v; }
 };
 
 struct UInt : public Object {
@@ -1125,7 +1128,7 @@ struct UInt : public Object {
     UInt(::UInt i = 0) : v(i) {}
 
     size_t hash() const { return std::hash<::UInt>()(v); }
-    bool eq(Object* a) const { return v == ((UInt*)a)->v; }
+    bool eq(Object* a) const { return v == get<UInt>(a).v; }
 };
 
 struct Real : public Object {
@@ -1134,7 +1137,7 @@ struct Real : public Object {
     Real(::Real i = 0) : v(i) {}
 
     size_t hash() const { return std::hash<::Real>()(v); }
-    bool eq(Object* a) const { return v == ((Real*)a)->v; }
+    bool eq(Object* a) const { return v == get<Real>(a).v; }
 };
 
 struct String : public Object {
@@ -1144,23 +1147,23 @@ struct String : public Object {
     String(const std::string& i) : v(i) {}
 
     size_t hash() const { return std::hash<std::string>()(v); }
-    bool eq(Object* a) const { return v == ((String*)a)->v; }
+    bool eq(Object* a) const { return v == get<String>(a).v; }
 };
 
 template <typename A>
-size_t __array_index_do(const A& v, const std::vector<Type>& keytype, Object* key) {
+size_t __array_index_do(const A& v, const Type& keytype, Object* key) {
 
     size_t i = v.size();
 
-    switch (keytype[0].atom) {
+    switch (keytype.atom) {
     case Type::UINT:
     {
-        i = ((UInt*)key)->v;
+        i = get<UInt>(key).v;
         break;
     }
     case Type::INT:
     {
-        ::Int z = ((Int*)key)->v;
+        ::Int z = get<Int>(key).v;
         if (z < 0)
             i = v.size() - z;
         else
@@ -1169,7 +1172,7 @@ size_t __array_index_do(const A& v, const std::vector<Type>& keytype, Object* ke
     }
     case Type::REAL:
     {
-        ::Real z = ((Real*)key)->v;
+        ::Real z = get<Real>(key).v;
         if (z >= 0.0 && z <= 1.0)
             i = v.size() * z;
     }
@@ -1183,6 +1186,13 @@ size_t __array_index_do(const A& v, const std::vector<Type>& keytype, Object* ke
     return i;
 }
 
+template <typename T> struct _atomic_remap;
+
+template <> struct _atomic_remap<::Int> { typedef Int type; };
+template <> struct _atomic_remap<::UInt> { typedef UInt type; };
+template <> struct _atomic_remap<::Real> { typedef Real type; };
+template <> struct _atomic_remap<std::string> { typedef String type; };
+
 template <typename T>
 struct ArrayAtom : public Object {
     std::vector<T> v;
@@ -1190,43 +1200,24 @@ struct ArrayAtom : public Object {
     size_t hash() const {
         size_t ret = 0;
         for (const T& t : v) {
-            ret += std::hash<T>(t);
+            ret += std::hash<T>()(t);
         }
         return ret;
     }
 
     bool eq(Object* a) const {
-        return v == ((ArrayAtom<T>*)a)->v;
+        return v == get< ArrayAtom<T> >(a).v;
     }
 
-    template <typename S>
-    void _index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+    void index(const Type& keytype, Object* key, Object*& out) const {
 
         size_t i = __array_index_do(v, keytype, key);
 
-        S* o = (S*)out;
+        typedef typename _atomic_remap<T>::type object_type;
+        
+        object_type* o = (object_type*)out;
         o->v = v[i];
     }
-};
-    
-template <>
-struct ArrayAtom<::Int> : public Object {
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<Int>(keytype, key, out); }
-};
-
-template <>
-struct ArrayAtom<::UInt> : public Object {
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<UInt>(keytype, key, out); }
-};
-
-template <>
-struct ArrayAtom<::Real> : public Object {
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<Real>(keytype, key, out); }
-};
-
-template <>
-struct ArrayAtom<std::string> : public Object {
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const { _index<String>(keytype, key, out); }
 };
 
 struct ArrayObject : public Object {
@@ -1234,7 +1225,7 @@ struct ArrayObject : public Object {
 
     size_t hash() const {
         size_t ret = 0;
-        for (const T& t : v) {
+        for (Object* t : v) {
             ret += t->hash();
         }
         return ret;
@@ -1242,7 +1233,7 @@ struct ArrayObject : public Object {
 
     bool eq(Object* a) const {
 
-        const std::vector<Object*>& b = ((ArrayObject*)a)->v;
+        const std::vector<Object*>& b = get<ArrayObject>(a).v;
 
         if (v.size() != b.size())
             return false;
@@ -1255,11 +1246,19 @@ struct ArrayObject : public Object {
         return true;
     }
 
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+    void index(const Type& keytype, Object* key, Object*& out) const {
 
         size_t i = __array_index_do(v, keytype, key);
 
         out = v[i];
+    }
+};
+
+struct Tuple : public ArrayObject {
+    std::vector<Object*> v;
+
+    void index(const Type& keytype, Object* key, Object*& out) const {
+        out = v[get<UInt>(key).v];
     }
 };
 
@@ -1291,7 +1290,7 @@ struct MapObject : public Object {
 
     bool eq(Object* a) const {
 
-        const map_t& b = ((MapObject*)a)->v;
+        const map_t& b = get<MapObject>(a).v;
 
         if (v.size() != b.size())
             return false;
@@ -1315,7 +1314,7 @@ struct MapObject : public Object {
         return true;
     }
 
-    void index(const std::vector<Type>& keytype, Object* key, Object*& out) const {
+    void index(const Type& keytype, Object* key, Object*& out) const {
 
         auto i = v.find(key);
 
@@ -1327,14 +1326,8 @@ struct MapObject : public Object {
 };
 
 
-template <typename T>
-T& get(void* ptr) {
-    return *((T*)ptr);
-}
-
-
-template <typename... Ts>
-Object* make(const Type& t, Ts&&...) {
+template <typename... U>
+Object* make(const Type& t, U&&... u) {
 
     if (t.type == Type::ATOM) {
         switch (t.atom) {
@@ -1351,7 +1344,12 @@ Object* make(const Type& t, Ts&&...) {
 
     if (!t.tuple || t.tuple->empty())
         return new Object();
-    
+
+    if (t.type == Type::TUP) {
+
+        return new Tuple(std::forward<U>(u)...);
+    }
+
     if (t.type == Type::ARR) {
 
         const Type& s = (*t.tuple)[0];
@@ -1377,6 +1375,8 @@ Object* make(const Type& t, Ts&&...) {
 
         return new MapObject(std::forward<U>(u)...);
     }    
+
+    throw std::runtime_error("Sanity error: cannot create object");
 }
 
 }
@@ -1384,28 +1384,28 @@ Object* make(const Type& t, Ts&&...) {
 
 namespace funcs {
 
-void print_int(const std::vector<void*>& in, void*& out) {
+void print_int(const std::vector<obj::Object*>& in, obj::Object*& out) {
     std::cout << obj::get<obj::Int>(in[0]).v << std::endl;
     out = in[0];
 }
 
-void print_uint(const std::vector<void*>& in, void*& out) {
+void print_uint(const std::vector<obj::Object*>& in, obj::Object*& out) {
     std::cout << obj::get<obj::UInt>(in[0]).v << std::endl;
     out = in[0];
 }
 
-void print_real(const std::vector<void*>& in, void*& out) {
+void print_real(const std::vector<obj::Object*>& in, obj::Object*& out) {
     std::cout << obj::get<obj::Real>(in[0]).v << std::endl;
     out = in[0];
 }
 
-void print_string(const std::vector<void*>& in, void*& out) {
+void print_string(const std::vector<obj::Object*>& in, obj::Object*& out) {
     std::cout << obj::get<obj::String>(in[0]).v << std::endl;
     out = in[0];
 }
 
 
-void cut(const std::vector<void*>& in, void*& out) {
+void cut(const std::vector<obj::Object*>& in, obj::Object*& out) {
 
     const std::string& str = obj::get<obj::String>(in[0]).v;
     const std::string& del = obj::get<obj::String>(in[1]).v;
@@ -1417,8 +1417,9 @@ void cut(const std::vector<void*>& in, void*& out) {
 
     size_t prev = 0;
 
-    obj::ArrayAtom<std::string>& v = obj::get< obj::ArrayAtom<std::string> >(out);
-
+    obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
+    std::vector<std::string>& v = vv.v;
+    
     v.clear();
     v.emplace_back("");
     
@@ -1452,22 +1453,22 @@ void register_functions() {
     Functions& funcs = functions_init();
     
     funcs.add("cut",
-              { Type(Type::STRING), Type(Type::STRING) },
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::cut);
 
-    funcs.add("print", { Type(Type::INT) }, Type(Type::INT), funcs::print_int);
-    funcs.add("print", { Type(Type::UINT) }, Type(Type::UINT), funcs::print_uint);
-    funcs.add("print", { Type(Type::REAL) }, Type(Type::REAL), funcs::print_real);
-    funcs.add("print", { Type(Type::STRING) }, Type(Type::STRING), funcs::print_string);
+    funcs.add("print", Type(Type::INT), Type(Type::INT), funcs::print_int);
+    funcs.add("print", Type(Type::UINT), Type(Type::UINT), funcs::print_uint);
+    funcs.add("print", Type(Type::REAL), Type(Type::REAL), funcs::print_real);
+    funcs.add("print", Type(Type::STRING), Type(Type::STRING), funcs::print_string);
 }
 
 
 struct Runtime {
-    std::unordered_map<String,Object*> vars;
-    std::vector<Object*> stack;
+    std::unordered_map<String,obj::Object*> vars;
+    std::vector<obj::Object*> stack;
 
-    void set_toplevel(Object* o) {
+    void set_toplevel(obj::Object* o) {
         vars[strings().add("$")] = o;
     }
 };
@@ -1480,23 +1481,23 @@ void execute(std::vector<Command>& commands, Runtime& r) {
 
         case Command::FUN:
         {
-            c.object = (void*)obj::make(c.type);
+            c.object = obj::make(c.type);
             break;
         }
         case Command::VAL:
         {
             switch (c.arg.which) {
             case Atom::STRING:
-                c.object = (void*)(new obj::String(strings().get(c.arg.str)));
+                c.object = new obj::String(strings().get(c.arg.str));
                 break;
             case Atom::INT:
-                c.object = (void*)(new obj::Int(c.arg.inte));
+                c.object = new obj::Int(c.arg.inte);
                 break;
             case Atom::UINT:
-                c.object = (void*)(new obj::UInt(c.arg.uint));
+                c.object = new obj::UInt(c.arg.uint);
                 break;
             case Atom::REAL:
-                c.object = (void*)(new obj::Real(c.arg.real));
+                c.object = new obj::Real(c.arg.real);
                 break;
             }
             break;
@@ -1504,8 +1505,8 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         case Command::IDX:
         {
             Command::Closure& closure = *(c.closure[0]);
-            closure.object = (void*)obj::make(closure.type);
-            c.object = (void*)obj::make(c.type);
+            closure.object = obj::make(closure.type);
+            c.object = obj::make(c.type);
         }
 
         default:
@@ -1526,7 +1527,7 @@ void execute(std::vector<Command>& commands, Runtime& r) {
 
             ((Functions::func_t)c.function)(rfun.stack, c.object);
 
-            r.stack.push_back((Object*)c.object);
+            r.stack.push_back(c.object);
             break;
         }
         case Command::VAR:
@@ -1542,7 +1543,7 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::VAL:
         {
-            r.stack.push_back((Object*)c.object);
+            r.stack.push_back(c.object);
             break;
         }
         case Command::IDX:
@@ -1552,9 +1553,9 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             Command::Closure& closure = *(c.closure[0]);
             execute(closure.code, ridx);
 
-            Object* cont = r.stack.back();
-            Object* key = (Object*)closure.object;
-            Object* val = (Object*)c.object;
+            obj::Object* cont = r.stack.back();
+            obj::Object* key = closure.object;
+            obj::Object* val = c.object;
 
             cont->index(closure.type, key, val);
             
