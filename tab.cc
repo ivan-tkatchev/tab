@@ -1063,24 +1063,12 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     
     x_go(beg, end);
 
-
-    // Wrap the result in an implicit 'print(...)' function.
-    Stack trustack;
-#if 0
-    trustack.push(Command::FUN, strings().add("print"));
-    Command& print = trustack.stack.back();
-    print.closure.clear();
-    print.closure.emplace_back(new Command::Closure);
-    print.closure[0]->code.swap(stack.stack);
-#else
-    trustack = stack;
-#endif
     
-    infer_types(trustack.stack, Type(Type::STRING), typer);
+    infer_types(stack.stack, Type(Type::STRING), typer);
 
-    trustack.print();
+    stack.print();
 
-    commands.swap(trustack.stack);
+    commands.swap(stack.stack);
 }
 
 
@@ -1105,12 +1093,14 @@ struct Object {
         throw std::runtime_error("Object equality not implemented");
     }
 
-    virtual void set(const std::vector<Object*>&) {
+    virtual void print() const {}
+    
+    virtual void set(const Object*) {
         throw std::runtime_error("Object assignment not implemented");
     }
 
-    virtual void copy(const std::vector<Object*>&) {
-        throw std::runtime_error("Object copying not implemented");
+    virtual Object* clone() const {
+        throw std::runtime_error("Object cloning not implemented");
     }
 
     virtual void map(Object*, Object*) {
@@ -1132,8 +1122,9 @@ struct Atom : public Object {
 
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
-    void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
-    void copy(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
+    void print() const { std::cout << v; }
+    void set(const Object* s) { v = get< Atom<T> >(s).v; }
+    Object* clone() const { return new Atom<T>(v); }
 };
 
 typedef Atom<::Int> Int;
@@ -1195,19 +1186,35 @@ struct ArrayAtom : public Object {
         return v == get< ArrayAtom<T> >(a).v;
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get< ArrayAtom<T> >(s[0]).v;
+    void print() const {
+        bool first = true;
+        for (const T& x : v) {
+
+            if (first) {
+                first = false;
+            } else {
+                std::cout << " ";
+            }
+
+            std::cout << x;
+        }
     }
 
-    void copy(const std::vector<Object*>& s) {
-        v = get< ArrayAtom<T> >(s[0]).v;
+    void set(const Object* s) {
+        v = get< ArrayAtom<T> >(s).v;
+    }
+
+    Object* clone() const {
+        Object* ret = new ArrayAtom<T>;
+        ret->v.assign(v.begin(), v.end());
+        return ret;
     }
 
     void index(const Type& keytype, Object* key, Object*& out) const {
 
         size_t i = __array_index_do(v, keytype, key);
 
-        object_type* o = (Atom<T>*)out;
+        Atom<T>& o = get< Atom<T> >(out);
         o->v = v[i];
     }
 };
@@ -1244,19 +1251,33 @@ struct ArrayObject : public Object {
         return true;
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get<ArrayObject>(s[0]).v;
+    void print() const {
+        bool first = true;
+        for (Object* x : v) {
+
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
+
+            x->print();
+        }
     }
 
-    void copy(const std::vector<Object*>& s) {
+    void set(const Object* s) {
+        v = get<ArrayObject>(s).v;
+    }
 
-        for (Object* x : v) {
-            delete x;
+    Object* clone() const {
+
+        ArrayObject* ret = new ArrayObject;
+
+        for (const Object* s : v) {
+            ret->v.push_back(s->clone());
         }
 
-        auto& b = get<ArrayObject>(s[0]).v;
-        v.resize(b.size();)
-        v = get< ArrayAtom<T> >(s[0]).v;
+        return ret;
     }
 
     void index(const Type& keytype, Object* key, Object*& out) const {
@@ -1269,10 +1290,37 @@ struct ArrayObject : public Object {
 
 struct Tuple : public ArrayObject {
 
-    // 'set' only for new objects??
+    void print() const {
+        bool first = true;
+        for (Object* x : v) {
 
-    void set(const std::vector<Object*>& s) {
-        v = get< ArrayAtom<T> >(s[0]).v;
+            if (first) {
+                first = false;
+            } else {
+                std::cout << " ";
+            }
+
+            x->print();
+        }
+    }
+
+    void set(const Object* s) {
+
+        for (Object*& x : v) {
+            x = s;
+            ++s;
+        }
+    }
+
+    Object* clone() const {
+
+        Tuple* ret = new Tuple;
+
+        for (const Object* s : v) {
+            ret->v.push_back(s->clone());
+        }
+
+        return ret;
     }
 
     void index(const Type& keytype, Object* key, Object*& out) const {
@@ -1339,10 +1387,39 @@ struct MapObject : public Object {
         return true;
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get<MapObject>(s[0]).v;
+    void print() const {
+        bool first = true;
+        for (const auto& x : v) {
+
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;;
+            }
+
+            x.first->print();
+            std::cout << " ";
+            x.second->print();
+        }
     }
 
+    void set(const Object* s) {
+        v = get<MapObject>(s).v;
+    }
+
+    Object* clone() const {
+
+        MapObject* ret = new MapObject;
+
+        for (const auto& x : v) {
+            Object* k = x.first->clone();
+            Object* v = x.second->clone();
+            ret[k] = v;
+        }
+
+        return ret;
+    }
+    
     void index(const Type& keytype, Object* key, Object*& out) const {
 
         auto i = v.find(key);
@@ -1565,8 +1642,9 @@ void execute_init(std::vector<Command>& commands) {
         }
         case Command::MAP:
         {
-            Command::Closure& closure = *(c.closure[2]);
-            closure.object = obj::make(closure.type);
+            for (auto& closure : c.closure) {
+                closure->object = obj::make(closure->type);
+            }
             c.object = obj::make(c.type);
             break;
         }
@@ -1576,9 +1654,23 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
+obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
+
+    Command::Closure& closure = *(c.closure[n]);
+    execute(closure.code, rsub);
+            
+    obj::Object* o = closure.object;
+    o->set(&(rsub.stack[0]));
+
+    rsub.stack.clear();
+
+    return o;
+}
+
+
 void execute(std::vector<Command>& commands, Runtime& r) {
     
-    for (auto& c : commands) {
+    for (Command& c : commands) {
         switch (c.cmd) {
 
         case Command::FUN:
@@ -1613,14 +1705,13 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         {
             Runtime rsub;
             rsub.vars = r.vars;
-            Command::Closure& closure = *(c.closure[0]);
-            execute(closure.code, rsub);
+
+            obj::Object* key = _exec_closure(rsub, c, 0)
 
             obj::Object* cont = r.stack.back();
-            obj::Object* key = closure.object;
             obj::Object* val = c.object;
 
-            cont->index(closure.type, key, val);
+            cont->index(c.closure[0]->type, key, val);
             
             r.stack.pop_back();
             r.stack.push_back(val);
@@ -1630,12 +1721,8 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         {
             Runtime rsub;
             rsub.vars = r.vars;
-            Command::Closure& closure = *(c.closure[2]);
-            execute(closure.code, rsub);
-            
-            obj::Object* src = closure.object;
-            src->set(rsub.stack);
 
+            obj::Object* src = _exec_closure(rsub, c, 2);
             obj::Object* dst = c.object;
             
             while (1) {
@@ -1646,26 +1733,10 @@ void execute(std::vector<Command>& commands, Runtime& r) {
 
                 rsub.set_toplevel(next);
 
-                //-
-                rsub.stack.clear();
+                obj::Object* key = _exec_closure(rsub, c, 0);
+                obj::Object* val = _exec_closure(rsub, c, 1);
 
-                Command::Closure& ckey = *(c.closure[0]);
-                execute(ckey.code, rsub);
-
-                obj::Object* key = obj::make(ckey.type);
-                key->set(rsub.stack);
-                //
-
-                //-
-                rsub.stack.clear();
-                Command::Closure& cval = *(c.closure[1]);
-                execute(cval.code, rsub);
-
-                obj::Object* val = obj::make(cval.type);
-                val->set(rsub.stack);
-                //
-
-                dst->map(key, val);
+                dst->map(key->clone(), val->clone());
                 
                 if (!ok) break;
             }
@@ -1676,6 +1747,15 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             break;
         }
     }        
+}
+
+
+void print(const Runtime& r) {
+
+    for (obj::Object* o : r.stack) {
+        o->print();
+        std::cout << std::endl;
+    }    
 }
 
         
@@ -1709,6 +1789,8 @@ int main(int argc, char** argv) {
         res.set_toplevel(&toplevel);
 
         execute(commands, res);
+
+        print(res);
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
