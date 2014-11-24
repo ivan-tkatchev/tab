@@ -280,7 +280,8 @@ struct Command {
 
         ARR,
         MAP,
-        FUN
+        FUN,
+        SEQ
     };
 
     cmd_t cmd;
@@ -327,6 +328,7 @@ struct Command {
         case ARR: return "ARR";
         case MAP: return "MAP";
         case FUN: return "FUN";
+        case SEQ: return "SEQ";
         }
         return ":~(";
     }
@@ -511,6 +513,44 @@ Type stack_to_type(const TypeResult& typer, const std::string& name) {
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer);
 
+const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeResult& typer, const std::string& name) {
+
+    if (n >= c.closure.size())
+        throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
+    
+    auto& cc = *(c.closure[n]);
+    infer_types(cc.code, toplevel, typer);
+    cc.type = stack_to_type(typer, name);
+
+    return cc.type;
+}
+
+Type infer_seq_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+
+    if (c.closure.size() != 1)
+        throw std::runtime_error("Sanity error, " + name + " is not a closure.");
+
+    TypeResult typer;
+    typer.vars = _tr.vars;
+
+    const Type& t = infer_closure(c, 0, toplevel, typer, name);
+    
+    if (t.type == Type::ARR) {
+
+        return t.tuple->at(0);
+
+    } else if (t.type == Type::MAP) {
+
+        Type tmp(Type::TUP);
+        tmp.push(t.tuple->at(0));
+        tmp.push(t.tuple->at(1));
+
+        return tmp;
+    } 
+        
+    return t;
+}
+
 Type infer_tup_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
 
     if (c.closure.size() != 1)
@@ -519,11 +559,7 @@ Type infer_tup_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     TypeResult typer;
     typer.vars = _tr.vars;
 
-    auto& cto = *(c.closure.at(0));
-    infer_types(cto.code, toplevel, typer);
-    cto.type = stack_to_type(typer, name);
-    
-    return cto.type;
+    return infer_closure(c, 0, toplevel, typer, name);
 }
 
 Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
@@ -533,20 +569,13 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
     TypeResult typer;
     typer.vars = _tr.vars;
+
+    toplevel = infer_closure(c, 1, toplevel, typer, name);
+
+    const Type& t = infer_closure(c, 0, toplevel, typer, name);
     
-    auto& cfrom = *(c.closure.at(1));
-
-    infer_types(cfrom.code, toplevel, typer);
-    cfrom.type = stack_to_type(typer, name);
-
-    toplevel = cfrom.type;
-    
-    auto& cto = *(c.closure.at(0));
-    infer_types(cto.code, toplevel, typer);
-    cto.type = stack_to_type(typer, name);
-
     Type ret(Type::ARR);
-    ret.push(cto.type);
+    ret.push(t);
 
     return ret;
 }
@@ -558,24 +587,15 @@ Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const
 
     TypeResult typer;
     typer.vars = _tr.vars;
-    
-    auto& cfrom = *(c.closure.at(2));
-    infer_types(cfrom.code, toplevel, typer);
-    cfrom.type = stack_to_type(typer, name);
 
-    toplevel = cfrom.type;
-    
-    auto& cto_k = *(c.closure.at(0));
-    infer_types(cto_k.code, toplevel, typer);
-    cto_k.type = stack_to_type(typer, name);
+    toplevel = infer_closure(c, 2, toplevel, typer, name);
 
-    auto& cto_v = *(c.closure.at(1));
-    infer_types(cto_v.code, toplevel, typer);
-    cto_v.type = stack_to_type(typer, name);
+    const Type& tk = infer_closure(c, 0, toplevel, typer, name);
+    const Type& tv = infer_closure(c, 1, toplevel, typer, name);
 
     Type ret(Type::MAP);
-    ret.push(cto_k.type);
-    ret.push(cto_v.type);
+    ret.push(tk);
+    ret.push(tv);
 
     return ret;
 }
@@ -615,6 +635,52 @@ Type mapped_type(const Type& t) {
 
     return (*t.tuple)[0];
 }
+
+Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeResult& typer, const std::string& name) {
+            
+    Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
+
+    if (tv.type == Type::TUP) {
+
+        auto& cl = *(c.closure.at(0));
+                
+        if (cl.code.size() == 1) {
+
+            const auto& v = cl.code[0];
+
+            if (v.cmd == Command::VAL && (v.arg.which == Atom::INT || v.arg.which == Atom::UINT)) {
+
+                UInt i = v.arg.uint;
+
+                if (tv.tuple && i < tv.tuple->size()) {
+
+                    return tv.tuple->at(i);
+                }
+            }
+        }
+
+        throw std::runtime_error("Indexing tuples is only possible with integer literals.");
+
+    } else if (tv.type == Type::ARR) {
+                
+        if (!check_numeric(ti))
+            throw std::runtime_error("Arrays must be accessed with numeric index.");
+
+        return value_type(tv);
+
+    } else if (tv.type == Type::MAP) {
+                
+        if (ti != mapped_type(tv))
+            throw std::runtime_error("Invalid key type when accessing map: key is " +
+                                     Type::print(mapped_type(tv)) + ", acessing with " +
+                                     Type::print(ti));
+
+        return value_type(tv);
+    }
+
+    throw std::runtime_error("Cannot index a scalar value.");
+}
+
 
 void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer) {
 
@@ -717,59 +783,8 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             Type tv = stack.back();
             stack.pop_back();
 
-            Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
-
-            switch (tv.type) {
-
-            case Type::TUP:
-            {
-                bool ok = false;
-                auto& cl = *(c.closure.at(0));
-                
-                if (cl.code.size() == 1) {
-
-                    const auto& v = cl.code[0];
-
-                    if (v.cmd == Command::VAL && (v.arg.which == Atom::INT || v.arg.which == Atom::UINT)) {
-
-                        UInt i = v.arg.uint;
-
-                        if (tv.tuple && i < tv.tuple->size()) {
-
-                            stack.emplace_back(tv.tuple->at(i));
-                            ok = true;
-                        }
-                    }
-                }
-
-                if (!ok)
-                    throw std::runtime_error("Indexing tuples is only possible with integer literals.");
-
-                break;
-            }
-            
-            case Type::ARR:
-                
-                if (!check_numeric(ti))
-                    throw std::runtime_error("Arrays must be accessed with numeric index.");
-
-                stack.emplace_back(value_type(tv));
-                break;
-
-            case Type::MAP:
-                
-                stack.emplace_back(value_type(tv));
-
-                if (ti != mapped_type(tv))
-                    throw std::runtime_error("Invalid key type when accessing map: key is " +
-                                             Type::print(mapped_type(tv)) + ", acessing with " +
-                                             Type::print(ti));
-                break;
-                    
-            default:
-                throw std::runtime_error("Cannot index a scalar value.");
-            }
-
+            Type t = infer_idx_generator(tv, c, toplevel, typer, "structure index");
+            stack.emplace_back(t);
             break;
         }
         
@@ -793,6 +808,12 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             auto tmp = functions().get(c.arg.str, args);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
+            break;
+        }
+        case Command::SEQ:
+        {
+            Type t = infer_seq_generator(c, toplevel, typer, "sequence");
+            stack.emplace_back(t);
             break;
         }
         }
@@ -859,6 +880,16 @@ struct Stack {
         stack.back().closure.back().swap(c);
     }
 
+    void make_seq() {
+
+        auto& last = stack.back();
+
+        auto c = std::make_shared<Command::Closure>();
+        c->code.emplace_back(Command::SEQ);
+        c->code.back().closure.push_back(last.closure.back());
+        last.closure.back() = c;
+    }
+    
     static void print(const std::vector<Command>& c, size_t level) {
 
         for (const auto& i : c) {
@@ -949,14 +980,15 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     auto y_close_arr = axe::e_ref([&](I b, I e) { stack.close(Command::ARR); });
     auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
-
+    auto y_close_seq = axe::e_ref([&](I b, I e) { stack.make_seq(); });
+    
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
     auto y_default_from = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, strings().add("$")); });
     
     auto x_from =
-        (((axe::r_lit(':') >> y_mark) & (x_expr >> y_close_arg)) |
-         (axe::r_empty() >> y_mark >> y_default_from >> y_close_arg));
+        (((axe::r_lit(':') >> y_mark) & x_expr) |
+         (axe::r_empty() >> y_mark >> y_default_from)) >> y_close_arg >> y_close_seq;
 
     auto x_array =
         (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_arr) & x_from & axe::r_lit(']');
@@ -1079,6 +1111,8 @@ namespace obj {
 
 struct Object {
 
+    typedef std::function<Object*(Object*,bool&)> iterator_t;
+    
     virtual ~Object() {}
     
     virtual void index(const Type& keytype, Object* key, Object*& out) const {
@@ -1106,6 +1140,10 @@ struct Object {
     virtual void map(Object*, Object*) {
         throw std::runtime_error("Object map construction not implemented");
     }
+
+    virtual iterator_t iter() const {
+        throw std::runtime_error("Object iteration not implemented");
+    }
 };
 
 template <typename T>
@@ -1125,6 +1163,8 @@ struct Atom : public Object {
     void print() const { std::cout << v; }
     void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
     Object* clone() const { return new Atom<T>(v); }
+
+    iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
 };
 
 typedef Atom<::Int> Int;
@@ -1215,7 +1255,31 @@ struct ArrayAtom : public Object {
         size_t i = __array_index_do(v, keytype, key);
 
         Atom<T>& o = get< Atom<T> >(out);
-        o->v = v[i];
+        o.v = v[i];
+    }
+
+    iterator_t iter() const {
+
+        typename std::vector<T>::const_iterator ite = v.begin();
+
+        if (ite == v.end())
+            throw std::runtime_error("Iterating an empty array");
+        
+        return [this,ite](Object* i, bool& ok) mutable {
+
+            Atom<T>& x = get< Atom<T> >(i);
+            x.v = *ite;
+            ++ite;
+
+            if (ite == v.end()) {
+                ok = false;
+                ite = v.begin();
+            } else {
+                ok = true;
+            }
+
+            return i;
+        };
     }
 };
 
@@ -1286,6 +1350,29 @@ struct ArrayObject : public Object {
 
         out = v[i];
     }
+
+    iterator_t iter() const {
+
+        typename std::vector<Object*>::const_iterator ite = v.begin();
+
+        if (ite == v.end())
+            throw std::runtime_error("Iterating an empty array");
+        
+        return [this,ite](Object* i, bool& ok) mutable {
+
+            Object* ret = *ite;
+            ++ite;
+
+            if (ite == v.end()) {
+                ok = false;
+                ite = v.begin();
+            } else {
+                ok = true;
+            }
+
+            return ret;
+        };
+    }
 };
 
 struct Tuple : public ArrayObject {
@@ -1325,6 +1412,8 @@ struct Tuple : public ArrayObject {
     void index(const Type& keytype, Object* key, Object*& out) const {
         out = v[get<UInt>(key).v];
     }
+
+    iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
 };
 
 struct ObjectHash {
@@ -1441,8 +1530,45 @@ struct MapObject : public Object {
             v[key] = val;
         }
     }
+
+    iterator_t iter() const {
+
+        typename map_t::const_iterator ite = v.begin();
+
+        if (ite == v.end())
+            throw std::runtime_error("Iterating an empty map");
+        
+        return [this,ite](Object* i, bool& ok) mutable {
+
+            Tuple& x = get<Tuple>(i);
+            x.v[0] = ite->first;
+            x.v[1] = ite->second;
+            ++ite;
+
+            if (ite == v.end()) {
+                ok = false;
+                ite = v.begin();
+            } else {
+                ok = true;
+            }
+
+            return i;
+        };
+    }
 };
 
+struct Sequencer : public Object {
+
+    iterator_t v;
+    
+    void go(Object* i) {
+        v = i->iter();
+    }
+
+    Object* next(Object* holder, bool& ok) {
+        return v(holder, ok);
+    }
+};
 
 template <typename... U>
 Object* make(const Type& t, U&&... u) {
@@ -1620,6 +1746,10 @@ void execute_init(std::vector<Command>& commands) {
             c.object = obj::make(c.type);
             break;
         }
+        case Command::SEQ:
+        {
+            c.object = new obj::Sequencer;
+        }
         default:
             break;
         }
@@ -1690,19 +1820,36 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             r.stack.push_back(val);
             break;
         }
+        case Command::SEQ:
+        {
+            // HACK
+            // Do I need to create a Runtime here??
+
+            obj::Object* src = _exec_closure(r, c, 0);
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(c.object);
+            seq.go(src);
+            r.stack.push_back(c.object);
+            break;
+        }
         case Command::MAP:
         {
             Runtime rsub;
             rsub.vars = r.vars;
 
-            obj::Object* src = _exec_closure(rsub, c, 2);
+            Command::Closure& cs = *(c.closure[2]);
+
+            execute(cs.code, rsub);
+
+            obj::Object* ite = cs.object;
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(rsub.stack.back());
+            rsub.stack.clear();
+
             obj::Object* dst = c.object;
             
             while (1) {
                 bool ok;
-                Object* next;
                 
-                src->next(next, ok);
+                obj::Object* next = seq.next(ite, ok);
 
                 rsub.set_toplevel(next);
 
