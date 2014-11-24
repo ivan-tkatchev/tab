@@ -1773,6 +1773,7 @@ obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
 void execute_run(std::vector<Command>& commands, Runtime& r) {
     
     for (Command& c : commands) {
+        std::cout << " ~ " << Command::print(c.cmd) << std::endl;
         switch (c.cmd) {
 
         case Command::FUN:
@@ -1858,6 +1859,8 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
                 
                 if (!ok) break;
             }
+
+            r.stack.push_back(dst);
 
             break;
         }
