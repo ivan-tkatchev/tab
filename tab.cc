@@ -144,6 +144,7 @@ struct Type {
         TUP,
         ARR,
         MAP,
+        SEQ,
         NONE
     };
     
@@ -227,6 +228,7 @@ struct Type {
         case TUP: ret += "TUPLE"; break;
         case ARR: ret += "ARRAY"; break;
         case MAP: ret += "MAP"; break;
+        case SEQ: ret += "SEQ"; break;
         }
 
         if (t.tuple) {
@@ -282,7 +284,8 @@ struct Command {
         ARR,
         MAP,
         FUN,
-        SEQ
+        SEQ,
+        TUP
     };
 
     cmd_t cmd;
@@ -329,6 +332,7 @@ struct Command {
         case MAP: return "MAP";
         case FUN: return "FUN";
         case SEQ: return "SEQ";
+        case TUP: return "TUP";
         }
         return ":~(";
     }
@@ -481,6 +485,37 @@ void handle_poly_operator(std::vector<Type>& stack, const std::string& name, boo
     }
 }
 
+Type wrap_seq(const Type& t) {
+
+    Type ret(Type::SEQ);
+    
+    if (t.type == Type::ARR) {
+
+        ret.push(t.tuple->at(0));
+
+    } else if (t.type == Type::MAP) {
+
+        Type tmp(Type::TUP);
+        tmp.push(t.tuple->at(0));
+        tmp.push(t.tuple->at(1));
+
+        ret.push(tmp);
+
+    } else {
+        ret.push(t);
+    }
+
+    return ret;
+}
+
+Type unwrap_seq(const Type& t) {
+
+    if (t.type != Type::SEQ || !t.tuple || t.tuple->size() != 1)
+        throw std::runtime_error("Sanity error: expected a sequence generator");
+
+    return t.tuple->at(0);
+}
+
 
 struct TypeRuntime {
 
@@ -491,7 +526,8 @@ struct TypeRuntime {
 
 Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer);
 
-const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer, const std::string& name) {
+const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer,
+                          const std::string& name, bool do_unwrap_seq = false) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
@@ -499,33 +535,11 @@ const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntim
     auto& cc = *(c.closure[n]);
     cc.type = infer_types(cc.code, toplevel, typer);
 
-    return cc.type;
-}
-
-Type infer_seq_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
-
-    if (c.closure.size() != 1)
-        throw std::runtime_error("Sanity error, " + name + " is not a closure.");
-
-    TypeRuntime typer;
-    typer.vars = _tr.vars;
-
-    const Type& t = infer_closure(c, 0, toplevel, typer, name);
+    if (do_unwrap_seq) {
+        cc.type = unwrap_seq(cc.type);
+    }
     
-    if (t.type == Type::ARR) {
-
-        return t.tuple->at(0);
-
-    } else if (t.type == Type::MAP) {
-
-        Type tmp(Type::TUP);
-        tmp.push(t.tuple->at(0));
-        tmp.push(t.tuple->at(1));
-
-        return tmp;
-    } 
-        
-    return t;
+    return cc.type;
 }
 
 Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
@@ -547,8 +561,8 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     TypeRuntime typer;
     typer.vars = _tr.vars;
 
-    toplevel = infer_closure(c, 1, toplevel, typer, name);
-
+    toplevel = infer_closure(c, 1, toplevel, typer, name, true);
+        
     const Type& t = infer_closure(c, 0, toplevel, typer, name);
     
     Type ret(Type::ARR);
@@ -565,8 +579,8 @@ Type infer_map_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     TypeRuntime typer;
     typer.vars = _tr.vars;
 
-    toplevel = infer_closure(c, 2, toplevel, typer, name);
-
+    toplevel = infer_closure(c, 2, toplevel, typer, name, true);
+    
     const Type& tk = infer_closure(c, 0, toplevel, typer, name);
     const Type& tv = infer_closure(c, 1, toplevel, typer, name);
 
@@ -613,7 +627,8 @@ Type mapped_type(const Type& t) {
     return (*t.tuple)[0];
 }
 
-Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeRuntime& typer, const std::string& name) {
+Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeRuntime& typer,
+                         const std::string& name) {
             
     Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
 
@@ -776,8 +791,28 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         }
         case Command::SEQ:
         {
-            Type t = infer_seq_generator(c, toplevel, typer, "sequence");
-            stack.emplace_back(t);
+            Type ti = stack.back();
+            Type to = wrap_seq(ti);
+            stack.pop_back();
+            stack.emplace_back(to);
+            break;
+        }
+        case Command::TUP:
+        {
+            if (stack.size() == 0)
+                throw std::runtime_error("Sanity error: empty tuple");
+
+            if (stack.size() > 1) {
+                
+                Type t(Type::TUP);
+
+                for (const Type& ti : stack) {
+                    t.push(ti);
+                }
+
+                stack.clear();
+                stack.emplace_back(t);
+            }
             break;
         }
         }
@@ -861,16 +896,6 @@ struct Stack {
 
         stack.back().closure.resize(stack.back().closure.size() + 1);
         stack.back().closure.back().swap(c);
-    }
-
-    void make_seq() {
-
-        auto& last = stack.back();
-
-        auto c = std::make_shared<Command::Closure>();
-        c->code.emplace_back(Command::SEQ);
-        c->code.back().closure.push_back(last.closure.back());
-        last.closure.back() = c;
     }
     
     static void print(const std::vector<Command>& c, size_t level) {
@@ -963,7 +988,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     auto y_close_arr = axe::e_ref([&](I b, I e) { stack.close(Command::ARR); });
     auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
-    auto y_close_seq = axe::e_ref([&](I b, I e) { stack.make_seq(); });
+    auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
@@ -971,7 +996,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     
     auto x_from =
         (((axe::r_lit(':') >> y_mark) & x_expr) |
-         (axe::r_empty() >> y_mark >> y_default_from)) >> y_close_arg >> y_close_seq;
+         (axe::r_empty() >> y_mark >> y_default_from)) >> y_close_seq >> y_close_arg;
 
     auto x_array =
         (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_arr) & x_from & axe::r_lit(']');
@@ -1073,7 +1098,6 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     
     x_go(beg, end);
 
-    
     Type ret = infer_types(stack.stack, Type(Type::STRING), typer);
 
     stack.print();
@@ -1239,6 +1263,11 @@ struct ArrayAtom : public Object {
         o.v = v[i];
     }
 
+    void map(Object* val, Object*) {
+
+        v.push_back(get< Atom<T> >(val).v);
+    }
+
     iterator_t iter() const {
 
         typename std::vector<T>::const_iterator ite = v.begin();
@@ -1332,6 +1361,11 @@ struct ArrayObject : public Object {
         out = v[i];
     }
 
+    void map(Object* val, Object*) {
+
+        v.push_back(val);
+    }
+        
     iterator_t iter() const {
 
         typename std::vector<Object*>::const_iterator ite = v.begin();
@@ -1542,7 +1576,7 @@ struct Sequencer : public Object {
 
     iterator_t v;
     
-    void go(Object* i) {
+    void wrap(Object* i) {
         v = i->iter();
     }
 
@@ -1579,9 +1613,8 @@ Object* make(const Type& t, U&&... u) {
         }
 
         return ret;
-    }
 
-    if (t.type == Type::ARR) {
+    } else if (t.type == Type::ARR) {
 
         const Type& s = (*t.tuple)[0];
 
@@ -1600,12 +1633,15 @@ Object* make(const Type& t, U&&... u) {
         }
 
         return new ArrayObject(std::forward<U>(u)...);
-    }
 
-    if (t.type == Type::MAP) {
+    } else if (t.type == Type::MAP) {
 
         return new MapObject(std::forward<U>(u)...);
-    }    
+
+    } else if (t.type == Type::SEQ) {
+
+        return new Sequencer;
+    }
 
     throw std::runtime_error("Sanity error: cannot create object");
 }
@@ -1762,10 +1798,6 @@ void execute_init(std::vector<Command>& commands) {
             }
             break;
 
-        case Command::SEQ:
-            c.object = new obj::Sequencer;
-            break;
-
         case Command::VAW:
             break;
             
@@ -1789,6 +1821,17 @@ obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
     rsub.stack.clear();
 
     return o;
+}
+
+obj::Sequencer& _exec_seq_closure(Runtime& rsub, Command& c, size_t n, obj::Object*& ite) {
+
+    Command::Closure& closure = *(c.closure[n]);
+    execute_run(closure.code, rsub);
+
+    ite = closure.object;
+    obj::Object* ret = rsub.stack.back();
+    rsub.stack.clear();
+    return obj::get<obj::Sequencer>(ret);
 }
 
 
@@ -1841,15 +1884,49 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             r.stack.push_back(val);
             break;
         }
+        case Command::TUP:
+        {
+            obj::Object* o = c.object;
+            o->set(r.stack);
+            r.stack.clear();
+            r.stack.push_back(o);
+            break;
+        }
         case Command::SEQ:
         {
-            // HACK
-            // Do I need to create a Runtime here??
+            obj::Object* src = r.stack.back();
+            r.stack.pop_back();
 
-            obj::Object* src = _exec_closure(r, c, 0);
             obj::Sequencer& seq = obj::get<obj::Sequencer>(c.object);
-            seq.go(src);
+            seq.wrap(src);
             r.stack.push_back(c.object);
+            break;
+        }
+        case Command::ARR:
+        {
+            Runtime rsub;
+            rsub.vars = r.vars;
+
+            obj::Object* ite;
+            obj::Sequencer& seq = _exec_seq_closure(rsub, c, 1, ite);
+            obj::Object* dst = c.object;
+            
+            while (1) {
+                bool ok;
+                
+                obj::Object* next = seq.next(ite, ok);
+
+                rsub.set_toplevel(next);
+
+                obj::Object* val = _exec_closure(rsub, c, 0);
+
+                dst->map(val->clone(), nullptr);
+                
+                if (!ok) break;
+            }
+
+            r.stack.push_back(dst);
+
             break;
         }
         case Command::MAP:
@@ -1857,14 +1934,8 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             Runtime rsub;
             rsub.vars = r.vars;
 
-            Command::Closure& cs = *(c.closure[2]);
-
-            execute_run(cs.code, rsub);
-
-            obj::Object* ite = cs.object;
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(rsub.stack.back());
-            rsub.stack.clear();
-
+            obj::Object* ite;
+            obj::Sequencer& seq = _exec_seq_closure(rsub, c, 2, ite);
             obj::Object* dst = c.object;
             
             while (1) {
@@ -1898,7 +1969,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         case Command::AND:
         case Command::OR:
         case Command::XOR:
-        case Command::ARR:
         
         default:
             break;
