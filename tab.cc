@@ -156,7 +156,7 @@ struct Type {
     atom_types_t atom;
     std::shared_ptr< std::vector<Type> > tuple;
     
-    Type(types_t t = NONE) : type(t) {}
+    Type(types_t t = NONE) : type(t), atom(INT) {}
 
     Type(atom_types_t a) : type(ATOM), atom(a) {}
         
@@ -276,7 +276,6 @@ struct Command {
         OR,
         XOR,
         IDX,
-        REGEX,
 
         ARR,
         MAP,
@@ -324,7 +323,6 @@ struct Command {
         case  OR: return "OR";
         case XOR: return "XOR";
         case IDX: return "IDX";
-        case REGEX: return "REGEX";
         case ARR: return "ARR";
         case MAP: return "MAP";
         case FUN: return "FUN";
@@ -742,19 +740,6 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             handle_int_operator(stack, "^");
             break;
 
-        case Command::REGEX:
-        {
-            Type t = stack.back();
-            stack.pop_back();
-            
-            if (!check_string(t)) 
-                throw std::runtime_error("Use of '~' regex operator on something other than string.");
-
-            stack.emplace_back(Type::ARR);
-            stack.back().push(Type(Type::STRING));
-            break;
-        }
-
         case Command::IDX:
         {
             Type tv = stack.back();
@@ -1056,12 +1041,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
                        (axe::r_lit('|') & x_expr_atom) >> y_expr_or |
                        (axe::r_lit('^') & x_expr_atom) >> y_expr_xor);
 
-    auto y_expr_regex = axe::e_ref([&](I b, I e) { stack.stack.back().cmd = Command::REGEX; });
-
-    auto x_expr_regex =
-        x_expr_bit & ~(axe::r_lit("~") & x_ws & x_string >> y_expr_regex);
-
-    x_expr_atom = x_expr_regex;
+    x_expr_atom = x_expr_bit;
 
     auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(make_string(b, e)); });
     auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back());
@@ -1676,6 +1656,19 @@ void cut(const obj::Object* in, obj::Object*& out) {
     v.emplace_back(str.begin() + prev, str.end());
 }
 
+void grep(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+
+    obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
+    std::vector<std::string>& v = vv.v;
+    
+    v.clear();
+}
+
 }
 
 void register_functions() {
@@ -1686,6 +1679,11 @@ void register_functions() {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::cut);
+
+    funcs.add("grep",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::ARR, { Type::STRING }),
+              funcs::grep);
 }
 
 
@@ -1711,13 +1709,7 @@ void execute_init(std::vector<Command>& commands) {
             
         switch (c.cmd) {
 
-        case Command::FUN:
-        {
-            c.object = obj::make(c.type);
-            break;
-        }
         case Command::VAL:
-        {
             switch (c.arg.which) {
             case Atom::STRING:
                 c.object = new obj::String(strings().get(c.arg.str));
@@ -1733,22 +1725,16 @@ void execute_init(std::vector<Command>& commands) {
                 break;
             }
             break;
-        }
-        case Command::IDX:
-        {
-            c.object = obj::make(c.type);
-            break;
-        }
-        case Command::MAP:
-        {
-            c.object = obj::make(c.type);
-            break;
-        }
+
         case Command::SEQ:
-        {
             c.object = new obj::Sequencer;
-        }
+            break;
+
+        case Command::VAW:
+            break;
+            
         default:
+            c.object = obj::make(c.type);
             break;
         }
     }
@@ -1775,7 +1761,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
     for (Command& c : commands) {
         std::cout << " ~ " << Command::print(c.cmd) << std::endl;
         switch (c.cmd) {
-
+            
         case Command::FUN:
         {
             Runtime rsub;
@@ -1864,6 +1850,20 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
             break;
         }
+
+        case Command::NOT:
+        case Command::NEG:
+        case Command::EXP:
+        case Command::MUL:
+        case Command::DIV:
+        case Command::MOD:
+        case Command::ADD:
+        case Command::SUB:
+        case Command::AND:
+        case Command::OR:
+        case Command::XOR:
+        case Command::ARR:
+        
         default:
             break;
         }
