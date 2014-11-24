@@ -1,4 +1,6 @@
 
+#include <math.h>
+
 #include <memory>
 #include <stdexcept>
 #include <functional>
@@ -268,19 +270,30 @@ struct Command {
         VAL,
         VAW,
         VAR,
-        NOT,
-        NEG,
+
         EXP,
-        MUL,
-        DIV,
+
+        MUL_I,
+        MUL_R,
+        DIV_I,
+        DIV_R,
         MOD,
-        ADD,
-        SUB,
+        ADD_I,
+        ADD_R,
+        SUB_I,
+        SUB_R,
+
+        NOT,
         AND,
         OR,
         XOR,
-        IDX,
 
+        I2R_1,
+        I2R_2,
+        U2R_1,
+        U2R_2,
+
+        IDX,
         ARR,
         MAP,
         FUN,
@@ -316,17 +329,28 @@ struct Command {
         case VAL: return "VAL";
         case VAW: return "VAW";
         case VAR: return "VAR";
-        case NOT: return "NOT";
-        case NEG: return "NEG";
+
         case EXP: return "EXP";
-        case MUL: return "MUL";
-        case DIV: return "DIV";
+        case MUL_I: return "MUL_I";
+        case MUL_R: return "MUL_R";
+        case DIV_I: return "DIV_I";
+        case DIV_R: return "DIV_R";
         case MOD: return "MOD";
-        case ADD: return "ADD";
-        case SUB: return "SUB";
+        case ADD_I: return "ADD_I";
+        case ADD_R: return "ADD_R";
+        case SUB_I: return "SUB_I";
+        case SUB_R: return "SUB_R";
+
+        case NOT: return "NOT";
         case AND: return "AND";
         case  OR: return "OR";
         case XOR: return "XOR";
+            
+        case I2R_1: return "I2R_1";
+        case I2R_2: return "I2R_2";
+        case U2R_1: return "U2R_1";
+        case U2R_2: return "U2R_2";
+
         case IDX: return "IDX";
         case ARR: return "ARR";
         case MAP: return "MAP";
@@ -410,6 +434,9 @@ const Functions& functions() {
     return functions_init();
 }
 
+bool check_unsigned(const Type& t) {
+    return (t.type == Type::ATOM && t.atom == Type::UINT);
+}
 
 bool check_integer(const Type& t) {
     return (t.type == Type::ATOM && (t.atom == Type::INT || t.atom == Type::UINT));
@@ -427,7 +454,9 @@ bool check_string(const Type& t) {
     return (t.type == Type::ATOM && t.atom == Type::STRING);
 }
 
-void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
+std::vector<Command>::iterator
+handle_real_operator(std::vector<Command>& commands, std::vector<Command>::iterator ci,
+                     std::vector<Type>& stack, const std::string& name) {
 
     Type t1 = stack.back();
     stack.pop_back();
@@ -437,7 +466,30 @@ void handle_real_operator(std::vector<Type>& stack, const std::string& name) {
     if (!check_numeric(t1) || !check_numeric(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
 
+    bool r1 = check_real(t1);
+    bool r2 = check_real(t2);
+
+    if (r1 && r2) {
+        // Nothing.
+
+    } else {
+
+        if (!r2) {
+            ci = commands.insert(ci, Command(check_unsigned(t2) ? Command::U2R_2 : Command::I2R_2));
+            ci->type = Type(Type::REAL);
+            ++ci;
+        }
+
+        if (!r1) {
+            ci = commands.insert(ci, Command(check_unsigned(t1) ? Command::U2R_1 : Command::I2R_1));
+            ci->type = Type(Type::REAL);
+            ++ci;
+        }
+    }
+
     stack.emplace_back(Type::REAL);
+
+    return ci;
 }
 
 void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
@@ -461,7 +513,10 @@ void handle_int_operator(std::vector<Type>& stack, const std::string& name) {
     }
 }
 
-void handle_poly_operator(std::vector<Type>& stack, const std::string& name, bool always_int = false) {
+std::vector<Command>::iterator
+handle_poly_operator(std::vector<Command>& commands, std::vector<Command>::iterator ci,
+                     std::vector<Type>& stack, const std::string& name,
+                     Command::cmd_t c_int, Command::cmd_t c_real, bool no_unsigned) {
 
     Type t1 = stack.back();
     stack.pop_back();
@@ -471,18 +526,46 @@ void handle_poly_operator(std::vector<Type>& stack, const std::string& name, boo
     if (!check_numeric(t1) || !check_numeric(t2))
         throw std::runtime_error("Use of '" + name + "' operator on non-numeric value.");
 
-    auto a1 = t1.atom;
-    auto a2 = t2.atom;
+    bool r1 = check_real(t1);
+    bool r2 = check_real(t2);
 
-    if (a1 == Type::REAL || a2 == Type::REAL) {
+    if (r1 || r2) {
+
+        ci->cmd = c_real;
+        
+        if (!r1 || !r2) {
+
+            Command::cmd_t newc;
+
+            if (!r1 && check_unsigned(t1))
+                newc = Command::U2R_1;
+            else if (!r1)
+                newc = Command::I2R_1;
+            else if (check_unsigned(t2))
+                newc = Command::U2R_2;
+            else
+                newc = Command::I2R_2;
+        
+            ci = commands.insert(ci, Command(newc));
+            ci->type = Type(Type::REAL);
+            ++ci;
+        }
+
         stack.emplace_back(Type::REAL);
 
-    } else if (!always_int && a1 == Type::UINT && a2 == Type::UINT) {
+        return ci;
+    }
+
+    ci->cmd = c_int;
+
+    if (!no_unsigned && check_unsigned(t1) && check_unsigned(t2)) {
         stack.emplace_back(Type::UINT);
 
     } else {
         stack.emplace_back(Type::INT);
     }
+
+    return ci;
 }
 
 Type wrap_seq(const Type& t) {
@@ -682,7 +765,8 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
     stack.clear();
     vars[strings().add("$")] = toplevel;
     
-    for (auto& c : commands) {
+    for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
+        Command& c = *ci;
 
         switch (c.cmd) {
         case Command::VAL:
@@ -704,13 +788,65 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             stack.emplace_back(i->second);
             break;
         }
-        
-        case Command::NOT:
-            stack.pop_back();
-            stack.emplace_back(Type::INT);
+            
+        case Command::EXP:
+            ci = handle_real_operator(commands, ci, stack, "**");
             break;
 
-        case Command::NEG:
+        case Command::MUL_I:
+        case Command::MUL_R:
+            ci = handle_poly_operator(commands, ci, stack, "*", Command::MUL_I, Command::MUL_R, false);
+            break;
+
+        case Command::DIV_I:
+        case Command::DIV_R:
+            ci = handle_poly_operator(commands, ci, stack, "/", Command::DIV_I, Command::DIV_R, false);
+            break;
+
+        case Command::MOD:
+            handle_int_operator(stack, "%");
+            break;
+
+        case Command::ADD_I:
+        case Command::ADD_R:
+            ci = handle_poly_operator(commands, ci, stack, "+", Command::ADD_I, Command::ADD_R, false);
+            break;
+
+        case Command::SUB_I:
+        case Command::SUB_R:
+            ci = handle_poly_operator(commands, ci, stack, "-", Command::SUB_I, Command::SUB_R, true);
+            break;
+
+        case Command::I2R_1:
+        case Command::U2R_1:
+        {
+            Type t = stack.back();
+            stack.pop_back();
+
+            if (!check_integer(t))
+                throw std::runtime_error("Casting a non-integer to real.");
+
+            stack.emplace_back(Type::REAL);
+            break;
+        }
+
+        case Command::I2R_2:
+        case Command::U2R_2:
+        {
+            Type t1 = stack.back();
+            stack.pop_back();
+            Type t2 = stack.back();
+            stack.pop_back();
+            
+            if (!check_integer(t2))
+                throw std::runtime_error("Casting a non-integer to real.");
+
+            stack.emplace_back(Type::REAL);
+            stack.emplace_back(t1);
+            break;
+        }
+
+        case Command::NOT:
         {
             Type t = stack.back();
 
@@ -720,30 +856,6 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
 
             break;
         }
-            
-        case Command::EXP:
-            handle_real_operator(stack, "**");
-            break;
-
-        case Command::MUL:
-            handle_poly_operator(stack, "*");
-            break;
-
-        case Command::DIV:
-            handle_poly_operator(stack, "/");
-            break;
-
-        case Command::MOD:
-            handle_int_operator(stack, "%");
-            break;
-
-        case Command::ADD:
-            handle_poly_operator(stack, "+");
-            break;
-
-        case Command::SUB:
-            handle_poly_operator(stack, "-", true);
-            break;
 
         case Command::AND:
             handle_int_operator(stack, "&");
@@ -1031,11 +1143,9 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
         x_expr_bottom & ~(x_index) & x_ws;
 
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
-    auto y_expr_neg = axe::e_ref([&](I b, I e) { stack.push(Command::NEG); });
     
     auto x_expr_neg =
-        (axe::r_any("!") & x_expr_atom >> y_expr_not) |
-        (axe::r_any("~") & x_expr_atom >> y_expr_neg) |
+        (axe::r_any("~") & x_expr_atom >> y_expr_not) |
         x_expr_idx;
 
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });
@@ -1043,8 +1153,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     auto x_expr_exp =
         x_expr_neg & ~(axe::r_lit("**") & x_expr_atom >> y_expr_exp);
 
-    auto y_expr_mul = axe::e_ref([&](I b, I e) { stack.push(Command::MUL); });
-    auto y_expr_div = axe::e_ref([&](I b, I e) { stack.push(Command::DIV); });
+    auto y_expr_mul = axe::e_ref([&](I b, I e) { stack.push(Command::MUL_R); });
+    auto y_expr_div = axe::e_ref([&](I b, I e) { stack.push(Command::DIV_R); });
     auto y_expr_mod = axe::e_ref([&](I b, I e) { stack.push(Command::MOD); });
     
     auto x_expr_mul =
@@ -1052,8 +1162,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
                        (axe::r_lit('/') & x_expr_atom) >> y_expr_div |
                        (axe::r_lit('%') & x_expr_atom) >> y_expr_mod);
 
-    auto y_expr_add = axe::e_ref([&](I b, I e) { stack.push(Command::ADD); });
-    auto y_expr_sub = axe::e_ref([&](I b, I e) { stack.push(Command::SUB); });
+    auto y_expr_add = axe::e_ref([&](I b, I e) { stack.push(Command::ADD_R); });
+    auto y_expr_sub = axe::e_ref([&](I b, I e) { stack.push(Command::SUB_R); });
     
     auto x_expr_add =
         x_expr_mul & ~((axe::r_lit('+') & x_expr_atom) >> y_expr_add |
@@ -1651,6 +1761,42 @@ Object* make(const Type& t, U&&... u) {
 
 namespace funcs {
 
+void int_to_real(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = obj::get<obj::Int>(in).v;
+}
+
+void uint_to_real(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = obj::get<obj::UInt>(in).v;
+}
+
+void string_to_real(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = std::stod(obj::get<obj::String>(in).v);
+}
+
+void uint_to_int(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Int>(out).v = obj::get<obj::UInt>(in).v;
+}
+
+void real_to_int(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Int>(out).v = obj::get<obj::Real>(in).v;
+}
+
+void string_to_int(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = std::stol(obj::get<obj::String>(in).v);
+}
+
+void int_to_uint(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::UInt>(out).v = obj::get<obj::Int>(in).v;
+}
+
+void real_to_uint(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::UInt>(out).v = obj::get<obj::Real>(in).v;
+}
+
+void string_to_uint(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
+}
+
 
 void cut(const obj::Object* in, obj::Object*& out) {
 
@@ -1746,7 +1892,19 @@ void grep(const obj::Object* in, obj::Object*& out) {
 void register_functions() {
 
     Functions& funcs = functions_init();
-    
+
+    funcs.add("real", Type(Type::INT), Type(Type::REAL), funcs::int_to_real);
+    funcs.add("real", Type(Type::UINT), Type(Type::REAL), funcs::uint_to_real);
+    funcs.add("real", Type(Type::STRING), Type(Type::REAL), funcs::string_to_real);
+
+    funcs.add("int", Type(Type::UINT), Type(Type::INT), funcs::uint_to_int);
+    funcs.add("int", Type(Type::REAL), Type(Type::INT), funcs::real_to_int);
+    funcs.add("int", Type(Type::STRING), Type(Type::INT), funcs::string_to_int);
+
+    funcs.add("uint", Type(Type::INT), Type(Type::UINT), funcs::int_to_uint);
+    funcs.add("uint", Type(Type::REAL), Type(Type::UINT), funcs::real_to_uint);
+    funcs.add("uint", Type(Type::STRING), Type(Type::UINT), funcs::string_to_uint);
+
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
@@ -1958,24 +2116,165 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             break;
         }
 
-        case Command::NOT:
-        case Command::NEG:
+        // And here comes the numeric operator boilerplate.
+
         case Command::EXP:
-        case Command::MUL:
-        case Command::DIV:
-        case Command::MOD:
-        case Command::ADD:
-        case Command::SUB:
-        case Command::AND:
-        case Command::OR:
-        case Command::XOR:
-        
-        default:
+        {
+            obj::Real& a = obj::get<obj::Real>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(r.stack.back());
+            b.v = ::pow(b.v, a.v);
             break;
         }
-    }        
-}
+        case Command::MUL_R:
+        {
+            obj::Real& a = obj::get<obj::Real>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(r.stack.back());
+            b.v = b.v * a.v;
+            break;
+        }
+        case Command::MUL_I:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v * a.v;
+            break;
+        }
+        case Command::DIV_R:
+        {
+            obj::Real& a = obj::get<obj::Real>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(r.stack.back());
+            b.v = b.v / a.v;
+            break;
+        }
+        case Command::DIV_I:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v / a.v;
+            break;
+        }
+        case Command::MOD:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v % a.v;
+            break;
+        }
+        case Command::ADD_R:
+        {
+            obj::Real& a = obj::get<obj::Real>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(r.stack.back());
+            b.v = b.v + a.v;
+            break;
+        }
+        case Command::ADD_I:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v + a.v;
+            break;
+        }
+        case Command::SUB_R:
+        {
+            obj::Real& a = obj::get<obj::Real>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(r.stack.back());
+            b.v = b.v - a.v;
+            break;
+        }
+        case Command::SUB_I:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v - a.v;
+            break;
+        }
 
+        case Command::I2R_1:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(c.object);
+            b.v = a.v;
+            r.stack.push_back(c.object);
+            break;
+        }
+        case Command::I2R_2:
+        {
+            obj::Object* x = r.stack.back();
+            r.stack.pop_back();
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(c.object);
+            b.v = a.v;
+            r.stack.push_back(c.object);
+            r.stack.push_back(x);
+            break;
+        }
+        case Command::U2R_1:
+        {
+            obj::UInt& a = obj::get<obj::UInt>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(c.object);
+            b.v = a.v;
+            r.stack.push_back(c.object);
+            break;
+        }
+        case Command::U2R_2:
+        {
+            obj::Object* x = r.stack.back();
+            r.stack.pop_back();
+            obj::UInt& a = obj::get<obj::UInt>(r.stack.back());
+            r.stack.pop_back();
+            obj::Real& b = obj::get<obj::Real>(c.object);
+            b.v = a.v;
+            r.stack.push_back(c.object);
+            r.stack.push_back(x);
+            break;
+        }
+        
+        case Command::NOT:
+        {
+            obj::Int& o = obj::get<obj::Int>(r.stack.back());
+            o.v = ~o.v;
+            break;
+        }
+        case Command::AND:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v & a.v;
+            break;
+        }
+        case Command::OR:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v | a.v;
+            break;
+        }
+        case Command::XOR:
+        {
+            obj::Int& a = obj::get<obj::Int>(r.stack.back());
+            r.stack.pop_back();
+            obj::Int& b = obj::get<obj::Int>(r.stack.back());
+            b.v = b.v ^ a.v;
+            break;
+        }
+        }
+    }
+}
 
 void execute(std::vector<Command>& commands, const Type& type, const std::string& inputs) {
 
