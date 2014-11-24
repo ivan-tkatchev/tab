@@ -482,55 +482,32 @@ void handle_poly_operator(std::vector<Type>& stack, const std::string& name, boo
 }
 
 
-struct TypeResult {
+struct TypeRuntime {
 
     std::vector<Type> stack;
     std::unordered_map<String, Type> vars;
 };
 
 
-Type stack_to_type(const TypeResult& typer, const std::string& name) {
+Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer);
 
-    if (typer.stack.size() == 0)
-        throw std::runtime_error("Empty sequences are not allowed.");
-    
-    Type ret;
-
-    if (typer.stack.size() == 1) {
-        ret = typer.stack[0];
-        
-    } else {
-
-        ret.type = Type::TUP;
-        
-        for (const auto& c : typer.stack) {
-            ret.push(c);
-        }
-    }
-    
-    return ret;
-}
-
-void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer);
-
-const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeResult& typer, const std::string& name) {
+const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer, const std::string& name) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
     
     auto& cc = *(c.closure[n]);
-    infer_types(cc.code, toplevel, typer);
-    cc.type = stack_to_type(typer, name);
+    cc.type = infer_types(cc.code, toplevel, typer);
 
     return cc.type;
 }
 
-Type infer_seq_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+Type infer_seq_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
 
     if (c.closure.size() != 1)
         throw std::runtime_error("Sanity error, " + name + " is not a closure.");
 
-    TypeResult typer;
+    TypeRuntime typer;
     typer.vars = _tr.vars;
 
     const Type& t = infer_closure(c, 0, toplevel, typer, name);
@@ -551,23 +528,23 @@ Type infer_seq_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     return t;
 }
 
-Type infer_tup_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
 
     if (c.closure.size() != 1)
         throw std::runtime_error("Sanity error, " + name + " is not a closure.");
 
-    TypeResult typer;
+    TypeRuntime typer;
     typer.vars = _tr.vars;
 
     return infer_closure(c, 0, toplevel, typer, name);
 }
 
-Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+Type infer_arr_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
 
     if (c.closure.size() != 2)
         throw std::runtime_error("Sanity error, generator is not a closure.");
 
-    TypeResult typer;
+    TypeRuntime typer;
     typer.vars = _tr.vars;
 
     toplevel = infer_closure(c, 1, toplevel, typer, name);
@@ -580,12 +557,12 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeResult& _tr, const
     return ret;
 }
 
-Type infer_map_generator(Command& c, Type toplevel, const TypeResult& _tr, const std::string& name) {
+Type infer_map_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
 
     if (c.closure.size() != 3)
         throw std::runtime_error("Sanity error, generator is not a map closure.");
 
-    TypeResult typer;
+    TypeRuntime typer;
     typer.vars = _tr.vars;
 
     toplevel = infer_closure(c, 2, toplevel, typer, name);
@@ -636,7 +613,7 @@ Type mapped_type(const Type& t) {
     return (*t.tuple)[0];
 }
 
-Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeResult& typer, const std::string& name) {
+Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeRuntime& typer, const std::string& name) {
             
     Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
 
@@ -682,7 +659,7 @@ Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const
 }
 
 
-void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResult& typer) {
+Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer) {
 
     auto& stack = typer.stack;
     auto& vars = typer.vars;
@@ -822,6 +799,25 @@ void infer_types(std::vector<Command>& commands, const Type& toplevel, TypeResul
             c.type = stack.back();
         }
     }
+
+
+    if (stack.size() == 0)
+        throw std::runtime_error("Empty sequences are not allowed.");
+
+    if (stack.size() == 1) {
+
+        return stack[0];
+        
+    } else {
+
+        Type ret(Type::TUP);
+        
+        for (const auto& c : stack) {
+            ret.push(c);
+        }
+
+        return ret;
+    }
 }
 
 struct Stack {
@@ -917,7 +913,7 @@ String make_string(I beg, I end) {
 }
 
 template <typename I>
-void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
+Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     Stack stack;
     std::string str_buff;
@@ -1096,11 +1092,14 @@ void parse(I beg, I end, TypeResult& typer, std::vector<Command>& commands) {
     x_go(beg, end);
 
     
-    infer_types(stack.stack, Type(Type::STRING), typer);
+    Type ret = infer_types(stack.stack, Type(Type::STRING), typer);
 
     stack.print();
+    std::cout << Type::print(ret) << std::endl;
 
     commands.swap(stack.stack);
+
+    return ret;
 }
 
 
@@ -1156,7 +1155,7 @@ template <typename T>
 struct Atom : public Object {
     T v;
 
-    Atom(const T& i = 0) : v(i) {}
+    Atom(const T& i = T()) : v(i) {}
 
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
@@ -1233,7 +1232,7 @@ struct ArrayAtom : public Object {
             if (first) {
                 first = false;
             } else {
-                std::cout << " ";
+                std::cout << std::endl;
             }
 
             std::cout << x;
@@ -1653,7 +1652,6 @@ void cut(const obj::Object* in, obj::Object*& out) {
     std::vector<std::string>& v = vv.v;
     
     v.clear();
-    v.emplace_back("");
     
     for (size_t i = 0; i < N; ++i) {
 
@@ -1672,10 +1670,10 @@ void cut(const obj::Object* in, obj::Object*& out) {
             v.emplace_back(str.begin() + prev, str.begin() + i);
             i += M;
             prev = i;
-        } else {
-            v.back() += str[i];
         }
     }
+
+    v.emplace_back(str.begin() + prev, str.end());
 }
 
 }
@@ -1756,12 +1754,12 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
-void execute(std::vector<Command>& commands, Runtime& r);
+void execute_run(std::vector<Command>& commands, Runtime& r);
 
 obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
 
     Command::Closure& closure = *(c.closure[n]);
-    execute(closure.code, rsub);
+    execute_run(closure.code, rsub);
             
     obj::Object* o = closure.object;
     o->set(rsub.stack);
@@ -1772,7 +1770,7 @@ obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
 }
 
 
-void execute(std::vector<Command>& commands, Runtime& r) {
+void execute_run(std::vector<Command>& commands, Runtime& r) {
     
     for (Command& c : commands) {
         switch (c.cmd) {
@@ -1838,7 +1836,7 @@ void execute(std::vector<Command>& commands, Runtime& r) {
 
             Command::Closure& cs = *(c.closure[2]);
 
-            execute(cs.code, rsub);
+            execute_run(cs.code, rsub);
 
             obj::Object* ite = cs.object;
             obj::Sequencer& seq = obj::get<obj::Sequencer>(rsub.stack.back());
@@ -1870,15 +1868,31 @@ void execute(std::vector<Command>& commands, Runtime& r) {
 }
 
 
-void print(const Runtime& r) {
+void execute(std::vector<Command>& commands, const Type& type, const std::string& inputs) {
 
-    for (obj::Object* o : r.stack) {
-        o->print();
-        std::cout << std::endl;
-    }    
+    Runtime rt;
+
+    obj::String* toplevel = new obj::String(inputs);
+    rt.set_toplevel(toplevel);
+
+    execute_init(commands);
+    execute_run(commands, rt);
+
+    obj::Object* res;
+    
+    if (rt.stack.size() == 1) {
+        res = rt.stack[0];
+
+    } else {
+        res = obj::make(type);
+        res->set(rt.stack);
+    }
+
+    res->print();
+    std::cout << std::endl;
 }
 
-        
+
 int main(int argc, char** argv) {
 
     try {
@@ -1897,20 +1911,12 @@ int main(int argc, char** argv) {
 
         register_functions();
 
-        TypeResult typer;
         std::vector<Command> commands;
+        TypeRuntime typer;
 
-        parse(program.begin(), program.end(), typer, commands);
+        Type finaltype = parse(program.begin(), program.end(), typer, commands);
 
-        Runtime res;
-
-        obj::String toplevel;
-        toplevel.v.swap(inputs);
-        res.set_toplevel(&toplevel);
-
-        execute(commands, res);
-
-        print(res);
+        execute(commands, finaltype, inputs);
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
