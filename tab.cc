@@ -10,6 +10,8 @@
 #include <initializer_list>
 #include <utility>
 
+#include <regex>
+
 #include <iostream>
 
 #include "axe.h"
@@ -1658,6 +1660,9 @@ void cut(const obj::Object* in, obj::Object*& out) {
 
 void grep(const obj::Object* in, obj::Object*& out) {
 
+    static std::unordered_map<std::string, std::regex> _cache;
+
+    
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
@@ -1665,8 +1670,39 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
     obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
     std::vector<std::string>& v = vv.v;
-    
+
     v.clear();
+
+    auto i = _cache.find(regex);
+
+    if (i == _cache.end()) {
+        i = _cache.insert(i, std::make_pair(regex, std::regex(regex, std::regex_constants::optimize)));
+    }
+
+    std::regex& r = i->second;
+
+    std::sregex_iterator iter(str.begin(), str.end(), r);
+    std::sregex_iterator end;
+
+    while (iter != end) {
+
+        if (iter->size() == 1) {
+
+            v.emplace_back(iter->str());
+
+        } else if (iter->size() > 1) {
+            auto subi = iter->begin();
+            auto sube = iter->end();
+            ++subi;
+            
+            while (subi != sube) {
+                v.emplace_back(subi->str());
+                ++subi;
+            }
+        }
+
+        ++iter;
+    }
 }
 
 }
