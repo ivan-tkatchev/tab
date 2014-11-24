@@ -1095,7 +1095,7 @@ struct Object {
 
     virtual void print() const {}
     
-    virtual void set(const Object*) {
+    virtual void set(const std::vector<Object*>&) {
         throw std::runtime_error("Object assignment not implemented");
     }
 
@@ -1109,7 +1109,7 @@ struct Object {
 };
 
 template <typename T>
-T& get(Object* o) {
+T& get(const Object* o) {
     return *((T*)o);
 }
 
@@ -1123,7 +1123,7 @@ struct Atom : public Object {
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
     void print() const { std::cout << v; }
-    void set(const Object* s) { v = get< Atom<T> >(s).v; }
+    void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
     Object* clone() const { return new Atom<T>(v); }
 };
 
@@ -1200,12 +1200,12 @@ struct ArrayAtom : public Object {
         }
     }
 
-    void set(const Object* s) {
-        v = get< ArrayAtom<T> >(s).v;
+    void set(const std::vector<Object*>& s) {
+        v = get< ArrayAtom<T> >(s[0]).v;
     }
 
     Object* clone() const {
-        Object* ret = new ArrayAtom<T>;
+        ArrayAtom<T>* ret = new ArrayAtom<T>;
         ret->v.assign(v.begin(), v.end());
         return ret;
     }
@@ -1265,8 +1265,8 @@ struct ArrayObject : public Object {
         }
     }
 
-    void set(const Object* s) {
-        v = get<ArrayObject>(s).v;
+    void set(const std::vector<Object*>& s) {
+        v = get<ArrayObject>(s[0]).v;
     }
 
     Object* clone() const {
@@ -1304,11 +1304,10 @@ struct Tuple : public ArrayObject {
         }
     }
 
-    void set(const Object* s) {
+    void set(const std::vector<Object*>& s) {
 
-        for (Object*& x : v) {
-            x = s;
-            ++s;
+        for (size_t i = 0; i < v.size(); ++i) {
+            v[i] = s[i];
         }
     }
 
@@ -1403,8 +1402,8 @@ struct MapObject : public Object {
         }
     }
 
-    void set(const Object* s) {
-        v = get<MapObject>(s).v;
+    void set(const std::vector<Object*>& s) {
+        v = get<MapObject>(s[0]).v;
     }
 
     Object* clone() const {
@@ -1414,7 +1413,7 @@ struct MapObject : public Object {
         for (const auto& x : v) {
             Object* k = x.first->clone();
             Object* v = x.second->clone();
-            ret[k] = v;
+            ret->v[k] = v;
         }
 
         return ret;
@@ -1430,16 +1429,16 @@ struct MapObject : public Object {
         out = i->second;
     }
 
-    void map(Object* k, Object* v) {
+    void map(Object* key, Object* val) {
 
-        auto i = v.find(k);
+        auto i = v.find(key);
 
         if (i != v.end()) {
             delete i->second;
-            i->second = v;
+            i->second = val;
 
         } else {
-            v[k] = v;
+            v[key] = val;
         }
     }
 };
@@ -1509,31 +1508,13 @@ Object* make(const Type& t, U&&... u) {
 
 namespace funcs {
 
-void print_int(const std::vector<obj::Object*>& in, obj::Object*& out) {
-    std::cout << obj::get<obj::Int>(in[0]).v << std::endl;
-    out = in[0];
-}
 
-void print_uint(const std::vector<obj::Object*>& in, obj::Object*& out) {
-    std::cout << obj::get<obj::UInt>(in[0]).v << std::endl;
-    out = in[0];
-}
+void cut(const obj::Object* in, obj::Object*& out) {
 
-void print_real(const std::vector<obj::Object*>& in, obj::Object*& out) {
-    std::cout << obj::get<obj::Real>(in[0]).v << std::endl;
-    out = in[0];
-}
-
-void print_string(const std::vector<obj::Object*>& in, obj::Object*& out) {
-    std::cout << obj::get<obj::String>(in[0]).v << std::endl;
-    out = in[0];
-}
-
-
-void cut(const std::vector<obj::Object*>& in, obj::Object*& out) {
-
-    const std::string& str = obj::get<obj::String>(in[0]).v;
-    const std::string& del = obj::get<obj::String>(in[1]).v;
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& del = obj::get<obj::String>(args.v[1]).v;
 
     std::cout << "cut '" << str << "' '" << del << "'" << std::endl;
     
@@ -1581,11 +1562,6 @@ void register_functions() {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::cut);
-
-    funcs.add("print", Type(Type::INT), Type(Type::INT), funcs::print_int);
-    funcs.add("print", Type(Type::UINT), Type(Type::UINT), funcs::print_uint);
-    funcs.add("print", Type(Type::REAL), Type(Type::REAL), funcs::print_real);
-    funcs.add("print", Type(Type::STRING), Type(Type::STRING), funcs::print_string);
 }
 
 
@@ -1603,8 +1579,8 @@ void execute_init(std::vector<Command>& commands) {
 
     for (auto& c : commands) {
 
-        for (auto& clo : c.closure) {
-
+        for (auto& cloptr : c.closure) {
+            auto& clo = *cloptr;
             clo.object = obj::make(clo.type);
             execute_init(clo.code);
         }
@@ -1650,13 +1626,15 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
+void execute(std::vector<Command>& commands, Runtime& r);
+
 obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
 
     Command::Closure& closure = *(c.closure[n]);
     execute(closure.code, rsub);
             
     obj::Object* o = closure.object;
-    o->set(&(rsub.stack[0]));
+    o->set(rsub.stack);
 
     rsub.stack.clear();
 
@@ -1673,7 +1651,7 @@ void execute(std::vector<Command>& commands, Runtime& r) {
         {
             Runtime rsub;
             rsub.vars = r.vars;
-            obj::Object* arg = _exec_closure(rsub, c, 0)
+            obj::Object* arg = _exec_closure(rsub, c, 0);
 
             ((Functions::func_t)c.function)(arg, c.object);
 
@@ -1701,7 +1679,7 @@ void execute(std::vector<Command>& commands, Runtime& r) {
             Runtime rsub;
             rsub.vars = r.vars;
 
-            obj::Object* key = _exec_closure(rsub, c, 0)
+            obj::Object* key = _exec_closure(rsub, c, 0);
 
             obj::Object* cont = r.stack.back();
             obj::Object* val = c.object;
