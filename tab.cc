@@ -929,8 +929,8 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         }
         }
 
-        if (c.cmd != Command::VAW) {
-            c.type = stack.back();
+        if (ci->cmd != Command::VAW) {
+            ci->type = stack.back();
         }
     }
 
