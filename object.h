@@ -559,15 +559,15 @@ Object* make(const Type& t, U&&... u) {
 struct SequencerFile : public Sequencer {
 
 
-    SequencerFile(std::istream& inf) {
+    SequencerFile(std::istream& infile) {
 
         holder = new String;
 
-        v = [&inf](Object* i, bool& ok) {
+        v = [&infile](Object* i, bool& ok) {
 
             String& x = get<String>(i);
-            std::getline(inf, x.v);
-            ok = inf;
+            std::getline(infile, x.v);
+            ok = infile;
 
             return i;
         };

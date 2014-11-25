@@ -10,24 +10,42 @@ struct Functions {
     
     std::unordered_map<key_t, val_t> funcs;
 
+    typedef func_t (*checker_t)(const Type& args, Type& ret);
+    
+    std::unordered_map< String, checker_t > poly_funcs;
+    
     Functions() {}
 
     void add(const std::string& name, const Type& args, const Type& out, func_t f) {
-        
+
         String n = strings().add(name);
         funcs.insert(funcs.end(), std::make_pair(key_t(n, args), val_t(f, out)));
     }
 
+    void add_poly(const std::string& name, checker_t c) {
+        String n = strings().add(name);
+        poly_funcs.insert(poly_funcs.end(), std::make_pair(n, c));
+    }
+                
     val_t get(const String& name, const Type& args) const {
             
         auto i = funcs.find(key_t(name, args));
 
-        if (i == funcs.end()) {
+        if (i != funcs.end())
+            return i->second;
 
-            throw std::runtime_error("Invalid function call: " + strings().get(name) + " " + Type::print(args));
+        auto j = poly_funcs.find(name);
+
+        if (j != poly_funcs.end()) {
+
+            Type ret;
+            func_t f = (j->second)(args, ret);
+
+            if (f != nullptr) 
+                return val_t(f,ret);
         }
 
-        return i->second;
+        throw std::runtime_error("Invalid function call: " + strings().get(name) + " " + Type::print(args));
     }
 }; 
 
