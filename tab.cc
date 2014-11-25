@@ -308,9 +308,6 @@ struct Command {
     struct Closure {
         std::vector<Command> code;
         Type type;
-        obj::Object* object;
-
-        Closure() : object(nullptr) {}
     };
     
     std::vector< std::shared_ptr<Closure> > closure;
@@ -609,8 +606,8 @@ struct TypeRuntime {
 
 Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer, bool allow_empty);
 
-const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer,
-                          const std::string& name, bool do_unwrap_seq = false, bool allow_empty = false) {
+Type infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer,
+                   const std::string& name, bool do_unwrap_seq = false, bool allow_empty = false) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
@@ -618,9 +615,8 @@ const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntim
     auto& cc = *(c.closure[n]);
     cc.type = infer_types(cc.code, toplevel, typer, allow_empty);
 
-    if (do_unwrap_seq) {
-        cc.type = unwrap_seq(cc.type);
-    }
+    if (do_unwrap_seq) 
+        return unwrap_seq(cc.type);
     
     return cc.type;
 }
@@ -1528,7 +1524,7 @@ struct Tuple : public ArrayObject {
             if (first) {
                 first = false;
             } else {
-                std::cout << " ";
+                std::cout << "\t";
             }
 
             x->print();
@@ -1630,7 +1626,7 @@ struct MapObject : public Object {
             }
 
             x.first->print();
-            std::cout << " ";
+            std::cout << "\t";
             x.second->print();
         }
     }
@@ -1704,12 +1700,13 @@ struct MapObject : public Object {
 struct Sequencer : public Object {
 
     iterator_t v;
-    
+    Object* holder;
+
     void wrap(Object* i) {
         v = i->iter();
     }
 
-    Object* next(Object* holder, bool& ok) {
+    Object* next(bool& ok) {
         return v(holder, ok);
     }
 };
@@ -1772,7 +1769,11 @@ Object* make(const Type& t, U&&... u) {
 
     } else if (t.type == Type::SEQ) {
 
-        return new Sequencer;
+        Sequencer* ret = new Sequencer;
+
+        ret->holder = make((*t.tuple)[0]);
+
+        return ret;
     }
 
     throw std::runtime_error("Sanity error: cannot create object");
@@ -2001,7 +2002,7 @@ void execute_init(std::vector<Command>& commands) {
 
         for (auto& cloptr : c.closure) {
             auto& clo = *cloptr;
-            clo.object = obj::make(clo.type);
+            //clo.object = obj::make(clo.type);
             execute_init(clo.code);
         }
             
@@ -2041,23 +2042,10 @@ obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
     Command::Closure& closure = *(c.closure[n]);
     execute_run(closure.code, rsub);
             
-    obj::Object* o = closure.object;
-    o->set(rsub.stack);
-
+    obj::Object* o = rsub.stack.back();
     rsub.stack.clear();
 
     return o;
-}
-
-obj::Sequencer& _exec_seq_closure(Runtime& rsub, Command& c, size_t n, obj::Object*& ite) {
-
-    Command::Closure& closure = *(c.closure[n]);
-    execute_run(closure.code, rsub);
-
-    ite = closure.object;
-    obj::Object* ret = rsub.stack.back();
-    rsub.stack.clear();
-    return obj::get<obj::Sequencer>(ret);
 }
 
 
@@ -2133,21 +2121,20 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             Runtime rsub;
             rsub.vars = r.vars;
 
-            obj::Object* ite;
-            obj::Sequencer& seq = _exec_seq_closure(rsub, c, 1, ite);
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 1));
             obj::Object* dst = c.object;
             
             while (1) {
                 bool ok;
                 
-                obj::Object* next = seq.next(ite, ok);
+                obj::Object* next = seq.next(ok);
 
                 rsub.set_toplevel(next);
 
                 obj::Object* val = _exec_closure(rsub, c, 0);
-
-                dst->map(val->clone(), nullptr);
                 
+                dst->map(val->clone(), nullptr);
+
                 if (!ok) break;
             }
 
@@ -2160,14 +2147,13 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             Runtime rsub;
             rsub.vars = r.vars;
 
-            obj::Object* ite;
-            obj::Sequencer& seq = _exec_seq_closure(rsub, c, 2, ite);
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 2));
             obj::Object* dst = c.object;
             
             while (1) {
                 bool ok;
                 
-                obj::Object* next = seq.next(ite, ok);
+                obj::Object* next = seq.next(ok);
 
                 rsub.set_toplevel(next);
 
@@ -2356,14 +2342,10 @@ void execute(std::vector<Command>& commands, const Type& type, const std::string
 
     obj::Object* res;
     
-    if (rt.stack.size() == 1) {
-        res = rt.stack[0];
-
-    } else {
-        res = obj::make(type);
-        res->set(rt.stack);
-    }
-
+    if (rt.stack.size() != 1)
+        throw std::runtime_error("Sanity error: did not produce result");
+        
+    res = rt.stack[0];
     res->print();
     std::cout << std::endl;
 }
