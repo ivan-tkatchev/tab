@@ -95,6 +95,7 @@ void cut(const obj::Object* in, obj::Object*& out) {
             v.emplace_back(str.begin() + prev, str.begin() + i);
             i += M;
             prev = i;
+            --i;
         }
     }
 

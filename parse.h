@@ -127,6 +127,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
                 str_buff += '\t';
             } else if (z == "n") {
                 str_buff += '\n';
+            } else if (z == "r") {
+                str_buff += '\r';
             } else if (z == "e") {
                 str_buff += '\e';
             } else {
