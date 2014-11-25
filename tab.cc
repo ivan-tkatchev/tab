@@ -1223,7 +1223,10 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     
     x_go(beg, end);
 
-    Type ret = infer_types(stack.stack, Type(Type::STRING), typer);
+    Type toplevel(Type::SEQ);
+    toplevel.push(Type::STRING);
+    
+    Type ret = infer_types(stack.stack, toplevel, typer);
 
     stack.print();
     std::cout << Type::print(ret) << std::endl;
@@ -1706,8 +1709,20 @@ struct Sequencer : public Object {
         v = i->iter();
     }
 
-    Object* next(bool& ok) {
+    Object* next(bool& ok) const {
         return v(holder, ok);
+    }
+
+    void print() const {
+
+        if (!v) return;
+
+        bool ok = true;
+
+        while (ok) {
+            next(ok)->print();
+            std::cout << std::endl;
+        }
     }
 };
 
@@ -1778,6 +1793,25 @@ Object* make(const Type& t, U&&... u) {
 
     throw std::runtime_error("Sanity error: cannot create object");
 }
+
+
+struct SequencerFile : public Sequencer {
+
+
+    SequencerFile(std::istream& inf) {
+
+        holder = new String;
+
+        v = [&inf](Object* i, bool& ok) {
+
+            String& x = get<String>(i);
+            std::getline(inf, x.v);
+            ok = inf;
+
+            return i;
+        };
+    }
+};
 
 }
 
@@ -2330,11 +2364,11 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
     }
 }
 
-void execute(std::vector<Command>& commands, const Type& type, const std::string& inputs) {
+void execute(std::vector<Command>& commands, const Type& type, std::istream& inputs) {
 
     Runtime rt;
 
-    obj::String* toplevel = new obj::String(inputs);
+    obj::Object* toplevel = new obj::SequencerFile(inputs);
     rt.set_toplevel(toplevel);
 
     execute_init(commands);
@@ -2361,11 +2395,6 @@ int main(int argc, char** argv) {
         }
 
         std::string program(argv[1]);
-        std::string inputs;
-
-        if (argc == 3) {
-            inputs.assign(argv[2]);
-        }
 
         register_functions();
 
@@ -2374,7 +2403,7 @@ int main(int argc, char** argv) {
 
         Type finaltype = parse(program.begin(), program.end(), typer, commands);
 
-        execute(commands, finaltype, inputs);
+        execute(commands, finaltype, std::cin);
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
