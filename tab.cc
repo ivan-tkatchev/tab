@@ -607,16 +607,16 @@ struct TypeRuntime {
 };
 
 
-Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer);
+Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer, bool allow_empty);
 
 const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer,
-                          const std::string& name, bool do_unwrap_seq = false) {
+                          const std::string& name, bool do_unwrap_seq = false, bool allow_empty = false) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
     
     auto& cc = *(c.closure[n]);
-    cc.type = infer_types(cc.code, toplevel, typer);
+    cc.type = infer_types(cc.code, toplevel, typer, allow_empty);
 
     if (do_unwrap_seq) {
         cc.type = unwrap_seq(cc.type);
@@ -625,7 +625,7 @@ const Type& infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntim
     return cc.type;
 }
 
-Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
+Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name, bool allow_empty = false) {
 
     if (c.closure.size() != 1)
         throw std::runtime_error("Sanity error, " + name + " is not a closure.");
@@ -633,7 +633,7 @@ Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     TypeRuntime typer;
     typer.vars = _tr.vars;
 
-    return infer_closure(c, 0, toplevel, typer, name);
+    return infer_closure(c, 0, toplevel, typer, name, false, allow_empty);
 }
 
 Type infer_arr_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
@@ -757,7 +757,7 @@ Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const
 }
 
 
-Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer) {
+Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer, bool allow_empty = false) {
 
     auto& stack = typer.stack;
     auto& vars = typer.vars;
@@ -768,6 +768,8 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
     for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
         Command& c = *ci;
 
+        bool has_type = true;
+        
         switch (c.cmd) {
         case Command::VAL:
             stack.emplace_back(c.arg);
@@ -776,6 +778,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         case Command::VAW:
             vars[c.arg.str] = Type(stack.back());
             stack.pop_back();
+            has_type = false;
             break;
             
         case Command::VAR:
@@ -895,7 +898,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
 
         case Command::FUN:
         {
-            Type args = infer_tup_generator(c, toplevel, typer, "function call");
+            Type args = infer_tup_generator(c, toplevel, typer, "function call", true);
             auto tmp = functions().get(c.arg.str, args);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
@@ -904,18 +907,31 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         case Command::SEQ:
         {
             Type ti = stack.back();
-            Type to = wrap_seq(ti);
-            stack.pop_back();
-            stack.emplace_back(to);
+
+            if (ti.type == Type::SEQ) {
+
+                ci = commands.erase(ci);
+                --ci;
+                has_type = false;
+
+            } else {
+                
+                Type to = wrap_seq(ti);
+                stack.pop_back();
+                stack.emplace_back(to);
+            }
             break;
         }
         case Command::TUP:
         {
-            if (stack.size() == 0)
-                throw std::runtime_error("Sanity error: empty tuple");
+            if (stack.size() <= 1) {
 
-            if (stack.size() > 1) {
+                ci = commands.erase(ci);
+                --ci;
+                has_type = false;
                 
+            } else {
+            
                 Type t(Type::TUP);
 
                 for (const Type& ti : stack) {
@@ -929,29 +945,25 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         }
         }
 
-        if (ci->cmd != Command::VAW) {
+        if (has_type) {
             ci->type = stack.back();
         }
     }
 
 
-    if (stack.size() == 0)
-        throw std::runtime_error("Empty sequences are not allowed.");
+    if (stack.size() == 0) {
 
-    if (stack.size() == 1) {
-
-        return stack[0];
-        
-    } else {
-
-        Type ret(Type::TUP);
-        
-        for (const auto& c : stack) {
-            ret.push(c);
+        if (allow_empty) {
+            return Type();
+        } else {
+            throw std::runtime_error("Empty sequences are not allowed.");
         }
-
-        return ret;
     }
+
+    if (stack.size() != 1)
+        throw std::runtime_error("Sanity error: inferred multiple types.");
+        
+    return stack[0];
 }
 
 struct Stack {
@@ -980,6 +992,8 @@ struct Stack {
     
     void close(Command::cmd_t cmd) {
 
+        push(Command::TUP);
+
         auto m = _mark.back();
         _mark.pop_back();
 
@@ -998,6 +1012,8 @@ struct Stack {
     }
 
     void close() {
+
+        push(Command::TUP);
 
         auto m = _mark.back();
         _mark.pop_back();
@@ -1101,6 +1117,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
+    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
@@ -1136,47 +1153,47 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
-    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
     auto x_index = (axe::r_lit('[') >> y_mark) & x_expr & axe::r_lit(']') >> y_close_idx;
     
     auto x_expr_idx =
         x_expr_bottom & ~(x_index) & x_ws;
 
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
-    
-    auto x_expr_neg =
-        (axe::r_any("~") & x_expr_atom >> y_expr_not) |
+
+    axe::r_rule<I> x_expr_not;
+    x_expr_not =
+        (axe::r_any("~") & x_expr_not >> y_expr_not) |
         x_expr_idx;
 
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });
-    
+
     auto x_expr_exp =
-        x_expr_neg & ~(axe::r_lit("**") & x_expr_atom >> y_expr_exp);
+        x_expr_not & *(axe::r_lit("**") & x_expr_not >> y_expr_exp);
 
     auto y_expr_mul = axe::e_ref([&](I b, I e) { stack.push(Command::MUL_R); });
     auto y_expr_div = axe::e_ref([&](I b, I e) { stack.push(Command::DIV_R); });
     auto y_expr_mod = axe::e_ref([&](I b, I e) { stack.push(Command::MOD); });
-    
+
     auto x_expr_mul =
-        x_expr_exp & ~((axe::r_lit('*') & x_expr_atom) >> y_expr_mul |
-                       (axe::r_lit('/') & x_expr_atom) >> y_expr_div |
-                       (axe::r_lit('%') & x_expr_atom) >> y_expr_mod);
+        x_expr_exp & *((axe::r_lit('*') & x_expr_exp) >> y_expr_mul |
+                       (axe::r_lit('/') & x_expr_exp) >> y_expr_div |
+                       (axe::r_lit('%') & x_expr_exp) >> y_expr_mod);
 
     auto y_expr_add = axe::e_ref([&](I b, I e) { stack.push(Command::ADD_R); });
     auto y_expr_sub = axe::e_ref([&](I b, I e) { stack.push(Command::SUB_R); });
-    
+
     auto x_expr_add =
-        x_expr_mul & ~((axe::r_lit('+') & x_expr_atom) >> y_expr_add |
-                       (axe::r_lit('-') & x_expr_atom) >> y_expr_sub);
+        x_expr_mul & *((axe::r_lit('+') & x_expr_mul) >> y_expr_add |
+                       (axe::r_lit('-') & x_expr_mul) >> y_expr_sub);
 
     auto y_expr_and = axe::e_ref([&](I b, I e) { stack.push(Command::AND); });
     auto y_expr_or  = axe::e_ref([&](I b, I e) { stack.push(Command::OR); });
     auto y_expr_xor = axe::e_ref([&](I b, I e) { stack.push(Command::XOR); });
 
     auto x_expr_bit =
-        x_expr_add & ~((axe::r_lit('&') & x_expr_atom) >> y_expr_and |
-                       (axe::r_lit('|') & x_expr_atom) >> y_expr_or |
-                       (axe::r_lit('^') & x_expr_atom) >> y_expr_xor);
+        x_expr_add & *((axe::r_lit('&') & x_expr_add) >> y_expr_and |
+                       (axe::r_lit('|') & x_expr_add) >> y_expr_or |
+                       (axe::r_lit('^') & x_expr_add) >> y_expr_xor);
 
     x_expr_atom = x_expr_bit;
 
@@ -1199,7 +1216,9 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     x_expr = x_expr_seq;
 
-    auto x_main = x_expr & axe::r_end();
+    auto y_end = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); });
+    
+    auto x_main = x_expr & axe::r_end() >> y_end;
 
     auto x_go = x_main |
         axe::r_fail([](I b, I e) {
@@ -1698,6 +1717,9 @@ struct Sequencer : public Object {
 template <typename... U>
 Object* make(const Type& t, U&&... u) {
 
+    if (t.type == Type::NONE)
+        return new Object();
+    
     if (t.type == Type::ATOM) {
         switch (t.atom) {
         case Type::INT:
@@ -1761,40 +1783,59 @@ Object* make(const Type& t, U&&... u) {
 
 namespace funcs {
 
-void int_to_real(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = obj::get<obj::Int>(in).v;
-}
-
-void uint_to_real(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = obj::get<obj::UInt>(in).v;
+template <typename X, typename Y>
+void x_to_y(const obj::Object* in, obj::Object*& out) {
+    obj::get<Y>(out).v = obj::get<X>(in).v;
 }
 
 void string_to_real(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = std::stod(obj::get<obj::String>(in).v);
 }
 
-void uint_to_int(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Int>(out).v = obj::get<obj::UInt>(in).v;
-}
-
-void real_to_int(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Int>(out).v = obj::get<obj::Real>(in).v;
-}
-
 void string_to_int(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = std::stol(obj::get<obj::String>(in).v);
-}
-
-void int_to_uint(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::UInt>(out).v = obj::get<obj::Int>(in).v;
-}
-
-void real_to_uint(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::UInt>(out).v = obj::get<obj::Real>(in).v;
+    obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(in).v);
 }
 
 void string_to_uint(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
+}
+
+void pi(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = M_PI;
+}
+
+void e(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = M_E;
+}
+
+template <typename T>
+void exp(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::exp(obj::get<T>(in).v);
+}
+
+template <typename T>
+void sqrt(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::sqrt(obj::get<T>(in).v);
+}
+
+template <typename T>
+void log(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::log(obj::get<T>(in).v);
+}
+
+template <typename T>
+void sin(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::sin(obj::get<T>(in).v);
+}
+
+template <typename T>
+void cos(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::cos(obj::get<T>(in).v);
+}
+
+template <typename T>
+void tan(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::tan(obj::get<T>(in).v);
 }
 
 
@@ -1893,17 +1934,44 @@ void register_functions() {
 
     Functions& funcs = functions_init();
 
-    funcs.add("real", Type(Type::INT), Type(Type::REAL), funcs::int_to_real);
-    funcs.add("real", Type(Type::UINT), Type(Type::REAL), funcs::uint_to_real);
+    funcs.add("real", Type(Type::INT), Type(Type::REAL), funcs::x_to_y<obj::Int,obj::Real>);
+    funcs.add("real", Type(Type::UINT), Type(Type::REAL), funcs::x_to_y<obj::UInt,obj::Real>);
     funcs.add("real", Type(Type::STRING), Type(Type::REAL), funcs::string_to_real);
 
-    funcs.add("int", Type(Type::UINT), Type(Type::INT), funcs::uint_to_int);
-    funcs.add("int", Type(Type::REAL), Type(Type::INT), funcs::real_to_int);
+    funcs.add("int", Type(Type::UINT), Type(Type::INT), funcs::x_to_y<obj::UInt,obj::Int>);
+    funcs.add("int", Type(Type::REAL), Type(Type::INT), funcs::x_to_y<obj::Real,obj::Int>);
     funcs.add("int", Type(Type::STRING), Type(Type::INT), funcs::string_to_int);
 
-    funcs.add("uint", Type(Type::INT), Type(Type::UINT), funcs::int_to_uint);
-    funcs.add("uint", Type(Type::REAL), Type(Type::UINT), funcs::real_to_uint);
+    funcs.add("uint", Type(Type::INT), Type(Type::UINT), funcs::x_to_y<obj::Int,obj::UInt>);
+    funcs.add("uint", Type(Type::REAL), Type(Type::UINT), funcs::x_to_y<obj::Real,obj::UInt>);
     funcs.add("uint", Type(Type::STRING), Type(Type::UINT), funcs::string_to_uint);
+
+    funcs.add("pi", Type(), Type(Type::REAL), funcs::pi);
+    funcs.add("e", Type(), Type(Type::REAL), funcs::e);
+
+    funcs.add("exp", Type(Type::INT), Type(Type::REAL), funcs::exp<obj::Int>);
+    funcs.add("exp", Type(Type::UINT), Type(Type::REAL), funcs::exp<obj::UInt>);
+    funcs.add("exp", Type(Type::REAL), Type(Type::REAL), funcs::exp<obj::Real>);
+
+    funcs.add("sqrt", Type(Type::INT), Type(Type::REAL), funcs::sqrt<obj::Int>);
+    funcs.add("sqrt", Type(Type::UINT), Type(Type::REAL), funcs::sqrt<obj::UInt>);
+    funcs.add("sqrt", Type(Type::REAL), Type(Type::REAL), funcs::sqrt<obj::Real>);
+
+    funcs.add("log", Type(Type::INT), Type(Type::REAL), funcs::log<obj::Int>);
+    funcs.add("log", Type(Type::UINT), Type(Type::REAL), funcs::log<obj::UInt>);
+    funcs.add("log", Type(Type::REAL), Type(Type::REAL), funcs::log<obj::Real>);
+
+    funcs.add("sin", Type(Type::INT), Type(Type::REAL), funcs::sin<obj::Int>);
+    funcs.add("sin", Type(Type::UINT), Type(Type::REAL), funcs::sin<obj::UInt>);
+    funcs.add("sin", Type(Type::REAL), Type(Type::REAL), funcs::sin<obj::Real>);
+
+    funcs.add("cos", Type(Type::INT), Type(Type::REAL), funcs::cos<obj::Int>);
+    funcs.add("cos", Type(Type::UINT), Type(Type::REAL), funcs::cos<obj::UInt>);
+    funcs.add("cos", Type(Type::REAL), Type(Type::REAL), funcs::cos<obj::Real>);
+
+    funcs.add("tan", Type(Type::INT), Type(Type::REAL), funcs::tan<obj::Int>);
+    funcs.add("tan", Type(Type::UINT), Type(Type::REAL), funcs::tan<obj::UInt>);
+    funcs.add("tan", Type(Type::REAL), Type(Type::REAL), funcs::tan<obj::Real>);
 
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
