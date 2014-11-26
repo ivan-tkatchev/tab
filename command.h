@@ -42,7 +42,9 @@ struct Command {
         FUN,
         SEQ,
         TUP,
-        GEN
+        GEN,
+
+        FLAT
     };
 
     cmd_t cmd;
@@ -99,6 +101,8 @@ struct Command {
         case SEQ: return "SEQ";
         case TUP: return "TUP";
         case GEN: return "GEN";
+
+        case FLAT: return "FLAT";
         }
         return ":~(";
     }

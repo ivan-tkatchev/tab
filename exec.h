@@ -42,6 +42,10 @@ void execute_init(std::vector<Command>& commands) {
 
         case Command::VAW:
             break;
+
+        case Command::FLAT:
+            c.object = new obj::SequencerFlatten(c.type);
+            break;
             
         default:
             c.object = obj::make(c.type);
@@ -173,6 +177,17 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             dst->fill(seq);
 
             r.stack.push_back(dst);
+            break;
+        }
+        case Command::FLAT:
+        {
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            r.stack.pop_back();
+
+            obj::SequencerFlatten& fseq = obj::get<obj::SequencerFlatten>(c.object);
+            fseq.wrap(seq);
+
+            r.stack.push_back(c.object);
             break;
         }
 

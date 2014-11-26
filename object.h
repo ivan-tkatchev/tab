@@ -361,6 +361,10 @@ struct Tuple : public ArrayObject {
         out = v[get<UInt>(key).v];
     }
 
+    void fill(Sequencer& s) {
+        throw std::runtime_error("Cannot construct tuples");
+    }
+    
     iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
 };
 
@@ -590,7 +594,6 @@ Object* make(const Type& t, U&&... u) {
 
 struct SequencerFile : public Sequencer {
 
-
     SequencerFile(std::istream& infile) {
 
         holder = new String;
@@ -605,6 +608,33 @@ struct SequencerFile : public Sequencer {
         };
     }
 };
+
+
+struct SequencerFlatten : public Sequencer {
+
+    SequencerFlatten(const Type& t) {
+
+        holder = make((*t.tuple)[0]);
+    }
+
+    void wrap(Sequencer& subseq) {
+
+        bool have_object = false;
+        iterator_t subv;
+        
+        v = [this,&subseq,subv,have_object](Object* i, bool& ok) mutable {
+
+            if (!have_object) {
+
+                obj::Object* next = subseq.next(ok);
+                subv = next->iter();
+            }
+
+            return subv(holder, have_object);
+        };
+    }    
+};
+
 
 }
 

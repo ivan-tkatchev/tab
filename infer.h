@@ -320,6 +320,19 @@ Type infer_map_generator(const std::vector<Type>& stack) {
     return ret;
 }
 
+Type infer_flat_generator(const std::vector<Type>& stack) {
+
+    const Type& t = stack.back();
+
+    if (t.type != Type::SEQ)
+        throw std::runtime_error("Cannot flatten something that isn't a sequence.");
+
+    Type t2 = unwrap_seq(t);
+    t2 = wrap_seq(t2);
+
+    return t2;
+}
+
 Type value_type(const Type& t) {
 
     if (!t.tuple || t.tuple->empty())
@@ -559,6 +572,15 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             stack.emplace_back(tmp.second);
             break;
         }
+
+        case Command::FLAT:
+        {
+            Type t = infer_flat_generator(stack);
+            stack.pop_back();
+            stack.emplace_back(t);
+            break;
+        }
+
         case Command::SEQ:
         {
             Type ti = stack.back();
@@ -577,6 +599,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             }
             break;
         }
+
         case Command::TUP:
         {
             if (stack.size() <= 1) {
