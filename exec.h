@@ -157,6 +157,28 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
             break;
         }
+        case Command::GEN:
+        {
+            Runtime rsub;
+            rsub.vars = r.vars;
+
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 1));
+            obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
+
+            dst.v = [&seq,&c,rsub](obj::Object* holder, bool& ok) mutable {
+
+                obj::Object* next = seq.next(ok);
+
+                rsub.set_toplevel(next);
+
+                obj::Object* val = _exec_closure(rsub, c, 0);
+
+                return val;
+            };
+
+            r.stack.push_back(c.object);
+            break;
+        }
         case Command::MAP:
         {
             Runtime rsub;

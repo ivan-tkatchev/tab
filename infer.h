@@ -195,7 +195,7 @@ handle_poly_operator(std::vector<Command>& commands, std::vector<Command>::itera
 Type wrap_seq(const Type& t) {
 
     Type ret(Type::SEQ);
-    
+
     if (t.type == Type::ARR) {
 
         ret.push(t.tuple->at(0));
@@ -272,6 +272,24 @@ Type infer_arr_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     const Type& t = infer_closure(c, 0, toplevel, typer, name);
     
     Type ret(Type::ARR);
+    ret.push(t);
+
+    return ret;
+}
+
+Type infer_gen_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
+
+    if (c.closure.size() != 2)
+        throw std::runtime_error("Sanity error, generator is not a closure.");
+
+    TypeRuntime typer;
+    typer.vars = _tr.vars;
+
+    toplevel = infer_closure(c, 1, toplevel, typer, name, true);
+        
+    const Type& t = infer_closure(c, 0, toplevel, typer, name);
+    
+    Type ret(Type::SEQ);
     ret.push(t);
 
     return ret;
@@ -519,6 +537,13 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             break;
         }
 
+        case Command::GEN:
+        {
+            Type t = infer_gen_generator(c, toplevel, typer, "sequence generator");
+            stack.emplace_back(t);
+            break;
+        }
+        
         case Command::FUN:
         {
             Type args = infer_tup_generator(c, toplevel, typer, "function call", true);

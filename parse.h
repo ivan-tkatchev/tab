@@ -152,7 +152,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
     auto y_unmark_name = axe::e_ref([&](I b, I e) { stack.unmark(); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
-    auto y_close_arr = axe::e_ref([&](I b, I e) { stack.close(Command::ARR); });
+    auto y_close_gen = axe::e_ref([&](I b, I e) { stack.close(Command::GEN); });
     auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
@@ -166,8 +166,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
         (((axe::r_lit(':') >> y_mark) & x_expr) |
          (axe::r_empty() >> y_mark >> y_default_from)) >> y_close_seq >> y_close_arg;
 
-    auto x_array =
-        (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_arr) & x_from & axe::r_lit(']');
+    auto x_generator =
+        (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']');
     
     auto x_map =
         (axe::r_lit('{')  >> y_mark) & (x_expr >> y_close_map) &
@@ -188,7 +188,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     auto x_expr_bottom =
         x_ws &
-        (x_literal | x_funcall | x_var_read | x_array | x_map |
+        (x_literal | x_funcall | x_var_read | x_generator | x_map |
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
