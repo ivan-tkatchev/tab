@@ -259,24 +259,6 @@ Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     return infer_closure(c, 0, toplevel, typer, name, false, allow_empty);
 }
 
-Type infer_arr_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
-
-    if (c.closure.size() != 2)
-        throw std::runtime_error("Sanity error, generator is not a closure.");
-
-    TypeRuntime typer;
-    typer.vars = _tr.vars;
-
-    toplevel = infer_closure(c, 1, toplevel, typer, name, true);
-        
-    const Type& t = infer_closure(c, 0, toplevel, typer, name);
-    
-    Type ret(Type::ARR);
-    ret.push(t);
-
-    return ret;
-}
-
 Type infer_gen_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
 
     if (c.closure.size() != 2)
@@ -288,25 +270,48 @@ Type infer_gen_generator(Command& c, Type toplevel, const TypeRuntime& _tr, cons
     toplevel = infer_closure(c, 1, toplevel, typer, name, true);
         
     const Type& t = infer_closure(c, 0, toplevel, typer, name);
-    
+
     Type ret(Type::SEQ);
     ret.push(t);
 
     return ret;
 }
 
-Type infer_map_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
+Type infer_arr_generator(const std::vector<Type>& stack) {
 
-    if (c.closure.size() != 3)
-        throw std::runtime_error("Sanity error, generator is not a map closure.");
+    const Type& t = stack.back();
 
-    TypeRuntime typer;
-    typer.vars = _tr.vars;
+    if (t.type != Type::SEQ)
+        throw std::runtime_error("Sanity error, constructing array from a non-sequence.");
 
-    toplevel = infer_closure(c, 2, toplevel, typer, name, true);
-    
-    const Type& tk = infer_closure(c, 0, toplevel, typer, name);
-    const Type& tv = infer_closure(c, 1, toplevel, typer, name);
+    Type t2 = unwrap_seq(t);
+
+    if (t2.type == Type::SEQ)
+        throw std::runtime_error("Cannot store sequences in array.");
+
+    Type ret(Type::ARR);
+    ret.push(t2);
+
+    return ret;
+}
+
+Type infer_map_generator(const std::vector<Type>& stack) {
+
+    const Type& t = stack.back();
+
+    if (t.type != Type::SEQ)
+        throw std::runtime_error("Sanity error, constructing map from a non-sequence.");
+
+    Type t2 = unwrap_seq(t);
+
+    if (t2.type != Type::TUP || !t2.tuple || t2.tuple->size() != 2)
+        throw std::runtime_error("Sanity error, map constuction expects a sequence of pairs.");
+
+    const Type& tk = t2.tuple->at(0);
+    const Type& tv = t2.tuple->at(1);
+
+    if (tk.type == Type::SEQ || tv.type == Type::SEQ)
+        throw std::runtime_error("Cannot store sequences in a map");
 
     Type ret(Type::MAP);
     ret.push(tk);
@@ -525,14 +530,16 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         
         case Command::ARR:
         {
-            Type t = infer_arr_generator(c, toplevel, typer, "array");
+            Type t = infer_arr_generator(stack);
+            stack.pop_back();
             stack.emplace_back(t);
             break;
         }
 
         case Command::MAP:
         {
-            Type t = infer_map_generator(c, toplevel, typer, "map");
+            Type t = infer_map_generator(stack);
+            stack.pop_back();
             stack.emplace_back(t);
             break;
         }

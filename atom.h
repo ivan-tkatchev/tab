@@ -106,16 +106,16 @@ struct Atom {
 
     bool is_string() const { return (which == STRING); }
     
-    std::string print() const {
-        switch (which) {
+    static std::string print(const Atom& a) {
+        switch (a.which) {
         case INT:
-            return std::to_string(inte);
+            return "INT(" + std::to_string(a.inte) + ")";
         case UINT:
-            return std::to_string(uint);
+            return "UINT(" + std::to_string(a.uint) + ")";
         case REAL:
-            return std::to_string(real);
+            return "REAL(" + std::to_string(a.real) + ")";
         case STRING:
-            return strings().get(str);
+            return "STRING(" + strings().get(a.str) + ")";
         }
         return ":~(";
     }

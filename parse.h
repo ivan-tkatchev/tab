@@ -66,9 +66,13 @@ struct Stack {
     static void print(const std::vector<Command>& c, size_t level) {
 
         for (const auto& i : c) {
-            std::cout << " " << std::string(level*2, ' ')
-                      << Command::print(i.cmd) << " " << i.arg.which << ": " << i.arg.print()
-                      << " // " << Type::print(i.type) << std::endl;
+            std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
+
+            if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN) {
+                std::cout << " " << Atom::print(i.arg);
+            }
+
+            std::cout << " --> " << Type::print(i.type) << std::endl;
 
             for (const auto& ii : i.closure) {
 
@@ -151,12 +155,10 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
     auto y_unmark_name = axe::e_ref([&](I b, I e) { stack.unmark(); });
+
+    auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
     auto y_close_gen = axe::e_ref([&](I b, I e) { stack.close(Command::GEN); });
-    auto y_close_map = axe::e_ref([&](I b, I e) { stack.close(Command::MAP); });
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
-    auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
-    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
@@ -168,13 +170,22 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     auto x_generator =
         (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']');
+
+    auto y_array = axe::e_ref([&](I b, I e) { stack.push(Command::ARR); });
+    auto y_map = axe::e_ref([&](I b, I e) { stack.push(Command::MAP); });
+    auto y_close_tup = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); });
     
+    auto x_array =
+        (axe::r_lit("[.") >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(".]") >> y_array;
+
     auto x_map =
-        (axe::r_lit('{')  >> y_mark) & (x_expr >> y_close_map) &
-        (((axe::r_lit("->") >> y_mark) & (x_expr >> y_close_arg)) |
-         (axe::r_empty() >> y_mark >> y_true >> y_close_arg)) &
-        x_from & axe::r_lit('}');
-    
+        (axe::r_lit('{')  >> y_mark) & (x_expr >> y_close_tup) &
+        (((axe::r_lit("->") & (x_expr >> y_close_tup)) |
+          (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
+        x_from & axe::r_lit('}') >> y_map;
+
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+
     auto x_funcall =
         (x_var >> y_mark_name) &
         x_ws &
@@ -188,9 +199,11 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     auto x_expr_bottom =
         x_ws &
-        (x_literal | x_funcall | x_var_read | x_generator | x_map |
+        (x_literal | x_funcall | x_var_read | x_array | x_map | x_generator | 
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
+
+    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
 
     auto x_index = (axe::r_lit('[') >> y_mark) & x_expr & axe::r_lit(']') >> y_close_idx;
     
@@ -272,7 +285,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     Type ret = infer_types(stack.stack, toplevel, typer);
 
     stack.print();
-    std::cout << Type::print(ret) << std::endl;
+    std::cout << "--> " << Type::print(ret) << std::endl;
 
     commands.swap(stack.stack);
 

@@ -147,6 +147,9 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
         ++iter;
     }
+
+    if (v.empty())
+        v.emplace_back();
 }
 
 

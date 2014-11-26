@@ -131,32 +131,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             r.stack.push_back(c.object);
             break;
         }
-        case Command::ARR:
-        {
-            Runtime rsub;
-            rsub.vars = r.vars;
-
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 1));
-            obj::Object* dst = c.object;
-            
-            while (1) {
-                bool ok;
-                
-                obj::Object* next = seq.next(ok);
-
-                rsub.set_toplevel(next);
-
-                obj::Object* val = _exec_closure(rsub, c, 0);
-                
-                dst->map(val->clone(), nullptr);
-
-                if (!ok) break;
-            }
-
-            r.stack.push_back(dst);
-
-            break;
-        }
         case Command::GEN:
         {
             Runtime rsub;
@@ -179,31 +153,26 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             r.stack.push_back(c.object);
             break;
         }
-        case Command::MAP:
+        case Command::ARR:
         {
-            Runtime rsub;
-            rsub.vars = r.vars;
-
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 2));
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            r.stack.pop_back();
             obj::Object* dst = c.object;
-            
-            while (1) {
-                bool ok;
-                
-                obj::Object* next = seq.next(ok);
 
-                rsub.set_toplevel(next);
-
-                obj::Object* key = _exec_closure(rsub, c, 0);
-                obj::Object* val = _exec_closure(rsub, c, 1);
-
-                dst->map(key->clone(), val->clone());
-                
-                if (!ok) break;
-            }
+            dst->fill(seq);
 
             r.stack.push_back(dst);
+            break;
+        }
+        case Command::MAP:
+        {
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            r.stack.pop_back();
+            obj::Object* dst = c.object;
 
+            dst->fill(seq);
+
+            r.stack.push_back(dst);
             break;
         }
 

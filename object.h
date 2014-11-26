@@ -3,6 +3,8 @@
 
 namespace obj {
 
+struct Sequencer;
+
 struct Object {
 
     typedef std::function<Object*(Object*,bool&)> iterator_t;
@@ -31,12 +33,12 @@ struct Object {
         throw std::runtime_error("Object cloning not implemented");
     }
 
-    virtual void map(Object*, Object*) {
-        throw std::runtime_error("Object map construction not implemented");
-    }
-
     virtual iterator_t iter() const {
         throw std::runtime_error("Object iteration not implemented");
+    }
+
+    virtual void fill(Sequencer&) {
+        throw std::runtime_error("Object construction not implemented");
     }
 };
 
@@ -45,6 +47,32 @@ T& get(const Object* o) {
     return *((T*)o);
 }
 
+
+struct Sequencer : public Object {
+
+    iterator_t v;
+    Object* holder;
+
+    void wrap(Object* i) {
+        v = i->iter();
+    }
+
+    Object* next(bool& ok) const {
+        return v(holder, ok);
+    }
+
+    void print() const {
+
+        if (!v) return;
+
+        bool ok = true;
+
+        while (ok) {
+            next(ok)->print();
+            std::cout << std::endl;
+        }
+    }
+};
 
 template <typename T>
 struct Atom : public Object {
@@ -152,9 +180,17 @@ struct ArrayAtom : public Object {
         o.v = v[i];
     }
 
-    void map(Object* val, Object*) {
+    void fill(Sequencer& seq) {
 
-        v.push_back(get< Atom<T> >(val).v);
+        while (1) {
+
+            bool ok;
+            obj::Object* next = seq.next(ok);
+
+            v.push_back(get< Atom<T> >(next).v);
+
+            if (!ok) break;
+        }
     }
 
     iterator_t iter() const {
@@ -250,9 +286,17 @@ struct ArrayObject : public Object {
         out = v[i];
     }
 
-    void map(Object* val, Object*) {
+    void fill(Sequencer& seq) {
 
-        v.push_back(val);
+        while (1) {
+
+            bool ok;
+            obj::Object* next = seq.next(ok);
+
+            v.push_back(next->clone());
+
+            if (!ok) break;
+        }
     }
         
     iterator_t iter() const {
@@ -422,16 +466,28 @@ struct MapObject : public Object {
         out = i->second;
     }
 
-    void map(Object* key, Object* val) {
+    void fill(Sequencer& seq) {
 
-        auto i = v.find(key);
+        while (1) {
 
-        if (i != v.end()) {
-            delete i->second;
-            i->second = val;
+            bool ok;
+            obj::Object* next = seq.next(ok);
 
-        } else {
-            v[key] = val;
+            Tuple& tup = get<Tuple>(next);
+            obj::Object* key = tup.v[0]->clone();
+            obj::Object* val = tup.v[1]->clone();
+
+            auto i  = v.find(key);
+            
+            if (i != v.end()) {
+                delete i->second;
+                i->second = val;
+
+            } else {
+                v[key] = val;
+            }
+
+            if (!ok) break;
         }
     }
 
@@ -461,31 +517,7 @@ struct MapObject : public Object {
     }
 };
 
-struct Sequencer : public Object {
 
-    iterator_t v;
-    Object* holder;
-
-    void wrap(Object* i) {
-        v = i->iter();
-    }
-
-    Object* next(bool& ok) const {
-        return v(holder, ok);
-    }
-
-    void print() const {
-
-        if (!v) return;
-
-        bool ok = true;
-
-        while (ok) {
-            next(ok)->print();
-            std::cout << std::endl;
-        }
-    }
-};
 
 template <typename... U>
 Object* make(const Type& t, U&&... u) {
