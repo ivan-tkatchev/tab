@@ -9,6 +9,7 @@
 #include "parse.h"
 #include "object.h"
 #include "funcs.h"
+#include "file.h"
 #include "exec.h"
 
 #endif

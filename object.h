@@ -69,7 +69,9 @@ struct Sequencer : public Object {
 
         while (ok) {
             next(ok)->print();
-            std::cout << std::endl;
+
+            if (ok)
+                std::cout << std::endl;
         }
     }
 };
@@ -590,24 +592,6 @@ Object* make(const Type& t, U&&... u) {
 
     throw std::runtime_error("Sanity error: cannot create object");
 }
-
-
-struct SequencerFile : public Sequencer {
-
-    SequencerFile(std::istream& infile) {
-
-        holder = new String;
-
-        v = [&infile](Object* i, bool& ok) {
-
-            String& x = get<String>(i);
-            std::getline(infile, x.v);
-            ok = infile;
-
-            return i;
-        };
-    }
-};
 
 
 struct SequencerFlatten : public Sequencer {

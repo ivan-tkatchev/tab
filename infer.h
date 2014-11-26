@@ -422,7 +422,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
     auto& vars = typer.vars;
 
     stack.clear();
-    vars[strings().add("$")] = toplevel;
+    vars[strings().add("@")] = toplevel;
     
     for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
         Command& c = *ci;

@@ -6,7 +6,7 @@ struct Runtime {
     std::vector<obj::Object*> stack;
 
     void set_toplevel(obj::Object* o) {
-        vars[strings().add("$")] = o;
+        vars[strings().add("@")] = o;
     }
 };
 
@@ -71,7 +71,6 @@ obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
 void execute_run(std::vector<Command>& commands, Runtime& r) {
     
     for (Command& c : commands) {
-        std::cout << " ~ " << Command::print(c.cmd) << std::endl;
         switch (c.cmd) {
             
         case Command::FUN:

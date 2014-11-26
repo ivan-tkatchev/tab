@@ -150,7 +150,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
 
     auto x_literal = x_float | x_uint | x_int | x_string;
 
-    auto x_var = axe::r_lit('$') | (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
+    auto x_var = axe::r_lit('@') | (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
 
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
@@ -162,7 +162,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
-    auto y_default_from = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, strings().add("$")); });
+    auto y_default_from = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, strings().add("@")); });
     
     auto x_from =
         (((axe::r_lit(':') >> y_mark) & x_expr) |

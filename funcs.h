@@ -66,8 +66,6 @@ void cut(const obj::Object* in, obj::Object*& out) {
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
     const std::string& del = obj::get<obj::String>(args.v[1]).v;
 
-    std::cout << "cut '" << str << "' '" << del << "'" << std::endl;
-    
     size_t N = str.size();
     size_t M = del.size();
 
