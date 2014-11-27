@@ -17,6 +17,10 @@ template <> struct hash<String> {
     size_t operator()(String x) const { return hash<size_t>()(x.ix); }
 };
 
+template <> struct hash< std::pair<String,size_t> > {
+    size_t operator()(const std::pair<String,size_t>& x) const { return hash<size_t>()(x.first.ix) + hash<size_t>()(x.second); }
+};
+
 }
 
 struct Strings {

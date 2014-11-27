@@ -226,48 +226,74 @@ Type unwrap_seq(const Type& t) {
 
 struct TypeRuntime {
 
-    std::vector<Type> stack;
-    std::unordered_map< String, std::pair<Type,UInt> > vars;
+    std::unordered_map< std::pair<String,size_t>, std::pair<Type,UInt> > vars;
 
-    void add_var(const String& name, const Type& type) {
+    size_t nscopes;
+    std::vector<size_t> scope;
+    
+    TypeRuntime() : nscopes(0) {
+        scope.push_back(0);
+    }
 
-        auto i = vars.find(name);
+    UInt add_var(const String& name, const Type& type) {
+
+        size_t sc = scope.back();
+
+        auto i = vars.find(std::make_pair(name,sc));
 
         if (i == vars.end()) {
-            vars.insert(i, std::make_pair(name, std::make_pair(type, vars.size())));
-            return;
+
+            UInt ret = vars.size();
+            vars.insert(i, std::make_pair(std::make_pair(name, sc), std::make_pair(type, ret)));
+            return ret;
         }
 
         i->second.first = type;
+        return i->second.second;
     }
 
     std::pair<Type,UInt> get_var(const String& name) const {
 
-        auto i = vars.find(name);
+        for (auto si = scope.rbegin(); si != scope.rend(); ++si) {
+        
+            auto i = vars.find(std::make_pair(name,*si));
 
-        if (i == vars.end()) {
-            throw std::runtime_error("Use of undefined variable: " + strings().get(name));
+            if (i != vars.end())
+                return i->second;
         }
-
-        return i->second;
+            
+        throw std::runtime_error("Use of undefined variable: " + strings().get(name));
     }
 
     size_t num_vars() const {
         return vars.size();
     }
+
+    void enter_scope() {
+        nscopes++;
+        scope.push_back(nscopes);
+    }
+
+    void exit_scope() {
+
+        if (scope.size() <= 1)
+            throw std::runtime_error("Sanity error: exited toplevel scope.");
+
+        scope.pop_back();
+    }
 };
 
 
-Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer, bool allow_empty);
+Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty);
 
-Type infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& typer,
-                   const std::string& name, bool do_unwrap_seq = false, bool allow_empty = false) {
+Type infer_closure(Command& c, size_t n, TypeRuntime& typer, const std::string& name,
+                   bool do_unwrap_seq = false, bool allow_empty = false) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
     
     auto& cc = *(c.closure[n]);
-    cc.type = infer_types(cc.code, toplevel, typer, allow_empty);
+    cc.type = infer_expr(cc.code, typer, allow_empty);
 
     if (do_unwrap_seq) 
         return unwrap_seq(cc.type);
@@ -275,32 +301,32 @@ Type infer_closure(Command& c, size_t n, const Type& toplevel, TypeRuntime& type
     return cc.type;
 }
 
-Type infer_tup_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name, bool allow_empty = false) {
+Type infer_tup_generator(Command& c, TypeRuntime& typer, const std::string& name, bool allow_empty = false) {
 
     if (c.closure.size() != 1)
         throw std::runtime_error("Sanity error, " + name + " is not a closure.");
 
-    TypeRuntime typer;
-    typer.vars = _tr.vars;
-
-    return infer_closure(c, 0, toplevel, typer, name, false, allow_empty);
+    return infer_closure(c, 0, typer, name, false, allow_empty);
 }
 
-Type infer_gen_generator(Command& c, Type toplevel, const TypeRuntime& _tr, const std::string& name) {
+Type infer_gen_generator(Command& c, TypeRuntime& typer, const std::string& name, UInt& tlvar) {
 
     if (c.closure.size() != 2)
         throw std::runtime_error("Sanity error, generator is not a closure.");
 
-    TypeRuntime typer;
-    typer.vars = _tr.vars;
+    typer.enter_scope();
 
-    toplevel = infer_closure(c, 1, toplevel, typer, name, true);
-        
-    const Type& t = infer_closure(c, 0, toplevel, typer, name);
+    Type toplevel = infer_closure(c, 1, typer, name, true);
+
+    tlvar = typer.add_var(strings().add("@"), toplevel);
+    
+    const Type& t = infer_closure(c, 0, typer, name);
 
     Type ret(Type::SEQ);
     ret.push(t);
 
+    typer.exit_scope();
+    
     return ret;
 }
 
@@ -396,10 +422,9 @@ Type mapped_type(const Type& t) {
     return (*t.tuple)[0];
 }
 
-Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const TypeRuntime& typer,
-                         const std::string& name) {
+Type infer_idx_generator(const Type& tv, Command& c, TypeRuntime& typer, const std::string& name) {
             
-    Type ti = infer_tup_generator(c, toplevel, typer, "structure index");
+    Type ti = infer_tup_generator(c, typer, "structure index");
 
     if (tv.type == Type::TUP) {
 
@@ -443,14 +468,11 @@ Type infer_idx_generator(const Type& tv, Command& c, const Type& toplevel, const
 }
 
 
-Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer, bool allow_empty = false) {
+Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty = false) {
 
-    auto& stack = typer.stack;
+    std::vector<Type> stack;
     auto& vars = typer.vars;
 
-    stack.clear();
-    typer.add_var(strings().add("@"), toplevel);
-    
     for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
         Command& c = *ci;
 
@@ -560,7 +582,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             Type tv = stack.back();
             stack.pop_back();
 
-            Type t = infer_idx_generator(tv, c, toplevel, typer, "structure index");
+            Type t = infer_idx_generator(tv, c, typer, "structure index");
             stack.emplace_back(t);
             break;
         }
@@ -583,14 +605,16 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
 
         case Command::GEN:
         {
-            Type t = infer_gen_generator(c, toplevel, typer, "sequence generator");
+            UInt tlvar;
+            Type t = infer_gen_generator(c, typer, "sequence generator", tlvar);
+            c.arg.uint = tlvar;
             stack.emplace_back(t);
             break;
         }
         
         case Command::FUN:
         {
-            Type args = infer_tup_generator(c, toplevel, typer, "function call", true);
+            Type args = infer_tup_generator(c, typer, "function call", true);
             auto tmp = functions().get(c.arg.str, args);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
@@ -666,6 +690,12 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
         throw std::runtime_error("Sanity error: inferred multiple types.");
         
     return stack[0];
+}
+
+Type infer(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer) {
+
+    typer.add_var(strings().add("@"), toplevel);
+    return infer_expr(commands, typer);
 }
 
 #endif

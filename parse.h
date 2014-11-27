@@ -68,7 +68,9 @@ struct Stack {
         for (const auto& i : c) {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
-            if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN) {
+            if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW ||
+                i.cmd == Command::FUN || i.cmd == Command::GEN) {
+
                 std::cout << " " << Atom::print(i.arg);
             }
 
@@ -289,7 +291,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     Type toplevel(Type::SEQ);
     toplevel.push(Type::STRING);
     
-    Type ret = infer_types(stack.stack, toplevel, typer);
+    Type ret = infer(stack.stack, toplevel, typer);
 
     stack.print();
     std::cout << "--> " << Type::print(ret) << std::endl;

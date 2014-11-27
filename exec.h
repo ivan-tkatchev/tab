@@ -29,7 +29,6 @@ void execute_init(std::vector<Command>& commands) {
 
         for (auto& cloptr : c.closure) {
             auto& clo = *cloptr;
-            //clo.object = obj::make(clo.type);
             execute_init(clo.code);
         }
             
@@ -68,13 +67,14 @@ void execute_init(std::vector<Command>& commands) {
 
 void execute_run(std::vector<Command>& commands, Runtime& r);
 
-obj::Object* _exec_closure(Runtime& rsub, Command& c, size_t n) {
+obj::Object* _exec_closure(Runtime& r, Command::Closure& closure) {
 
-    Command::Closure& closure = *(c.closure[n]);
-    execute_run(closure.code, rsub);
+    size_t mark = r.stack.size();
+    
+    execute_run(closure.code, r);
             
-    obj::Object* o = rsub.stack.back();
-    rsub.stack.clear();
+    obj::Object* o = r.stack.back();
+    r.stack.erase(r.stack.begin() + mark, r.stack.end());
 
     return o;
 }
@@ -87,9 +87,8 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             
         case Command::FUN:
         {
-            Runtime rsub(r);
-
-            obj::Object* arg = _exec_closure(rsub, c, 0);
+            Command::Closure& closure = *(c.closure[0]);
+            obj::Object* arg = _exec_closure(r, closure);
 
             ((Functions::func_t)c.function)(arg, c.object);
 
@@ -114,14 +113,13 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::IDX:
         {
-            Runtime rsub(r);
-
-            obj::Object* key = _exec_closure(rsub, c, 0);
+            Command::Closure& closure = *(c.closure[0]);
+            obj::Object* key = _exec_closure(r, closure);
 
             obj::Object* cont = r.stack.back();
             obj::Object* val = c.object;
 
-            cont->index(c.closure[0]->type, key, val);
+            cont->index(closure.type, key, val);
             
             r.stack.pop_back();
             r.stack.push_back(val);
@@ -131,7 +129,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         {
             obj::Object* o = c.object;
             o->set(r.stack);
-            r.stack.clear();
             r.stack.push_back(o);
             break;
         }
@@ -147,20 +144,18 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::GEN:
         {
-            Runtime rsub(r);
+            Command::Closure& closure1 = *(c.closure[1]);
+            Command::Closure& closure0 = *(c.closure[0]);
 
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 1));
+            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(r, closure1));
             obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
-            Command::Closure& closure = *(c.closure[0]);
 
-            dst.v = [&seq,&c,rsub,&closure](obj::Object* holder, bool& ok) mutable {
+            dst.v = [&seq,&c,&r,&closure0](obj::Object* holder, bool& ok) mutable {
 
                 obj::Object* next = seq.next(ok);
-                rsub.set_var(0, next);
+                r.set_var(c.arg.uint, next);
 
-                execute_run(closure.code, rsub);
-                obj::Object* val = rsub.stack.back();
-                rsub.stack.clear();
+                obj::Object* val = _exec_closure(r, closure0);
 
                 return val;
             };
