@@ -77,21 +77,6 @@ struct SequencerFile : public Sequencer {
         reader.getline(x.v, ok);
         return holder;
     }        
-    
-    /*
-        holder = new String;
-
-        v = [this](Object* i, bool& ok) {
-            static bm_scope bms("seqfile_lambda");
-            bm __(bms);
-
-            String& x = get<String>(i);
-            reader.getline(x.v, ok);
-
-            return i;
-        };
-    }
-    */
 };
 
 }

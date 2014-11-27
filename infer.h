@@ -196,7 +196,7 @@ Type wrap_seq(const Type& t) {
 
     Type ret(Type::SEQ);
 
-    if (t.type == Type::ARR) {
+    if (t.type == Type::ARR || t.type == Type::SEQ) {
 
         ret.push(t.tuple->at(0));
 
