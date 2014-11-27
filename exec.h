@@ -2,11 +2,23 @@
 #define __TAB_EXEC_H
 
 struct Runtime {
-    std::unordered_map<String,obj::Object*> vars;
+    std::vector<obj::Object*> vars;
     std::vector<obj::Object*> stack;
 
-    void set_toplevel(obj::Object* o) {
-        vars[strings().add("@")] = o;
+    Runtime(const Runtime& r) {
+        vars = r.vars;
+    }
+    
+    Runtime(size_t nvars) {
+        vars.resize(nvars);
+    }
+    
+    void set_var(UInt ix, obj::Object* o) {
+        vars[ix] = o;
+    }
+
+    obj::Object* get_var(UInt ix) {
+        return vars[ix];
     }
 };
 
@@ -75,8 +87,8 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             
         case Command::FUN:
         {
-            Runtime rsub;
-            rsub.vars = r.vars;
+            Runtime rsub(r);
+
             obj::Object* arg = _exec_closure(rsub, c, 0);
 
             ((Functions::func_t)c.function)(arg, c.object);
@@ -86,12 +98,12 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::VAR:
         {
-            r.stack.push_back(r.vars[c.arg.str]);
+            r.stack.push_back(r.get_var(c.arg.uint));
             break;
         }
         case Command::VAW:
         {
-            r.vars[c.arg.str] = r.stack.back();
+            r.set_var(c.arg.uint, r.stack.back());
             r.stack.pop_back();
             break;
         }
@@ -102,8 +114,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::IDX:
         {
-            Runtime rsub;
-            rsub.vars = r.vars;
+            Runtime rsub(r);
 
             obj::Object* key = _exec_closure(rsub, c, 0);
 
@@ -136,19 +147,20 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::GEN:
         {
-            Runtime rsub;
-            rsub.vars = r.vars;
+            Runtime rsub(r);
 
             obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(rsub, c, 1));
             obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
+            Command::Closure& closure = *(c.closure[0]);
 
-            dst.v = [&seq,&c,rsub](obj::Object* holder, bool& ok) mutable {
+            dst.v = [&seq,&c,rsub,&closure](obj::Object* holder, bool& ok) mutable {
 
                 obj::Object* next = seq.next(ok);
+                rsub.set_var(0, next);
 
-                rsub.set_toplevel(next);
-
-                obj::Object* val = _exec_closure(rsub, c, 0);
+                execute_run(closure.code, rsub);
+                obj::Object* val = rsub.stack.back();
+                rsub.stack.clear();
 
                 return val;
             };
@@ -350,12 +362,12 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
     }
 }
 
-void execute(std::vector<Command>& commands, const Type& type, std::istream& inputs) {
+void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std::istream& inputs) {
 
-    Runtime rt;
+    Runtime rt(nvars);
 
     obj::Object* toplevel = new obj::SequencerFile(inputs);
-    rt.set_toplevel(toplevel);
+    rt.set_var(0, toplevel);
 
     execute_init(commands);
     execute_run(commands, rt);
@@ -364,7 +376,7 @@ void execute(std::vector<Command>& commands, const Type& type, std::istream& inp
     
     if (rt.stack.size() != 1)
         throw std::runtime_error("Sanity error: did not produce result");
-        
+
     res = rt.stack[0];
     res->print();
     std::cout << std::endl;

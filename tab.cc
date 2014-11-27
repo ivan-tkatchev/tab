@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
         Type finaltype = parse(program.begin(), program.end(), typer, commands);
 
-        execute(commands, finaltype, std::cin);
+        execute(commands, finaltype, typer.num_vars(), std::cin);
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

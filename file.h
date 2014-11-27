@@ -8,9 +8,10 @@ struct Linereader {
     char bufb[64*1024];
     char* bufe;
     char* bufi;
+    char* bufi_p;
     bool done;
 
-    Linereader(std::istream& i) : infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), done(false)
+    Linereader(std::istream& i) : infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), bufi_p(bufi), done(false)
         {
             populate();
         }
@@ -19,6 +20,7 @@ struct Linereader {
 
         infile.read(bufb, bufe - bufb);
         bufi = bufb;
+        bufi_p = bufi;
 
         if (!infile) {
             done = true;
@@ -27,9 +29,9 @@ struct Linereader {
     }
     
     void getline(std::string& s, bool& ok) {
-
+        
         s.clear();
-
+        
         if (done && bufi == bufe) {
             ok = false;
             return;
@@ -40,15 +42,15 @@ struct Linereader {
         while (!stop) {
 
             if (*bufi == '\n') {
+                s.append(bufi_p, bufi);
+                bufi_p = bufi + 1;
                 stop = true;
-
-            } else {
-                s += *bufi;
             }
 
             ++bufi;
 
             if (bufi == bufe) {
+                s.append(bufi_p, bufi);
                 populate();
 
                 if (done && bufi == bufe) {
@@ -67,10 +69,21 @@ struct SequencerFile : public Sequencer {
     Linereader reader;
     
     SequencerFile(std::istream& infile) : reader(infile) {
+        holder = new String;
+    }
 
+    Object* next(bool& ok) {
+        String& x = get<String>(holder);
+        reader.getline(x.v, ok);
+        return holder;
+    }        
+    
+    /*
         holder = new String;
 
         v = [this](Object* i, bool& ok) {
+            static bm_scope bms("seqfile_lambda");
+            bm __(bms);
 
             String& x = get<String>(i);
             reader.getline(x.v, ok);
@@ -78,6 +91,7 @@ struct SequencerFile : public Sequencer {
             return i;
         };
     }
+    */
 };
 
 }

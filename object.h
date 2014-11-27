@@ -23,7 +23,7 @@ struct Object {
         throw std::runtime_error("Object equality not implemented");
     }
 
-    virtual void print() const {}
+    virtual void print() { }
     
     virtual void set(const std::vector<Object*>&) {
         throw std::runtime_error("Object assignment not implemented");
@@ -40,6 +40,8 @@ struct Object {
     virtual void fill(Sequencer&) {
         throw std::runtime_error("Object construction not implemented");
     }
+
+    virtual Object* next(bool&) { throw std::runtime_error("Ooops, next"); }
 };
 
 template <typename T>
@@ -53,17 +55,19 @@ struct Sequencer : public Object {
     iterator_t v;
     Object* holder;
 
+    iterator_t iter() const {
+        return v;
+    }
+        
     void wrap(Object* i) {
         v = i->iter();
     }
 
-    Object* next(bool& ok) const {
+    Object* next(bool& ok) {
         return v(holder, ok);
     }
 
-    void print() const {
-
-        if (!v) return;
+    void print() {
 
         bool ok = true;
 
@@ -84,7 +88,7 @@ struct Atom : public Object {
 
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
-    void print() const { std::cout << v; }
+    void print() { std::cout << v; }
     void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
     Object* clone() const { return new Atom<T>(v); }
 
@@ -150,7 +154,7 @@ struct ArrayAtom : public Object {
         return v == get< ArrayAtom<T> >(a).v;
     }
 
-    void print() const {
+    void print() {
         bool first = true;
         for (const T& x : v) {
 
@@ -252,7 +256,7 @@ struct ArrayObject : public Object {
         return true;
     }
 
-    void print() const {
+    void print() {
         bool first = true;
         for (Object* x : v) {
 
@@ -327,7 +331,7 @@ struct ArrayObject : public Object {
 
 struct Tuple : public ArrayObject {
 
-    void print() const {
+    void print() {
         bool first = true;
         for (Object* x : v) {
 
@@ -429,14 +433,14 @@ struct MapObject : public Object {
         return true;
     }
 
-    void print() const {
+    void print() {
         bool first = true;
         for (const auto& x : v) {
 
             if (first) {
                 first = false;
             } else {
-                std::cout << std::endl;;
+                std::cout << std::endl;
             }
 
             x.first->print();
@@ -596,27 +600,39 @@ Object* make(const Type& t, U&&... u) {
 
 struct SequencerFlatten : public Sequencer {
 
+    bool subseq_ok;
+    obj::Sequencer* subseq;
+    iterator_t subi;
+    
     SequencerFlatten(const Type& t) {
 
         holder = make((*t.tuple)[0]);
     }
 
-    void wrap(Sequencer& subseq) {
+    Object* next(bool& ok) {
 
-        bool have_object = false;
-        iterator_t subv;
-        
-        v = [this,&subseq,subv,have_object](Object* i, bool& ok) mutable {
+        bool sok;
+        Object* ret = subi(holder, sok);
 
-            if (!have_object) {
+        if (!sok && !subseq_ok) {
+            ok = false;
 
-                obj::Object* next = subseq.next(ok);
-                subv = next->iter();
-            }
+        } else if (!sok) {
+            subi = subseq->next(subseq_ok)->iter();
+            ok = true;
 
-            return subv(holder, have_object);
-        };
-    }    
+        } else {
+            ok = true;
+        }
+
+        return ret;
+    }
+    
+    void wrap(Sequencer& s) {
+
+        subseq = &s;
+        subi = subseq->next(subseq_ok)->iter();
+    }
 };
 
 

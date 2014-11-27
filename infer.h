@@ -227,7 +227,34 @@ Type unwrap_seq(const Type& t) {
 struct TypeRuntime {
 
     std::vector<Type> stack;
-    std::unordered_map<String, Type> vars;
+    std::unordered_map< String, std::pair<Type,UInt> > vars;
+
+    void add_var(const String& name, const Type& type) {
+
+        auto i = vars.find(name);
+
+        if (i == vars.end()) {
+            vars.insert(i, std::make_pair(name, std::make_pair(type, vars.size())));
+            return;
+        }
+
+        i->second.first = type;
+    }
+
+    std::pair<Type,UInt> get_var(const String& name) const {
+
+        auto i = vars.find(name);
+
+        if (i == vars.end()) {
+            throw std::runtime_error("Use of undefined variable: " + strings().get(name));
+        }
+
+        return i->second;
+    }
+
+    size_t num_vars() const {
+        return vars.size();
+    }
 };
 
 
@@ -422,7 +449,7 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
     auto& vars = typer.vars;
 
     stack.clear();
-    vars[strings().add("@")] = toplevel;
+    typer.add_var(strings().add("@"), toplevel);
     
     for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
         Command& c = *ci;
@@ -435,19 +462,16 @@ Type infer_types(std::vector<Command>& commands, const Type& toplevel, TypeRunti
             break;
 
         case Command::VAW:
-            vars[c.arg.str] = Type(stack.back());
+            typer.add_var(c.arg.str, stack.back());
             stack.pop_back();
             has_type = false;
             break;
             
         case Command::VAR:
         {
-            auto i = vars.find(c.arg.str);
-
-            if (i == vars.end())
-                throw std::runtime_error("Use of undefined variable: " + strings().get(c.arg.str));
-
-            stack.emplace_back(i->second);
+            auto i = typer.get_var(c.arg.str);
+            c.arg = Atom(i.second);
+            stack.emplace_back(i.first);
             break;
         }
             

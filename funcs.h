@@ -58,8 +58,7 @@ void tan(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = ::tan(obj::get<T>(in).v);
 }
 
-
-void cut(const obj::Object* in, obj::Object*& out) {
+void cutn(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
@@ -94,6 +93,34 @@ void cut(const obj::Object* in, obj::Object*& out) {
             i += M;
             prev = i;
             --i;
+        }
+    }
+
+    v.emplace_back(str.begin() + prev, str.end());
+}
+
+void cut1(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& del = obj::get<obj::String>(args.v[1]).v;
+
+    size_t N = str.size();
+    unsigned char d = del.c_str()[0];
+
+    size_t prev = 0;
+
+    obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
+    std::vector<std::string>& v = vv.v;
+    
+    v.clear();
+
+    for (size_t i = 0; i < N; ++i) {
+
+        if (str[i] == d) {
+            v.emplace_back(str.begin() + prev, str.begin() + i);
+            prev = i+1;
         }
     }
 
@@ -150,7 +177,33 @@ void grep(const obj::Object* in, obj::Object*& out) {
         v.emplace_back();
 }
 
+void count_seq(const obj::Object* in, obj::Object*& out) {
 
+    obj::Sequencer& seq = obj::get<obj::Sequencer>(in);
+    UInt& i = obj::get<obj::UInt>(out).v;
+    
+    static bm_scope bms("count(seq)");
+    bm __(bms);
+
+    i = 0;
+    bool ok = true;
+
+    while (ok) {
+        seq.next(ok);
+        ++i;
+    }
+}
+
+Functions::func_t count_seq_checker(const Type& args, Type& ret) {
+
+    if (args.type == Type::SEQ) {
+
+        ret = Type(Type::UINT);
+        return count_seq;
+    }
+
+    return nullptr;
+}
 
 }
 
@@ -200,12 +253,20 @@ void register_functions() {
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
-              funcs::cut);
+              funcs::cut1);
+
+    
+    funcs.add("cutn",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::ARR, { Type::STRING }),
+              funcs::cutn);
 
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::grep);
+
+    funcs.add_poly("count", funcs::count_seq_checker);
 }
 
 #endif
