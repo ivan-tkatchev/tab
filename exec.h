@@ -5,19 +5,21 @@ struct Runtime {
     std::vector<obj::Object*> vars;
     std::vector<obj::Object*> stack;
 
-    Runtime(const Runtime& r) {
-        vars = r.vars;
-    }
-    
     Runtime(size_t nvars) {
         vars.resize(nvars);
     }
     
     void set_var(UInt ix, obj::Object* o) {
+        std::cout << "SETTING: " << ix << " ";
+        o->print();
+        std::cout << std::endl;
         vars[ix] = o;
     }
 
     obj::Object* get_var(UInt ix) {
+        std::cout << "GETTING: " << ix << " ";
+        vars[ix]->print();
+        std::cout << std::endl;
         return vars[ix];
     }
 };
@@ -57,6 +59,11 @@ void execute_init(std::vector<Command>& commands) {
         case Command::FLAT:
             c.object = new obj::SequencerFlatten(c.type);
             break;
+
+        case Command::FUN:
+            if (c.object == nullptr)
+                c.object = obj::make(c.type);
+            break;
             
         default:
             c.object = obj::make(c.type);
@@ -65,26 +72,32 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
-void execute_run(std::vector<Command>& commands, Runtime& r);
+void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark);
 
 obj::Object* _exec_closure(Runtime& r, Command::Closure& closure) {
 
     size_t mark = r.stack.size();
-    
-    execute_run(closure.code, r);
-            
+
+    execute_run(closure.code, r, mark);
+
     obj::Object* o = r.stack.back();
-    r.stack.erase(r.stack.begin() + mark, r.stack.end());
+    r.stack.pop_back();
 
     return o;
 }
 
 
-void execute_run(std::vector<Command>& commands, Runtime& r) {
+void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark) {
     
     for (Command& c : commands) {
+        std::cout << "~~ " << Command::print(c.cmd) << std::endl;
+        for (obj::Object* oo : r.stack) {
+            std::cout << "  -- "; oo->print(); std::cout << std::endl;
+        }
+        std::cout << "~~" << std::endl;
+
         switch (c.cmd) {
-            
+
         case Command::FUN:
         {
             Command::Closure& closure = *(c.closure[0]);
@@ -128,7 +141,12 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         case Command::TUP:
         {
             obj::Object* o = c.object;
-            o->set(r.stack);
+            UInt xxx = obj::get<obj::Tuple>(o).v.size();
+            obj::Object** lo = &(*(r.stack.end() - xxx));
+            o->set(lo);
+            //std::cout << "{{"; o->print(); std::cout << "}}" << std::endl;
+            //r.stack.erase(r.stack.begin() + mark, r.stack.end());
+            r.stack.erase(r.stack.end() - obj::get<obj::Tuple>(o).v.size(), r.stack.end());
             r.stack.push_back(o);
             break;
         }
@@ -147,13 +165,16 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             Command::Closure& closure1 = *(c.closure[1]);
             Command::Closure& closure0 = *(c.closure[0]);
 
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(_exec_closure(r, closure1));
+            obj::Object* seq = _exec_closure(r, closure1);
             obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
 
-            dst.v = [&seq,&c,&r,&closure0](obj::Object* holder, bool& ok) mutable {
+            UInt var = c.arg.uint;
+            
+            dst.v = [seq,var,&r,&closure0](obj::Object* holder, bool& ok) mutable {
 
-                obj::Object* next = seq.next(ok);
-                r.set_var(c.arg.uint, next);
+                obj::Object* next = seq->next(ok);
+                r.set_var(var, next);
+                //std::cout << "++ "; next->print(); std::cout << " ++" <<std::endl;
 
                 obj::Object* val = _exec_closure(r, closure0);
 
@@ -165,7 +186,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::ARR:
         {
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            obj::Object* seq = r.stack.back();
             r.stack.pop_back();
             obj::Object* dst = c.object;
 
@@ -176,7 +197,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::MAP:
         {
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            obj::Object* seq = r.stack.back();
             r.stack.pop_back();
             obj::Object* dst = c.object;
 
@@ -187,7 +208,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::FLAT:
         {
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(r.stack.back());
+            obj::Object* seq = r.stack.back();
             r.stack.pop_back();
 
             obj::SequencerFlatten& fseq = obj::get<obj::SequencerFlatten>(c.object);
@@ -365,15 +386,18 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
     rt.set_var(0, toplevel);
 
     execute_init(commands);
-    execute_run(commands, rt);
+    execute_run(commands, rt, 0);
 
     obj::Object* res;
     
     if (rt.stack.size() != 1)
         throw std::runtime_error("Sanity error: did not produce result");
 
-    res = rt.stack[0];
-    res->print();
+    std::cout << "-=-" << std::endl;
+    res = rt.stack.back();
+    rt.stack.pop_back();
+
+    obj::get<obj::Sequencer>(res).printx();
     std::cout << std::endl;
 }
 

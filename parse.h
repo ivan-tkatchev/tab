@@ -3,7 +3,7 @@
 
 #include "axe.h"
 
-struct Stack {
+struct ParseStack {
 
     std::vector<Command> stack;
 
@@ -63,7 +63,7 @@ struct Stack {
         stack.back().closure.back().swap(c);
     }
     
-    static void print(const std::vector<Command>& c, size_t level) {
+    static void print(const std::vector<Command>& c, size_t level, bool print_types) {
 
         for (const auto& i : c) {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
@@ -74,19 +74,23 @@ struct Stack {
                 std::cout << " " << Atom::print(i.arg);
             }
 
-            std::cout << " --> " << Type::print(i.type) << std::endl;
+            if (print_types) 
+                std::cout << " --> " << Type::print(i.type);
+
+            std::cout << std::endl;
 
             for (const auto& ii : i.closure) {
 
-                std::cout << " " << std::string(level*2, ' ') << "= " << Type::print(ii->type) << std::endl;
+                if (print_types)
+                    std::cout << " " << std::string(level*2, ' ') << "= " << Type::print(ii->type) << std::endl;
 
-                print(ii->code, level + 1);
+                print(ii->code, level + 1, print_types);
             }
         }
     }        
     
-    void print() const {
-        print(stack, 0);
+    void print(bool print_types = true) const {
+        print(stack, 0, print_types);
     }
 };
 
@@ -96,9 +100,9 @@ String make_string(I beg, I end) {
 }
 
 template <typename I>
-Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
+Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, unsigned int debuglevel = 0) {
 
-    Stack stack;
+    ParseStack stack;
     std::string str_buff;
     
     axe::r_rule<I> x_expr;
@@ -288,13 +292,24 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands) {
     
     x_go(beg, end);
 
+    if (debuglevel >= 3) {
+        std::cout << "[Parse tree]" << std::endl;
+        stack.print(false);
+    }
+    
     Type toplevel(Type::SEQ);
     toplevel.push(Type::STRING);
     
     Type ret = infer(stack.stack, toplevel, typer);
 
-    stack.print();
-    std::cout << "--> " << Type::print(ret) << std::endl;
+    if (debuglevel >= 2) {
+        std::cout << "[Program]" << std::endl;    
+        stack.print();
+    }
+
+    if (debuglevel >= 1) {
+        std::cout << "--> " << Type::print(ret) << std::endl;
+    }
 
     commands.swap(stack.stack);
 

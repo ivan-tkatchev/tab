@@ -3,8 +3,6 @@
 
 namespace obj {
 
-struct Sequencer;
-
 struct Object {
 
     typedef std::function<Object*(Object*,bool&)> iterator_t;
@@ -24,10 +22,6 @@ struct Object {
     }
 
     virtual void print() { }
-    
-    virtual void set(const std::vector<Object*>&) {
-        throw std::runtime_error("Object assignment not implemented");
-    }
 
     virtual Object* clone() const {
         throw std::runtime_error("Object cloning not implemented");
@@ -37,11 +31,11 @@ struct Object {
         throw std::runtime_error("Object iteration not implemented");
     }
 
-    virtual void fill(Sequencer&) {
+    virtual void fill(Object*) {
         throw std::runtime_error("Object construction not implemented");
     }
 
-    virtual Object* next(bool&) { throw std::runtime_error("Ooops, next"); }
+    virtual Object* next(bool&) { throw std::runtime_error("Object 'next' operator not implemented"); }
 };
 
 template <typename T>
@@ -68,7 +62,10 @@ struct Sequencer : public Object {
     }
 
     void print() {
+        std::cout << "PLAIN SEQUENCE" << std::endl;
+    }
 
+    void printx() {
         bool ok = true;
 
         while (ok) {
@@ -89,7 +86,6 @@ struct Atom : public Object {
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
     void print() { std::cout << v; }
-    void set(const std::vector<Object*>& s) { v = get< Atom<T> >(s[0]).v; }
     Object* clone() const { return new Atom<T>(v); }
 
     iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
@@ -168,10 +164,6 @@ struct ArrayAtom : public Object {
         }
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get< ArrayAtom<T> >(s[0]).v;
-    }
-
     Object* clone() const {
         ArrayAtom<T>* ret = new ArrayAtom<T>;
         ret->v.assign(v.begin(), v.end());
@@ -186,12 +178,12 @@ struct ArrayAtom : public Object {
         o.v = v[i];
     }
 
-    void fill(Sequencer& seq) {
+    void fill(Object* seq) {
 
         while (1) {
 
             bool ok;
-            obj::Object* next = seq.next(ok);
+            obj::Object* next = seq->next(ok);
 
             v.push_back(get< Atom<T> >(next).v);
 
@@ -270,10 +262,6 @@ struct ArrayObject : public Object {
         }
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get<ArrayObject>(s[0]).v;
-    }
-
     Object* clone() const {
 
         ArrayObject* ret = new ArrayObject;
@@ -292,12 +280,12 @@ struct ArrayObject : public Object {
         out = v[i];
     }
 
-    void fill(Sequencer& seq) {
+    void fill(Object* seq) {
 
         while (1) {
 
             bool ok;
-            obj::Object* next = seq.next(ok);
+            obj::Object* next = seq->next(ok);
 
             v.push_back(next->clone());
 
@@ -346,7 +334,7 @@ struct Tuple : public ArrayObject {
     }
 
     void set(const std::vector<Object*>& s) {
-
+        std::cout << "SETTING TUPLE OF " << v.size() << std::endl;
         for (size_t i = 0; i < v.size(); ++i) {
             v[i] = s[i];
         }
@@ -367,7 +355,7 @@ struct Tuple : public ArrayObject {
         out = v[get<UInt>(key).v];
     }
 
-    void fill(Sequencer& s) {
+    void fill(Object* s) {
         throw std::runtime_error("Cannot construct tuples");
     }
     
@@ -449,10 +437,6 @@ struct MapObject : public Object {
         }
     }
 
-    void set(const std::vector<Object*>& s) {
-        v = get<MapObject>(s[0]).v;
-    }
-
     Object* clone() const {
 
         MapObject* ret = new MapObject;
@@ -476,12 +460,12 @@ struct MapObject : public Object {
         out = i->second;
     }
 
-    void fill(Sequencer& seq) {
+    void fill(Object* seq) {
 
         while (1) {
 
             bool ok;
-            obj::Object* next = seq.next(ok);
+            obj::Object* next = seq->next(ok);
 
             Tuple& tup = get<Tuple>(next);
             obj::Object* key = tup.v[0]->clone();
@@ -598,15 +582,22 @@ Object* make(const Type& t, U&&... u) {
 }
 
 
-struct SequencerFlatten : public Sequencer {
+struct SequencerFlatten : public Object {
 
+    Object* holder;
     bool subseq_ok;
-    obj::Sequencer* subseq;
+    Object* subseq;
     iterator_t subi;
     
     SequencerFlatten(const Type& t) {
 
         holder = make((*t.tuple)[0]);
+    }
+
+    void wrap(Object* s) {
+
+        subseq = s;
+        subi = subseq->next(subseq_ok)->iter();
     }
 
     Object* next(bool& ok) {
@@ -627,11 +618,9 @@ struct SequencerFlatten : public Sequencer {
 
         return ret;
     }
-    
-    void wrap(Sequencer& s) {
 
-        subseq = &s;
-        subi = subseq->next(subseq_ok)->iter();
+    iterator_t iter() const {
+        return [this](Object* holder, bool& ok) mutable { return next(ok); };
     }
 };
 

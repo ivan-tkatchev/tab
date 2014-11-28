@@ -11,10 +11,11 @@ struct Linereader {
     char* bufi_p;
     bool done;
 
-    Linereader(std::istream& i) : infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), bufi_p(bufi), done(false)
-        {
-            populate();
-        }
+    bool did_init;
+    
+    Linereader(std::istream& i) :
+        infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), bufi_p(bufi), done(false), did_init(false)
+        {}
 
     void populate() {
 
@@ -29,6 +30,11 @@ struct Linereader {
     }
     
     void getline(std::string& s, bool& ok) {
+
+        if (!did_init) {
+            populate();
+            did_init = true;
+        }
         
         s.clear();
         
@@ -64,8 +70,9 @@ struct Linereader {
 
 namespace obj {
 
-struct SequencerFile : public Sequencer {
+struct SequencerFile : public Object {
 
+    Object* holder;
     Linereader reader;
     
     SequencerFile(std::istream& infile) : reader(infile) {
@@ -77,6 +84,14 @@ struct SequencerFile : public Sequencer {
         reader.getline(x.v, ok);
         return holder;
     }        
+
+    iterator_t iter() const {
+        return [this](Object* holder, bool& ok) mutable { return next(ok); };
+    }
+
+    void print() {
+        std::cout << "FILE SEQUENCE" << std::endl;
+    }
 };
 
 }

@@ -137,6 +137,8 @@ void grep(const obj::Object* in, obj::Object*& out) {
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
     const std::string& regex = obj::get<obj::String>(args.v[1]).v;
 
+    std::cout << "!! (" << str << ") [" << regex << "]" << std::endl;
+    
     obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
     std::vector<std::string>& v = vv.v;
 
@@ -148,7 +150,7 @@ void grep(const obj::Object* in, obj::Object*& out) {
         i = _cache.insert(i, std::make_pair(regex, std::regex(regex, std::regex_constants::optimize)));
     }
 
-    std::regex& r = i->second;
+    const std::regex& r = i->second;
 
     std::sregex_iterator iter(str.begin(), str.end(), r);
     std::sregex_iterator end;
@@ -219,7 +221,7 @@ void count_map(const obj::Object* in, obj::Object*& out) {
     i = map.v.size();
 }
 
-Functions::func_t count_seq_checker(const Type& args, Type& ret) {
+Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*&) {
 
     ret = Type(Type::UINT);
 
@@ -244,6 +246,103 @@ Functions::func_t count_seq_checker(const Type& args, Type& ret) {
     default:
         return nullptr;
     }
+}
+
+struct SequencerHeadSeq : public obj::Object {
+
+    obj::Object* seq;
+    UInt n;
+    UInt i;
+
+    SequencerHeadSeq() : n(0), i(0) {}
+
+    void wrap(obj::Object* s) {
+        seq = s;
+    }
+    
+    obj::Object* next(bool& ok) {
+
+        obj::Object* ret = seq->next(ok);
+        ++i;
+
+        if (i >= n)
+            ok = false;
+
+        return ret;
+    }
+
+    iterator_t iter() const {
+        return [this](obj::Object* o, bool& ok) mutable { return next(ok); };
+    }
+        
+};
+
+struct SequencerHeadVal : public obj::Object {
+
+    obj::Object* holder;
+    iterator_t v;
+    UInt n;
+    UInt i;
+
+    SequencerHeadVal(const Type& t) : n(0), i(0) {
+        holder = obj::make(t);
+    }
+
+    void wrap(obj::Object* s) {
+        v = s->iter();
+    }
+    
+    obj::Object* next(bool& ok) {
+
+        obj::Object* ret = v(holder, ok);
+        ++i;
+
+        if (i >= n)
+            ok = false;
+
+        return ret;
+    }
+
+    iterator_t iter() const {
+        return v;
+    }
+};
+
+template <typename T>
+void head(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& inp = obj::get<obj::Tuple>(in);
+    obj::Object* arg = inp.v[0];
+    UInt n = obj::get<obj::UInt>(inp.v[1]).v;
+
+    T& seq = obj::get<T>(out);
+
+    seq.n = n;
+    seq.i = 0;
+    seq.wrap(arg);
+}
+
+Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
+        return nullptr;
+
+    const Type& a2 = args.tuple->at(1);
+
+    if (!check_integer(a2))
+        return nullptr;
+
+    const Type& a1 = args.tuple->at(0);
+    ret = wrap_seq(a1);
+
+    if (a1.type == Type::SEQ) {
+
+        obj = new SequencerHeadSeq;
+        return head<SequencerHeadSeq>;
+    }
+    
+    obj = new SequencerHeadVal(a1.tuple->at(0));
+    return head<SequencerHeadVal>;
 }
 
 }
@@ -295,7 +394,6 @@ void register_functions() {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::cut1);
-
     
     funcs.add("cutn",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
@@ -307,7 +405,9 @@ void register_functions() {
               Type(Type::ARR, { Type::STRING }),
               funcs::grep);
 
-    funcs.add_poly("count", funcs::count_seq_checker);
+    funcs.add_poly("count", funcs::count_checker);
+
+    funcs.add_poly("head", funcs::head_checker);
 }
 
 #endif

@@ -10,7 +10,7 @@ struct Functions {
     
     std::unordered_map<key_t, val_t> funcs;
 
-    typedef func_t (*checker_t)(const Type& args, Type& ret);
+    typedef func_t (*checker_t)(const Type& args, Type& ret, obj::Object*&);
     
     std::unordered_map< String, checker_t > poly_funcs;
     
@@ -26,8 +26,8 @@ struct Functions {
         String n = strings().add(name);
         poly_funcs.insert(poly_funcs.end(), std::make_pair(n, c));
     }
-                
-    val_t get(const String& name, const Type& args) const {
+
+    val_t get(const String& name, const Type& args, obj::Object*& holder) const {
             
         auto i = funcs.find(key_t(name, args));
 
@@ -39,7 +39,7 @@ struct Functions {
         if (j != poly_funcs.end()) {
 
             Type ret;
-            func_t f = (j->second)(args, ret);
+            func_t f = (j->second)(args, ret, holder);
 
             if (f != nullptr) 
                 return val_t(f,ret);
@@ -484,11 +484,14 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             break;
 
         case Command::VAW:
-            typer.add_var(c.arg.str, stack.back());
+        {
+            UInt i = typer.add_var(c.arg.str, stack.back());
+            c.arg = Atom(i);
             stack.pop_back();
             has_type = false;
             break;
-            
+        }
+
         case Command::VAR:
         {
             auto i = typer.get_var(c.arg.str);
@@ -615,7 +618,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         case Command::FUN:
         {
             Type args = infer_tup_generator(c, typer, "function call", true);
-            auto tmp = functions().get(c.arg.str, args);
+            auto tmp = functions().get(c.arg.str, args, c.object);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
             break;
@@ -689,7 +692,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
     if (stack.size() != 1)
         throw std::runtime_error("Sanity error: inferred multiple types.");
         
-    return stack[0];
+    return stack.back();
 }
 
 Type infer(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer) {
