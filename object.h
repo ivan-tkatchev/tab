@@ -6,12 +6,8 @@ namespace obj {
 struct Object {
 
     typedef std::function<Object*(Object*,bool&)> iterator_t;
-    
+
     virtual ~Object() {}
-    
-    virtual void index(const Type& keytype, Object* key, Object*& out) const {
-        throw std::runtime_error("Sanity error, indexing a non-indexable Object");
-    }
 
     virtual size_t hash() const {
         throw std::runtime_error("Object hash not implemented");
@@ -97,43 +93,6 @@ typedef Atom<::Real> Real;
 typedef Atom<std::string> String;
 
 
-template <typename A>
-size_t __array_index_do(const A& v, const Type& keytype, Object* key) {
-
-    size_t i = v.size();
-
-    switch (keytype.atom) {
-    case Type::UINT:
-    {
-        i = get<UInt>(key).v;
-        break;
-    }
-    case Type::INT:
-    {
-        ::Int z = get<Int>(key).v;
-        if (z < 0)
-            i = v.size() - z;
-        else
-            i = z;
-        break;
-    }
-    case Type::REAL:
-    {
-        ::Real z = get<Real>(key).v;
-        if (z >= 0.0 && z <= 1.0)
-            i = v.size() * z;
-    }
-    default:
-        break;
-    }
-
-    if (i >= v.size())
-        throw std::runtime_error("Array index out of bounds");
-
-    return i;
-}
-
-
 template <typename T>
 struct ArrayAtom : public Object {
     std::vector<T> v;
@@ -168,14 +127,6 @@ struct ArrayAtom : public Object {
         ArrayAtom<T>* ret = new ArrayAtom<T>;
         ret->v.assign(v.begin(), v.end());
         return ret;
-    }
-
-    void index(const Type& keytype, Object* key, Object*& out) const {
-
-        size_t i = __array_index_do(v, keytype, key);
-
-        Atom<T>& o = get< Atom<T> >(out);
-        o.v = v[i];
     }
 
     void fill(Object* seq) {
@@ -273,13 +224,6 @@ struct ArrayObject : public Object {
         return ret;
     }
 
-    void index(const Type& keytype, Object* key, Object*& out) const {
-
-        size_t i = __array_index_do(v, keytype, key);
-
-        out = v[i];
-    }
-
     void fill(Object* seq) {
 
         while (1) {
@@ -347,10 +291,6 @@ struct Tuple : public ArrayObject {
         }
 
         return ret;
-    }
-
-    void index(const Type& keytype, Object* key, Object*& out) const {
-        out = v[get<UInt>(key).v];
     }
 
     void fill(Object* s) {
@@ -446,16 +386,6 @@ struct MapObject : public Object {
         }
 
         return ret;
-    }
-    
-    void index(const Type& keytype, Object* key, Object*& out) const {
-
-        auto i = v.find(key);
-
-        if (i == v.end())
-            throw std::runtime_error("Key is not in map");
-        
-        out = i->second;
     }
 
     void fill(Object* seq) {
