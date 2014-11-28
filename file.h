@@ -90,7 +90,7 @@ struct SequencerFile : public Object {
     }
 
     void print() {
-        std::cout << "FILE SEQUENCE" << std::endl;
+        __sequencer_print(this);
     }
 };
 

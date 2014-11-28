@@ -36,7 +36,6 @@ struct Command {
         U2R_1,
         U2R_2,
 
-        IDX,
         ARR,
         MAP,
         FUN,
@@ -53,7 +52,7 @@ struct Command {
 
     struct Closure {
         std::vector<Command> code;
-        Type type;
+        //Type type;
     };
     
     std::vector< std::shared_ptr<Closure> > closure;
@@ -94,7 +93,6 @@ struct Command {
         case U2R_1: return "U2R_1";
         case U2R_2: return "U2R_2";
 
-        case IDX: return "IDX";
         case ARR: return "ARR";
         case MAP: return "MAP";
         case FUN: return "FUN";

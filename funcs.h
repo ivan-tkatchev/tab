@@ -272,7 +272,10 @@ struct SequencerHeadSeq : public obj::Object {
     iterator_t iter() const {
         return [this](obj::Object* o, bool& ok) mutable { return next(ok); };
     }
-        
+
+    void print() {
+        obj::__sequencer_print(this);
+    }
 };
 
 struct SequencerHeadVal : public obj::Object {
@@ -303,6 +306,10 @@ struct SequencerHeadVal : public obj::Object {
 
     iterator_t iter() const {
         return v;
+    }
+
+    void print() {
+        obj::__sequencer_print(this);
     }
 };
 

@@ -43,6 +43,17 @@ T& get(const Object* o) {
     return *((T*)o);
 }
 
+void __sequencer_print(Object* o) {
+
+    bool ok = true;
+
+    while (ok) {
+        o->next(ok)->print();
+
+        if (ok)
+            std::cout << std::endl;
+    }
+}
 
 struct Sequencer : public Object {
 
@@ -62,14 +73,7 @@ struct Sequencer : public Object {
     }
 
     void print() {
-        bool ok = true;
-
-        while (ok) {
-            next(ok)->print();
-
-            if (ok)
-                std::cout << std::endl;
-        }
+        __sequencer_print(this);
     }
 };
 
@@ -615,6 +619,10 @@ struct SequencerFlatten : public Object {
 
     iterator_t iter() const {
         return [this](Object* holder, bool& ok) mutable { return next(ok); };
+    }
+
+    void print() {
+        __sequencer_print(this);
     }
 };
 

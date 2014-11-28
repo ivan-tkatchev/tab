@@ -66,18 +66,6 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
-void execute_run(std::vector<Command>& commands, Runtime& r);
-
-obj::Object* _exec_closure(Runtime& r, Command::Closure& closure) {
-
-    execute_run(closure.code, r);
-
-    obj::Object* o = r.stack.back();
-    r.stack.pop_back();
-
-    return o;
-}
-
 
 void execute_run(std::vector<Command>& commands, Runtime& r) {
     
@@ -86,8 +74,8 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
         case Command::FUN:
         {
-            Command::Closure& closure = *(c.closure[0]);
-            obj::Object* arg = _exec_closure(r, closure);
+            obj::Object* arg = r.stack.back();
+            r.stack.pop_back();
 
             ((Functions::func_t)c.function)(arg, c.object);
 
@@ -108,20 +96,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         case Command::VAL:
         {
             r.stack.push_back(c.object);
-            break;
-        }
-        case Command::IDX:
-        {
-            Command::Closure& closure = *(c.closure[0]);
-            obj::Object* key = _exec_closure(r, closure);
-
-            obj::Object* cont = r.stack.back();
-            obj::Object* val = c.object;
-
-            cont->index(closure.type, key, val);
-            
-            r.stack.pop_back();
-            r.stack.push_back(val);
             break;
         }
         case Command::TUP:
@@ -147,20 +121,23 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         }
         case Command::GEN:
         {
-            Command::Closure& closure1 = *(c.closure[1]);
-            Command::Closure& closure0 = *(c.closure[0]);
+            obj::Object* seq = r.stack.back();
+            r.stack.pop_back();
 
-            obj::Object* seq = _exec_closure(r, closure1);
+            Command::Closure& clo = *(c.closure[0]);
+            UInt var = c.arg.uint;
+
             obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
 
-            UInt var = c.arg.uint;
-            
-            dst.v = [seq,var,&r,&closure0](obj::Object* holder, bool& ok) mutable {
+            dst.v = [seq,&clo,var,&r](obj::Object* holder, bool& ok) mutable {
 
                 obj::Object* next = seq->next(ok);
                 r.set_var(var, next);
 
-                obj::Object* val = _exec_closure(r, closure0);
+                execute_run(clo.code, r);
+
+                obj::Object* val = r.stack.back();
+                r.stack.pop_back();
 
                 return val;
             };

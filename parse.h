@@ -68,8 +68,8 @@ struct ParseStack {
         for (const auto& i : c) {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
-            if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW ||
-                i.cmd == Command::FUN || i.cmd == Command::GEN || i.cmd == Command::TUP) {
+            if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
+                (print_types && (i.cmd == Command::GEN || i.cmd == Command::TUP))) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -79,10 +79,14 @@ struct ParseStack {
 
             std::cout << std::endl;
 
+            bool first = true;
             for (const auto& ii : i.closure) {
 
-                if (print_types)
-                    std::cout << " " << std::string(level*2, ' ') << "= " << Type::print(ii->type) << std::endl;
+                if (first) {
+                    first = false;
+                } else {
+                    std::cout << " " << std::string(level*2, ' ') << "-" << std::endl;
+                }
 
                 print(ii->code, level + 1, print_types);
             }
@@ -215,12 +219,12 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(make_string("index")); });
 
-    auto x_index = axe::r_lit('[') & x_expr & axe::r_lit(']') >> y_close_fun;
+    auto x_index = axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_fun;
 
     auto x_expr_idx =
         ((axe::r_empty() >> y_mark_idx) &
          x_expr_bottom &
-         (x_index | r_fail(y_unmark))) & x_ws;
+         (x_index | (axe::r_empty() >> y_unmark)));
 
     auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.push(Command::FLAT); });
     
