@@ -402,53 +402,6 @@ Type mapped_type(const Type& t) {
     return (*t.tuple)[0];
 }
 
-/*
-Type infer_idx_generator(const Type& tv, Command& c, TypeRuntime& typer) {
-            
-    Type ti = infer_tup_generator(c, typer, "structure index");
-
-    if (tv.type == Type::TUP) {
-
-        auto& cl = *(c.closure.at(0));
-                
-        if (cl.code.size() == 1) {
-
-            const auto& v = cl.code[0];
-
-            if (v.cmd == Command::VAL && (v.arg.which == Atom::INT || v.arg.which == Atom::UINT)) {
-
-                UInt i = v.arg.uint;
-
-                if (tv.tuple && i < tv.tuple->size()) {
-
-                    return tv.tuple->at(i);
-                }
-            }
-        }
-
-        throw std::runtime_error("Indexing tuples is only possible with integer literals.");
-
-    } else if (tv.type == Type::ARR) {
-                
-        if (!check_numeric(ti))
-            throw std::runtime_error("Arrays must be accessed with numeric index.");
-
-        return value_type(tv);
-
-    } else if (tv.type == Type::MAP) {
-                
-        if (ti != mapped_type(tv))
-            throw std::runtime_error("Invalid key type when accessing map: key is " +
-                                     Type::print(mapped_type(tv)) + ", acessing with " +
-                                     Type::print(ti));
-
-        return value_type(tv);
-    }
-
-    throw std::runtime_error("Cannot index a scalar value.");
-}
-*/
-
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty = false) {
 
     std::vector<Type> stack;
@@ -462,6 +415,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         switch (c.cmd) {
         case Command::VAL:
             stack.emplace_back(c.arg);
+            stack.back().literal = std::make_shared<Atom>(c.arg);
             break;
 
         case Command::VAW:

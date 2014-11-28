@@ -22,6 +22,7 @@ struct Type {
     types_t type;
     atom_types_t atom;
     std::shared_ptr< std::vector<Type> > tuple;
+    std::shared_ptr< Atom > literal;
     
     Type(types_t t = NONE) : type(t), atom(INT) {}
 

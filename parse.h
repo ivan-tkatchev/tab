@@ -27,12 +27,14 @@ struct ParseStack {
         _mark.pop_back();
     }
     
-    void close(Command::cmd_t cmd) {
+    void close(Command::cmd_t cmd, bool do_pop = true) {
 
         push(Command::TUP);
 
         auto m = _mark.back();
-        _mark.pop_back();
+
+        if (do_pop)
+            _mark.pop_back();
 
         auto c = std::make_shared<Command::Closure>();
         c->code.assign(stack.begin() + m.first, stack.end());
@@ -218,13 +220,12 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         x_ws;
 
     auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(make_string("index")); });
+    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::FUN, false); });
 
-    auto x_index = axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_fun;
+    auto x_index = *(axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_idx);
 
     auto x_expr_idx =
-        ((axe::r_empty() >> y_mark_idx) &
-         x_expr_bottom &
-         (x_index | (axe::r_empty() >> y_unmark)));
+        ((axe::r_empty() >> y_mark_idx) & x_expr_bottom & x_index >> y_unmark);
 
     auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.push(Command::FLAT); });
     
@@ -305,6 +306,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     if (debuglevel >= 3) {
         std::cout << "[Parse tree]" << std::endl;
         stack.print(false);
+        std::cout << std::endl;
     }
     
     Type toplevel(Type::SEQ);
@@ -315,10 +317,12 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     if (debuglevel >= 2) {
         std::cout << "[Program]" << std::endl;    
         stack.print();
+        std::cout << std::endl;
     }
 
     if (debuglevel >= 1) {
         std::cout << "--> " << Type::print(ret) << std::endl;
+        std::cout << std::endl;
     }
 
     commands.swap(stack.stack);

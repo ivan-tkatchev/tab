@@ -181,9 +181,6 @@ void count_seq(const obj::Object* in, obj::Object*& out) {
 
     obj::Sequencer& seq = obj::get<obj::Sequencer>(in);
     UInt& i = obj::get<obj::UInt>(out).v;
-    
-    static bm_scope bms("count(seq)");
-    bm __(bms);
 
     i = 0;
     bool ok = true;
@@ -373,7 +370,7 @@ size_t __array_ix_conform(size_t vsize, Real z) {
     size_t i = vsize;
     
     if (z >= 0.0 && z <= 1.0)
-        i = vsize * z - 1;
+        i = (vsize - 1)* z;
 
     return i;
 }
@@ -487,15 +484,117 @@ Functions::func_t index_checker_2(const Type& args, Type& ret, obj::Object*& obj
         return nullptr;
     }
 }
-    
+
+void map_index_one(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::Object* key = args.v[1];
+
+    auto i = map.v.find(key);
+
+    if (i == map.v.end())
+        throw std::runtime_error("Key is not in map");
+
+    out = i->second;
+}
+
+void map_index_tup(const obj::Object* in, obj::Object*& out) {
+
+    static obj::Tuple* key = new obj::Tuple;
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+
+    key->set(args.v.begin() + 1, args.v.end());
+
+    auto i = map.v.find(key);
+
+    if (i == map.v.end())
+        throw std::runtime_error("Key is not in map");
+
+    out = i->second;
+}
+
+template <typename Obj>
+void tup_index(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::Tuple& tup = obj::get<obj::Tuple>(args.v[0]);
+    Obj& i = obj::get<Obj>(args.v[1]);
+
+    out = tup.v[i.v];
+}
+
 Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    if (args.type != Type::TUP || !args.tuple || (args.tuple->size() != 2 && args.tuple->size() != 3))
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() <= 1)
         return nullptr;
 
     const Type& ci = args.tuple->at(0);
 
-    if (ci.type != Type::ARR)
+    if (ci.type == Type::MAP) {
+
+        Type key;
+        bool one = true;
+
+        if (args.tuple->size() == 2) {
+            key = args.tuple->at(1);
+
+        } else {
+            key.type = Type::TUP;
+
+            for (size_t i = 1; i < args.tuple->size(); ++i) {
+                key.push(args.tuple->at(i));
+            }
+
+            one = false;
+        }
+
+        const Type& mkey = ci.tuple->at(0);
+        const Type& mval = ci.tuple->at(1);
+
+        if (mkey != key)
+            return nullptr;
+
+        ret = mval;
+
+        return (one ? map_index_one : map_index_tup);
+    }
+
+    if (ci.type == Type::TUP) {
+
+        if (args.tuple->size() != 2)
+            return nullptr;
+        
+        const Type& arg = args.tuple->at(1);
+
+        if (!arg.literal || !check_integer(arg)) 
+            throw std::runtime_error("Indexing tuples is only possible with integer literals.");
+
+        size_t i;
+        Functions::func_t fun;
+        
+        if (arg.atom == Type::UINT) {
+
+            i = (size_t)arg.literal->uint;
+            fun = tup_index<obj::UInt>;
+
+        } else if (arg.atom == Type::INT) {
+
+            i = (size_t)arg.literal->inte;
+            fun = tup_index<obj::Int>;
+        }
+
+        
+        if (i >= ci.tuple->size())
+            throw std::runtime_error("Tuple index out of range");
+
+        ret = ci.tuple->at(i);
+
+        return fun;
+    }
+    
+    if (ci.type != Type::ARR || (args.tuple->size() != 2 && args.tuple->size() != 3))
         return nullptr;
 
     const Type& cci = ci.tuple->at(0);
