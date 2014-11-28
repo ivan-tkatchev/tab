@@ -373,7 +373,7 @@ size_t __array_ix_conform(size_t vsize, Real z) {
     size_t i = vsize;
     
     if (z >= 0.0 && z <= 1.0)
-        i = vsize * z;
+        i = vsize * z - 1;
 
     return i;
 }
