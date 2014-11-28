@@ -435,7 +435,7 @@ void slice_array(const obj::Object* in, obj::Object*& out) {
     
     Obj& ret = obj::get<Obj>(out);
     ret.v.clear();
-    ret.v.assign(a.v.begin() + ii1, a.v.end() + ii2 + 1);
+    ret.v.assign(a.v.begin() + ii1, a.v.begin() + ii2 + 1);
 }
 
 
