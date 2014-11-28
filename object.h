@@ -62,10 +62,6 @@ struct Sequencer : public Object {
     }
 
     void print() {
-        std::cout << "PLAIN SEQUENCE" << std::endl;
-    }
-
-    void printx() {
         bool ok = true;
 
         while (ok) {
@@ -333,11 +329,9 @@ struct Tuple : public ArrayObject {
         }
     }
 
-    void set(const std::vector<Object*>& s) {
-        std::cout << "SETTING TUPLE OF " << v.size() << std::endl;
-        for (size_t i = 0; i < v.size(); ++i) {
-            v[i] = s[i];
-        }
+    template <typename I>
+    void set(I b, I e) {
+        v.assign(b, e);
     }
 
     Object* clone() const {

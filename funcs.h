@@ -137,8 +137,6 @@ void grep(const obj::Object* in, obj::Object*& out) {
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
     const std::string& regex = obj::get<obj::String>(args.v[1]).v;
 
-    std::cout << "!! (" << str << ") [" << regex << "]" << std::endl;
-    
     obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
     std::vector<std::string>& v = vv.v;
 

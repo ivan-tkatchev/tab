@@ -10,16 +10,10 @@ struct Runtime {
     }
     
     void set_var(UInt ix, obj::Object* o) {
-        std::cout << "SETTING: " << ix << " ";
-        o->print();
-        std::cout << std::endl;
         vars[ix] = o;
     }
 
     obj::Object* get_var(UInt ix) {
-        std::cout << "GETTING: " << ix << " ";
-        vars[ix]->print();
-        std::cout << std::endl;
         return vars[ix];
     }
 };
@@ -72,13 +66,11 @@ void execute_init(std::vector<Command>& commands) {
     }
 }
 
-void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark);
+void execute_run(std::vector<Command>& commands, Runtime& r);
 
 obj::Object* _exec_closure(Runtime& r, Command::Closure& closure) {
 
-    size_t mark = r.stack.size();
-
-    execute_run(closure.code, r, mark);
+    execute_run(closure.code, r);
 
     obj::Object* o = r.stack.back();
     r.stack.pop_back();
@@ -87,15 +79,9 @@ obj::Object* _exec_closure(Runtime& r, Command::Closure& closure) {
 }
 
 
-void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark) {
+void execute_run(std::vector<Command>& commands, Runtime& r) {
     
     for (Command& c : commands) {
-        std::cout << "~~ " << Command::print(c.cmd) << std::endl;
-        for (obj::Object* oo : r.stack) {
-            std::cout << "  -- "; oo->print(); std::cout << std::endl;
-        }
-        std::cout << "~~" << std::endl;
-
         switch (c.cmd) {
 
         case Command::FUN:
@@ -140,14 +126,13 @@ void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark) {
         }
         case Command::TUP:
         {
-            obj::Object* o = c.object;
-            UInt xxx = obj::get<obj::Tuple>(o).v.size();
-            obj::Object** lo = &(*(r.stack.end() - xxx));
-            o->set(lo);
-            //std::cout << "{{"; o->print(); std::cout << "}}" << std::endl;
-            //r.stack.erase(r.stack.begin() + mark, r.stack.end());
-            r.stack.erase(r.stack.end() - obj::get<obj::Tuple>(o).v.size(), r.stack.end());
-            r.stack.push_back(o);
+            obj::Tuple& tup = obj::get<obj::Tuple>(c.object);
+            UInt nelem = c.arg.uint;
+            auto b = r.stack.end() - nelem;
+            auto e = r.stack.end();
+            tup.set(b, e);
+            r.stack.erase(b, e);
+            r.stack.push_back(c.object);
             break;
         }
         case Command::SEQ:
@@ -174,7 +159,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r, size_t mark) {
 
                 obj::Object* next = seq->next(ok);
                 r.set_var(var, next);
-                //std::cout << "++ "; next->print(); std::cout << " ++" <<std::endl;
 
                 obj::Object* val = _exec_closure(r, closure0);
 
@@ -386,18 +370,17 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
     rt.set_var(0, toplevel);
 
     execute_init(commands);
-    execute_run(commands, rt, 0);
+    execute_run(commands, rt);
 
     obj::Object* res;
     
     if (rt.stack.size() != 1)
         throw std::runtime_error("Sanity error: did not produce result");
 
-    std::cout << "-=-" << std::endl;
     res = rt.stack.back();
     rt.stack.pop_back();
 
-    obj::get<obj::Sequencer>(res).printx();
+    res->print();
     std::cout << std::endl;
 }
 

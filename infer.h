@@ -286,8 +286,7 @@ struct TypeRuntime {
 
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty);
 
-Type infer_closure(Command& c, size_t n, TypeRuntime& typer, const std::string& name,
-                   bool do_unwrap_seq = false, bool allow_empty = false) {
+Type infer_closure(Command& c, size_t n, TypeRuntime& typer, bool do_unwrap_seq = false, bool allow_empty = false) {
 
     if (n >= c.closure.size())
         throw std::runtime_error("Sanity error, asked to infer non-existing closure.");
@@ -301,26 +300,26 @@ Type infer_closure(Command& c, size_t n, TypeRuntime& typer, const std::string& 
     return cc.type;
 }
 
-Type infer_tup_generator(Command& c, TypeRuntime& typer, const std::string& name, bool allow_empty = false) {
+Type infer_tup_generator(Command& c, TypeRuntime& typer, bool allow_empty = false) {
 
     if (c.closure.size() != 1)
-        throw std::runtime_error("Sanity error, " + name + " is not a closure.");
+        throw std::runtime_error("Sanity error, tuple is not a closure.");
 
-    return infer_closure(c, 0, typer, name, false, allow_empty);
+    return infer_closure(c, 0, typer, false, allow_empty);
 }
 
-Type infer_gen_generator(Command& c, TypeRuntime& typer, const std::string& name, UInt& tlvar) {
+Type infer_gen_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
 
     if (c.closure.size() != 2)
         throw std::runtime_error("Sanity error, generator is not a closure.");
 
     typer.enter_scope();
 
-    Type toplevel = infer_closure(c, 1, typer, name, true);
+    Type toplevel = infer_closure(c, 1, typer, true);
 
     tlvar = typer.add_var(strings().add("@"), toplevel);
     
-    const Type& t = infer_closure(c, 0, typer, name);
+    const Type& t = infer_closure(c, 0, typer);
 
     Type ret(Type::SEQ);
     ret.push(t);
@@ -422,7 +421,7 @@ Type mapped_type(const Type& t) {
     return (*t.tuple)[0];
 }
 
-Type infer_idx_generator(const Type& tv, Command& c, TypeRuntime& typer, const std::string& name) {
+Type infer_idx_generator(const Type& tv, Command& c, TypeRuntime& typer) {
             
     Type ti = infer_tup_generator(c, typer, "structure index");
 
@@ -585,7 +584,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             Type tv = stack.back();
             stack.pop_back();
 
-            Type t = infer_idx_generator(tv, c, typer, "structure index");
+            Type t = infer_idx_generator(tv, c, typer);
             stack.emplace_back(t);
             break;
         }
@@ -609,7 +608,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         case Command::GEN:
         {
             UInt tlvar;
-            Type t = infer_gen_generator(c, typer, "sequence generator", tlvar);
+            Type t = infer_gen_generator(c, typer, tlvar);
             c.arg.uint = tlvar;
             stack.emplace_back(t);
             break;
@@ -617,10 +616,16 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         
         case Command::FUN:
         {
-            Type args = infer_tup_generator(c, typer, "function call", true);
+            Type args = infer_tup_generator(c, typer, true);
             auto tmp = functions().get(c.arg.str, args, c.object);
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
+
+            const auto& code = c.closure[0]->code;
+            
+            ci = commands.insert(ci, code.begin(), code.end());
+            ci += code.size();
+            
             break;
         }
 
@@ -669,6 +674,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
 
                 stack.clear();
                 stack.emplace_back(t);
+                c.arg = Atom(UInt(t.tuple->size()));
             }
             break;
         }

@@ -69,7 +69,7 @@ struct ParseStack {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW ||
-                i.cmd == Command::FUN || i.cmd == Command::GEN) {
+                i.cmd == Command::FUN || i.cmd == Command::GEN || i.cmd == Command::TUP) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -97,6 +97,10 @@ struct ParseStack {
 template <typename I>
 String make_string(I beg, I end) {
     return strings().add(std::string(beg, end));
+}
+
+String make_string(const std::string& s) {
+    return strings().add(s);
 }
 
 template <typename I>
@@ -160,7 +164,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
-    auto y_unmark_name = axe::e_ref([&](I b, I e) { stack.unmark(); });
+    auto y_unmark = axe::e_ref([&](I b, I e) { stack.unmark(); });
 
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
@@ -195,7 +199,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto x_funcall =
         (x_var >> y_mark_name) &
         x_ws &
-        (axe::r_lit('(') | r_fail(y_unmark_name)) &
+        (axe::r_lit('(') | r_fail(y_unmark)) &
         ~x_expr &
         axe::r_lit(')') >> y_close_fun;
 
@@ -209,12 +213,14 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
-    auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::IDX); });
+    auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(make_string("index")); });
 
-    auto x_index = (axe::r_lit('[') >> y_mark) & x_expr & axe::r_lit(']') >> y_close_idx;
-    
+    auto x_index = axe::r_lit('[') & x_expr & axe::r_lit(']') >> y_close_fun;
+
     auto x_expr_idx =
-        x_expr_bottom & ~(x_index) & x_ws;
+        ((axe::r_empty() >> y_mark_idx) &
+         x_expr_bottom &
+         (x_index | r_fail(y_unmark))) & x_ws;
 
     auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.push(Command::FLAT); });
     
