@@ -589,7 +589,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         if (allow_empty) {
             return Type();
         } else {
-            throw std::runtime_error("Empty sequences are not allowed.");
+            throw std::runtime_error("Expression computes nothing.");
         }
     }
 

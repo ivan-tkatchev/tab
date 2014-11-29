@@ -1,6 +1,21 @@
 
 #include "tab.h"
 
+std::istream& file_or_stdin(const std::string& file) {
+
+    if (file.empty())
+        return std::cin;
+
+    static std::ifstream ret;
+
+    ret.open(file);
+
+    if (!ret)
+        throw std::runtime_error("Could not open input file: " + file);
+
+    return ret;
+}        
+
 int main(int argc, char** argv) {
 
     try {
@@ -12,6 +27,7 @@ int main(int argc, char** argv) {
 
         unsigned int debuglevel = 0;
         std::string program;
+        std::string infile;
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
@@ -25,6 +41,14 @@ int main(int argc, char** argv) {
             } else if (arg == "-vvv") {
                 debuglevel = 3;
 
+            } else if (arg == "-f") {
+
+                if (i == argc - 1)
+                    throw std::runtime_error("The '-f' command line argument expects a filename argument.");
+
+                ++i;
+                infile = argv[i];
+                
             } else {
 
                 if (program.size() > 0) {
@@ -42,7 +66,7 @@ int main(int argc, char** argv) {
 
         Type finaltype = parse(program.begin(), program.end(), typer, commands, debuglevel);
 
-        execute(commands, finaltype, typer.num_vars(), std::cin);
+        execute(commands, finaltype, typer.num_vars(), file_or_stdin(infile));
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

@@ -3,9 +3,9 @@ import subprocess
 import glob
 
 def run(arg,expected):
-    out = subprocess.check_output(["../tab", arg])
-    out = out.decode('ascii')
     print(">>>", arg.replace('\n',' '))
+    out = subprocess.check_output(["../tab", "-f", "../LICENSE.txt", arg])
+    out = out.decode('ascii')
     if not expected.startswith(out):
         raise Exception("Test failed for: " + arg)
     

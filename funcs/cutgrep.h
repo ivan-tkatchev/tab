@@ -116,8 +116,8 @@ void grep(const obj::Object* in, obj::Object*& out) {
         ++iter;
     }
 
-    if (v.empty())
-        v.emplace_back();
+    //if (v.empty())
+    //    v.emplace_back();
 }
 
 void register_cutgrep(Functions& funcs) {

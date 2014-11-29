@@ -140,6 +140,9 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             gen.v = [seq,&clo,var,&r](bool& ok) mutable {
 
                 obj::Object* next = seq->next(ok);
+
+                if (!next) return next;
+                
                 r.set_var(var, next);
 
                 execute_run(clo.code, r);

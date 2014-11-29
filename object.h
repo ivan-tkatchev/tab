@@ -35,7 +35,6 @@ T& get(const Object* o) {
     return *((T*)o);
 }
 
-
 template <typename T>
 struct Atom : public Object {
     T v;
@@ -97,6 +96,8 @@ struct ArrayAtom : public Object {
             bool ok;
             obj::Object* next = seq->next(ok);
 
+            if (!next) break;
+            
             v.push_back(get< Atom<T> >(next).v);
 
             if (!ok) break;
@@ -167,6 +168,8 @@ struct ArrayObject : public Object {
 
             bool ok;
             obj::Object* next = seq->next(ok);
+
+            if (!next) break;
 
             v.push_back(next->clone());
 
@@ -307,6 +310,8 @@ struct MapObject : public Object {
             bool ok;
             obj::Object* next = seq->next(ok);
 
+            if (!next) break;
+
             Tuple& tup = get<Tuple>(next);
             obj::Object* key = tup.v[0]->clone();
             obj::Object* val = tup.v[1]->clone();
@@ -332,9 +337,13 @@ struct SeqBase : public Object {
     void print() {
 
         bool ok = true;
+        bool err = false;
 
         while (ok) {
             obj::Object* v = this->next(ok);
+
+            if (!v) break;
+            
             v->print();
 
             if (ok)
@@ -377,8 +386,10 @@ struct SeqArrayAtom : public SeqBase {
 
     Object* next(bool& ok) {
 
-        if (b == e)
-            throw std::runtime_error("Iterating an empty array");
+        if (b == e) {
+            ok = false;
+            return nullptr;
+        }
 
         holder->v = *b;
         ++b;
@@ -408,8 +419,10 @@ struct SeqArrayObject : public SeqBase {
 
     Object* next(bool& ok) {
 
-        if (b == e)
-            throw std::runtime_error("Iterating an empty array");
+        if (b == e) {
+            ok = false;
+            return nullptr;
+        }
 
         Object* ret = *b;
         ++b;
@@ -445,8 +458,10 @@ struct SeqMapObject : public SeqBase {
 
     Object* next(bool& ok) {
 
-        if (b == e)
-            throw std::runtime_error("Iterating an empty map");
+        if (b == e) {
+            ok = false;
+            return nullptr;
+        }
 
         holder->v[0] = b->first;
         holder->v[1] = b->second;

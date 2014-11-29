@@ -9,7 +9,10 @@ void count_seq(const obj::Object* in, obj::Object*& out) {
     bool ok = true;
 
     while (ok) {
-        ((obj::Object*)in)->next(ok);
+        obj::Object next = ((obj::Object*)in)->next(ok);
+
+        if (!next) break;
+        
         ++i;
     }
 }

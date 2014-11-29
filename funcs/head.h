@@ -16,6 +16,9 @@ struct SeqHeadSeq : public obj::SeqBase {
     obj::Object* next(bool& ok) {
 
         obj::Object* ret = seq->next(ok);
+
+        if (!ret) return ret;
+        
         ++i;
 
         if (i >= n)
