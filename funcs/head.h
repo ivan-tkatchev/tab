@@ -13,16 +13,13 @@ struct SeqHeadSeq : public obj::SeqBase {
         seq = s;
     }
     
-    obj::Object* next(bool& ok) {
+    obj::Object* next() {
 
-        obj::Object* ret = seq->next(ok);
-        
         ++i;
+        if (i > n)
+            return nullptr;
 
-        if (i >= n)
-            ok = false;
-
-        return ret;
+        return seq->next();
     }
 };
 

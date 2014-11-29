@@ -27,9 +27,9 @@ struct Object {
 
     virtual void wrap(Object*) { throw std::runtime_error("Object sequence wrapping is not implemented"); }
     
-    virtual Object* next(bool&) { throw std::runtime_error("Object 'next' operator not implemented"); }
+    virtual Object* next() { throw std::runtime_error("Object 'next' operator not implemented"); }
 
-    virtual bool null() { return false; }
+    virtual bool null() const { return false; }
 };
 
 template <typename T>
@@ -95,17 +95,13 @@ struct ArrayAtom : public Object {
 
         v.clear();
 
-        if (seq->null())
-            return;
-        
         while (1) {
 
-            bool ok;
-            obj::Object* next = seq->next(ok);
+            obj::Object* next = seq->next();
 
+            if (!next) break;
+            
             v.push_back(get< Atom<T> >(next).v);
-
-            if (!ok) break;
         }
     }
 };
@@ -176,12 +172,11 @@ struct ArrayObject : public Object {
         
         while (1) {
 
-            bool ok;
-            obj::Object* next = seq->next(ok);
+            obj::Object* next = seq->next();
 
+            if (!next) break;
+            
             v.push_back(next->clone());
-
-            if (!ok) break;
         }
     }        
 };
@@ -320,8 +315,9 @@ struct MapObject : public Object {
         
         while (1) {
 
-            bool ok;
-            obj::Object* next = seq->next(ok);
+            obj::Object* next = seq->next();
+
+            if (!next) break;
 
             Tuple& tup = get<Tuple>(next);
             obj::Object* key = tup.v[0]->clone();
@@ -336,8 +332,6 @@ struct MapObject : public Object {
             } else {
                 v[key] = val;
             }
-
-            if (!ok) break;
         }
     }
 };
@@ -347,34 +341,44 @@ struct SeqBase : public Object {
 
     void print() {
 
-        bool ok = !(this->null());
+        bool first = true;
+        
+        while (1) {
 
-        while (ok) {
-            obj::Object* v = this->next(ok);
+            obj::Object* v = this->next();
+
+            if (!v) break;
+
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
 
             v->print();
-
-            if (ok)
-                std::cout << std::endl;
         }
     }
 };
 
 struct SeqNull : public Object {
 
-    bool null() { return true; }
+    bool null() const { return true; }
 };
 
 struct SeqSingle : public SeqBase {
 
     Object* atom;
-
+    bool toggle;
+    
     void wrap(Object* v) {
         atom = v;
+        toggle = false;
     }
 
-    Object* next(bool& ok) {
-        ok = false;
+    Object* next() {
+        if (toggle) return nullptr;
+
+        toggle = !toggle;
         return atom;
     }
 };
@@ -397,26 +401,19 @@ struct SeqArrayAtom : public SeqBase {
         e = arr->v.end();
     }
 
-    Object* next(bool& ok) {
+    Object* next() {
 
         if (b == e) {
-            throw std::runtime_error("Iterating an empty array");
+            return nullptr;
         }
 
         holder->v = *b;
         ++b;
 
-        if (b == e) {
-            ok = false;
-            b = arr->v.begin();
-        } else {
-            ok = true;
-        }
-
         return holder;
     }
 
-    bool null() { return v.empty(); }
+    bool null() const { return (b == e); }
 };
 
 struct SeqArrayObject : public SeqBase {
@@ -431,26 +428,19 @@ struct SeqArrayObject : public SeqBase {
         e = arr->v.end();
     }
 
-    Object* next(bool& ok) {
+    Object* next() {
 
         if (b == e) {
-            throw std::runtime_error("Iterating an empty array");
+            return nullptr;
         }
 
         Object* ret = *b;
         ++b;
 
-        if (b == e) {
-            ok = false;
-            b = arr->v.begin();
-        } else {
-            ok = true;
-        }
-
         return ret;
     }
 
-    bool null() { return v.empty(); }
+    bool null() const { return (b == e); }
 };
 
 struct SeqMapObject : public SeqBase {
@@ -471,40 +461,33 @@ struct SeqMapObject : public SeqBase {
         e = map->v.end();
     }
 
-    Object* next(bool& ok) {
+    Object* next() {
 
         if (b == e) {
-            throw std::runtime_error("Iterating an empty map");
+            return nullptr;
         }
 
         holder->v[0] = b->first;
         holder->v[1] = b->second;
         ++b;
 
-        if (b == e) {
-            ok = false;
-            b = map->v.begin();
-        } else {
-            ok = true;
-        }
-
         return holder;
     }
 
-    bool null() { return v.empty(); }
+    bool null() const { return (b == e); }
 };
 
 struct SeqGenerator : public SeqBase {
 
-    typedef std::function<Object*(bool&)> iterator_t;
+    typedef std::function<Object*()> iterator_t;
     iterator_t v;
 
     void wrap(Object* o) {
         throw std::runtime_error("Sanity error: sequence wrapping a generator.");
     }
     
-    Object* next(bool& ok) {
-        return v(ok);
+    Object* next() {
+        return v();
     }
 };
 

@@ -9,12 +9,9 @@ struct Linereader {
     char* bufe;
     char* bufi;
     char* bufi_p;
-    bool done;
 
-    bool did_init;
-    
     Linereader(std::istream& i) :
-        infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), bufi_p(bufi), done(false), did_init(false)
+        infile(i), bufe(bufb + sizeof(bufb)), bufi(bufe), bufi_p(bufi)
         {}
 
     void populate() {
@@ -24,33 +21,29 @@ struct Linereader {
         bufi_p = bufi;
 
         if (!infile) {
-            done = true;
             bufe = bufb + infile.gcount();
         }
     }
     
-    void getline(std::string& s, bool& ok) {
-
-        if (!did_init) {
-            populate();
-            did_init = true;
-        }
+    bool getline(std::string& s) {
         
         s.clear();
-        
-        if (done && bufi == bufe) {
-            ok = false;
-            return;
+
+        if (bufi == bufe) {
+            populate();
         }
 
-        ok = true;
-        bool stop = false;
-        while (!stop) {
+        if (bufi == bufe) {
+            return false;
+        }
+        
+        while (1) {
 
             if (*bufi == '\n') {
                 s.append(bufi_p, bufi);
-                bufi_p = bufi + 1;
-                stop = true;
+                ++bufi;
+                bufi_p = bufi;
+                return true;
             }
 
             ++bufi;
@@ -59,12 +52,13 @@ struct Linereader {
                 s.append(bufi_p, bufi);
                 populate();
 
-                if (done && bufi == bufe) {
-                    ok = false;
-                    stop = true;
+                if (bufi == bufe) {
+                    return !(s.empty());
                 }
             }
         }
+
+        return true;
     }
 };
 
@@ -77,8 +71,11 @@ struct SeqFile : public obj::SeqBase {
         holder = new obj::String;
     }
 
-    obj::Object* next(bool& ok) {
-        reader.getline(holder->v, ok);
+    obj::Object* next() {
+        bool ok = reader.getline(holder->v);
+
+        if (!ok) return nullptr;
+
         return holder;
     }
 };

@@ -6,10 +6,12 @@ void count_seq(const obj::Object* in, obj::Object*& out) {
     UInt& i = obj::get<obj::UInt>(out).v;
 
     i = 0;
-    bool ok = !(in->null());
 
-    while (ok) {
-        ((obj::Object*)in)->next(ok);
+    while (1) {
+        obj::Object* ret = ((obj::Object*)in)->next();
+
+        if (!ret) break;
+
         ++i;
     }
 }
@@ -47,9 +49,7 @@ struct CountNull : public obj::SeqBase {
         i = new obj::UInt(0);
     }
 
-    obj::Object* next(bool& ok) {
-
-        ok = true;
+    obj::Object* next() {
         ++(i->v);
         return i;
     }

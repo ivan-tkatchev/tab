@@ -5,7 +5,6 @@ struct SeqFlattenSeq : public obj::SeqBase {
 
     obj::Object* seq;
     obj::Object* subseq;
-    bool seq_ok;
     bool subseq_ok;
     
     void wrap(obj::Object* s) {
@@ -13,18 +12,19 @@ struct SeqFlattenSeq : public obj::SeqBase {
         subseq_ok = false;
     }
 
-    obj::Object* next(bool& ok) {
+    obj::Object* next() {
 
         if (!subseq_ok) {
-            subseq = seq->next(seq_ok);
+            subseq = seq->next();
+
+            if (!subseq) return nullptr;
         }
 
-        obj::Object* ret = subseq->next(subseq_ok);
+        obj::Object* ret = subseq->next();
 
-        if (!seq_ok && !subseq_ok) {
-            ok = false;
-        } else {
-            ok = true;
+        if (!ret) {
+            subseq_ok = false;
+            return next();
         }
 
         return ret;
@@ -35,7 +35,6 @@ struct SeqFlattenVal : public obj::SeqBase {
 
     obj::Object* seq;
     obj::Object* subseq;
-    bool seq_ok;
     bool subseq_ok;
 
     SeqFlattenVal(const Type& t) {
@@ -50,19 +49,21 @@ struct SeqFlattenVal : public obj::SeqBase {
         subseq_ok = false;
     }
 
-    obj::Object* next(bool& ok) {
+    obj::Object* next() {
 
         if (!subseq_ok) {
-            obj::Object* i = seq->next(seq_ok);
+            obj::Object* i = seq->next();
+
+            if (!i) return nullptr;
+
             subseq->wrap(i);
         }
 
-        obj::Object* ret = subseq->next(subseq_ok);
+        obj::Object* ret = subseq->next();
 
-        if (!seq_ok && !subseq_ok) {
-            ok = false;
-        } else {
-            ok = true;
+        if (!ret) {
+            subseq_ok = false;
+            return next();
         }
 
         return ret;
