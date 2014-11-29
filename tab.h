@@ -21,15 +21,15 @@ struct bm {
     double& _s;
 
     bm(bm_scope& s) : _s(s.sum) {
-        //gettimeofday(&b, NULL);
+        gettimeofday(&b, NULL);
     }
 
     ~bm() {
-        //struct timeval e;
-        //gettimeofday(&e, NULL);
-        //size_t a = (e.tv_sec*1e6 + e.tv_usec);
-        //size_t q = (b.tv_sec*1e6 + b.tv_usec);
-        //_s += ((double)a-(double)q)/1e6;
+        struct timeval e;
+        gettimeofday(&e, NULL);
+        size_t a = (e.tv_sec*1e6 + e.tv_usec);
+        size_t q = (b.tv_sec*1e6 + b.tv_usec);
+        _s += ((double)a-(double)q)/1e6;
     }
 };
 
@@ -42,7 +42,6 @@ struct bm {
 #include "parse.h"
 #include "object.h"
 #include "funcs.h"
-#include "file.h"
 #include "exec.h"
 
 #endif

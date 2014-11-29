@@ -316,7 +316,7 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
 
     Runtime rt(nvars);
 
-    obj::Object* toplevel = new SeqFile(inputs);
+    obj::Object* toplevel = new funcs::SeqFile(inputs);
     rt.set_var(0, toplevel);
 
     execute_init(commands);

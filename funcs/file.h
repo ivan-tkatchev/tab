@@ -1,5 +1,5 @@
-#ifndef __TAB_FILE_H
-#define __TAB_FILE_H
+#ifndef __TAB_FUNCS_FILE_H
+#define __TAB_FUNCS_FILE_H
 
 struct Linereader {
 
