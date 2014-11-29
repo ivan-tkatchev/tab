@@ -58,7 +58,8 @@ void execute_init(std::vector<Command>& commands) {
 
         case Command::GEN:
             c.object = new obj::SeqGenerator;
-            
+            break;
+
         default:
             c.object = obj::make(c.type);
             break;
