@@ -179,14 +179,13 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
 void count_seq(const obj::Object* in, obj::Object*& out) {
 
-    obj::Sequencer& seq = obj::get<obj::Sequencer>(in);
     UInt& i = obj::get<obj::UInt>(out).v;
 
     i = 0;
     bool ok = true;
 
     while (ok) {
-        seq.next(ok);
+        ((obj::Object*)in)->next(ok);
         ++i;
     }
 }
@@ -216,8 +215,39 @@ void count_map(const obj::Object* in, obj::Object*& out) {
     i = map.v.size();
 }
 
-Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*&) {
+struct CountNull : public obj::SeqBase {
 
+    obj::UInt* i;
+
+    CountNull() {
+        i = new obj::UInt(0);
+    }
+
+    obj::Object* next(bool& ok) {
+
+        ok = true;
+        ++(i->v);
+        return i;
+    }
+};
+
+void count_null(const obj::Object* in, obj::Object*& out) {
+
+    CountNull& v = obj::get<CountNull>(in);
+    v.i->v = 0;
+}
+
+Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) {
+
+    if (args.type == Type::NONE) {
+
+        ret = Type(Type::SEQ);
+        ret.push(Type::UINT);
+
+        out = new CountNull;
+        return count_null;
+    }
+        
     ret = Type(Type::UINT);
 
     switch (args.type) {
@@ -243,13 +273,13 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*&) {
     }
 }
 
-struct SequencerHeadSeq : public obj::Object {
+struct SeqHeadSeq : public obj::SeqBase {
 
     obj::Object* seq;
     UInt n;
     UInt i;
 
-    SequencerHeadSeq() : n(0), i(0) {}
+    SeqHeadSeq() : n(0), i(0) {}
 
     void wrap(obj::Object* s) {
         seq = s;
@@ -265,59 +295,15 @@ struct SequencerHeadSeq : public obj::Object {
 
         return ret;
     }
-
-    iterator_t iter() const {
-        return [this](obj::Object* o, bool& ok) mutable { return next(ok); };
-    }
-
-    void print() {
-        obj::__sequencer_print(this);
-    }
 };
 
-struct SequencerHeadVal : public obj::Object {
-
-    obj::Object* holder;
-    iterator_t v;
-    UInt n;
-    UInt i;
-
-    SequencerHeadVal(const Type& t) : n(0), i(0) {
-        holder = obj::make(t);
-    }
-
-    void wrap(obj::Object* s) {
-        v = s->iter();
-    }
-    
-    obj::Object* next(bool& ok) {
-
-        obj::Object* ret = v(holder, ok);
-        ++i;
-
-        if (i >= n)
-            ok = false;
-
-        return ret;
-    }
-
-    iterator_t iter() const {
-        return v;
-    }
-
-    void print() {
-        obj::__sequencer_print(this);
-    }
-};
-
-template <typename T>
 void head(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& inp = obj::get<obj::Tuple>(in);
     obj::Object* arg = inp.v[0];
     UInt n = obj::get<obj::UInt>(inp.v[1]).v;
 
-    T& seq = obj::get<T>(out);
+    SeqHeadSeq& seq = obj::get<SeqHeadSeq>(out);
 
     seq.n = n;
     seq.i = 0;
@@ -335,16 +321,15 @@ Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
         return nullptr;
 
     const Type& a1 = args.tuple->at(0);
-    ret = wrap_seq(a1);
 
     if (a1.type == Type::SEQ) {
 
-        obj = new SequencerHeadSeq;
-        return head<SequencerHeadSeq>;
+        obj = new SeqHeadSeq;
+        ret = a1;
+        return head;
     }
     
-    obj = new SequencerHeadVal(a1.tuple->at(0));
-    return head<SequencerHeadVal>;
+    return nullptr;
 }
 
 
@@ -620,6 +605,100 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+
+struct SeqFlattenSeq : public obj::SeqBase {
+
+    obj::Object* seq;
+    obj::Object* i;
+    bool seq_ok;
+    
+    void wrap(obj::Object* s) {
+        seq = s;
+        i = seq->next(seq_ok);
+    }
+
+    obj::Object* next(bool& ok) {
+
+        bool iok;
+        obj::Object* ret = i->next(iok);
+
+        if (!iok && !seq_ok) {
+            ok = false;
+
+        } else if (!iok) {
+            i = seq->next(seq_ok);
+            ok = true;
+
+        } else {
+            ok = true;
+        }
+
+        return ret;
+    }
+};
+
+struct SeqFlattenVal : public obj::SeqBase {
+
+    obj::Object* seq;
+    obj::Object* subseq;
+    obj::Object* i;
+    bool seq_ok;
+
+    SeqFlattenVal(const Type& t) {
+        subseq = obj::make(t);
+    }
+    
+    void wrap(obj::Object* s) {
+        seq = s;
+        i = seq->next(seq_ok);
+        subseq->wrap(i);
+    }
+
+    obj::Object* next(bool& ok) {
+
+        bool iok;
+        obj::Object* ret = subseq->next(iok);
+
+        if (!iok && !seq_ok) {
+            ok = false;
+
+        } else if (!iok) {
+            i = seq->next(seq_ok);
+            subseq->wrap(i);
+            ok = true;
+
+        } else {
+            ok = true;
+        }
+
+        return ret;
+    }
+};
+
+void flatten(const obj::Object* in, obj::Object*& out) {
+
+    out->wrap((obj::Object*)in);
+}
+
+Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::SEQ)
+        return nullptr;
+
+    Type t2 = unwrap_seq(args);
+    ret = wrap_seq(t2);
+
+    if (t2.type == Type::SEQ) {
+
+        obj = new SeqFlattenSeq;
+
+    } else {
+        obj = new SeqFlattenVal(ret);
+    }
+
+    return flatten;
+}
+
 }
 
 void register_functions() {
@@ -685,6 +764,8 @@ void register_functions() {
     funcs.add_poly("head", funcs::head_checker);
 
     funcs.add_poly("index", funcs::index_checker);
+
+    funcs.add_poly("flatten", funcs::flatten_checker);
 }
 
 #endif

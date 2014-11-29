@@ -50,14 +50,14 @@ void execute_init(std::vector<Command>& commands) {
         case Command::VAW:
             break;
 
-        case Command::FLAT:
-            c.object = new obj::SequencerFlatten(c.type);
-            break;
-
         case Command::FUN:
+        case Command::FUN0:
             if (c.object == nullptr)
                 c.object = obj::make(c.type);
             break;
+
+        case Command::GEN:
+            c.object = new obj::SeqGenerator;
             
         default:
             c.object = obj::make(c.type);
@@ -79,6 +79,12 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
             ((Functions::func_t)c.function)(arg, c.object);
 
+            r.stack.push_back(c.object);
+            break;
+        }
+        case Command::FUN0:
+        {
+            ((Functions::func_t)c.function)(nullptr, c.object);
             r.stack.push_back(c.object);
             break;
         }
@@ -113,9 +119,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         {
             obj::Object* src = r.stack.back();
             r.stack.pop_back();
-
-            obj::Sequencer& seq = obj::get<obj::Sequencer>(c.object);
-            seq.wrap(src);
+            c.object->wrap(src);
             r.stack.push_back(c.object);
             break;
         }
@@ -127,9 +131,9 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             Command::Closure& clo = *(c.closure[0]);
             UInt var = c.arg.uint;
 
-            obj::Sequencer& dst = obj::get<obj::Sequencer>(c.object);
+            obj::SeqGenerator& gen = obj::get<obj::SeqGenerator>(c.object);
 
-            dst.v = [seq,&clo,var,&r](obj::Object* holder, bool& ok) mutable {
+            gen.v = [seq,&clo,var,&r](bool& ok) mutable {
 
                 obj::Object* next = seq->next(ok);
                 r.set_var(var, next);
@@ -165,17 +169,6 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             dst->fill(seq);
 
             r.stack.push_back(dst);
-            break;
-        }
-        case Command::FLAT:
-        {
-            obj::Object* seq = r.stack.back();
-            r.stack.pop_back();
-
-            obj::SequencerFlatten& fseq = obj::get<obj::SequencerFlatten>(c.object);
-            fseq.wrap(seq);
-
-            r.stack.push_back(c.object);
             break;
         }
 
@@ -343,7 +336,7 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
 
     Runtime rt(nvars);
 
-    obj::Object* toplevel = new obj::SequencerFile(inputs);
+    obj::Object* toplevel = new SeqFile(inputs);
     rt.set_var(0, toplevel);
 
     execute_init(commands);

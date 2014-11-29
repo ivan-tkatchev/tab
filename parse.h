@@ -29,6 +29,12 @@ struct ParseStack {
     
     void close(Command::cmd_t cmd, bool do_pop = true) {
 
+        for (const auto& zz : _mark) {
+            std::cout << zz.first << " " << (zz.second.ix == 0 ? std::string("()") :
+                                             strings().get(zz.second)) << std::endl;
+        }
+        std::cout << "---" << std::endl;
+        
         push(Command::TUP);
 
         auto m = _mark.back();
@@ -206,7 +212,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         (x_var >> y_mark_name) &
         x_ws &
         (axe::r_lit('(') | r_fail(y_unmark)) &
-        ~x_expr &
+        ~x_expr & x_ws &
         axe::r_lit(')') >> y_close_fun;
 
     auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, make_string(b, e)); });
@@ -225,13 +231,15 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto x_index = *(axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_idx);
 
     auto x_expr_idx =
-        ((axe::r_empty() >> y_mark_idx) & x_expr_bottom & x_index >> y_unmark);
+        ((axe::r_empty() >> y_mark_idx) & x_expr_bottom & x_index >> y_unmark) |
+        (r_fail(y_unmark));
 
-    auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.push(Command::FLAT); });
+    auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(make_string("flatten")); });
+    auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
     
     axe::r_rule<I> x_expr_flat;
     x_expr_flat =
-        (axe::r_lit(':') & x_expr_flat >> y_expr_flat) |
+        (axe::r_lit(':') >> y_mark_flat & x_expr_flat >> y_expr_flat) |
         x_expr_idx;
     
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });

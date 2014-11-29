@@ -5,8 +5,6 @@ namespace obj {
 
 struct Object {
 
-    typedef std::function<Object*(Object*,bool&)> iterator_t;
-
     virtual ~Object() {}
 
     virtual size_t hash() const {
@@ -23,14 +21,12 @@ struct Object {
         throw std::runtime_error("Object cloning not implemented");
     }
 
-    virtual iterator_t iter() const {
-        throw std::runtime_error("Object iteration not implemented");
-    }
-
     virtual void fill(Object*) {
         throw std::runtime_error("Object construction not implemented");
     }
 
+    virtual void wrap(Object*) { throw std::runtime_error("Object sequence wrapping is not implemented"); }
+    
     virtual Object* next(bool&) { throw std::runtime_error("Object 'next' operator not implemented"); }
 };
 
@@ -39,39 +35,6 @@ T& get(const Object* o) {
     return *((T*)o);
 }
 
-void __sequencer_print(Object* o) {
-
-    bool ok = true;
-
-    while (ok) {
-        o->next(ok)->print();
-
-        if (ok)
-            std::cout << std::endl;
-    }
-}
-
-struct Sequencer : public Object {
-
-    iterator_t v;
-    Object* holder;
-
-    iterator_t iter() const {
-        return v;
-    }
-        
-    void wrap(Object* i) {
-        v = i->iter();
-    }
-
-    Object* next(bool& ok) {
-        return v(holder, ok);
-    }
-
-    void print() {
-        __sequencer_print(this);
-    }
-};
 
 template <typename T>
 struct Atom : public Object {
@@ -83,8 +46,6 @@ struct Atom : public Object {
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
     void print() { std::cout << v; }
     Object* clone() const { return new Atom<T>(v); }
-
-    iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
 };
 
 typedef Atom<::Int> Int;
@@ -140,30 +101,6 @@ struct ArrayAtom : public Object {
 
             if (!ok) break;
         }
-    }
-
-    iterator_t iter() const {
-
-        typename std::vector<T>::const_iterator ite = v.begin();
-
-        if (ite == v.end())
-            throw std::runtime_error("Iterating an empty array");
-        
-        return [this,ite](Object* i, bool& ok) mutable {
-
-            Atom<T>& x = get< Atom<T> >(i);
-            x.v = *ite;
-            ++ite;
-
-            if (ite == v.end()) {
-                ok = false;
-                ite = v.begin();
-            } else {
-                ok = true;
-            }
-
-            return i;
-        };
     }
 };
 
@@ -235,30 +172,7 @@ struct ArrayObject : public Object {
 
             if (!ok) break;
         }
-    }
-        
-    iterator_t iter() const {
-
-        typename std::vector<Object*>::const_iterator ite = v.begin();
-
-        if (ite == v.end())
-            throw std::runtime_error("Iterating an empty array");
-        
-        return [this,ite](Object* i, bool& ok) mutable {
-
-            Object* ret = *ite;
-            ++ite;
-
-            if (ite == v.end()) {
-                ok = false;
-                ite = v.begin();
-            } else {
-                ok = true;
-            }
-
-            return ret;
-        };
-    }
+    }        
 };
 
 struct Tuple : public ArrayObject {
@@ -296,8 +210,6 @@ struct Tuple : public ArrayObject {
     void fill(Object* s) {
         throw std::runtime_error("Cannot construct tuples");
     }
-    
-    iterator_t iter() const { return [this](Object* i, bool& ok) { ok = false; return (Object*)this; }; }
 };
 
 struct ObjectHash {
@@ -412,33 +324,158 @@ struct MapObject : public Object {
             if (!ok) break;
         }
     }
+};
 
-    iterator_t iter() const {
 
-        typename map_t::const_iterator ite = v.begin();
+struct SeqBase : public Object {
 
-        if (ite == v.end())
-            throw std::runtime_error("Iterating an empty map");
-        
-        return [this,ite](Object* i, bool& ok) mutable {
+    void print() {
 
-            Tuple& x = get<Tuple>(i);
-            x.v[0] = ite->first;
-            x.v[1] = ite->second;
-            ++ite;
+        bool ok = true;
 
-            if (ite == v.end()) {
-                ok = false;
-                ite = v.begin();
-            } else {
-                ok = true;
-            }
+        while (ok) {
+            obj::Object* v = this->next(ok);
+            v->print();
 
-            return i;
-        };
+            if (ok)
+                std::cout << std::endl;
+        }
     }
 };
 
+struct SeqSingle : public SeqBase {
+
+    Object* atom;
+
+    void wrap(Object* v) {
+        atom = v;
+    }
+
+    Object* next(bool& ok) {
+        ok = false;
+        return atom;
+    }
+};
+
+template <typename T>
+struct SeqArrayAtom : public SeqBase {
+
+    ArrayAtom<T>* arr;
+    Atom<T>* holder;
+    typename std::vector<T>::const_iterator b;
+    typename std::vector<T>::const_iterator e;
+
+    SeqArrayAtom() {
+        holder = new Atom<T>;
+    }
+    
+    void wrap(Object* a) {
+        arr = (ArrayAtom<T>*)a;
+        b = arr->v.begin();
+        e = arr->v.end();
+    }
+
+    Object* next(bool& ok) {
+
+        if (b == e)
+            throw std::runtime_error("Iterating an empty array");
+
+        holder->v = *b;
+        ++b;
+
+        if (b == e) {
+            ok = false;
+            b = arr->v.begin();
+        } else {
+            ok = true;
+        }
+
+        return holder;
+    }
+};
+
+struct SeqArrayObject : public SeqBase {
+
+    ArrayObject* arr;
+    typename std::vector<Object*>::const_iterator b;
+    typename std::vector<Object*>::const_iterator e;
+
+    void wrap(Object* a) {
+        arr = (ArrayObject*)a;
+        b = arr->v.begin();
+        e = arr->v.end();
+    }
+
+    Object* next(bool& ok) {
+
+        if (b == e)
+            throw std::runtime_error("Iterating an empty array");
+
+        Object* ret = *b;
+        ++b;
+
+        if (b == e) {
+            ok = false;
+            b = arr->v.begin();
+        } else {
+            ok = true;
+        }
+
+        return ret;
+    }
+};
+
+struct SeqMapObject : public SeqBase {
+
+    MapObject* map;
+    Tuple* holder;
+    typename MapObject::map_t::const_iterator b;
+    typename MapObject::map_t::const_iterator e;
+
+    SeqMapObject() {
+        holder = new Tuple;
+        holder->v.resize(2);
+    }
+    
+    void wrap(Object* a) {
+        map = (MapObject*)a;
+        b = map->v.begin();
+        e = map->v.end();
+    }
+
+    Object* next(bool& ok) {
+
+        if (b == e)
+            throw std::runtime_error("Iterating an empty map");
+
+        holder->v[0] = b->first;
+        holder->v[1] = b->second;
+        ++b;
+
+        if (b == e) {
+            ok = false;
+            b = map->v.begin();
+        } else {
+            ok = true;
+        }
+
+        return holder;
+    }
+};
+
+struct SeqGenerator : public SeqBase {
+
+    typedef std::function<Object*(bool&)> iterator_t;
+    iterator_t v;
+
+    void wrap(Object* o) {
+        throw std::runtime_error("Sanity error: sequence wrapping a generator.");
+    }
+    
+    Object* next(bool& ok) {
+        return v(ok);
+    }
+};
 
 
 template <typename... U>
@@ -499,63 +536,46 @@ Object* make(const Type& t, U&&... u) {
 
     } else if (t.type == Type::SEQ) {
 
-        Sequencer* ret = new Sequencer;
+        const Type& s = (*t.tuple)[0];
 
-        ret->holder = make((*t.tuple)[0]);
+        if (s.type == Type::ATOM || s.type == Type::TUP) {
 
-        return ret;
+            return new SeqSingle(std::forward<U>(u)...);
+
+        } else if (s.type == Type::MAP) {
+
+            return new SeqMapObject(std::forward<U>(u)...);
+
+        } else if (s.type == Type::ARR) {
+
+            const Type& s2 = (*s.tuple)[0];
+
+            if (s2.type == Type::ATOM) {
+
+                switch (s2.atom) {
+                case Type::INT:
+                    return new SeqArrayAtom<::Int>(std::forward<U>(u)...);
+                case Type::UINT:
+                    return new SeqArrayAtom<::UInt>(std::forward<U>(u)...);
+                case Type::REAL:
+                    return new SeqArrayAtom<::Real>(std::forward<U>(u)...);
+                case Type::STRING:
+                    return new SeqArrayAtom<std::string>(std::forward<U>(u)...);
+                }
+
+            } else {
+
+                return new SeqArrayObject(std::forward<U>(u)...);
+            }
+
+        } else {
+
+            throw std::runtime_error("Cannot construct a sequence from a " + Type::print(s));
+        }
     }
 
     throw std::runtime_error("Sanity error: cannot create object");
 }
-
-
-struct SequencerFlatten : public Object {
-
-    Object* holder;
-    bool subseq_ok;
-    Object* subseq;
-    iterator_t subi;
-    
-    SequencerFlatten(const Type& t) {
-
-        holder = make((*t.tuple)[0]);
-    }
-
-    void wrap(Object* s) {
-
-        subseq = s;
-        subi = subseq->next(subseq_ok)->iter();
-    }
-
-    Object* next(bool& ok) {
-
-        bool sok;
-        Object* ret = subi(holder, sok);
-
-        if (!sok && !subseq_ok) {
-            ok = false;
-
-        } else if (!sok) {
-            subi = subseq->next(subseq_ok)->iter();
-            ok = true;
-
-        } else {
-            ok = true;
-        }
-
-        return ret;
-    }
-
-    iterator_t iter() const {
-        return [this](Object* holder, bool& ok) mutable { return next(ok); };
-    }
-
-    void print() {
-        __sequencer_print(this);
-    }
-};
-
 
 }
 

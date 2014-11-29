@@ -353,55 +353,6 @@ Type infer_map_generator(const std::vector<Type>& stack) {
     return ret;
 }
 
-Type infer_flat_generator(const std::vector<Type>& stack) {
-
-    const Type& t = stack.back();
-
-    if (t.type != Type::SEQ)
-        throw std::runtime_error("Cannot flatten something that isn't a sequence.");
-
-    Type t2 = unwrap_seq(t);
-    t2 = wrap_seq(t2);
-
-    return t2;
-}
-
-Type value_type(const Type& t) {
-
-    if (!t.tuple || t.tuple->empty())
-        throw std::runtime_error("Indexing an atom.");
-
-    Type ret = t;
-
-    if (t.type == Type::TUP) {
-        throw std::runtime_error("Cannot index tuples at runtime");
-        
-    } else if (t.type == Type::ARR) {
-
-        if (t.tuple->size() != 1)
-            throw std::runtime_error("Sanity error, degenerate array");
-        
-        return (*t.tuple)[0];
-
-    } else if (t.type == Type::MAP) {
-
-        if (t.tuple->size() != 2)
-            throw std::runtime_error("Sanity error, degenerate map");
-
-        return (*t.tuple)[1];
-    }
-        
-    throw std::runtime_error("Sanity error, indexing something that's not array or map");
-}
-
-Type mapped_type(const Type& t) {
-
-    if (t.type != Type::MAP || !t.tuple || t.tuple->size() != 2)
-        throw std::runtime_error("Sanity error, degenerate map");
-
-    return (*t.tuple)[0];
-}
-
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty = false) {
 
     std::vector<Type> stack;
@@ -547,6 +498,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         }
         
         case Command::FUN:
+        case Command::FUN0:
         {
 
             if (c.closure.size() != 1)
@@ -560,18 +512,15 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             c.function = (void*)tmp.first;
             stack.emplace_back(tmp.second);
 
+            if (args.type == Type::NONE)
+                c.cmd = Command::FUN0;
+            else
+                c.cmd = Command::FUN;
+            
             ci = commands.insert(ci, clo.code.begin(), clo.code.end());
             ci += clo.code.size();
             ci->closure.clear();
 
-            break;
-        }
-
-        case Command::FLAT:
-        {
-            Type t = infer_flat_generator(stack);
-            stack.pop_back();
-            stack.emplace_back(t);
             break;
         }
 

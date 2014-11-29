@@ -68,32 +68,20 @@ struct Linereader {
     }
 };
 
-namespace obj {
+struct SeqFile : public obj::SeqBase {
 
-struct SequencerFile : public Object {
-
-    Object* holder;
+    obj::String* holder;
     Linereader reader;
     
-    SequencerFile(std::istream& infile) : reader(infile) {
-        holder = new String;
+    SeqFile(std::istream& infile) : reader(infile) {
+        holder = new obj::String;
     }
 
-    Object* next(bool& ok) {
-        String& x = get<String>(holder);
-        reader.getline(x.v, ok);
+    obj::Object* next(bool& ok) {
+        reader.getline(holder->v, ok);
         return holder;
-    }        
-
-    iterator_t iter() const {
-        return [this](Object* holder, bool& ok) mutable { return next(ok); };
-    }
-
-    void print() {
-        __sequencer_print(this);
     }
 };
 
-}
 
 #endif

@@ -39,11 +39,10 @@ struct Command {
         ARR,
         MAP,
         FUN,
+        FUN0,
         SEQ,
         TUP,
-        GEN,
-
-        FLAT
+        GEN
     };
 
     cmd_t cmd;
@@ -96,11 +95,10 @@ struct Command {
         case ARR: return "ARR";
         case MAP: return "MAP";
         case FUN: return "FUN";
+        case FUN0: return "FUN0";
         case SEQ: return "SEQ";
         case TUP: return "TUP";
         case GEN: return "GEN";
-
-        case FLAT: return "FLAT";
         }
         return ":~(";
     }
