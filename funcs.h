@@ -9,6 +9,7 @@ namespace funcs {
 #include "funcs/math.h"
 #include "funcs/head.h"
 #include "funcs/cutgrep.h"
+#include "funcs/zip.h"
 #include "funcs/file.h"
 
 }
@@ -25,6 +26,7 @@ void register_functions() {
     funcs::register_math(funs);
     funcs::register_head(funs);
     funcs::register_cutgrep(funs);
+    funcs::register_zip(funs);
 }
 
 #endif

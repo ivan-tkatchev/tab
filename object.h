@@ -360,11 +360,6 @@ struct SeqBase : public Object {
     }
 };
 
-struct SeqNull : public Object {
-
-    bool null() const { return true; }
-};
-
 struct SeqSingle : public SeqBase {
 
     Object* atom;
