@@ -233,7 +233,7 @@ struct CountNull : public obj::SeqBase {
 
 void count_null(const obj::Object* in, obj::Object*& out) {
 
-    CountNull& v = obj::get<CountNull>(in);
+    CountNull& v = obj::get<CountNull>(out);
     v.i->v = 0;
 }
 

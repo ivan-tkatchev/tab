@@ -178,86 +178,82 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
         // And here comes the numeric operator boilerplate.
 
+#define MATHOP(TYPE,EXPR)                               \
+        TYPE& a = obj::get<TYPE>(r.stack.back());       \
+        r.stack.pop_back();                             \
+        TYPE& b = obj::get<TYPE>(r.stack.back());       \
+        r.stack.pop_back();                             \
+        TYPE& x = obj::get<TYPE>(c.object);             \
+        x.v = EXPR;                                     \
+        r.stack.push_back(c.object);
+
         case Command::EXP:
         {
-            obj::Real& a = obj::get<obj::Real>(r.stack.back());
-            r.stack.pop_back();
-            obj::Real& b = obj::get<obj::Real>(r.stack.back());
-            b.v = ::pow(b.v, a.v);
+            MATHOP(obj::Real, ::pow(b.v, a.v));
             break;
         }
         case Command::MUL_R:
         {
-            obj::Real& a = obj::get<obj::Real>(r.stack.back());
-            r.stack.pop_back();
-            obj::Real& b = obj::get<obj::Real>(r.stack.back());
-            b.v = b.v * a.v;
+            MATHOP(obj::Real, b.v * a.v);
             break;
         }
         case Command::MUL_I:
         {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v * a.v;
+            MATHOP(obj::Int, b.v * a.v);
             break;
         }
         case Command::DIV_R:
         {
-            obj::Real& a = obj::get<obj::Real>(r.stack.back());
-            r.stack.pop_back();
-            obj::Real& b = obj::get<obj::Real>(r.stack.back());
-            b.v = b.v / a.v;
+            MATHOP(obj::Real, b.v / a.v);
             break;
         }
         case Command::DIV_I:
         {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v / a.v;
+            MATHOP(obj::Int, b.v / a.v);
             break;
         }
         case Command::MOD:
         {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v % a.v;
+            MATHOP(obj::Int, b.v % a.v);
             break;
         }
         case Command::ADD_R:
         {
-            obj::Real& a = obj::get<obj::Real>(r.stack.back());
-            r.stack.pop_back();
-            obj::Real& b = obj::get<obj::Real>(r.stack.back());
-            b.v = b.v + a.v;
+            MATHOP(obj::Real, b.v + a.v);
             break;
         }
         case Command::ADD_I:
         {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v + a.v;
+            MATHOP(obj::Int, b.v + a.v);
             break;
         }
         case Command::SUB_R:
         {
-            obj::Real& a = obj::get<obj::Real>(r.stack.back());
-            r.stack.pop_back();
-            obj::Real& b = obj::get<obj::Real>(r.stack.back());
-            b.v = b.v - a.v;
+            MATHOP(obj::Real, b.v - a.v);
             break;
         }
         case Command::SUB_I:
         {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v - a.v;
+            MATHOP(obj::Int, b.v - a.v);
             break;
         }
+        case Command::AND:
+        {
+            MATHOP(obj::Int, b.v & a.v);
+            break;
+        }
+        case Command::OR:
+        {
+            MATHOP(obj::Int, b.v | a.v);
+            break;
+        }
+        case Command::XOR:
+        {
+            MATHOP(obj::Int, b.v ^ a.v);
+            break;
+        }
+
+#undef MATHOP
 
         case Command::I2R_1:
         {
@@ -304,34 +300,14 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
         
         case Command::NOT:
         {
-            obj::Int& o = obj::get<obj::Int>(r.stack.back());
-            o.v = ~o.v;
-            break;
-        }
-        case Command::AND:
-        {
             obj::Int& a = obj::get<obj::Int>(r.stack.back());
             r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v & a.v;
+            obj::Int& b = obj::get<obj::Int>(c.object);
+            b.v = ~a.v;
+            r.stack.push_back(c.object);
             break;
         }
-        case Command::OR:
-        {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v | a.v;
-            break;
-        }
-        case Command::XOR:
-        {
-            obj::Int& a = obj::get<obj::Int>(r.stack.back());
-            r.stack.pop_back();
-            obj::Int& b = obj::get<obj::Int>(r.stack.back());
-            b.v = b.v ^ a.v;
-            break;
-        }
+
         }
     }
 }
