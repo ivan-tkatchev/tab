@@ -29,12 +29,6 @@ struct ParseStack {
     
     void close(Command::cmd_t cmd, bool do_pop = true) {
 
-        for (const auto& zz : _mark) {
-            std::cout << zz.first << " " << (zz.second.ix == 0 ? std::string("()") :
-                                             strings().get(zz.second)) << std::endl;
-        }
-        std::cout << "---" << std::endl;
-        
         push(Command::TUP);
 
         auto m = _mark.back();
