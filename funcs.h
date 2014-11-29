@@ -644,7 +644,10 @@ struct SeqFlattenVal : public obj::SeqBase {
     bool subseq_ok;
 
     SeqFlattenVal(const Type& t) {
-        subseq = obj::make(t);
+        subseq = obj::make_seq_from(t);
+
+        if (subseq == nullptr)
+            throw std::runtime_error("Cannot flatten a sequence of " + Type::print(t));
     }
     
     void wrap(obj::Object* s) {
@@ -689,7 +692,7 @@ Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj
         obj = new SeqFlattenSeq;
 
     } else {
-        obj = new SeqFlattenVal(ret);
+        obj = new SeqFlattenVal(t2);
     }
 
     return flatten;
@@ -700,6 +703,8 @@ Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj
 void register_functions() {
 
     Functions& funcs = functions_init();
+
+    funcs.add_seqmaker(obj::make_seq_from);
 
     funcs.add("real", Type(Type::INT), Type(Type::REAL), funcs::x_to_y<obj::Int,obj::Real>);
     funcs.add("real", Type(Type::UINT), Type(Type::REAL), funcs::x_to_y<obj::UInt,obj::Real>);

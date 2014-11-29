@@ -56,6 +56,9 @@ void execute_init(std::vector<Command>& commands) {
                 c.object = obj::make(c.type);
             break;
 
+        case Command::SEQ:
+            break;
+
         case Command::GEN:
             c.object = new obj::SeqGenerator;
             break;

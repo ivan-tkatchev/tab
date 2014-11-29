@@ -536,45 +536,51 @@ Object* make(const Type& t, U&&... u) {
 
     } else if (t.type == Type::SEQ) {
 
-        const Type& s = (*t.tuple)[0];
+        //throw std::runtime_error("Sanity error: cannot construct sequences.");
+        return nullptr;
+    }
 
-        if (s.type == Type::ATOM || s.type == Type::TUP) {
+    throw std::runtime_error("Sanity error: cannot create object");
+}
 
-            return new SeqSingle(std::forward<U>(u)...);
+Object* make_seq_from(const Type& s) {
 
-        } else if (s.type == Type::MAP) {
+    if (s.type == Type::ATOM || s.type == Type::TUP) {
 
-            return new SeqMapObject(std::forward<U>(u)...);
+        return new SeqSingle;
 
-        } else if (s.type == Type::ARR) {
+    } else if (s.type == Type::MAP) {
 
-            const Type& s2 = (*s.tuple)[0];
+        return new SeqMapObject;
 
-            if (s2.type == Type::ATOM) {
+    } else if (s.type == Type::ARR) {
 
-                switch (s2.atom) {
-                case Type::INT:
-                    return new SeqArrayAtom<::Int>(std::forward<U>(u)...);
-                case Type::UINT:
-                    return new SeqArrayAtom<::UInt>(std::forward<U>(u)...);
-                case Type::REAL:
-                    return new SeqArrayAtom<::Real>(std::forward<U>(u)...);
-                case Type::STRING:
-                    return new SeqArrayAtom<std::string>(std::forward<U>(u)...);
-                }
+        const Type& s2 = (*s.tuple)[0];
 
-            } else {
+        if (s2.type == Type::ATOM) {
 
-                return new SeqArrayObject(std::forward<U>(u)...);
+            switch (s2.atom) {
+            case Type::INT:
+                return new SeqArrayAtom<::Int>;
+            case Type::UINT:
+                return new SeqArrayAtom<::UInt>;
+            case Type::REAL:
+                return new SeqArrayAtom<::Real>;
+            case Type::STRING:
+                return new SeqArrayAtom<std::string>;
             }
 
         } else {
 
-            throw std::runtime_error("Cannot construct a sequence from a " + Type::print(s));
+            return new SeqArrayObject;
         }
+
+    } else if (s.type == Type::SEQ) {
+
+        return nullptr;
     }
 
-    throw std::runtime_error("Sanity error: cannot create object");
+    throw std::runtime_error("Cannot construct a sequence from a " + Type::print(s));
 }
 
 }

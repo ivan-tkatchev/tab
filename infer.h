@@ -13,6 +13,10 @@ struct Functions {
     typedef func_t (*checker_t)(const Type& args, Type& ret, obj::Object*&);
     
     std::unordered_map< String, checker_t > poly_funcs;
+
+    typedef obj::Object* (*seqmaker_t)(const Type& arg);
+
+    seqmaker_t seqmaker;
     
     Functions() {}
 
@@ -25,6 +29,10 @@ struct Functions {
     void add_poly(const std::string& name, checker_t c) {
         String n = strings().add(name);
         poly_funcs.insert(poly_funcs.end(), std::make_pair(n, c));
+    }
+
+    void add_seqmaker(seqmaker_t sm) {
+        seqmaker = sm;
     }
 
     val_t get(const String& name, const Type& args, obj::Object*& holder) const {
@@ -528,7 +536,10 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         {
             Type ti = stack.back();
 
-            if (ti.type == Type::SEQ) {
+            // HACK!
+            c.object = (functions().seqmaker)(ti);
+
+            if (c.object == nullptr) {
 
                 ci = commands.erase(ci);
                 --ci;
