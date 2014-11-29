@@ -609,26 +609,25 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
 struct SeqFlattenSeq : public obj::SeqBase {
 
     obj::Object* seq;
-    obj::Object* i;
+    obj::Object* subseq;
     bool seq_ok;
+    bool subseq_ok;
     
     void wrap(obj::Object* s) {
         seq = s;
-        i = seq->next(seq_ok);
+        subseq_ok = false;
     }
 
     obj::Object* next(bool& ok) {
 
-        bool iok;
-        obj::Object* ret = i->next(iok);
+        if (!subseq_ok) {
+            subseq = seq->next(seq_ok);
+        }
 
-        if (!iok && !seq_ok) {
+        obj::Object* ret = subseq->next(subseq_ok);
+
+        if (!seq_ok && !subseq_ok) {
             ok = false;
-
-        } else if (!iok) {
-            i = seq->next(seq_ok);
-            ok = true;
-
         } else {
             ok = true;
         }
@@ -641,8 +640,8 @@ struct SeqFlattenVal : public obj::SeqBase {
 
     obj::Object* seq;
     obj::Object* subseq;
-    obj::Object* i;
     bool seq_ok;
+    bool subseq_ok;
 
     SeqFlattenVal(const Type& t) {
         subseq = obj::make(t);
@@ -650,23 +649,20 @@ struct SeqFlattenVal : public obj::SeqBase {
     
     void wrap(obj::Object* s) {
         seq = s;
-        i = seq->next(seq_ok);
-        subseq->wrap(i);
+        subseq_ok = false;
     }
 
     obj::Object* next(bool& ok) {
 
-        bool iok;
-        obj::Object* ret = subseq->next(iok);
-
-        if (!iok && !seq_ok) {
-            ok = false;
-
-        } else if (!iok) {
-            i = seq->next(seq_ok);
+        if (!subseq_ok) {
+            obj::Object* i = seq->next(seq_ok);
             subseq->wrap(i);
-            ok = true;
+        }
 
+        obj::Object* ret = subseq->next(subseq_ok);
+
+        if (!seq_ok && !subseq_ok) {
+            ok = false;
         } else {
             ok = true;
         }
