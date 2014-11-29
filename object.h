@@ -96,8 +96,6 @@ struct ArrayAtom : public Object {
             bool ok;
             obj::Object* next = seq->next(ok);
 
-            if (!next) break;
-            
             v.push_back(get< Atom<T> >(next).v);
 
             if (!ok) break;
@@ -168,8 +166,6 @@ struct ArrayObject : public Object {
 
             bool ok;
             obj::Object* next = seq->next(ok);
-
-            if (!next) break;
 
             v.push_back(next->clone());
 
@@ -310,8 +306,6 @@ struct MapObject : public Object {
             bool ok;
             obj::Object* next = seq->next(ok);
 
-            if (!next) break;
-
             Tuple& tup = get<Tuple>(next);
             obj::Object* key = tup.v[0]->clone();
             obj::Object* val = tup.v[1]->clone();
@@ -337,13 +331,10 @@ struct SeqBase : public Object {
     void print() {
 
         bool ok = true;
-        bool err = false;
 
         while (ok) {
             obj::Object* v = this->next(ok);
 
-            if (!v) break;
-            
             v->print();
 
             if (ok)
@@ -387,8 +378,7 @@ struct SeqArrayAtom : public SeqBase {
     Object* next(bool& ok) {
 
         if (b == e) {
-            ok = false;
-            return nullptr;
+            throw std::runtime_error("Iterating an empty array");
         }
 
         holder->v = *b;
@@ -420,8 +410,7 @@ struct SeqArrayObject : public SeqBase {
     Object* next(bool& ok) {
 
         if (b == e) {
-            ok = false;
-            return nullptr;
+            throw std::runtime_error("Iterating an empty array");
         }
 
         Object* ret = *b;
@@ -459,8 +448,7 @@ struct SeqMapObject : public SeqBase {
     Object* next(bool& ok) {
 
         if (b == e) {
-            ok = false;
-            return nullptr;
+            throw std::runtime_error("Iterating an empty map");
         }
 
         holder->v[0] = b->first;

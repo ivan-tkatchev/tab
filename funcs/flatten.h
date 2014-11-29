@@ -17,20 +17,9 @@ struct SeqFlattenSeq : public obj::SeqBase {
 
         if (!subseq_ok) {
             subseq = seq->next(seq_ok);
-
-            if (!subseq) return subseq;
         }
 
         obj::Object* ret = subseq->next(subseq_ok);
-
-        if (!ret) {
-            if (!seq_ok) {
-                return nullptr;
-            } else {
-                subseq_ok = false;
-                return next(ok);
-            }
-        }
 
         if (!seq_ok && !subseq_ok) {
             ok = false;
@@ -65,22 +54,10 @@ struct SeqFlattenVal : public obj::SeqBase {
 
         if (!subseq_ok) {
             obj::Object* i = seq->next(seq_ok);
-
-            if (!i) return i;
-            
             subseq->wrap(i);
         }
 
         obj::Object* ret = subseq->next(subseq_ok);
-
-        if (!ret) {
-            if (!seq_ok) {
-                return nullptr;
-            } else {
-                subseq_ok = false;
-                return next(ok);
-            }
-        }
 
         if (!seq_ok && !subseq_ok) {
             ok = false;
