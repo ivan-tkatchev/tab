@@ -28,6 +28,8 @@ struct Object {
     virtual void wrap(Object*) { throw std::runtime_error("Object sequence wrapping is not implemented"); }
     
     virtual Object* next(bool&) { throw std::runtime_error("Object 'next' operator not implemented"); }
+
+    virtual bool null() { return false; }
 };
 
 template <typename T>
@@ -91,6 +93,11 @@ struct ArrayAtom : public Object {
 
     void fill(Object* seq) {
 
+        v.clear();
+
+        if (seq->null())
+            return;
+        
         while (1) {
 
             bool ok;
@@ -162,6 +169,11 @@ struct ArrayObject : public Object {
 
     void fill(Object* seq) {
 
+        v.clear();
+
+        if (seq->null())
+            return;
+        
         while (1) {
 
             bool ok;
@@ -301,6 +313,11 @@ struct MapObject : public Object {
 
     void fill(Object* seq) {
 
+        v.clear();
+
+        if (seq->null())
+            return;
+        
         while (1) {
 
             bool ok;
@@ -330,7 +347,7 @@ struct SeqBase : public Object {
 
     void print() {
 
-        bool ok = true;
+        bool ok = !(this->null());
 
         while (ok) {
             obj::Object* v = this->next(ok);
@@ -341,6 +358,11 @@ struct SeqBase : public Object {
                 std::cout << std::endl;
         }
     }
+};
+
+struct SeqNull : public Object {
+
+    bool null() { return true; }
 };
 
 struct SeqSingle : public SeqBase {
@@ -393,6 +415,8 @@ struct SeqArrayAtom : public SeqBase {
 
         return holder;
     }
+
+    bool null() { return v.empty(); }
 };
 
 struct SeqArrayObject : public SeqBase {
@@ -425,6 +449,8 @@ struct SeqArrayObject : public SeqBase {
 
         return ret;
     }
+
+    bool null() { return v.empty(); }
 };
 
 struct SeqMapObject : public SeqBase {
@@ -464,6 +490,8 @@ struct SeqMapObject : public SeqBase {
 
         return holder;
     }
+
+    bool null() { return v.empty(); }
 };
 
 struct SeqGenerator : public SeqBase {

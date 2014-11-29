@@ -6,7 +6,7 @@ void count_seq(const obj::Object* in, obj::Object*& out) {
     UInt& i = obj::get<obj::UInt>(out).v;
 
     i = 0;
-    bool ok = true;
+    bool ok = !(in->null());
 
     while (ok) {
         ((obj::Object*)in)->next(ok);
