@@ -18,6 +18,8 @@ struct SeqFlattenSeq : public obj::SeqBase {
             subseq = seq->next();
 
             if (!subseq) return nullptr;
+
+            subseq_ok = true;
         }
 
         obj::Object* ret = subseq->next();
@@ -57,6 +59,7 @@ struct SeqFlattenVal : public obj::SeqBase {
             if (!i) return nullptr;
 
             subseq->wrap(i);
+            subseq_ok = true;
         }
 
         obj::Object* ret = subseq->next();
