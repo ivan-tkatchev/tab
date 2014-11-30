@@ -73,7 +73,6 @@ void cut1(const obj::Object* in, obj::Object*& out) {
 void grep(const obj::Object* in, obj::Object*& out) {
 
     static std::unordered_map<std::string, std::regex> _cache;
-
     
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
@@ -115,9 +114,30 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
         ++iter;
     }
+}
 
-    //if (v.empty())
-    //    v.emplace_back();
+void grepif(const obj::Object* in, obj::Object*& out) {
+
+    static std::unordered_map<std::string, std::regex> _cache;
+    
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+
+    obj::UInt& res = obj::get<obj::UInt>(out);
+
+    auto i = _cache.find(regex);
+
+    if (i == _cache.end()) {
+        i = _cache.insert(i, std::make_pair(regex, std::regex(regex, std::regex_constants::optimize)));
+    }
+
+    const std::regex& r = i->second;
+
+    bool found = std::regex_search(str, r);
+
+    res.v = (found ? 1 : 0);
 }
 
 void register_cutgrep(Functions& funcs) {
@@ -136,6 +156,11 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
               funcs::grep);
+
+    funcs.add("grepif",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::UINT),
+              funcs::grepif);
 }
 
 #endif

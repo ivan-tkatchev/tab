@@ -5,6 +5,7 @@ namespace funcs {
 
 #include "funcs/index.h"
 #include "funcs/flatten.h"
+#include "funcs/filter.h"
 #include "funcs/count.h"
 #include "funcs/math.h"
 #include "funcs/head.h"
@@ -22,6 +23,7 @@ void register_functions() {
 
     funcs::register_index(funs);
     funcs::register_flatten(funs);
+    funcs::register_filter(funs);
     funcs::register_count(funs);
     funcs::register_math(funs);
     funcs::register_head(funs);

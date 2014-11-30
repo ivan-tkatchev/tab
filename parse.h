@@ -229,11 +229,12 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         (r_fail(y_unmark));
 
     auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(make_string("flatten")); });
-    auto y_expr_flat = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+    auto y_mark_filter = axe::e_ref([&](I b, I e) { stack.mark(make_string("filter")); });
     
     axe::r_rule<I> x_expr_flat;
     x_expr_flat =
-        (axe::r_lit(':') >> y_mark_flat & x_expr_flat >> y_expr_flat) |
+        (axe::r_lit(':') >> y_mark_flat & x_expr_flat >> y_close_fun) |
+        (axe::r_lit('?') >> y_mark_filter & x_expr_flat >> y_close_fun) |
         x_expr_idx;
     
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
