@@ -477,13 +477,12 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         case Command::EQ:
         case Command::NEQ:
         {
+            // TODO FIXME
             Type t1 = stack.back();
-            stack.pop_back();
-            Type t2 = stack.back();
-            stack.pop_back();
+            Type t2 = *(stack.end() - 2);
 
             if (check_numeric(t1) && check_numeric(t2)) {
-                ci = handle_poly_operator(commands, ci, stack, "==", c.cmd, c.cmd, false);
+                ci = handle_poly_operator(commands, ci, stack, "equality", c.cmd, c.cmd, false);
 
                 // HACK Undo unneeded actions of 'handle_poly_operator'.
                 stack.pop_back();
