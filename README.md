@@ -12,7 +12,7 @@ Highlights:
 
 ## Compiling and installing ##
 
-Type `make`. Currently the `Makefile` requires a recent `gcc` compiler. (Tested with gcc 4.9)
+Type `make`. Currently the `Makefile` requires a recent gcc compiler. (Tested with gcc 4.9)
 
 Copy the resulting binary of `tab` somewhere in your path.
 
@@ -36,21 +36,21 @@ You can also use the `-f` flag to read from a named file:
 
 There are four basic atomic types:
 
-* `Int`, a signed integer. (Equivalent to a `long` in `C`.)
-* `UInt`, an unsigned integer. (Equivalent to an `unsigned long` in `C`.)
-* `Real`, a floating-point number. (Equivalent to a `double` in `C`.)
-* `String`, a string, stored as a byte array.
+* **Int**, a signed integer. (Equivalent to a `long` in C.)
+* **UInt**, an unsigned integer. (Equivalent to an `unsigned long` in C.)
+* **Real**, a floating-point number. (Equivalent to a `double` in C.)
+* **String**, a string, stored as a byte array.
 
 There are also four structured types:
 
-* `Tuple`, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.
-* `Array`, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.
-* `Map`, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.
-* `Sequence`, a.k.a. "lazy list" or "generator". A sequence doesn't store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.
+* **Tuple**, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.
+* **Array**, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.
+* **Map**, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.
+* **Sequence**, a.k.a. "lazy list" or "generator". A sequence doesn't store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.
 
-Types can be composed together in complex ways. Thus, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)
+Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)
 
-When output, each element of an array, map or sequence is output on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, `\\t`.
+When output, each element of an array, map or sequence is output on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, `\t`.
 
 (So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)
 
@@ -60,20 +60,25 @@ When output, each element of an array, map or sequence is output on its own line
 
 Instead of loops you'd use sequences and comprehensions.
 
-The input is fed a file stream, usually the standard input. A file stream in `tab` is represented as a sequence of strings, where each string is a line (separated by `\\n`) in the file.
+The input is fed a file stream, usually the standard input. A file stream in `tab` is represented as a sequence of strings, where each string is a line (separated by `\n`) in the file.
 
 Built-in functions in `tab` are polymorphic, meaning that a function with the same name will act differently when input arguments of different types.
 
 You can enable a verbose debug mode to output the precise derivations of types in the input expression:
+
 * `-v` will output the resulting type of the whole input expression
 * `-vv` will output the resulting type along the the generated virtual machine instruction codes and their types
 * `-vvv` will output the parse tree along with the generated code and resulting type.
 
 ### Examples ###
 
+###### 1.
+
     $ ./tab '@'
 
-This command is equivalent to `cat`. `@` is a variable holding the top-level input value, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
+This command is equivalent to `cat`. `@` is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
+
+###### 2.
 
     $ ./tab 'sin(pi()/2)'
     1
@@ -83,25 +88,31 @@ This command is equivalent to `cat`. `@` is a variable holding the top-level inp
 
 `tab` can also be used as a desktop calculator. `pi()` is a function that returns the value of *pi*, `cos()` and `sin()` are the familiar trigonometric functions. The usual mathematical infix operators are supported; `**` is the exponentiation oprator.
 
+###### 3.
+
     $ ./tab 'count(@)'
 
 This command is equivalent to `wc -l`. `count()` is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
+###### 4.
+
     $ ./tab '[grep(@,"[a-zA-Z]+")]'
 
-This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings. The regular expression is searched in the first string argument, and an array of any found matches is returned.
+This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
 
 `[...]` is the syntax for *sequence comprehensions* -- transformers that apply an expression to all elements of a sequence; the result of a sequence comprehension is also a sequence.
 
-The general syntax for sequence comprehensions is this: `[ <element> : <input> ]`. Here `<input>` is evaluated (once), converted to a sequence, and each element of that sequence becomes the input to the epxression `<element>`. The result is a sequence of `<element>`. (Or, in other words, a sequence of transformed elements in `<input>`.)
+The general syntax for sequence comprehensions is this: `[ <element> : <input> ]`. Here `<input>` is evaluated (once), converted to a sequence, and each element of that sequence becomes the input to the epxression `<element>`. The result is a sequence of `<element>`. (Or, in other words, a sequence of transformed elements from `<input>`.)
 
 If the `: <input>` part is omitted, then `: @` is automatically implied instead.
 
-Each time `<element>` is evaluated, its argument (an individual element in `<input>`) is also stored in a variable called `@`.
+Each time `<element>` is evaluated, its argument (an individual element in `<input>`) is passed via a variable that is also called `@`.
 
 Thus: the expressions `@`, `[@]` and `[@ : @]` are all equivalent; they all return the input sequence of lines from stdin unchanged.
 
 The variables defined in `<element>` (on the left side of `:`) are *scoped*: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the `[ ... ]` brackets.
+
+###### 5.
 
     $ ./tab 'zip(count(),@)'
 
@@ -111,19 +122,23 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 `count()` when called without arguments will return an infinite sequence of successive numbers, starting with `1`.
 
+###### 6.
+
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
 
 This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of array of regex matches.
 
 `:` here is *not* part of a comprehension, it is a special `flatten` operator: given a sequence of sequences, it will return a "flattened" sequence of elements in all the interior sequences.
 
-If given a sequence of arrays, maps or atomic values then this operator will automatically convert the interior values into equivalent sequences.
+If given a sequence of arrays, maps or atomic values then this operator will automatically convert the interior structures into equivalent sequences.
 
-Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, ignoring line breaks. Counting elements in this sequence will count the number of matches of `\\S+` in stdin.
+Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of `\S+` in stdin.
 
 **Note:** the unary prefix `:` operator is just straightforward syntactic sugar for the `flatten()` builtin function.
 
-    $ ./tab '{ @ : :[ grep(@,"\\S+") ] }`
+###### 7.
+
+    $ ./tab '{ @ : :[ grep(@,"\\S+") ] }'
 
 This command will output an unsorted list of unique words in stdin.
 
