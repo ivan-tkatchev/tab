@@ -10,6 +10,8 @@ Highlights:
 * Statically typed, type-inferred, declarative.
 * Portable: requires only a standards-compliant C++11 compiler and nothing else.
 
+(Also see 'Comparison' below.)
+
 ## Compiling and installing ##
 
 Type `make`. Currently the `Makefile` requires a recent gcc compiler. (Tested with gcc 4.9)
@@ -98,7 +100,7 @@ This command is equivalent to `wc -l`. `count()` is a function that will count t
 
 ###### 4.
 
-    $ ./tab '[grep(@,"[a-zA-Z]+")]'
+    $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
 
 This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
 
@@ -116,7 +118,7 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 ###### 5.
 
-    $ ./tab 'zip(count(),@)'
+    $ ./tab 'zip(count(), @)'
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
 
@@ -156,7 +158,7 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 ###### 8.
 
-    $ ?[grepif(@,"this"),@]
+    $ ?[ grepif(@,"this"), @ ]
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
 
@@ -176,5 +178,52 @@ To write a tuple, simply list its elements separated by commas.
 
 ###### 9.
 
+    $ ./tab '{ @[0] % 2 -> sum(count(@[1])) : zip(count(), @) }'
 
+This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.
+
+`{ ... : zip(count(), @) }` is, as before, a map comprehension, with a sequence of pairs (line number, line) as the input.
+
+`@[0] % 2` is the key in the map: we use the indexing operator `[]` to select the first element from the input pair, which is the line number. `%` is the mathematical modulo operator (like in C); line number modulo 2 gives us `0` for even line numbers and `1` for odd line numbers.
+
+`sum(count(@[1]))` is the mapped value in the map. As before, indexing the input pair with `1` gives us the second element, which is the contents of the line from stdin; `count()`, when applied to a string, gives us the length of the string in bytes. 
+
+`sum()` is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with `sum()` when groupped together as part of the map's value.
+
+(So, for example, using `sum(1)` on the right side of `->` in a map comprehension will count the number of occurences of whatever is on the left side of `->`.)
+
+
+## Comparison ##
+
+A short, hands-on comparison of `tab` with equivalent shell and Python scripts.
+
+The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.
+
+Here is a solution using standard shell utilities:
+
+    $ cat req.log | cut -d' ' -f3 | cut -d'?' -f1 | sort | uniq -c
+
+Running time: around 2.7 seconds on my particular (slow) laptop.
+
+Here is an equivalent Python script:
+
+    import sys
+    
+    d = {}
+    for l in sys.stdin:
+        x = l.split(' ')[2].split('?')[0]
+        d[x] = d.get(x,0) + 1
+    
+    for k,v in d.iteritems():
+        print k,v
+
+Running time: around 3.1 seconds.
+
+Here is the solution using `tab`:
+
+    $ ./tab -f req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
+
+Running time: around 0.9 seconds.
+
+Not only is `tab` faster in this case, it is also (in my opinion) more concise and idiomatic.
 

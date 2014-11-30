@@ -36,6 +36,9 @@ struct Command {
         U2R_1,
         U2R_2,
 
+        EQ,
+        NEQ,
+        
         ARR,
         MAP,
         FUN,
@@ -92,6 +95,9 @@ struct Command {
         case U2R_1: return "U2R_1";
         case U2R_2: return "U2R_2";
 
+        case EQ: return "EQ";
+        case NEQ: return "NEQ";
+            
         case ARR: return "ARR";
         case MAP: return "MAP";
         case FUN: return "FUN";

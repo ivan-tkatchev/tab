@@ -179,6 +179,29 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             break;
         }
 
+        case Command::EQ:
+        {
+            obj::Object* a = r.stack.back();
+            r.stack.pop_back();
+            obj::Object* b = r.stack.back();
+            r.stack.pop_back();
+            obj::UInt& x = obj::get<obj::UInt>(c.object);
+            x.v = (a->eq(b) ? 1 : 0);
+            r.stack.push_back(c.object);
+            break;
+        }
+        case Command::NEQ:
+        {
+            obj::Object* a = r.stack.back();
+            r.stack.pop_back();
+            obj::Object* b = r.stack.back();
+            r.stack.pop_back();
+            obj::UInt& x = obj::get<obj::UInt>(c.object);
+            x.v = (a->eq(b) ? 0 : 1);
+            r.stack.push_back(c.object);
+            break;
+        }
+        
         // And here comes the numeric operator boilerplate.
 
 #define MATHOP(TYPE,EXPR)                               \

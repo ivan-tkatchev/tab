@@ -473,7 +473,29 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         case Command::XOR:
             handle_int_operator(stack, "^");
             break;
-        
+
+        case Command::EQ:
+        case Command::NEQ:
+        {
+            Type t1 = stack.back();
+            stack.pop_back();
+            Type t2 = stack.back();
+            stack.pop_back();
+
+            if (check_numeric(t1) && check_numeric(t2)) {
+                ci = handle_poly_operator(commands, ci, stack, "==", c.cmd, c.cmd, false);
+
+                // HACK Undo unneeded actions of 'handle_poly_operator'.
+                stack.pop_back();
+
+            } else if (t1 != t2) {
+                throw std::runtime_error("Only objects of the same type can be compared.");
+            }
+
+            stack.emplace_back(Type::UINT);
+            break;
+        }
+
         case Command::ARR:
         {
             Type t = infer_arr_generator(stack);

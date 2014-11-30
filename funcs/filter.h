@@ -85,6 +85,7 @@ Functions::func_t filter_checker(const Type& args, Type& ret, obj::Object*& obj)
     if (t.tuple->size() == 1) {
 
         t = t.tuple->at(0);
+
         obj = new SeqFilterOne;
 
     } else {
@@ -92,7 +93,8 @@ Functions::func_t filter_checker(const Type& args, Type& ret, obj::Object*& obj)
         obj = new SeqFilterMany(t);
     }
 
-    ret = wrap_seq(t);
+    ret = Type(Type::SEQ);
+    ret.push(t);
 
     return filter;
 }

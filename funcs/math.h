@@ -7,15 +7,27 @@ void x_to_y(const obj::Object* in, obj::Object*& out) {
 }
 
 void string_to_real(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = std::stod(obj::get<obj::String>(in).v);
+    try {
+        obj::get<obj::Real>(out).v = std::stod(obj::get<obj::String>(in).v);
+    } catch (std::exception& e) {
+        throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to a floating-point number.");
+    }
 }
 
 void string_to_int(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(in).v);
+    try {
+        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(in).v);
+    } catch (std::exception& e) {
+        throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an integer.");
+    }
 }
 
 void string_to_uint(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
+    try {
+        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
+    } catch (std::exception& e) {
+        throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an integer.");
+    }
 }
 
 void pi(const obj::Object* in, obj::Object*& out) {

@@ -274,7 +274,14 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
                        (axe::r_lit('|') & x_expr_add) >> y_expr_or |
                        (axe::r_lit('^') & x_expr_add) >> y_expr_xor);
 
-    x_expr_atom = x_expr_bit;
+    auto y_expr_eq  = axe::e_ref([&](I b, I e) { stack.push(Command::EQ); });
+    auto y_expr_neq = axe::e_ref([&](I b, I e) { stack.push(Command::NEQ); });
+
+    auto x_expr_eq =
+        x_expr_bit & ~((axe::r_lit("==") & x_expr_bit) >> y_expr_eq |
+                       (axe::r_lit("!=") & x_expr_bit) >> y_expr_neq);
+
+    x_expr_atom = x_expr_eq;
 
     auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(make_string(b, e)); });
     auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back());

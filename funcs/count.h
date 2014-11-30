@@ -61,6 +61,12 @@ void count_null(const obj::Object* in, obj::Object*& out) {
     v.i->v = 0;
 }
 
+void count_string(const obj::Object* in, obj::Object*& out) {
+    obj::String& x = obj::get<obj::String>(in);
+    obj::UInt& y = obj::get<obj::UInt>(out);
+    y.v = x.v.size();
+}
+    
 Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) {
 
     if (args.type == Type::NONE) {
@@ -77,8 +83,10 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) 
     switch (args.type) {
     case Type::SEQ:
         return count_seq;
+
     case Type::MAP:
         return count_map;
+
     case Type::ARR:
         switch (args.tuple->at(0).type) {
         case Type::INT:
@@ -92,6 +100,13 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) 
         default:
             return count_arr;
         }
+
+    case Type::ATOM:
+        if (args.atom == Type::STRING) {
+            return count_string;
+        }
+        return nullptr;
+
     default:
         return nullptr;
     }

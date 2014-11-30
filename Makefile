@@ -1,7 +1,7 @@
 
 FUNCS = \
   funcs/count.h funcs/cutgrep.h funcs/file.h funcs/flatten.h funcs/head.h \
-  funcs/index.h funcs/math.h funcs/zip.h funcs/filter.h funcs/sum.h
+  funcs/index.h funcs/math.h funcs/zip.h funcs/filter.h funcs/sum.h funcs/if.h
 
 INCLUDE = \
   atom.h command.h deps.h exec.h funcs.h infer.h object.h parse.h tab.h type.h 
