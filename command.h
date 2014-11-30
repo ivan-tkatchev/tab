@@ -54,7 +54,6 @@ struct Command {
 
     struct Closure {
         std::vector<Command> code;
-        //Type type;
     };
     
     std::vector< std::shared_ptr<Closure> > closure;

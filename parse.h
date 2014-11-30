@@ -71,7 +71,7 @@ struct ParseStack {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
-                (print_types && (i.cmd == Command::GEN || i.cmd == Command::TUP))) {
+                i.cmd == Command::TUP || (print_types && i.cmd == Command::GEN)) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -190,13 +190,14 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto y_array = axe::e_ref([&](I b, I e) { stack.push(Command::ARR); });
     auto y_map = axe::e_ref([&](I b, I e) { stack.push(Command::MAP); });
     auto y_close_tup = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); });
-    
+    auto y_close_tup1 = axe::e_ref([&](I b, I e) { stack.push(Command::TUP, UInt(1)); });
+
     auto x_array =
         (axe::r_lit("[.") >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(".]") >> y_array;
 
     auto x_map =
         (axe::r_lit('{')  >> y_mark) & (x_expr >> y_close_tup) &
-        (((axe::r_lit("->") & (x_expr >> y_close_tup)) |
+        (((axe::r_lit("->") & (x_expr >> y_close_tup1)) |
           (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
         x_from & axe::r_lit('}') >> y_map;
 

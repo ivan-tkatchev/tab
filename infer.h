@@ -578,7 +578,9 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
 
         case Command::TUP:
         {
-            if (stack.size() <= 1) {
+            UInt offset = c.arg.uint;
+            
+            if (stack.size() <= 1 + offset) {
 
                 ci = commands.erase(ci);
                 --ci;
@@ -588,11 +590,18 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             
                 Type t(Type::TUP);
 
+                UInt cnt = offset;
+                
                 for (const Type& ti : stack) {
-                    t.push(ti);
+
+                    if (cnt == 0) {
+                        t.push(ti);
+                    } else {
+                        --cnt;
+                    }
                 }
 
-                stack.clear();
+                stack.erase(stack.begin() + offset, stack.end());
                 stack.emplace_back(t);
                 c.arg = Atom(UInt(t.tuple->size()));
             }
