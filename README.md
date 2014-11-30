@@ -72,6 +72,8 @@ You can enable a verbose debug mode to output the precise derivations of types i
 
 ### Examples ###
 
+An introduction to `tab` in 10 easy steps:
+
 ###### 1.
 
     $ ./tab '@'
@@ -151,4 +153,28 @@ The result of this command will be a map where each word in stdin is mapped to a
 (Note: you can use whitespace creatively to make this command prettier, `{ @ :: [ grep(@,"\\S+") ] }`
 
 You can also wrap the expression in `count(...)` if you just want the number of unique words in stdin.
+
+###### 8.
+
+    $ ?[grepif(@,"this"),@]
+
+This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
+
+`grepif()` is a lighter version of `grep()`: given a string and a regular expression it will return an integer: `1` if the regex is found in the string and `0` if it not. (You could use `count(grep(@,"this"))` instead, but `grepif` is obviously shorter and quicker.)
+
+`grepif(@,"this"),@` is a tuple of two elements: `1` or `0` if the line has `"this"` as a substring as the first element, and the whole line itself as the second element.
+
+**Note**: tuples in `tab` are *not* surrounded by brackets. It is also impossible to create nested tuples literally. (Though they can exist as a result of a function call.)
+
+To write a tuple, simply list its elements separated by commas.
+
+`?` is the *filter* operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has `0` as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.
+
+(So, for example: `?[1,@ : x]` is equivalent to the original sequence `x`.)
+
+**Note**: the `?` operator is straightforward syntactic sugar for the `filter()` function.
+
+###### 9.
+
+
 
