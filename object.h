@@ -29,7 +29,9 @@ struct Object {
     
     virtual Object* next() { throw std::runtime_error("Object 'next' operator not implemented"); }
 
-    virtual bool null() const { return false; }
+    virtual void merge_start() {}
+    virtual void merge(const Object*) {}
+    virtual void merge_end() {}
 };
 
 template <typename T>
@@ -97,7 +99,7 @@ struct ArrayAtom : public Object {
 
         while (1) {
 
-            obj::Object* next = seq->next();
+            Object* next = seq->next();
 
             if (!next) break;
             
@@ -167,12 +169,9 @@ struct ArrayObject : public Object {
 
         v.clear();
 
-        if (seq->null())
-            return;
-        
         while (1) {
 
-            obj::Object* next = seq->next();
+            Object* next = seq->next();
 
             if (!next) break;
             
@@ -215,6 +214,26 @@ struct Tuple : public ArrayObject {
 
     void fill(Object* s) {
         throw std::runtime_error("Cannot construct tuples");
+    }
+
+    virtual void merge_start() {
+        for (Object* o : v) {
+            o->merge_start();
+        }
+    }
+    
+    virtual void merge(const Object* v2) {
+        Tuple& t = get<Tuple>(v2);
+
+        for (size_t i = 0; i < v.size(); ++i) {
+            v[i]->merge(t.v[i]);
+        }
+    }
+
+    virtual void merge_end() {
+        for (Object* o : v) {
+            o->merge_end();
+        }
     }
 };
 
@@ -310,28 +329,32 @@ struct MapObject : public Object {
 
         v.clear();
 
-        if (seq->null())
-            return;
-        
         while (1) {
 
-            obj::Object* next = seq->next();
+            Object* next = seq->next();
 
             if (!next) break;
 
             Tuple& tup = get<Tuple>(next);
-            obj::Object* key = tup.v[0]->clone();
-            obj::Object* val = tup.v[1]->clone();
+
+            Object* key = tup.v[0];
+            Object* val = tup.v[1];
 
             auto i  = v.find(key);
             
             if (i != v.end()) {
-                delete i->second;
-                i->second = val;
+                i->second->merge(val);
 
             } else {
+                key = key->clone();
+                val = val->clone();
+                val->merge_start();
                 v[key] = val;
             }
+        }
+
+        for (auto& i : v) {
+            i.second->merge_end();
         }
     }
 };
@@ -339,13 +362,17 @@ struct MapObject : public Object {
 
 struct SeqBase : public Object {
 
+    Object* clone() const {
+        throw std::runtime_error("Sequences cannot be stored in arrays and maps.");
+    }
+
     void print() {
 
         bool first = true;
         
         while (1) {
 
-            obj::Object* v = this->next();
+            Object* v = this->next();
 
             if (!v) break;
 
@@ -407,8 +434,6 @@ struct SeqArrayAtom : public SeqBase {
 
         return holder;
     }
-
-    bool null() const { return (b == e); }
 };
 
 struct SeqArrayObject : public SeqBase {
@@ -434,8 +459,6 @@ struct SeqArrayObject : public SeqBase {
 
         return ret;
     }
-
-    bool null() const { return (b == e); }
 };
 
 struct SeqMapObject : public SeqBase {
@@ -468,8 +491,6 @@ struct SeqMapObject : public SeqBase {
 
         return holder;
     }
-
-    bool null() const { return (b == e); }
 };
 
 struct SeqGenerator : public SeqBase {

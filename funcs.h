@@ -12,6 +12,7 @@ namespace funcs {
 #include "funcs/cutgrep.h"
 #include "funcs/zip.h"
 #include "funcs/file.h"
+#include "funcs/sum.h"
 
 }
 
@@ -29,6 +30,7 @@ void register_functions() {
     funcs::register_head(funs);
     funcs::register_cutgrep(funs);
     funcs::register_zip(funs);
+    funcs::register_sum(funs);
 }
 
 #endif
