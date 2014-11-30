@@ -1,7 +1,7 @@
 #ifndef __TUP_FUNCS_CUTGREP_H
 #define __TUP_FUNCS_CUTGREP_H
 
-void cutn(const obj::Object* in, obj::Object*& out) {
+void cut(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
@@ -42,32 +42,58 @@ void cutn(const obj::Object* in, obj::Object*& out) {
     v.emplace_back(str.begin() + prev, str.end());
 }
 
-void cut1(const obj::Object* in, obj::Object*& out) {
+void cutn(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
     const std::string& del = obj::get<obj::String>(args.v[1]).v;
-
+    UInt nth = obj::get<obj::UInt>(args.v[2]).v;
+    
     size_t N = str.size();
-    unsigned char d = del.c_str()[0];
+    size_t M = del.size();
 
     size_t prev = 0;
 
-    obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
-    std::vector<std::string>& v = vv.v;
-    
+    std::string& v = obj::get<obj::String>(out).v;
+
     v.clear();
 
+    UInt nmatch = 0;
+    
     for (size_t i = 0; i < N; ++i) {
 
-        if (str[i] == d) {
-            v.emplace_back(str.begin() + prev, str.begin() + i);
-            prev = i+1;
+        bool matched = true;
+
+        for (size_t j = 0; j < M; ++j) {
+
+            if (i+j < N && str[i+j] == del[j])
+                continue;
+            
+            matched = false;
+            break;
+        }
+
+        if (matched) {
+
+            if (nth == nmatch) {
+                v.assign(str.begin() + prev, str.begin() + i);
+                return;
+            }
+
+            nmatch++;
+            i += M;
+            prev = i;
+            --i;
         }
     }
 
-    v.emplace_back(str.begin() + prev, str.end());
+    if (nth == nmatch) {
+        v.assign(str.begin() + prev, str.end());
+        return;
+    }
+
+    throw std::runtime_error("Substring not found in 'cut'");
 }
 
 void grep(const obj::Object* in, obj::Object*& out) {
@@ -145,11 +171,16 @@ void register_cutgrep(Functions& funcs) {
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
-              funcs::cut1);
+              funcs::cut);
     
-    funcs.add("cutn",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
-              Type(Type::ARR, { Type::STRING }),
+    funcs.add("cut",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) }),
+              Type(Type::STRING),
+              funcs::cutn);
+
+    funcs.add("cut",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) }),
+              Type(Type::STRING),
               funcs::cutn);
 
     funcs.add("grep",
