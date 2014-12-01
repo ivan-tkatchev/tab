@@ -194,9 +194,27 @@ This command will output the number of bytes on even lines versus the number of 
 
 ###### 10.
 
-    $ ./tab 'sort([ @[1], @[0] : { tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] } ])[-5,-1]'
+    $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @[1], @[0] : z ])[-5,-1]'
 
-This command will tally a count for each 
+This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.
+
+The `z=` here is an example of *variable assignment*. Here the variable `z` will be assigned a map of unique words with their frequencies. (See example 7; `z` here is the same, except that each word is lowercased and a word count is tallied.)
+
+Variable assignments do not produce a type and do not evaluate to a value; whatever is between the `=` and the `,` (the map comprehension in this case) will not be output.
+
+Moving on: `sort()` is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map `z` by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.
+
+`[-5,-1]` is the *indexing* operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:
+
+* Tuples can only be indexed with literal iteger values. (Not variables or results of a computation.)
+* Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled.
+* Arrays indexes are more complex, they can be indexed by:
+** 0-based integers. (0 being the first element in an array.)
+** Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
+** Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)
+** Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last.
+
+In this case a splice of five elements is returned -- the last five elements in the array returned by `sort()`
 
 ## Comparison ##
 
@@ -231,4 +249,81 @@ Here is the solution using `tab`:
 Running time: around 0.9 seconds.
 
 Not only is `tab` faster in this case, it is also (in my opinion) more concise and idiomatic.
+
+## Reference ##
+
+### Grammar ###
+
+expr := atomic_or_assignment ("," atomic_or_assignment)*
+
+atomic_or_assignment := assignment | atomic
+
+assignment := var "=" atomic
+
+atomic := e_eq
+
+e_eq := e_bit |
+        e_bit "==" e_bit |
+        e_bit "!=" e_bit |
+        e_bit "<"  e_bit |
+        e_bit ">"  e_bit |
+        e_bit "<=" e_bit |
+        e_bit ">=" e_bit
+
+e_bit := e_add |
+         e_add "&" e_add |
+         e_add "|" e_add |
+         e_add "^" e_add
+
+e_add := e_mul |
+         e_mul "+" e_mul |
+         e_mul "-" e_mul
+
+e_mul := e_exp |
+         e_exp "*" e_exp |
+         e_exp "/" e_exp |
+         e_exp "%" e_exp
+
+e_exp := e_not |
+         e_not "**" e_not
+
+
+e_not := e_flat |
+         "~" e_not
+
+e_flat := e_idx |
+          ":" e_flat |
+          "?" e_flat
+
+e_idx := e |
+         e ("[" expr "]")*
+
+e := literal | funcall | var | array | map | seq | paren
+
+literal := int | uint | real | string
+
+funcall := var "(" expr ")"
+
+array := "[." expr (":" expr)? ".]"
+
+map := "{" expr ("->" expr)? (":" expr)? "}"
+
+seq := "[" expr (":" expr)? "]"
+
+paren := "(" expr ")"
+
+var := "@" | [a-zA-Z][a-zA-Z0-9_]*
+
+int := ("-")? [0-9]+
+
+uint := [0-9]+ "u"
+
+real := [-+]? [0-9]+ "." [0-9]+ |
+        [-+]? [0-9]+ "e" [-+]? [0-9]+
+
+string := '"' chars '"" |
+          "'" chars "'"
+
+chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
+
 
