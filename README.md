@@ -254,7 +254,7 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 
 ### Grammar ###
 
-~~~~
+```python
 
 expr := atomic_or_assignment ("," atomic_or_assignment)*
 
@@ -328,5 +328,6 @@ string := '"' chars '"" |
 
 chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
-~~~~
+```
+
 
