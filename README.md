@@ -510,3 +510,10 @@ Usage:
 `zip (Seq *)... -> Seq (*...)`
 
 
+avg
+mean
+stddev
+stdev
+var
+variance
+
