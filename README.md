@@ -209,10 +209,10 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 * Tuples can only be indexed with literal iteger values. (Not variables or results of a computation.)
 * Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled.
 * Arrays indexes are more complex, they can be indexed by:
-** 0-based integers. (0 being the first element in an array.)
-** Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
-** Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)
-** Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last.
+    * 0-based integers. (0 being the first element in an array.)
+    * Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
+    * Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)
+    * Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last.
 
 In this case a splice of five elements is returned -- the last five elements in the array returned by `sort()`
 
@@ -253,6 +253,8 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 ## Reference ##
 
 ### Grammar ###
+
+~~~~
 
 expr := atomic_or_assignment ("," atomic_or_assignment)*
 
@@ -326,4 +328,5 @@ string := '"' chars '"" |
 
 chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
+~~~~
 
