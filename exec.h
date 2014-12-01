@@ -47,6 +47,8 @@ void execute_init(std::vector<Command>& commands) {
             }
             break;
 
+        case Command::SEQ:
+        case Command::ROT:
         case Command::VAW:
             break;
 
@@ -54,9 +56,6 @@ void execute_init(std::vector<Command>& commands) {
         case Command::FUN0:
             if (c.object == nullptr)
                 c.object = obj::make(c.type);
-            break;
-
-        case Command::SEQ:
             break;
 
         case Command::GEN:
@@ -186,19 +185,38 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             obj::Object* b = r.stack.back();
             r.stack.pop_back();
             obj::UInt& x = obj::get<obj::UInt>(c.object);
-            x.v = (a->eq(b) ? 1 : 0);
+            x.v = (b->eq(a) ? 1 : 0);
             r.stack.push_back(c.object);
             break;
         }
-        case Command::NEQ:
+
+        case Command::LT:
         {
             obj::Object* a = r.stack.back();
             r.stack.pop_back();
             obj::Object* b = r.stack.back();
             r.stack.pop_back();
             obj::UInt& x = obj::get<obj::UInt>(c.object);
-            x.v = (a->eq(b) ? 0 : 1);
+            x.v = (b->less(a) ? 1 : 0);
             r.stack.push_back(c.object);
+            break;
+        }
+
+        case Command::NEG:
+        {
+            obj::UInt& x = obj::get<obj::UInt>(r.stack.back());
+            x.v = (x.v == 0 ? 1 : 0);
+            break;
+        }
+
+        case Command::ROT:
+        {
+            obj::Object* a = r.stack.back();
+            r.stack.pop_back();
+            obj::Object* b = r.stack.back();
+            r.stack.pop_back();
+            r.stack.push_back(a);
+            r.stack.push_back(b);
             break;
         }
         

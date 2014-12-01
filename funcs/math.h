@@ -30,6 +30,11 @@ void string_to_uint(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+template <typename T>
+void to_string(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::String>(out).v = std::to_string(obj::get<T>(in).v);
+}
+
 void pi(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = M_PI;
 }
@@ -85,6 +90,10 @@ void register_math(Functions& funcs) {
     funcs.add("uint", Type(Type::INT), Type(Type::UINT), x_to_y<obj::Int,obj::UInt>);
     funcs.add("uint", Type(Type::REAL), Type(Type::UINT), x_to_y<obj::Real,obj::UInt>);
     funcs.add("uint", Type(Type::STRING), Type(Type::UINT), string_to_uint);
+
+    funcs.add("string", Type(Type::INT), Type(Type::STRING), to_string<obj::Int>);
+    funcs.add("string", Type(Type::UINT), Type(Type::STRING), to_string<obj::UInt>);
+    funcs.add("string", Type(Type::REAL), Type(Type::STRING), to_string<obj::Real>);
 
     funcs.add("pi", Type(), Type(Type::REAL), pi);
     funcs.add("e", Type(), Type(Type::REAL), e);

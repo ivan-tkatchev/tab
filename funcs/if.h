@@ -27,8 +27,8 @@ Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     ret = t2;
 
-    // HACK! Prevent constructing spurious objects!
-    obj = (obj::Object*)1;
+    // 'if' will always return an argument.
+    obj = obj::nothing();
     
     return iffun;
 }

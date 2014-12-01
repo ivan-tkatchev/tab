@@ -475,26 +475,38 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             break;
 
         case Command::EQ:
-        case Command::NEQ:
+        case Command::LT:
         {
-            // TODO FIXME
             Type t1 = stack.back();
-            Type t2 = *(stack.end() - 2);
+            stack.pop_back();
+            Type t2 = stack.back();
+            stack.pop_back();
 
-            if (check_numeric(t1) && check_numeric(t2)) {
-                ci = handle_poly_operator(commands, ci, stack, "equality", c.cmd, c.cmd, false);
-
-                // HACK Undo unneeded actions of 'handle_poly_operator'.
-                stack.pop_back();
-
-            } else if (t1 != t2) {
-                throw std::runtime_error("Only objects of the same type can be compared.");
+            if (t1 != t2) {
+                throw std::runtime_error("Only objects of the same type can be compared. Tried comparing " + Type::print(t1) + " and " + Type::print(t2));
             }
 
             stack.emplace_back(Type::UINT);
             break;
         }
 
+        case Command::ROT:
+        {
+            Type t1 = stack.back();
+            stack.pop_back();
+            Type t2 = stack.back();
+            stack.pop_back();
+            stack.emplace_back(t1);
+            stack.emplace_back(t2);
+            break;
+        }
+        
+        case Command::NEG:
+            if (!check_integer(stack.back())) {
+                throw std::runtime_error("Sanity error, negating something that isn't boolean.");
+            }
+            break;
+        
         case Command::ARR:
         {
             Type t = infer_arr_generator(stack);

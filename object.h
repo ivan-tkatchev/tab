@@ -15,6 +15,10 @@ struct Object {
         throw std::runtime_error("Object equality not implemented");
     }
 
+    virtual bool less(Object*) const {
+        throw std::runtime_error("Object sorting not implemented");
+    }
+
     virtual void print() { }
 
     virtual Object* clone() const {
@@ -37,6 +41,11 @@ struct Object {
 template <typename T>
 T& get(const Object* o) {
     return *((T*)o);
+}
+
+Object* nothing() {
+    static Object* ret = new Object;
+    return ret;
 }
 
 template <typename T>

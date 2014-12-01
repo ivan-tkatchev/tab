@@ -276,11 +276,19 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
                        (axe::r_lit('^') & x_expr_add) >> y_expr_xor);
 
     auto y_expr_eq  = axe::e_ref([&](I b, I e) { stack.push(Command::EQ); });
-    auto y_expr_neq = axe::e_ref([&](I b, I e) { stack.push(Command::NEQ); });
+    auto y_expr_neq = axe::e_ref([&](I b, I e) { stack.push(Command::EQ); stack.push(Command::NEG); });
+    auto y_expr_lt = axe::e_ref([&](I b, I e) { stack.push(Command::LT); });
+    auto y_expr_gt = axe::e_ref([&](I b, I e) { stack.push(Command::ROT); stack.push(Command::LT); });
+    auto y_expr_lte = axe::e_ref([&](I b, I e) { stack.push(Command::ROT); stack.push(Command::LT); stack.push(Command::NEG); });
+    auto y_expr_gte = axe::e_ref([&](I b, I e) { stack.push(Command::LT); stack.push(Command::NEG); });
 
     auto x_expr_eq =
         x_expr_bit & ~((axe::r_lit("==") & x_expr_bit) >> y_expr_eq |
-                       (axe::r_lit("!=") & x_expr_bit) >> y_expr_neq);
+                       (axe::r_lit("!=") & x_expr_bit) >> y_expr_neq |
+                       (axe::r_lit("<") & x_expr_bit) >> y_expr_lt |
+                       (axe::r_lit(">") & x_expr_bit) >> y_expr_gt |
+                       (axe::r_lit("<=") & x_expr_bit) >> y_expr_lte |
+                       (axe::r_lit(">=") & x_expr_bit) >> y_expr_gte);
 
     x_expr_atom = x_expr_eq;
 
