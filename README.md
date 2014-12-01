@@ -340,17 +340,17 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 `cat`
 : Concatenates strings.  
-Usage:
+Usage:  
 `cat String... -> String`. At least one string argument is required.
 
 `cos`
 : The cosine function.  
-Usage:
+Usage:  
 `cos UInt|Int|Real -> Real`
 
 `count`
-: Counts the number of elements.
-Usage:
+: Counts the number of elements.  
+Usage:  
 `count None -> Seq UInt` -- returns an infinite sequence that counts from 1 to infinity.  
 `count String -> UInt` -- returns the number of bytes in the string.  
 `count Seq * -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
@@ -358,47 +358,47 @@ Usage:
 `count Arr * -> UInt` -- returns the number of elements in the array.
 
 `cut`
-: Splits a string using a delimiter.
-Usage:
+: Splits a string using a delimiter.  
+Usage:  
 `cut String String -> Arr String` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String String UInt|Int -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
 `e`
 : Returns the number *e*.  
-Usage:
+Usage:  
 `e None -> Real`.
 
 `exp`
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
-Usage:
+Usage:  
 `exp UInt|Int|Real -> Real`
 
 `filter`
 : Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
-Usage:
+Usage:  
 `filter Seq (UInt|Int *...) -> Seq (*...)`
 
 `flatten`
-: Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values. 
-Usage: 
+: Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
+Usage:  
 `flatten Seq (Seq *) -> Seq *`  
 `flatten Seq (Arr *) -> Seq *`  
-`flatten Seq (Map *) -> Seq *`
+`flatten Seq (Map *) -> Seq *`  
 `flatten Seq * -> Seq *` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
 `grep`
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression.  
-Usage:
+Usage:  
 `grep String String -> Arr String`
 
 `grepif`
-: Returns 1 if a regular expression has matches in a string, 0 otherwise.
-Usage:
+: Returns 1 if a regular expression has matches in a string, 0 otherwise.  
+Usage:  
 `grepif String String -> UInt`. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.
 
 `head`
-: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements.
-Usage:
+: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements.  
+Usage:  
 `head (Seq *) UInt|Int -> Seq *`
 
 `if`
@@ -414,12 +414,12 @@ Usage:
 `index (Arr *) Int` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
 `index (Arr *) Real` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
 `index (Map *) *` -- returns the element stored in the map with the given key.  
-`index (Tuple *) UInt`, `index (Tuple *) Int` -- returns an element from a tuple.
+`index (Tuple *) UInt`, `index (Tuple *) Int` -- returns an element from a tuple.  
 `index (Arr *) UInt|Int|Real UInt|Int|Real` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
 
 `int`
-: Converts an unsigned integer, floating-point value or string into a signed integer.
-Usage:
+: Converts an unsigned integer, floating-point value or string into a signed integer.  
+Usage:  
 `int UInt -> Int`  
 `int Real -> Int`  
 `int String -> Int`
@@ -431,16 +431,16 @@ Usage:
 
 `log`
 : The natural logarithm function.  
-Usage:
+Usage:  
 `log UInt|Int|Real -> Real`
 
 `pi`
 : Return the number *pi*.  
-Usage:
+Usage:  
 `pi None -> Real`
 
 `real`
-: Converts an unsigned integer, signed integer or string into a floating-point value.
+: Converts an unsigned integer, signed integer or string into a floating-point value.  
 Usage:  
 `real UInt -> Real`  
 `real Int -> Real`  
