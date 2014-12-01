@@ -10,7 +10,13 @@ Highlights:
 * Statically typed, type-inferred, declarative.
 * Portable: requires only a standards-compliant C++11 compiler and nothing else.
 
-(Also see 'Comparison' below.)
+(Also see ['Comparison'](#markdown-header-comparison) below.)
+
+Skip to:
+
+* [Tutorial](#markdown-header-language-tutorial)
+* [Grammar reference](#markdown-header-grammar)
+* [Builtin functions reference)(#markdown-header-builtin-functions)
 
 ## Compiling and installing ##
 
@@ -329,5 +335,178 @@ string := '"' chars '"' |
 chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ```
+
+### Builtin functions ###
+
+`cat`
+: Concatenates strings.  
+Usage:
+`cat String... -> String`. At least one string argument is required.
+
+`cos`
+: The cosine function.  
+Usage:
+`cos UInt|Int|Real -> Real`
+
+`count`
+: Counts the number of elements.
+Usage:
+`count None -> Seq UInt` -- returns an infinite sequence that counts from 1 to infinity.  
+`count String -> UInt` -- returns the number of bytes in the string.  
+`count Seq * -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
+`count Map * -> UInt` -- returns the number of keys in the map.  
+`count Arr * -> UInt` -- returns the number of elements in the array.
+
+`cut`
+: Splits a string using a delimiter.
+Usage:
+`cut String String -> Arr String` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
+`cut String String UInt|Int -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
+
+`e`
+: Returns the number *e*.  
+Usage:
+`e None -> Real`.
+
+`exp`
+: The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
+Usage:
+`exp UInt|Int|Real -> Real`
+
+`filter`
+: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
+Usage:
+`filter Seq (UInt|Int *...) -> Seq (*...)`
+
+`flatten`
+: Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values. 
+Usage: 
+`flatten Seq (Seq *) -> Seq *`  
+`flatten Seq (Arr *) -> Seq *`  
+`flatten Seq (Map *) -> Seq *`
+`flatten Seq * -> Seq *` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
+
+`grep`
+: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression.  
+Usage:
+`grep String String -> Arr String`
+
+`grepif`
+: Returns 1 if a regular expression has matches in a string, 0 otherwise.
+Usage:
+`grepif String String -> UInt`. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.
+
+`head`
+: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements.
+Usage:
+`head (Seq *) UInt|Int -> Seq *`
+
+`if`
+: Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
+*Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
+Usage:  
+`if UInt|Int * * -> *`  
+
+`index`
+: Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
+Usage:  
+`index (Arr *) UInt` -- returns element from the array, using a 0-based index.  
+`index (Arr *) Int` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
+`index (Arr *) Real` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
+`index (Map *) *` -- returns the element stored in the map with the given key.  
+`index (Tuple *) UInt`, `index (Tuple *) Int` -- returns an element from a tuple.
+`index (Arr *) UInt|Int|Real UInt|Int|Real` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
+
+`int`
+: Converts an unsigned integer, floating-point value or string into a signed integer.
+Usage:
+`int UInt -> Int`  
+`int Real -> Int`  
+`int String -> Int`
+
+`join`
+: Concatenates the elements in a string array using a delimiter.  
+Usage:  
+`join (Arr String) String -> String`
+
+`log`
+: The natural logarithm function.  
+Usage:
+`log UInt|Int|Real -> Real`
+
+`pi`
+: Return the number *pi*.  
+Usage:
+`pi None -> Real`
+
+`real`
+: Converts an unsigned integer, signed integer or string into a floating-point value.
+Usage:  
+`real UInt -> Real`  
+`real Int -> Real`  
+`real String -> Real`
+
+`round`
+: Rounds a floating-point number to the nearest integer.  
+Usage:  
+`round Real -> Real`
+
+`sin`
+: The sine function.  
+Usage:  
+`cos UInt|Int|Real -> Real`
+
+`sort`
+: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence.  
+Usage:  
+`sort Arr * -> Arr *`  
+`sort Map * -> Arr *`  
+`sort Seq * -> Arr *`  
+
+`sqrt`
+: The square root function.  
+Usage:  
+`sqrt UInt|Int|Real -> Real`
+
+`string`
+: Converts an unsigned integer, signed integer or floating-point number to a string.  
+Usage:  
+`string UInt -> String`  
+`string Int -> String`  
+`string Real -> String`
+
+`sum`
+: Computes a sum of the elements of a sequence or array.  
+Usage:  
+`sum Arr UInt|Int|Real -> UInt|Int|Real`  
+`sum Seq UInt|Int|Real -> UInt|Int|Real`  
+`sum UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
+
+`tan`
+: The tangent function.  
+Usage:  
+`tan UInt|Int|Real -> Real`
+
+`tolower`
+: Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
+Usage:  
+`tolower String -> String`
+
+`toupper`
+: Converts to bytes of a string to uppercase. *Note:* only works on ASCII data, Unicode is not supported.  
+Usage:  
+`toupper String -> String`
+
+`uint`
+: Converts a signed integer, floating-point number or string to an unsigned integer.  
+Usage:  
+`uint UInt -> UInt`  
+`uint Real -> UInt`  
+`uint String -> UInt`
+
+`zip`
+: Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
+Usage:  
+`zip (Seq *)... -> Seq (*...)`
 
 
