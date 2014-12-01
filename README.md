@@ -16,7 +16,7 @@ Skip to:
 
 * [Tutorial](#markdown-header-language-tutorial)
 * [Grammar reference](#markdown-header-grammar)
-* [Builtin functions reference)(#markdown-header-builtin-functions)
+* [Builtin functions reference](#markdown-header-builtin-functions)
 
 ## Compiling and installing ##
 
