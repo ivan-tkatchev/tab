@@ -100,7 +100,7 @@ Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj
 
 void register_flatten(Functions& funcs) {
 
-    funcs.add_poly("flatten", funcs::flatten_checker);
+    funcs.add_poly("flatten", flatten_checker);
 }
 
 #endif

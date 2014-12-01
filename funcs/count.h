@@ -115,7 +115,7 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) 
 
 void register_count(Functions& funcs) {
 
-    funcs.add_poly("count", funcs::count_checker);
+    funcs.add_poly("count", count_checker);
 }
 
 #endif

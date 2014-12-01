@@ -62,7 +62,7 @@ Functions::func_t zip_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_zip(Functions& funcs) {
 
-    funcs.add_poly("zip", funcs::zip_checker);
+    funcs.add_poly("zip", zip_checker);
 }
 
 

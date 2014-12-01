@@ -117,7 +117,7 @@ Functions::func_t sum_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_sum(Functions& funcs) {
 
-    funcs.add_poly("sum", funcs::sum_checker);
+    funcs.add_poly("sum", sum_checker);
 }
 
 

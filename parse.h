@@ -241,9 +241,9 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
 
     axe::r_rule<I> x_expr_not;
-    x_expr_not =
-        (axe::r_lit('~') & x_expr_not >> y_expr_not) |
-        x_expr_flat;
+    x_expr_not = x_ws &
+        ((axe::r_lit('~') & x_expr_not >> y_expr_not) |
+         x_expr_flat);
 
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });
 

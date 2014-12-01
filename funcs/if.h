@@ -35,7 +35,7 @@ Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_if(Functions& funcs) {
 
-    funcs.add_poly("if", funcs::if_checker);
+    funcs.add_poly("if", if_checker);
 }
 
 #endif

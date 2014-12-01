@@ -128,7 +128,7 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_sort(Functions& funcs) {
 
-    funcs.add_poly("sort", funcs::sort_checker);
+    funcs.add_poly("sort", sort_checker);
 }
 
 #endif

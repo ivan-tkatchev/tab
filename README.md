@@ -192,6 +192,11 @@ This command will output the number of bytes on even lines versus the number of 
 
 (So, for example, using `sum(1)` on the right side of `->` in a map comprehension will count the number of occurences of whatever is on the left side of `->`.)
 
+###### 10.
+
+    $ ./tab 'sort([ @[1], @[0] : { tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] } ])[-5,-1]'
+
+This command will tally a count for each 
 
 ## Comparison ##
 

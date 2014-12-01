@@ -171,27 +171,27 @@ void register_cutgrep(Functions& funcs) {
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
-              funcs::cut);
+              cut);
     
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) }),
               Type(Type::STRING),
-              funcs::cutn);
+              cutn);
 
     funcs.add("cut",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) }),
               Type(Type::STRING),
-              funcs::cutn);
+              cutn);
 
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
-              funcs::grep);
+              grep);
 
     funcs.add("grepif",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::UINT),
-              funcs::grepif);
+              grepif);
 }
 
 #endif

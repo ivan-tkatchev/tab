@@ -276,7 +276,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
 void register_index(Functions& funcs) {
 
-    funcs.add_poly("index", funcs::index_checker);
+    funcs.add_poly("index", index_checker);
 }
 
 #endif

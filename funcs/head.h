@@ -60,7 +60,7 @@ Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_head(Functions& funcs) {
 
-    funcs.add_poly("head", funcs::head_checker);
+    funcs.add_poly("head", head_checker);
 }
 
 #endif

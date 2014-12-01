@@ -102,7 +102,7 @@ Functions::func_t filter_checker(const Type& args, Type& ret, obj::Object*& obj)
 
 void register_filter(Functions& funcs) {
 
-    funcs.add_poly("filter", funcs::filter_checker);
+    funcs.add_poly("filter", filter_checker);
 }
 
 #endif
