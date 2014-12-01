@@ -14,6 +14,8 @@ namespace funcs {
 #include "funcs/file.h"
 #include "funcs/sum.h"
 #include "funcs/if.h"
+#include "funcs/sort.h"
+#include "funcs/misc.h"
 
 }
 
@@ -33,6 +35,8 @@ void register_functions() {
     funcs::register_zip(funs);
     funcs::register_sum(funs);
     funcs::register_if(funs);
+    funcs::register_sort(funs);
+    funcs::register_misc(funs);
 }
 
 #endif

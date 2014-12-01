@@ -13,6 +13,7 @@
 #include <map>
 #include <initializer_list>
 #include <utility>
+#include <algorithm>
 
 #include <regex>
 

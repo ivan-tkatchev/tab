@@ -1,0 +1,7 @@
+sort([ @[1], @[0] : { tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")]} ])[-5,-1]
+===>
+9	in
+9	of
+10	or
+13	software
+20	the

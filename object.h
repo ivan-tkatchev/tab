@@ -56,6 +56,7 @@ struct Atom : public Object {
 
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
+    bool less(Object* a) const { return v < get< Atom<T> >(a).v; }
     void print() { std::cout << v; }
     Object* clone() const { return new Atom<T>(v); }
 };
@@ -82,6 +83,10 @@ struct ArrayAtom : public Object {
         return v == get< ArrayAtom<T> >(a).v;
     }
 
+    bool less(Object* a) const {
+        return v < get< ArrayAtom<T> >(a).v;
+    }
+    
     void print() {
         bool first = true;
         for (const T& x : v) {
@@ -147,6 +152,32 @@ struct ArrayObject : public Object {
         }
 
         return true;
+    }
+
+    bool less(Object* a) const {
+        const std::vector<Object*>& other = get<ArrayObject>(a).v;
+
+        auto ai = v.begin();
+        auto ae = v.end();
+        auto bi = other.begin();
+        auto be = other.end();
+
+        while (1) {
+
+            if (ai == ae || bi == be)
+                return (bi != be);
+
+            if ((*ai)->less(*bi))
+                return true;
+
+            if ((*bi)->less(*ai))
+                return false;
+            
+            ++ai;
+            ++bi;
+        }
+
+        return false;
     }
 
     void print() {
@@ -258,6 +289,12 @@ struct ObjectEq {
     }
 };
 
+struct ObjectLess {
+    bool operator()(Object* a, Object* b) const {
+        return a->less(b);
+    }
+};
+
 struct MapObject : public Object {
 
     typedef std::unordered_map<Object*, Object*, ObjectHash, ObjectEq> map_t;
@@ -303,6 +340,38 @@ struct MapObject : public Object {
         }
 
         return true;
+    }
+
+    bool less(Object* a) const {
+        const map_t& other = get<MapObject>(a).v;
+
+        auto ai = v.begin();
+        auto ae = v.end();
+        auto bi = other.begin();
+        auto be = other.end();
+
+        while (1) {
+
+            if (ai == ae || bi == be)
+                return (bi != be);
+
+            if (ai->first->less(bi->first))
+                return true;
+
+            if (bi->first->less(ai->first))
+                return false;
+
+            if (ai->second->less(bi->second))
+                return true;
+
+            if (bi->second->less(ai->second))
+                return false;
+
+            ++ai;
+            ++bi;
+        }
+
+        return false;
     }
 
     void print() {
