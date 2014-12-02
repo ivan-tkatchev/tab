@@ -78,6 +78,160 @@ void avg_var_stdev(const obj::Object* in, obj::Object*& out) {
 }
 
 template <typename T>
+void avg_arratom(const obj::Object* in, obj::Object*& out) {
+
+    obj::ArrayAtom<T>& x = obj::get< obj::ArrayAtom<T> >(in);
+    obj::Real& y = obj::get<obj::Real>(out);
+
+    T sum = 0;
+    
+    for (auto i : x.v) {
+        sum += i;
+    }
+
+    y.v = ((Real)sum) / x.v.size();
+}
+
+template <typename T>
+void var_arratom(const obj::Object* in, obj::Object*& out) {
+
+    obj::ArrayAtom<T>& x = obj::get< obj::ArrayAtom<T> >(in);
+    obj::Real& y = obj::get<obj::Real>(out);
+
+    if (x.v.empty()) {
+        y.v = 0;
+        return;
+    }
+
+    Real K = x.v[0];
+    Real sum = 0;
+    Real sum2 = 0;
+
+    for (auto i : x.v) {
+        Real x = (Real)i - K;
+        sum += x;
+        sum2 += (x * x);
+    }
+        
+    size_t n = x.v.size();
+    y.v = (sum2 - (sum * sum)/n)/n;
+}
+
+template <typename T>
+void stdev_arratom(const obj::Object* in, obj::Object*& out) {
+
+    var_arratom<T>(in, out);
+
+    obj::Real& y = obj::get<obj::Real>(out);
+    y.v = ::sqrt(y.v);
+}
+    
+
+template <typename T,typename S>
+struct avg_var_stdev_arr;
+
+template <typename S>
+struct avg_var_stdev_arr<AtomAvg,S> {
+    Functions::func_t operator()() { return avg_arratom<S>; }
+};
+
+template <typename S>
+struct avg_var_stdev_arr<AtomVar,S> {
+    Functions::func_t operator()() { return var_arratom<S>; }
+};
+
+template <typename S>
+struct avg_var_stdev_arr<AtomStdev,S> {
+    Functions::func_t operator()() { return stdev_arratom<S>; }
+};
+
+
+template <typename T>
+void avg_seq(const obj::Object* in, obj::Object*& out) {
+
+    obj::Real& y = obj::get<obj::Real>(out);
+    y.v = 0;
+
+    T sum = 0;
+    size_t n = 0;
+
+    while (1) {
+        obj::Object* ret = ((obj::Object*)in)->next();
+
+        if (!ret) break;
+
+        sum += obj::get< obj::Atom<T> >(ret).v;
+        ++n;
+    }
+
+    y.v = ((Real)sum) / n;
+}
+
+template <typename T>
+void var_seq(const obj::Object* in, obj::Object*& out) {
+
+    obj::Real& y = obj::get<obj::Real>(out);
+    y.v = 0;
+
+    Real K;
+    Real sum = 0;
+    Real sum2 = 0;
+    size_t n = 0;
+    bool first = true;
+
+    while (1) {
+        obj::Object* ret = ((obj::Object*)in)->next();
+
+        if (!ret) break;
+
+        T i = obj::get< obj::Atom<T> >(ret).v;
+
+        if (first) {
+            K = i;
+            first = false;
+
+        } else {
+
+            Real x = (Real)i - K;
+            sum += x;
+            sum2 += (x * x);
+        }
+
+        ++n;
+    }
+
+    y.v = (sum2 - (sum * sum)/n)/n;
+}
+
+template <typename T>
+void stdev_seq(const obj::Object* in, obj::Object*& out) {
+
+    var_seq<T>(in, out);
+
+    obj::Real& y = obj::get<obj::Real>(out);
+    y.v = ::sqrt(y.v);
+}
+
+template <typename T,typename S>
+struct avg_var_stdev_seq;
+
+template <typename S>
+struct avg_var_stdev_seq<AtomAvg,S> {
+    Functions::func_t operator()() { return avg_seq<S>; }
+};
+
+template <typename S>
+struct avg_var_stdev_seq<AtomVar,S> {
+    Functions::func_t operator()() { return var_seq<S>; }
+};
+
+template <typename S>
+struct avg_var_stdev_seq<AtomStdev,S> {
+    Functions::func_t operator()() { return stdev_seq<S>; }
+};
+
+
+template <typename T>
 Functions::func_t avg_var_stdev_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (check_numeric(args)) {
@@ -95,6 +249,46 @@ Functions::func_t avg_var_stdev_checker(const Type& args, Type& ret, obj::Object
         default:
             return nullptr;
         }
+
+    } else if (args.type == Type::ARR) {
+
+        const Type& t = args.tuple->at(0);
+
+        if (!check_numeric(t))
+            return nullptr;
+
+        ret = Type(Type::REAL);
+        
+        switch (t.atom) {
+        case Type::INT:
+            return avg_var_stdev_arr<T,Int>()();
+        case Type::UINT:
+            return avg_var_stdev_arr<T,UInt>()();
+        case Type::REAL:
+            return avg_var_stdev_arr<T,Real>()();
+        default:
+            return nullptr;
+        }
+
+    } else if (args.type == Type::SEQ) {
+
+        const Type& t = args.tuple->at(0);
+
+        if (!check_numeric(t))
+            return nullptr;
+
+        ret = Type(Type::REAL);
+        
+        switch (t.atom) {
+        case Type::INT:
+            return avg_var_stdev_seq<T,Int>()();
+        case Type::UINT:
+            return avg_var_stdev_seq<T,UInt>()();
+        case Type::REAL:
+            return avg_var_stdev_seq<T,Real>()();
+        default:
+            return nullptr;
+        }
     }
 
     return nullptr;
@@ -105,8 +299,10 @@ void register_avg(Functions& funcs) {
 
     funcs.add_poly("avg", avg_var_stdev_checker<AtomAvg>);
     funcs.add_poly("mean", avg_var_stdev_checker<AtomAvg>);
+
     funcs.add_poly("var", avg_var_stdev_checker<AtomVar>);
     funcs.add_poly("variance", avg_var_stdev_checker<AtomVar>);
+
     funcs.add_poly("stdev", avg_var_stdev_checker<AtomStdev>);
     funcs.add_poly("stddev", avg_var_stdev_checker<AtomStdev>);
 }

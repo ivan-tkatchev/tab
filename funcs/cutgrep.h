@@ -96,10 +96,30 @@ void cutn(const obj::Object* in, obj::Object*& out) {
     throw std::runtime_error("Substring not found in 'cut'");
 }
 
+
+struct RegexCache {
+
+    std::unordered_map<std::string, std::regex> cache;
+
+    const std::regex& get(const std::string& s) {
+
+        auto i = cache.find(s);
+
+        if (i == cache.end()) {
+            i = cache.insert(i, std::make_pair(s, std::regex(s, std::regex_constants::optimize)));
+        }
+
+        return i->second;
+    }
+};
+
+const std::regex& regex_cache(const std::string& s) {
+    static RegexCache cache;
+    return cache.get(s);
+}
+
 void grep(const obj::Object* in, obj::Object*& out) {
 
-    static std::unordered_map<std::string, std::regex> _cache;
-    
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
@@ -110,13 +130,7 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
     v.clear();
 
-    auto i = _cache.find(regex);
-
-    if (i == _cache.end()) {
-        i = _cache.insert(i, std::make_pair(regex, std::regex(regex, std::regex_constants::optimize)));
-    }
-
-    const std::regex& r = i->second;
+    const std::regex& r = regex_cache(regex);
 
     std::sregex_iterator iter(str.begin(), str.end(), r);
     std::sregex_iterator end;
@@ -144,8 +158,6 @@ void grep(const obj::Object* in, obj::Object*& out) {
 
 void grepif(const obj::Object* in, obj::Object*& out) {
 
-    static std::unordered_map<std::string, std::regex> _cache;
-    
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
@@ -153,18 +165,30 @@ void grepif(const obj::Object* in, obj::Object*& out) {
 
     obj::UInt& res = obj::get<obj::UInt>(out);
 
-    auto i = _cache.find(regex);
-
-    if (i == _cache.end()) {
-        i = _cache.insert(i, std::make_pair(regex, std::regex(regex, std::regex_constants::optimize)));
-    }
-
-    const std::regex& r = i->second;
+    const std::regex& r = regex_cache(regex);
 
     bool found = std::regex_search(str, r);
 
     res.v = (found ? 1 : 0);
 }
+
+void replace(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+    const std::string& rep = obj::get<obj::String>(args.v[2]).v;
+    
+    std::string& res = obj::get<obj::String>(out).v;
+
+    const std::regex& r = regex_cache(regex);
+
+    res.clear();
+
+    std::regex_replace(std::back_insert_iterator<std::string>(res), str.begin(), str.end(), r, rep);
+}
+
 
 void register_cutgrep(Functions& funcs) {
 
@@ -192,6 +216,11 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::UINT),
               grepif);
+
+    funcs.add("replace",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::STRING),
+              replace);
 }
 
 #endif
