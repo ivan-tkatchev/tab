@@ -172,7 +172,7 @@ This command is equivalent to `grep`; it will output all lines from stdin having
 
 `grepif(@,"this"),@` is a tuple of two elements: `1` or `0` if the line has `"this"` as a substring as the first element, and the whole line itself as the second element.
 
-**Note**: tuples in `tab` are *not* surrounded by brackets. It is also impossible to create nested tuples literally. (Though they can exist as a result of a function call.)
+**Note**: tuples in `tab` are *not* surrounded by brackets. It is also impossible to create nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called `tuple` for doing just that.)
 
 To write a tuple, simply list its elements separated by commas.
 
@@ -338,6 +338,18 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ### Builtin functions ###
 
+Listed alphabetically.
+
+`array`
+: Stores a sequence or map into an array. See also `sort` for a version of this function with sorting.  
+Usage:  
+`array Map * -> Arr *`  
+`array Seq * -> Arr *`  
+`array UInt|Int|Real|String|Tuple -> Arr UInt|Int|Real|String|Tuple` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
+
+`avg`
+: Synonym for `mean`.
+
 `cat`
 : Concatenates strings.  
 Usage:  
@@ -434,6 +446,11 @@ Usage:
 Usage:  
 `log UInt|Int|Real -> Real`
 
+`mean`
+: Calculates to mean (arithmetic average) of a sequence or array of numbers.
+Usage:
+XXX
+
 `pi`
 : Return the number *pi*.  
 Usage:  
@@ -457,11 +474,12 @@ Usage:
 `cos UInt|Int|Real -> Real`
 
 `sort`
-: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence.  
+: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
 Usage:  
 `sort Arr * -> Arr *`  
 `sort Map * -> Arr *`  
 `sort Seq * -> Arr *`  
+`sort UInt|Int|Real|String|Tuple -> Arr UInt|Int|Real|String|Tuple` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
 
 `sqrt`
 : The square root function.  
@@ -487,6 +505,11 @@ Usage:
 Usage:  
 `tan UInt|Int|Real -> Real`
 
+`tabulate`  
+: Accepts two or more tuples of the same type and returns an array of those tuples. *Note*: this function is meant for pretty-printing results when there is only a few of them.  (A tuple of tuples will be printed on one line, while an array of tuples will print each tuple on its own line.)  
+Usage:  
+`tabulate (*...)... -> Arr (*...)`
+
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
 Usage:  
@@ -497,6 +520,11 @@ Usage:
 Usage:  
 `toupper String -> String`
 
+`tuple`
+: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
+Usage:  
+`tuple (*...) -> (*...)`
+
 `uint`
 : Converts a signed integer, floating-point number or string to an unsigned integer.  
 Usage:  
@@ -504,19 +532,34 @@ Usage:
 `uint Real -> UInt`  
 `uint String -> UInt`
 
+`var`
+: Calculates the variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.)  
+Usage:  
+`var Arr UInt|Int|Real -> Real`  
+`var Seq UInt|Int|Real -> Real`  
+`var UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the value to calculate the variance when stored as a value into an existing key of a map.
+
+`variance`
+: Synonym for `var`.
+
 `zip`
 : Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
 `zip (Seq *)... -> Seq (*...)`
 
 
-array
-avg
-mean
 stddev
 stdev
-sort
-tabulate
-tuple
-var
-variance
+
+$ ./tab -f req.log '
+> x=[ uint(cut(@,"|",7)) ],
+> x={ 1 -> avg(@), stdev(@), sort(@) : x}[1],
+> avg=x[0], stdev=x[1],
+> tabulate(tuple("mean/median", avg, x[2][0.5]),
+>   tuple("68-percentile", avg + stdev, x[2][0.68]),
+>   tuple("95-percentile", avg + 2*stdev, x[2][0.95]),
+>   tuple("99-percentile", avg + 3*stdev, x[2][0.99]))'
+mean/median     1764.54 1728
+68-percentile   1933.15 1840
+95-percentile   2101.75 1992
+99-percentile   2270.35 2419
