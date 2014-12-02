@@ -80,7 +80,6 @@ void arratom_from_seq(const obj::Object* in, obj::Object*& out) {
 
 Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-
     if (args.type == Type::MAP) {
 
         ret = Type(Type::ARR);
@@ -153,9 +152,42 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+void tabulate(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& x = obj::get<obj::Tuple>(in);
+    obj::ArrayObject& y = obj::get<obj::ArrayObject>(out);
+
+    y.v = x.v;
+}
+
+Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type == Type::TUP && args.tuple && args.tuple->size() > 1) {
+
+        const Type& t = args.tuple->at(0);
+
+        if (t.type != Type::TUP)
+            return nullptr;
+        
+        for (const Type& i : *(args.tuple)) {
+
+            if (t != i)
+                return nullptr;
+        }
+
+        ret = Type(Type::ARR);
+        ret.push(t);
+
+        return tabulate;
+    }
+
+    return nullptr;
+}
+
 void register_array(Functions& funcs) {
 
     funcs.add_poly("array", array_checker);
+    funcs.add_poly("tabulate", tabulate_checker);
 }
 
 #endif

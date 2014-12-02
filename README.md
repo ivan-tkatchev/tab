@@ -516,6 +516,7 @@ mean
 stddev
 stdev
 sort
+tabulate
 tuple
 var
 variance
