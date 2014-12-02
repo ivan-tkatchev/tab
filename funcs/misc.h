@@ -72,7 +72,18 @@ Functions::func_t cat_checker(const Type& args, Type& ret, obj::Object*& obj) {
     ret = Type(Type::STRING);
     return cat;
 }
-    
+
+void tuple(const obj::Object* in, obj::Object*& out) {
+    out = (obj::Object*)in;
+}
+
+Functions::func_t tuple_checker(const Type& args, Type& ret, obj::Object*& obj) {
+    ret = args;
+    obj = obj::nothing();
+    return tuple;
+}
+
+
 void register_misc(Functions& funcs) {
 
     funcs.add("tolower", Type(Type::STRING), Type(Type::STRING), tolower);
@@ -80,6 +91,7 @@ void register_misc(Functions& funcs) {
     funcs.add("join", Type(Type::TUP, { Type(Type::ARR, { Type(Type::STRING) }), Type(Type::STRING) }), Type(Type::STRING), join);
 
     funcs.add_poly("cat", cat_checker);
+    funcs.add_poly("tuple", tuple_checker);
 }
 
 

@@ -15,6 +15,7 @@ namespace funcs {
 #include "funcs/sum.h"
 #include "funcs/avg.h"
 #include "funcs/if.h"
+#include "funcs/array.h"
 #include "funcs/sort.h"
 #include "funcs/misc.h"
 
@@ -37,6 +38,7 @@ void register_functions() {
     funcs::register_sum(funs);
     funcs::register_avg(funs);
     funcs::register_if(funs);
+    funcs::register_array(funs);
     funcs::register_sort(funs);
     funcs::register_misc(funs);
 }

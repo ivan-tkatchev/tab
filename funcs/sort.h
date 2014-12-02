@@ -2,6 +2,34 @@
 #define __TAB_FUNCS_SORT_H
 
 template <typename T>
+struct AtomSortAtom : public AtomArrayAtom<T> {
+
+    obj::Object* clone() const {
+        AtomSortAtom<T>* ret = new AtomSortAtom<T>;
+        ret->v = this->v;
+        return ret;
+    }
+
+    void merge_end() {
+        std::sort(this->v.begin(), this->v.end());
+    }
+};
+
+struct AtomSortObject : public AtomArrayObject {
+
+    obj::Object* clone() const {
+        AtomSortObject* ret = new AtomSortObject;
+        ret->v = v;
+        return ret;
+    }
+
+    void merge_end() {
+        std::sort(v.begin(), v.end(), obj::ObjectLess());
+    }
+};
+
+
+template <typename T>
 void sort_arratom(const obj::Object* in, obj::Object*& out) {
 
     obj::ArrayAtom<T>& x = obj::get< obj::ArrayAtom<T> >(in);
@@ -18,26 +46,9 @@ void sort_arr(const obj::Object* in, obj::Object*& out) {
 
 void sort_map(const obj::Object* in, obj::Object*& out) {
 
-    obj::MapObject& a = obj::get<obj::MapObject>(in);
+    array_from_map(in, out);
+
     obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
-    
-    typename obj::MapObject::map_t::const_iterator b = a.v.begin();
-    typename obj::MapObject::map_t::const_iterator e = a.v.end();
-
-    o.v.clear();
-    
-    while (b != e) {
-
-        obj::Tuple* tmp = new obj::Tuple;
-        tmp->v.resize(2);
-        tmp->v[0] = b->first;
-        tmp->v[1] = b->second;
-
-        o.v.push_back(tmp);
-        
-        ++b;
-    }
-
     std::sort(o.v.begin(), o.v.end(), obj::ObjectLess());
 }
 
@@ -121,6 +132,36 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
         } else {
             return sort_seq_arr;
         }
+
+    } else if (args.type == Type::ATOM) {
+
+        ret = Type(Type::ARR);
+        ret.push(args);
+
+        switch (args.atom) {
+        case Type::INT:
+            obj = new AtomSortAtom<Int>;
+            return arratom_from_atom<Int>;
+        case Type::UINT:
+            obj = new AtomSortAtom<UInt>;
+            return arratom_from_atom<UInt>;
+        case Type::REAL:
+            obj = new AtomSortAtom<Real>;
+            return arratom_from_atom<Real>;
+        case Type::STRING:
+            obj = new AtomSortAtom<std::string>;
+            return arratom_from_atom<std::string>;
+        }
+
+        return nullptr;
+
+    } else if (args.type == Type::TUP) {
+
+        ret = Type(Type::ARR);
+        ret.push(args);
+        
+        obj = new AtomSortObject;
+        return array_from_tuple;
     }
         
     return nullptr;

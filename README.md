@@ -510,10 +510,12 @@ Usage:
 `zip (Seq *)... -> Seq (*...)`
 
 
+array
 avg
 mean
 stddev
 stdev
+sort
+tuple
 var
 variance
-
