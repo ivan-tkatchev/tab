@@ -222,6 +222,22 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 
 In this case a splice of five elements is returned -- the last five elements in the array returned by `sort()`
 
+###### Bonus track
+
+    $ ./tab -f req.log '
+    > x=[ uint(cut(@,"|",7)) ],
+    > x={ 1 -> avg(@), stdev(@), sort(@) : x}[1],
+    > avg=x[0], stdev=x[1],
+    > tabulate(tuple("mean/median", avg, x[2][0.5]),
+    >   tuple("68-percentile", avg + stdev, x[2][0.68]),
+    >   tuple("95-percentile", avg + 2*stdev, x[2][0.95]),
+    >   tuple("99-percentile", avg + 3*stdev, x[2][0.99]))'
+    mean/median     1764.54 1728
+    68-percentile   1933.15 1840
+    95-percentile   2101.75 1992
+    99-percentile   2270.35 2419
+
+
 ## Comparison ##
 
 A short, hands-on comparison of `tab` with equivalent shell and Python scripts.
@@ -409,7 +425,7 @@ Usage:
 `grepif String String -> UInt`. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.
 
 `head`
-: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements.  
+: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
 Usage:  
 `head (Seq *) UInt|Int -> Seq *`
 
@@ -446,10 +462,26 @@ Usage:
 Usage:  
 `log UInt|Int|Real -> Real`
 
+`max`
+: Finds the maximum element in a sequence or array. See also: `min`.  
+Usage:  
+`max Arr UInt|Int|Real -> UInt|Int|Real`  
+`max Seq UInt|Int|Real -> UInt|Int|Real`  
+`max UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
+
 `mean`
-: Calculates to mean (arithmetic average) of a sequence or array of numbers.
-Usage:
-XXX
+: Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
+Usage:  
+`mean Arr UInt|Int|Real -> Real`  
+`mean Seq UInt|Int|Real -> Real`  
+`mean UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
+
+`min`
+: Finds the minimum element in a sequence or array. See also: `max`.  
+Usage:  
+`min Arr UInt|Int|Real -> UInt|Int|Real`  
+`min Seq UInt|Int|Real -> UInt|Int|Real`  
+`min UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
 `pi`
 : Return the number *pi*.  
@@ -471,7 +503,12 @@ Usage:
 `sin`
 : The sine function.  
 Usage:  
-`cos UInt|Int|Real -> Real`
+`sin UInt|Int|Real -> Real`
+
+`skip`
+: Accepts a sequence and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
+Usage:  
+`skip (Seq *) UInt|Int -> Seq *`
 
 `sort`
 : Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
@@ -485,6 +522,16 @@ Usage:
 : The square root function.  
 Usage:  
 `sqrt UInt|Int|Real -> Real`
+
+`stddev`
+: Synonym for `stdev`.
+
+`stdev`
+: Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
+Usage:  
+`stdev Arr UInt|Int|Real -> Real`  
+`stdev Seq UInt|Int|Real -> Real`  
+`stdev UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 `string`
 : Converts an unsigned integer, signed integer or floating-point number to a string.  
@@ -533,11 +580,11 @@ Usage:
 `uint String -> UInt`
 
 `var`
-: Calculates the variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.)  
+: Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
 `var Arr UInt|Int|Real -> Real`  
 `var Seq UInt|Int|Real -> Real`  
-`var UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the value to calculate the variance when stored as a value into an existing key of a map.
+`var UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
 
 `variance`
 : Synonym for `var`.
@@ -547,19 +594,3 @@ Usage:
 Usage:  
 `zip (Seq *)... -> Seq (*...)`
 
-
-stddev
-stdev
-
-$ ./tab -f req.log '
-> x=[ uint(cut(@,"|",7)) ],
-> x={ 1 -> avg(@), stdev(@), sort(@) : x}[1],
-> avg=x[0], stdev=x[1],
-> tabulate(tuple("mean/median", avg, x[2][0.5]),
->   tuple("68-percentile", avg + stdev, x[2][0.68]),
->   tuple("95-percentile", avg + 2*stdev, x[2][0.95]),
->   tuple("99-percentile", avg + 3*stdev, x[2][0.99]))'
-mean/median     1764.54 1728
-68-percentile   1933.15 1840
-95-percentile   2101.75 1992
-99-percentile   2270.35 2419

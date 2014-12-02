@@ -13,6 +13,7 @@ namespace funcs {
 #include "funcs/zip.h"
 #include "funcs/file.h"
 #include "funcs/sum.h"
+#include "funcs/minmax.h"
 #include "funcs/avg.h"
 #include "funcs/if.h"
 #include "funcs/array.h"
@@ -36,6 +37,7 @@ void register_functions() {
     funcs::register_cutgrep(funs);
     funcs::register_zip(funs);
     funcs::register_sum(funs);
+    funcs::register_minmax(funs);
     funcs::register_avg(funs);
     funcs::register_if(funs);
     funcs::register_array(funs);

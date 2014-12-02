@@ -23,20 +23,48 @@ struct SeqHeadSeq : public obj::SeqBase {
     }
 };
 
-void head(const obj::Object* in, obj::Object*& out) {
+struct SeqSkipSeq : public obj::SeqBase {
+
+    obj::Object* seq;
+    UInt n;
+    UInt i;
+
+    SeqSkipSeq() : n(0), i(0) {}
+
+    void wrap(obj::Object* s) {
+        seq = s;
+    }
+    
+    obj::Object* next() {
+
+        while (i < n) {
+            obj::Object* ret = seq->next();
+
+            if (!ret) return ret;
+        
+            ++i;
+        }
+
+        return seq->next();
+    }
+};
+
+template <typename T>
+void head_skip(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& inp = obj::get<obj::Tuple>(in);
     obj::Object* arg = inp.v[0];
     UInt n = obj::get<obj::UInt>(inp.v[1]).v;
 
-    SeqHeadSeq& seq = obj::get<SeqHeadSeq>(out);
+    T& seq = obj::get<T>(out);
 
     seq.n = n;
     seq.i = 0;
     seq.wrap(arg);
 }
 
-Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
+template <typename T>
+Functions::func_t head_skip_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
         return nullptr;
@@ -50,9 +78,9 @@ Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (a1.type == Type::SEQ) {
 
-        obj = new SeqHeadSeq;
+        obj = new T;
         ret = a1;
-        return head;
+        return head_skip<T>;
     }
     
     return nullptr;
@@ -60,7 +88,8 @@ Functions::func_t head_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
 void register_head(Functions& funcs) {
 
-    funcs.add_poly("head", head_checker);
+    funcs.add_poly("head", head_skip_checker<SeqHeadSeq>);
+    funcs.add_poly("skip", head_skip_checker<SeqSkipSeq>);
 }
 
 #endif
