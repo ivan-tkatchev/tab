@@ -20,13 +20,20 @@ struct AtomArrayObject : public obj::ArrayObject {
 
     obj::Object* clone() const {
         AtomArrayObject* ret = new AtomArrayObject;
-        ret->v = v;
+
+        for (const Object* s : v) {
+            ret->v.push_back(s->clone());
+        }
+
         return ret;
     }
 
     void merge(const obj::Object* o) {
         obj::ArrayObject& other = obj::get< obj::ArrayObject >(o);
-        v.insert(v.end(), other.v.begin(), other.v.end());
+
+        for (const Object* s : other.v) {
+            v.push_back(s->clone());
+        }
     }
 };
 

@@ -19,7 +19,11 @@ struct AtomSortObject : public AtomArrayObject {
 
     obj::Object* clone() const {
         AtomSortObject* ret = new AtomSortObject;
-        ret->v = v;
+
+        for (const Object* s : v) {
+            ret->v.push_back(s->clone());
+        }
+
         return ret;
     }
 

@@ -415,14 +415,14 @@ Usage:
 `flatten Seq * -> Seq *` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
 `grep`
-: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression.  
+: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
 Usage:  
 `grep String String -> Arr String`
 
 `grepif`
-: Returns 1 if a regular expression has matches in a string, 0 otherwise.  
+: Returns 1 if a regular expression has matches in a string, 0 otherwise. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 Usage:  
-`grepif String String -> UInt`. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.
+`grepif String String -> UInt`. 
 
 `head`
 : Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
@@ -494,6 +494,11 @@ Usage:
 `real UInt -> Real`  
 `real Int -> Real`  
 `real String -> Real`
+
+`replace`
+: Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
+Usage:  
+`replace String String String -> String`
 
 `round`
 : Rounds a floating-point number to the nearest integer.  
@@ -593,4 +598,45 @@ Usage:
 : Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
 `zip (Seq *)... -> Seq (*...)`
+
+### Aggregators ###
+
+Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What's important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.
+
+Aggregation is performed efficiently: no unnecessary temporary data structures are created and no unnecessary bookkeeping calculations are performed.
+
+Here is a list of aggregators and their effects, sorted alphabetically:
+
+`array`
+: Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: `sort`.
+
+`avg`
+: Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
+
+`max`
+: Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.
+
+`mean`
+: Synonymous with `avg`.
+
+`min`
+: Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.
+
+`sort`
+: Like `array`, except that the resulting elements will be sorted in ascending order.
+
+`stddev`
+: Synonymous with `stddev`.
+
+`stdev`
+: Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: `var`.
+
+`sum`
+: Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.
+
+`var`
+: Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.
+
+`variance`
+: Synonymous with `var`.
 

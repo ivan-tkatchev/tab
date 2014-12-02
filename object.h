@@ -234,7 +234,7 @@ struct Tuple : public ArrayObject {
         for (const Object* s : v) {
             ret->v.push_back(s->clone());
         }
-
+        
         return ret;
     }
 
