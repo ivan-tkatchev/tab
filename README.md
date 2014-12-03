@@ -465,8 +465,8 @@ Usage:
 `max`
 : Finds the maximum element in a sequence or array. See also: `min`.  
 Usage:  
-`max Arr UInt|Int|Real -> UInt|Int|Real`  
-`max Seq UInt|Int|Real -> UInt|Int|Real`  
+`max Arr * -> *`  
+`max Seq * -> *`  
 `max UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
 
 `mean`
@@ -479,8 +479,8 @@ Usage:
 `min`
 : Finds the minimum element in a sequence or array. See also: `max`.  
 Usage:  
-`min Arr UInt|Int|Real -> UInt|Int|Real`  
-`min Seq UInt|Int|Real -> UInt|Int|Real`  
+`min Arr * -> *`  
+`min Seq * -> *`  
 `min UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
 `pi`
