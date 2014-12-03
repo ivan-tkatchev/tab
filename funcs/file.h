@@ -71,6 +71,10 @@ struct SeqFile : public obj::SeqBase {
         holder = new obj::String;
     }
 
+    ~SeqFile() {
+        delete holder;
+    }
+
     obj::Object* next() {
         bool ok = reader.getline(holder->v);
 

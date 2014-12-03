@@ -237,6 +237,9 @@ In this case a splice of five elements is returned -- the last five elements in 
     95-percentile   2101.75 1992
     99-percentile   2270.35 2419
 
+    $ ./tab -f weird.csv '{ @[0] -> avg(@[1]), avg(@[2]), sum(1) : [ z=cut(replace(@,",","."),";"), real(z[2]) < 65.0, uint(z[1]), real(z[3]) : array(@)[-16,-3] ] }'
+
+
 
 ## Comparison ##
 

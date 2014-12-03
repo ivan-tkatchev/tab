@@ -19,6 +19,7 @@ namespace funcs {
 #include "funcs/array.h"
 #include "funcs/sort.h"
 #include "funcs/misc.h"
+#include "funcs/hist.h"
 
 }
 
@@ -43,6 +44,7 @@ void register_functions() {
     funcs::register_array(funs);
     funcs::register_sort(funs);
     funcs::register_misc(funs);
+    funcs::register_hist(funs);
 }
 
 #endif

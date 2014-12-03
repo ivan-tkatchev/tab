@@ -36,6 +36,10 @@ struct SeqFilterMany : public obj::SeqBase {
         holder = new obj::Tuple;
         holder->v.resize(t.tuple->size());
     }
+
+    ~SeqFilterMany() {
+        delete holder;
+    }
     
     void wrap(obj::Object* s) {
         seq = s;

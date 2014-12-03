@@ -5,11 +5,15 @@ struct SeqZip : public obj::SeqBase {
 
     obj::Tuple* holder;
     std::vector<obj::Object*> seqs;
-
+    
     SeqZip(size_t n) {
         seqs.resize(n);
         holder = new obj::Tuple;
         holder->v.resize(n);
+    }
+
+    ~SeqZip() {
+        delete holder;
     }
 
     obj::Object* next() {

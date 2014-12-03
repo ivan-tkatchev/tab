@@ -49,6 +49,10 @@ struct CountNull : public obj::SeqBase {
         i = new obj::UInt(0);
     }
 
+    ~CountNull() {
+        delete i;
+    }
+
     obj::Object* next() {
         ++(i->v);
         return i;
@@ -67,14 +71,14 @@ void count_string(const obj::Object* in, obj::Object*& out) {
     y.v = x.v.size();
 }
     
-Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& out) {
+Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type == Type::NONE) {
 
         ret = Type(Type::SEQ);
         ret.push(Type::UINT);
 
-        out = new CountNull;
+        obj = new CountNull;
         return count_null;
     }
         

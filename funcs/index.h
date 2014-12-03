@@ -209,6 +209,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         if (mkey != key)
             return nullptr;
 
+        obj = obj::nothing();
         ret = mval;
 
         return (one ? map_index_one : map_index_tup);
@@ -242,6 +243,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         if (i >= ci.tuple->size())
             throw std::runtime_error("Tuple index out of range");
 
+        obj = obj::nothing();
         ret = ci.tuple->at(i);
 
         return fun;

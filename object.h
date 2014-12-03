@@ -118,9 +118,16 @@ struct ArrayObject : public Object {
     std::vector<Object*> v;
 
     ~ArrayObject() {
+        clear();
+    }
+
+    void clear() {
+
         for (Object* x : v) {
             delete x;
         }
+
+        v.clear();
     }
     
     size_t hash() const {
@@ -193,7 +200,7 @@ struct ArrayObject : public Object {
 
     void fill(Object* seq) {
 
-        v.clear();
+        clear();
 
         while (1) {
 
@@ -287,12 +294,19 @@ struct MapObject : public Object {
     map_t v;
 
     ~MapObject() {
+        clear();
+    }
+
+    void clear() {
+
         for (const auto& x : v) {
             delete x.first;
             delete x.second;
         }
-    }
 
+        v.clear();
+    }
+    
     size_t hash() const {
         size_t ret = 0;
         for (const auto& t : v) {
@@ -385,7 +399,7 @@ struct MapObject : public Object {
 
     void fill(Object* seq) {
 
-        v.clear();
+        clear();
 
         while (1) {
 
