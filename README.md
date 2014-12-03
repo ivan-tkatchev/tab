@@ -432,6 +432,13 @@ Usage:
 Usage:  
 `head (Seq *) UInt|Int -> Seq *`
 
+`hist`
+: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
+: Usage:  
+`hist (Arr UInt) UInt|Int -> Arr (Real UInt)`  
+`hist (Arr Int) UInt|Int -> Arr (Real UInt)`  
+`hist (Arr Real) UInt|Int -> Arr (Real UInt)`
+
 `if`
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
