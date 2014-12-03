@@ -420,6 +420,18 @@ struct MapObject : public Object {
 
 struct SeqBase : public Object {
 
+    size_t hash() const {
+        throw std::runtime_error("Sequences cannot be stored in maps.");
+    }
+
+    virtual bool eq(Object*) const {
+        throw std::runtime_error("Sequences cannot be compared.");
+    }
+
+    virtual bool less(Object*) const {
+        throw std::runtime_error("Sequences cannot be compared.");
+    }
+
     Object* clone() const {
         throw std::runtime_error("Sequences cannot be stored in arrays and maps.");
     }

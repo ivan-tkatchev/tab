@@ -52,6 +52,29 @@ void minmax_arr(const obj::Object* in, obj::Object*& out) {
     }
 }    
 
+template <bool MIN>
+void minmax_arrobject(const obj::Object* in, obj::Object*& out) {
+    obj::ArrayObject& x = obj::get<obj::ArrayObject>(in);
+
+    if (x.v.empty()) {
+
+        if (MIN)  {
+            throw std::runtime_error("min() of an empty array");
+        } else {
+            throw std::runtime_error("max() of an empty array");
+        }
+    }
+    
+    out = x.v[0];
+
+    for (obj::Object* i : x.v) {
+
+        if ((MIN && i->less(out)) || (!MIN && out->less(i))) {
+
+            out = i;
+        }
+    }
+}
 
 template <bool MIN, typename T>
 void minmax_seq(const obj::Object* in, obj::Object*& out) {
@@ -80,6 +103,29 @@ void minmax_seq(const obj::Object* in, obj::Object*& out) {
         throw std::runtime_error("min() of an empty sequence");
 }    
 
+template <bool MIN>
+void minmax_seqobject(const obj::Object* in, obj::Object*& out) {
+
+    bool first = true;
+
+    while (1) {
+        obj::Object* ret = ((obj::Object*)in)->next();
+
+        if (!ret) break;
+
+        if (first) {
+            out = ret;
+            first = false;
+
+        } else if ((MIN && ret->less(out)) || (!MIN && out->less(ret))) {
+
+            out = ret;
+        }
+    }
+
+    if (first)
+        throw std::runtime_error("min() of an empty sequence");
+}    
 
 template <bool MIN>
 Functions::func_t minmax_checker(const Type& args, Type& ret, obj::Object*& obj) {
@@ -88,42 +134,55 @@ Functions::func_t minmax_checker(const Type& args, Type& ret, obj::Object*& obj)
 
         const Type& t = args.tuple->at(0);
 
-        if (!check_numeric(t))
-            return nullptr;
-
         ret = t;
 
-        switch (t.atom) {
-        case Type::INT:
-            return minmax_arr<MIN,Int>;
-        case Type::UINT:
-            return minmax_arr<MIN,UInt>;
-        case Type::REAL:
-            return minmax_arr<MIN,Real>;
-        default:
-            return nullptr;
+        if (t.type == Type::ATOM) {
+
+            switch (t.atom) {
+            case Type::INT:
+                return minmax_arr<MIN,Int>;
+            case Type::UINT:
+                return minmax_arr<MIN,UInt>;
+            case Type::REAL:
+                return minmax_arr<MIN,Real>;
+            case Type::STRING:
+                return minmax_arr<MIN,std::string>;
+            default:
+                return nullptr;
+            }
+
+        } else {
+            obj = obj::nothing();
+            return minmax_arrobject<MIN>;
         }
         
     } else if (args.type == Type::SEQ) {
 
         const Type& t = args.tuple->at(0);
 
-        if (!check_numeric(t))
-            return nullptr;
-
         ret = t;
 
-        switch (t.atom) {
-        case Type::INT:
-            return minmax_seq<MIN,Int>;
-        case Type::UINT:
-            return minmax_seq<MIN,UInt>;
-        case Type::REAL:
-            return minmax_seq<MIN,Real>;
-        default:
-            return nullptr;
-        }
+        if (t.type == Type::ATOM) {
         
+            switch (t.atom) {
+            case Type::INT:
+                return minmax_seq<MIN,Int>;
+            case Type::UINT:
+                return minmax_seq<MIN,UInt>;
+            case Type::REAL:
+                return minmax_seq<MIN,Real>;
+            case Type::STRING:
+                return minmax_seq<MIN,std::string>;
+            default:
+                return nullptr;
+            }
+
+        } else {
+
+            obj = obj::nothing();
+            return minmax_seqobject<MIN>;
+        }
+            
     } else if (check_numeric(args)) {
 
         ret = args;
@@ -138,6 +197,9 @@ Functions::func_t minmax_checker(const Type& args, Type& ret, obj::Object*& obj)
         case Type::REAL:
             obj = new AtomMinMax<MIN,Real>;
             return minmax_atom<Real>;
+        case Type::STRING:
+            obj = new AtomMinMax<MIN,std::string>;
+            return minmax_atom<std::string>;
         default:
             return nullptr;
         }
