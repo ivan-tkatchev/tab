@@ -12,7 +12,21 @@ void iffun(const obj::Object* in, obj::Object*& out) {
         out = args.v[1];
     }
 }
-    
+
+void hasfun(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::Object* key = args.v[1];
+    obj::UInt& r = obj::get<obj::UInt>(out);
+
+    if (map.v.find(key) == map.v.end()) {
+        r.v = 0;
+    } else {
+        r.v = 1;
+    }
+}
+
 Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 3)
@@ -33,9 +47,31 @@ Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return iffun;
 }
 
+Functions::func_t has_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
+        return nullptr;
+
+    const Type& t1 = args.tuple->at(0);
+    const Type& t2 = args.tuple->at(1);
+
+    if (t1.type != Type::MAP)
+        return nullptr;
+
+    const Type& key = t1.tuple->at(0);
+    
+    if (t2 != key)
+        return nullptr;
+
+    ret = Type(Type::UINT);
+
+    return hasfun;
+}
+
 void register_if(Functions& funcs) {
 
     funcs.add_poly("if", if_checker);
+    funcs.add_poly("has", has_checker);
 }
 
 #endif

@@ -9,5 +9,7 @@ INCLUDE = \
 
 SRC = tab.cc 
 
+CXX ?= g++
+
 tab: $(SRC) $(INCLUDE) $(FUNCS)
-	g++ -std=c++11 -ggdb -O3 -Wall -Iaxe -lm tab.cc -o tab
+	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm tab.cc -o tab

@@ -6,7 +6,7 @@ Highlights:
 
 * Designed for concise one-liner aggregation and manupulation of tabular text data.
 * Makes no compromises on performance; aims to be no slower than traditional old-school UNIX shell utilities whenever possible.
-* Feature-rich enough to support even very complex queries. (Also includes a complete set of mathematical operations.)
+* Feature-rich enough to support even very complex queries. (Also includes a good set of mathematical operations.)
 * Statically typed, type-inferred, declarative.
 * Portable: requires only a standards-compliant C++11 compiler and nothing else.
 
@@ -17,10 +17,11 @@ Skip to:
 * [Tutorial](#markdown-header-language-tutorial)
 * [Grammar reference](#markdown-header-grammar)
 * [Builtin functions reference](#markdown-header-builtin-functions)
+* [Aggregators reference](#markdown-header-aggregators)
 
 ## Compiling and installing ##
 
-Type `make`. Currently the `Makefile` requires a recent gcc compiler. (Tested with gcc 4.9)
+Type `make`. Currently the `Makefile` requires a recent C++ compiler. (Tested with gcc 4.9; please send patches to the Makefile for supporting other compilers.)
 
 Copy the resulting binary of `tab` somewhere in your path.
 
@@ -58,7 +59,7 @@ There are also four structured types:
 
 Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)
 
-When output, each element of an array, map or sequence is output on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, `\t`.
+When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, `\t`.
 
 (So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)
 
@@ -68,9 +69,9 @@ When output, each element of an array, map or sequence is output on its own line
 
 Instead of loops you'd use sequences and comprehensions.
 
-The input is fed a file stream, usually the standard input. A file stream in `tab` is represented as a sequence of strings, where each string is a line (separated by `\n`) in the file.
+The input is a file stream, usually the standard input. A file stream in `tab` is represented as a sequence of strings, each string being a line from the file. (Lines are assumed be be separated by `\n`.)
 
-Built-in functions in `tab` are polymorphic, meaning that a function with the same name will act differently when input arguments of different types.
+Built-in functions in `tab` are polymorphic, meaning that a function with the same name will act differently with input arguments of different types.
 
 You can enable a verbose debug mode to output the precise derivations of types in the input expression:
 
@@ -80,7 +81,7 @@ You can enable a verbose debug mode to output the precise derivations of types i
 
 ### Examples ###
 
-An introduction to `tab` in 10 easy steps:
+An introduction to `tab` in 10 easy steps.
 
 ###### 1.
 
@@ -128,7 +129,7 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
 
-`zip()` is a function that accepts one or more sequences and returns a sequence that returns a tuple with an element from each input sequence. (The returned sequence stops when any of the input sequences stop.)
+`zip()` is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)
 
 `count()` when called without arguments will return an infinite sequence of successive numbers, starting with `1`.
 
@@ -136,7 +137,7 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
 
-This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of array of regex matches.
+This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.
 
 `:` here is *not* part of a comprehension, it is a special `flatten` operator: given a sequence of sequences, it will return a "flattened" sequence of elements in all the interior sequences.
 
@@ -170,9 +171,9 @@ This command is equivalent to `grep`; it will output all lines from stdin having
 
 `grepif()` is a lighter version of `grep()`: given a string and a regular expression it will return an integer: `1` if the regex is found in the string and `0` if it not. (You could use `count(grep(@,"this"))` instead, but `grepif` is obviously shorter and quicker.)
 
-`grepif(@,"this"),@` is a tuple of two elements: `1` or `0` if the line has `"this"` as a substring as the first element, and the whole line itself as the second element.
+`grepif(@,"this"), @` is a tuple of two elements: the first element is `1` or `0` depending on if the line has `"this"` as a substring, and the second element is the whole line itself.
 
-**Note**: tuples in `tab` are *not* surrounded by brackets. It is also impossible to create nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called `tuple` for doing just that.)
+**Note**: tuples in `tab` are *not* surrounded by brackets. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called `tuple` for doing just that.)
 
 To write a tuple, simply list its elements separated by commas.
 
@@ -218,15 +219,15 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
     * 0-based integers. (0 being the first element in an array.)
     * Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
     * Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)
-    * Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last.
+    * Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last. (The last element is also part of the range, unlike in Python and C++.)
 
-In this case a splice of five elements is returned -- the last five elements in the array returned by `sort()`
+In this case a sub-array of five elements is returned -- the last five elements in the array returned by `sort()`
 
 ###### Bonus track
 
     $ ./tab -f req.log '
      x=[ uint(cut(@,"|",7)) ],
-     x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x}[1],
+     x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x }[1],
      avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],
      tabulate(tuple("mean/median", avg, q[0.5]),
               tuple("68-percentile", avg + stdev, q[0.68]),
@@ -376,9 +377,9 @@ Listed alphabetically.
 `array`
 : Stores a sequence or map into an array. See also `sort` for a version of this function with sorting.  
 Usage:  
-`array Map * -> Arr *`  
-`array Seq * -> Arr *`  
-`array UInt|Int|Real|String|Tuple -> Arr UInt|Int|Real|String|Tuple` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
+`array Map<a,b> -> Arr<(a,b)>`  
+`array Seq<a> -> Arr<a>`  
+`array Number|String|Tuple -> Arr<Number|String|Tuple>` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
 
 `avg`
 : Synonym for `mean`.
@@ -386,27 +387,27 @@ Usage:
 `cat`
 : Concatenates strings.  
 Usage:  
-`cat String... -> String`. At least one string argument is required.
+`cat String,... -> String`. At least one string argument is required.
 
 `cos`
 : The cosine function.  
 Usage:  
-`cos UInt|Int|Real -> Real`
+`cos Number -> Real`
 
 `count`
 : Counts the number of elements.  
 Usage:  
-`count None -> Seq UInt` -- returns an infinite sequence that counts from 1 to infinity.  
+`count None -> Seq<UInt>` -- returns an infinite sequence that counts from 1 to infinity.  
 `count String -> UInt` -- returns the number of bytes in the string.  
-`count Seq * -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
-`count Map * -> UInt` -- returns the number of keys in the map.  
-`count Arr * -> UInt` -- returns the number of elements in the array.
+`count Seq<a> -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
+`count Map<a> -> UInt` -- returns the number of keys in the map.  
+`count Arr<a> -> UInt` -- returns the number of elements in the array.
 
 `cut`
 : Splits a string using a delimiter.  
 Usage:  
-`cut String String -> Arr String` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
-`cut String String UInt|Int -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
+`cut String, String -> Arr<String>` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
+`cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
 `e`
 : Returns the number *e*.  
@@ -416,58 +417,61 @@ Usage:
 `exp`
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
 Usage:  
-`exp UInt|Int|Real -> Real`
+`exp Number -> Real`
 
 `filter`
 : Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
 Usage:  
-`filter Seq (UInt|Int *...) -> Seq (*...)`
+`filter Seq<(Integer,a...) -> Seq<(a...)>`
 
 `flatten`
 : Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
-`flatten Seq (Seq *) -> Seq *`  
-`flatten Seq (Arr *) -> Seq *`  
-`flatten Seq (Map *) -> Seq *`  
-`flatten Seq * -> Seq *` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
+`flatten Seq< Seq<a> > -> Seq<a>`  
+`flatten Seq< Arr<a> > -> Seq<a>`  
+`flatten Seq< Map<a,b> > -> Seq<(a,b)>`  
+`flatten Seq<a> -> Seq<a>` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
 `grep`
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
 Usage:  
-`grep String String -> Arr String`
+`grep String, String -> Arr<String>`
 
 `grepif`
 : Returns 1 if a regular expression has matches in a string, 0 otherwise. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 Usage:  
-`grepif String String -> UInt`. 
+`grepif String, String -> UInt`
+
+`has`
+: Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.  
+Usage:  
+`has Map<a,b>, a -> UInt`
 
 `head`
 : Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
 Usage:  
-`head (Seq *) UInt|Int -> Seq *`
+`head Seq<a>, Integer -> Seq<a>`
 
 `hist`
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
-`hist (Arr UInt) UInt|Int -> Arr (Real UInt)`  
-`hist (Arr Int) UInt|Int -> Arr (Real UInt)`  
-`hist (Arr Real) UInt|Int -> Arr (Real UInt)`
+`hist Arr<Number> Integer -> Arr<(Real,UInt)>`  
 
 `if`
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
 Usage:  
-`if UInt|Int * * -> *`  
+`if Integer, a, a -> a`  
 
 `index`
 : Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
 Usage:  
-`index (Arr *) UInt` -- returns element from the array, using a 0-based index.  
-`index (Arr *) Int` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
-`index (Arr *) Real` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
-`index (Map *) *` -- returns the element stored in the map with the given key.  
-`index (Tuple *) UInt`, `index (Tuple *) Int` -- returns an element from a tuple.  
-`index (Arr *) UInt|Int|Real UInt|Int|Real` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
+`index Arr<a>, UInt -> a` -- returns element from the array, using a 0-based index.  
+`index Arr<a>, Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
+`index Arr<a>, Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
+`index Map<a,b>, a -> b` -- returns the element stored in the map with the given key.  
+`index (a,b,...), Integer` -- returns an element from a tuple.  
+`index Arr<a>, Number, Number -> Arr<a>` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
 
 `int`
 : Converts an unsigned integer, floating-point value or string into a signed integer.  
@@ -479,33 +483,33 @@ Usage:
 `join`
 : Concatenates the elements in a string array using a delimiter.  
 Usage:  
-`join (Arr String) String -> String`
+`join Arr<String>, String -> String`
 
 `log`
 : The natural logarithm function.  
 Usage:  
-`log UInt|Int|Real -> Real`
+`log Number -> Real`
 
 `max`
 : Finds the maximum element in a sequence or array. See also: `min`.  
 Usage:  
-`max Arr * -> *`  
-`max Seq * -> *`  
-`max UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
+`max Arr<a> -> a`  
+`max Seq<a> -> a`  
+`max Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
 
 `mean`
 : Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
 Usage:  
-`mean Arr UInt|Int|Real -> Real`  
-`mean Seq UInt|Int|Real -> Real`  
-`mean UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
+`mean Arr<Number> -> Real`  
+`mean Seq<Number> -> Real`  
+`mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
 `min`
 : Finds the minimum element in a sequence or array. See also: `max`.  
 Usage:  
-`min Arr * -> *`  
-`min Seq * -> *`  
-`min UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
+`min Arr<a> -> a`  
+`min Seq<a> -> a`  
+`min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
 `pi`
 : Return the number *pi*.  
@@ -522,7 +526,7 @@ Usage:
 `replace`
 : Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
 Usage:  
-`replace String String String -> String`
+`replace String, String, String -> String`
 
 `round`
 : Rounds a floating-point number to the nearest integer.  
@@ -532,25 +536,25 @@ Usage:
 `sin`
 : The sine function.  
 Usage:  
-`sin UInt|Int|Real -> Real`
+`sin Number -> Real`
 
 `skip`
 : Accepts a sequence and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
 Usage:  
-`skip (Seq *) UInt|Int -> Seq *`
+`skip Seq<a>, Integer -> Seq<a>`
 
 `sort`
 : Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
 Usage:  
-`sort Arr * -> Arr *`  
-`sort Map * -> Arr *`  
-`sort Seq * -> Arr *`  
-`sort UInt|Int|Real|String|Tuple -> Arr UInt|Int|Real|String|Tuple` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+`sort Arr<a> -> Arr<a>`  
+`sort Map<a,b> -> Arr<(a,b)>`  
+`sort Seq<a> -> Arr<a>`  
+`sort Number|String|Tuple -> Arr<Number|String|Tuple>` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
 
 `sqrt`
 : The square root function.  
 Usage:  
-`sqrt UInt|Int|Real -> Real`
+`sqrt Number -> Real`
 
 `stddev`
 : Synonym for `stdev`.
@@ -558,9 +562,9 @@ Usage:
 `stdev`
 : Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
 Usage:  
-`stdev Arr UInt|Int|Real -> Real`  
-`stdev Seq UInt|Int|Real -> Real`  
-`stdev UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
+`stdev Arr<Number> -> Real`  
+`stdev Seq<Number> -> Real`  
+`stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 `string`
 : Converts an unsigned integer, signed integer or floating-point number to a string.  
@@ -572,19 +576,19 @@ Usage:
 `sum`
 : Computes a sum of the elements of a sequence or array.  
 Usage:  
-`sum Arr UInt|Int|Real -> UInt|Int|Real`  
-`sum Seq UInt|Int|Real -> UInt|Int|Real`  
-`sum UInt|Int|Real -> UInt|Int|Real` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
+`sum Arr<Number> -> Number`  
+`sum Seq<Number> -> Number`  
+`sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 `tan`
 : The tangent function.  
 Usage:  
-`tan UInt|Int|Real -> Real`
+`tan Number -> Real`
 
 `tabulate`  
 : Accepts two or more tuples of the same type and returns an array of those tuples. *Note*: this function is meant for pretty-printing results when there is only a few of them.  (A tuple of tuples will be printed on one line, while an array of tuples will print each tuple on its own line.)  
 Usage:  
-`tabulate (*...)... -> Arr (*...)`
+`tabulate (a,b,...),... -> Arr<(a,b,...)>`
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
@@ -599,7 +603,7 @@ Usage:
 `tuple`
 : Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
 Usage:  
-`tuple (*...) -> (*...)`
+`tuple (a,b,...) -> (a,b,...)`
 
 `uint`
 : Converts a signed integer, floating-point number or string to an unsigned integer.  
@@ -611,9 +615,9 @@ Usage:
 `var`
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
-`var Arr UInt|Int|Real -> Real`  
-`var Seq UInt|Int|Real -> Real`  
-`var UInt|Int|Real -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
+`var Arr<Number> -> Real`  
+`var Seq<Number> -> Real`  
+`var Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
 
 `variance`
 : Synonym for `var`.
@@ -621,7 +625,7 @@ Usage:
 `zip`
 : Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
-`zip (Seq *)... -> Seq (*...)`
+`zip Seq<a>, Seq<b>,... -> Seq<(a,b,...)>`
 
 ### Aggregators ###
 

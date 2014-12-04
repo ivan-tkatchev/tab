@@ -375,11 +375,7 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
     rt.stack.pop_back();
 
     res->print();
-
-    // HACK
-    if (type.type == Type::ATOM || type.type == Type::TUP) {
-        std::cout << std::endl;
-    }
+    std::cout << std::endl;
 }
 
 #endif

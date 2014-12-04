@@ -88,8 +88,16 @@ struct ArrayAtom : public Object {
     }
     
     void print() {
+        bool first = true;
+
         for (const T& x : v) {
-            std::cout << x << std::endl;
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
+
+            std::cout << x;
         }
     }
 
@@ -180,10 +188,16 @@ struct ArrayObject : public Object {
     }
 
     void print() {
+        bool first = true;
+
         for (Object* x : v) {
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
 
             x->print();
-            std::cout << std::endl;
         }
     }
 
@@ -375,12 +389,17 @@ struct MapObject : public Object {
     }
 
     void print() {
+        bool first = true;
         for (const auto& x : v) {
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
 
             x.first->print();
             std::cout << "\t";
             x.second->print();
-            std::cout << std::endl;
         }
     }
 
@@ -452,14 +471,21 @@ struct SeqBase : public Object {
 
     void print() {
 
+        bool first = true;
+        
         while (1) {
 
             Object* v = this->next();
 
             if (!v) break;
 
+            if (first) {
+                first = false;
+            } else {
+                std::cout << std::endl;
+            }
+            
             v->print();
-            std::cout << std::endl;
         }
     }
 };
