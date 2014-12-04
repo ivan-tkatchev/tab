@@ -225,21 +225,35 @@ In this case a splice of five elements is returned -- the last five elements in 
 ###### Bonus track
 
     $ ./tab -f req.log '
-    > x=[ uint(cut(@,"|",7)) ],
-    > x={ 1 -> avg(@), stdev(@), sort(@) : x}[1],
-    > avg=x[0], stdev=x[1],
-    > tabulate(tuple("mean/median", avg, x[2][0.5]),
-    >   tuple("68-percentile", avg + stdev, x[2][0.68]),
-    >   tuple("95-percentile", avg + 2*stdev, x[2][0.95]),
-    >   tuple("99-percentile", avg + 3*stdev, x[2][0.99]))'
+     x=[ uint(cut(@,"|",7)) ],
+     x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x}[1],
+     avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],
+     tabulate(tuple("mean/median", avg, q[0.5]),
+              tuple("68-percentile", avg + stdev, q[0.68]),
+              tuple("95-percentile", avg + 2*stdev, q[0.95]),
+              tuple("99-percentile", avg + 3*stdev, q[0.99]),
+              tuple("min and max", real(min), max))'
     mean/median     1764.54 1728
     68-percentile   1933.15 1840
     95-percentile   2101.75 1992
     99-percentile   2270.35 2419
+    min and max     0       2508
 
-    $ ./tab -f weird.csv '{ @[0] -> avg(@[1]), avg(@[2]), sum(1) : [ z=cut(replace(@,",","."),";"), real(z[2]) < 65.0, uint(z[1]), real(z[3]) : array(@)[-16,-3] ] }'
+Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)
 
+Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
+    $ ./tab -f req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
+    250.8   23
+    501.6   0
+    752.4   1
+    1003.2  0
+    1254    0
+    1504.8  227
+    1755.6  28027
+    2006.4  19986
+    2257.2  490
+    2508    1792
 
 ## Comparison ##
 
