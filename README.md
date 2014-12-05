@@ -377,9 +377,9 @@ Listed alphabetically.
 `array`
 : Stores a sequence or map into an array. See also `sort` for a version of this function with sorting.  
 Usage:  
-`array Map<a,b> -> Arr<(a,b)>`  
-`array Seq<a> -> Arr<a>`  
-`array Number|String|Tuple -> Arr<Number|String|Tuple>` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
+`array Map[a,b] -> Arr[(a,b)]`  
+`array Seq[a] -> Arr[a]`  
+`array Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
 
 `avg`
 : Synonym for `mean`.
@@ -397,16 +397,16 @@ Usage:
 `count`
 : Counts the number of elements.  
 Usage:  
-`count None -> Seq<UInt>` -- returns an infinite sequence that counts from 1 to infinity.  
+`count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
 `count String -> UInt` -- returns the number of bytes in the string.  
-`count Seq<a> -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
-`count Map<a> -> UInt` -- returns the number of keys in the map.  
-`count Arr<a> -> UInt` -- returns the number of elements in the array.
+`count Seq[a] -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
+`count Map[a] -> UInt` -- returns the number of keys in the map.  
+`count Arr[a] -> UInt` -- returns the number of elements in the array.
 
 `cut`
 : Splits a string using a delimiter.  
 Usage:  
-`cut String, String -> Arr<String>` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
+`cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
 `e`
@@ -422,20 +422,20 @@ Usage:
 `filter`
 : Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
 Usage:  
-`filter Seq<(Integer,a...) -> Seq<(a...)>`
+`filter Seq[(Integer,a...) -> Seq[(a...)]`
 
 `flatten`
 : Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
-`flatten Seq< Seq<a> > -> Seq<a>`  
-`flatten Seq< Arr<a> > -> Seq<a>`  
-`flatten Seq< Map<a,b> > -> Seq<(a,b)>`  
-`flatten Seq<a> -> Seq<a>` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
+`flatten Seq[ Seq[a] ] -> Seq[a]`  
+`flatten Seq[ Arr[a] ] -> Seq[a]`  
+`flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
+`flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
 `grep`
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
 Usage:  
-`grep String, String -> Arr<String>`
+`grep String, String -> Arr[String]`
 
 `grepif`
 : Returns 1 if a regular expression has matches in a string, 0 otherwise. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.  
@@ -445,17 +445,17 @@ Usage:
 `has`
 : Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.  
 Usage:  
-`has Map<a,b>, a -> UInt`
+`has Map[a,b], a -> UInt`
 
 `head`
 : Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
 Usage:  
-`head Seq<a>, Integer -> Seq<a>`
+`head Seq[a], Integer -> Seq[a]`
 
 `hist`
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
-`hist Arr<Number> Integer -> Arr<(Real,UInt)>`  
+`hist Arr[Number] Integer -> Arr[(Real,UInt)]`  
 
 `if`
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
@@ -466,12 +466,12 @@ Usage:
 `index`
 : Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
 Usage:  
-`index Arr<a>, UInt -> a` -- returns element from the array, using a 0-based index.  
-`index Arr<a>, Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
-`index Arr<a>, Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
-`index Map<a,b>, a -> b` -- returns the element stored in the map with the given key.  
+`index Arr[a], UInt -> a` -- returns element from the array, using a 0-based index.  
+`index Arr[a], Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
+`index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
+`index Map[a,b], a -> b` -- returns the element stored in the map with the given key.  
 `index (a,b,...), Integer` -- returns an element from a tuple.  
-`index Arr<a>, Number, Number -> Arr<a>` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
+`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
 
 `int`
 : Converts an unsigned integer, floating-point value or string into a signed integer.  
@@ -483,7 +483,7 @@ Usage:
 `join`
 : Concatenates the elements in a string array using a delimiter.  
 Usage:  
-`join Arr<String>, String -> String`
+`join Arr[String], String -> String`
 
 `log`
 : The natural logarithm function.  
@@ -493,22 +493,22 @@ Usage:
 `max`
 : Finds the maximum element in a sequence or array. See also: `min`.  
 Usage:  
-`max Arr<a> -> a`  
-`max Seq<a> -> a`  
+`max Arr[a] -> a`  
+`max Seq[a] -> a`  
 `max Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
 
 `mean`
 : Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
 Usage:  
-`mean Arr<Number> -> Real`  
-`mean Seq<Number> -> Real`  
+`mean Arr[Number] -> Real`  
+`mean Seq[Number] -> Real`  
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
 `min`
 : Finds the minimum element in a sequence or array. See also: `max`.  
 Usage:  
-`min Arr<a> -> a`  
-`min Seq<a> -> a`  
+`min Arr[a] -> a`  
+`min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
 `pi`
@@ -541,15 +541,15 @@ Usage:
 `skip`
 : Accepts a sequence and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
 Usage:  
-`skip Seq<a>, Integer -> Seq<a>`
+`skip Seq[a], Integer -> Seq[a]`
 
 `sort`
 : Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
 Usage:  
-`sort Arr<a> -> Arr<a>`  
-`sort Map<a,b> -> Arr<(a,b)>`  
-`sort Seq<a> -> Arr<a>`  
-`sort Number|String|Tuple -> Arr<Number|String|Tuple>` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+`sort Arr[a] -> Arr[a]`  
+`sort Map[a,b] -> Arr[(a,b)]`  
+`sort Seq[a] -> Arr[a]`  
+`sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
 
 `sqrt`
 : The square root function.  
@@ -562,8 +562,8 @@ Usage:
 `stdev`
 : Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
 Usage:  
-`stdev Arr<Number> -> Real`  
-`stdev Seq<Number> -> Real`  
+`stdev Arr[Number] -> Real`  
+`stdev Seq[Number] -> Real`  
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 `string`
@@ -576,8 +576,8 @@ Usage:
 `sum`
 : Computes a sum of the elements of a sequence or array.  
 Usage:  
-`sum Arr<Number> -> Number`  
-`sum Seq<Number> -> Number`  
+`sum Arr[Number] -> Number`  
+`sum Seq[Number] -> Number`  
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 `tan`
@@ -588,7 +588,7 @@ Usage:
 `tabulate`  
 : Accepts two or more tuples of the same type and returns an array of those tuples. *Note*: this function is meant for pretty-printing results when there is only a few of them.  (A tuple of tuples will be printed on one line, while an array of tuples will print each tuple on its own line.)  
 Usage:  
-`tabulate (a,b,...),... -> Arr<(a,b,...)>`
+`tabulate (a,b,...),... -> Arr[(a,b,...)]`
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
@@ -615,8 +615,8 @@ Usage:
 `var`
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
-`var Arr<Number> -> Real`  
-`var Seq<Number> -> Real`  
+`var Arr[Number] -> Real`  
+`var Seq[Number] -> Real`  
 `var Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
 
 `variance`
@@ -625,7 +625,7 @@ Usage:
 `zip`
 : Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
-`zip Seq<a>, Seq<b>,... -> Seq<(a,b,...)>`
+`zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`
 
 ### Aggregators ###
 
