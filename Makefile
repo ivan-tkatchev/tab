@@ -13,3 +13,10 @@ CXX ?= g++
 
 tab: $(SRC) $(INCLUDE) $(FUNCS)
 	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm tab.cc -o tab
+
+README.html:
+	echo "<!DOCTYPE html><html><head><style>" > test.html
+	cat style.css >> test.html
+	echo "</style></head><body>" >> test.html
+	cat README.md | markdown_py2 -ohtml4 -x codehilite -x def_list -x fenced_code -x headerid >> test.html
+	echo "</body></html>" >> test.html
