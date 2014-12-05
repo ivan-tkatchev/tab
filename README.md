@@ -223,6 +223,8 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 
 In this case a sub-array of five elements is returned -- the last five elements in the array returned by `sort()`
 
+**Note**: the `[...]` indexing operator is straightforward syntactic sugar for the `index()` function.
+
 ###### Bonus track
 
     $ ./tab -f req.log '
@@ -294,7 +296,7 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 
 ### Grammar ###
 
-```python
+```bash
 
 expr := atomic_or_assignment ("," atomic_or_assignment)*
 
