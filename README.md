@@ -165,7 +165,7 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 ###### 8.
 
-    $ ?[ grepif(@,"this"), @ ]
+    $ ./tab '?[ grepif(@,"this"), @ ]'
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
 
