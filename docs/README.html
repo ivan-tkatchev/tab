@@ -434,7 +434,7 @@ Usage:<br>
 <code>count Map[a] -&gt; UInt</code> -- returns the number of keys in the map.<br>
 <code>count Arr[a] -&gt; UInt</code> -- returns the number of elements in the array.</dd>
 <dt><code>cut</code></dt>
-<dd>Splits a string using a delimiter.<br>
+<dd>Splits a string using a delimiter. See also <code>recut</code> for splitting with a regular expression.<br>
 Usage:<br>
 <code>cut String, String -&gt; Arr[String]</code> -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
 <code>cut String, String, Integer -&gt; String</code> -- calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.</dd>
@@ -533,6 +533,10 @@ Usage:<br>
 <code>real UInt -&gt; Real</code><br>
 <code>real Int -&gt; Real</code><br>
 <code>real String -&gt; Real</code></dd>
+<dt><code>recut</code></dt>
+<dd>Splits a string using a regular expression. See also <code>cut</code> for splitting with a byte string.<br>
+<code>recut String, String -&gt; Arr[String]</code> -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
+<code>recut String, String, Integer -&gt; String</code> -- calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.</dd>
 <dt><code>replace</code></dt>
 <dd>Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.<br>
 Usage:<br>

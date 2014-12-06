@@ -189,6 +189,89 @@ void replace(const obj::Object* in, obj::Object*& out) {
     std::regex_replace(std::back_insert_iterator<std::string>(res), str.begin(), str.end(), r, rep);
 }
 
+void recut(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+
+    obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
+    std::vector<std::string>& v = vv.v;
+
+    v.clear();
+
+    const std::regex& r = regex_cache(regex);
+
+    auto iter = str.begin();
+    auto end = str.end();
+    std::smatch match;
+    
+    while (1) {
+
+        if (!std::regex_search(iter, end, match, r)) {
+            v.emplace_back(iter, end);
+            break;
+        }
+
+        v.emplace_back(iter, match[0].first);
+
+        if (iter == match[0].second)
+            throw std::runtime_error("Cannot use an empty match as a delimiter in 'recut'.");
+
+        iter = match[0].second;
+
+        if (iter == end) {
+            v.emplace_back();
+            break;
+        }
+    }
+}
+
+void recutn(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+    UInt nth = obj::get<obj::UInt>(args.v[2]).v;
+    
+    std::string& v = obj::get<obj::String>(out).v;
+    v.clear();
+
+    const std::regex& r = regex_cache(regex);
+
+    UInt nmatch = 0;
+
+    auto iter = str.begin();
+    auto end = str.end();
+    std::smatch match;
+    
+    while (iter != end) {
+
+        if (!std::regex_search(iter, end, match, r)) {
+            break;
+        }
+
+        if (iter == match[0].second)
+            throw std::runtime_error("Cannot use an empty match as a delimiter in 'recut'.");
+
+        if (nmatch == nth) {
+            v.assign(iter, match[0].first);
+            return;
+        }
+        
+        iter = match[0].second;
+        ++nmatch;
+    }
+
+    if (nmatch == nth) {
+        v.assign(iter, end);
+        return;
+    }
+
+    throw std::runtime_error("Substring not found in 'recut'");
+}
 
 void register_cutgrep(Functions& funcs) {
 
@@ -221,6 +304,21 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::STRING),
               replace);
+
+    funcs.add("recut",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::ARR, { Type::STRING }),
+              recut);
+
+    funcs.add("recut",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) }),
+              Type(Type::STRING),
+              recutn);
+
+    funcs.add("recut",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) }),
+              Type(Type::STRING),
+              recutn);
 }
 
 #endif

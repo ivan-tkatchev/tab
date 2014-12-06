@@ -430,7 +430,7 @@ Usage:
 `count Arr[a] -> UInt` -- returns the number of elements in the array.
 
 `cut`
-: Splits a string using a delimiter.  
+: Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
@@ -548,6 +548,11 @@ Usage:
 `real UInt -> Real`  
 `real Int -> Real`  
 `real String -> Real`
+
+`recut`
+: Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
+`recut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.  
+`recut String, String, Integer -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.
 
 `replace`
 : Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
