@@ -31,7 +31,7 @@ struct SeqZip : public obj::SeqBase {
     }
 };
 
-void zip(const obj::Object* in, obj::Object*& out) {
+void zip_seq(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& t = obj::get<obj::Tuple>(in);
     SeqZip& z = obj::get<SeqZip>(out);
@@ -41,26 +41,66 @@ void zip(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+void zip_val(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& t = obj::get<obj::Tuple>(in);
+    SeqZip& z = obj::get<SeqZip>(out);
+    
+    for (size_t i = 0; i < t.v.size(); ++i) {
+        z.seqs[i]->wrap(t.v[i]);
+    }
+}
+
 Functions::func_t zip_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple)
         return nullptr;
 
-    ret = Type(Type::TUP);
+    Type tmp(Type::TUP);
+
+    Type::types_t type = Type::NONE;
     
     for (const Type& t : *(args.tuple)) {
 
-        if (t.type != Type::SEQ)
-            return nullptr;
+        if (type == Type::NONE) {
 
-        ret.push(unwrap_seq(t));
+            if (t.type != Type::SEQ && t.type != Type::ARR)
+                return nullptr;
+
+            type = t.type;
+
+        } else if (t.type != type) {
+
+            return nullptr;
+        }
+
+        tmp.push(t.tuple->at(0));
     }
 
-    ret = wrap_seq(ret);
-    
-    obj = new SeqZip(args.tuple->size());
+    ret = Type(Type::SEQ);
+    ret.push(tmp);
 
-    return zip;
+    size_t n = args.tuple->size();
+    
+    if (type == Type::SEQ) {
+    
+        obj = new SeqZip(n);        
+        return zip_seq;
+
+    } else if (type == Type::ARR) {
+
+        obj = new SeqZip(n);
+        SeqZip& sz = obj::get<SeqZip>(obj);
+
+        for (size_t i = 0; i < n; ++i) {
+            sz.seqs[i] = obj::make_seq_from(args.tuple->at(i));
+        }
+
+        return zip_val;
+        
+    } else {
+        return nullptr;
+    }
 }
 
 
