@@ -307,6 +307,22 @@ Here is an equivalent Python script:
 
 Running time: around 3.1 seconds.
 
+Perl:
+
+    :::perl
+    my %counts;
+    for my $line (<>) {
+        my $path = (split /\?/, (split / /, $line)[2])[0];
+        $counts{$path}++
+    }
+    
+    for my $path (keys %counts) {
+        my $count = $counts{$path};
+        print("$count $path\n");
+    }
+
+Running time: around 4.1 seconds.
+
 Here is the solution using `tab`:
 
     :::bash

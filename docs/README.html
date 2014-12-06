@@ -323,6 +323,21 @@ min and max     <span class="m">0</span>       2508
 
 
 <p>Running time: around 3.1 seconds.</p>
+<p>Perl:</p>
+<div class="codehilite"><pre><span class="k">my</span> <span class="nv">%counts</span><span class="p">;</span>
+<span class="k">for</span> <span class="k">my</span> <span class="nv">$line</span> <span class="p">(</span><span class="o">&lt;&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="nv">$path</span> <span class="o">=</span> <span class="p">(</span><span class="nb">split</span> <span class="sr">/\?/</span><span class="p">,</span> <span class="p">(</span><span class="nb">split</span> <span class="sr">/ /</span><span class="p">,</span> <span class="nv">$line</span><span class="p">)[</span><span class="mi">2</span><span class="p">])[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="nv">$counts</span><span class="p">{</span><span class="nv">$path</span><span class="p">}</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="k">my</span> <span class="nv">$path</span> <span class="p">(</span><span class="nb">keys</span> <span class="nv">%counts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="nv">$count</span> <span class="o">=</span> <span class="nv">$counts</span><span class="p">{</span><span class="nv">$path</span><span class="p">};</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;$count $path\n&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Running time: around 4.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
 </pre></div>
