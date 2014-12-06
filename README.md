@@ -29,12 +29,14 @@ Copy the resulting binary of `tab` somewhere in your path.
 
 The default is to read from standard input:
 
+    :::bash
     $ cat mydata | tab <expression>...
 
 The result will be written to standard output.
 
 You can also use the `-i` flag to read from a named file:
 
+    :::bash
     $ tab -i mydata <expression>...
 
 If your `<expression>` is too long, you can pass it in via a file, with the `-f` flag:
@@ -92,15 +94,17 @@ An introduction to `tab` in 10 easy steps.
 
 ###### 1.
 
+    :::bash
     $ ./tab '@'
 
 This command is equivalent to `cat`. `@` is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
 
 ###### 2.
 
+    :::bash
     $ ./tab 'sin(pi()/2)'
     1
-
+    
     $ ./tab 'cos(1)**2+sin(1)**2'
     1
 
@@ -108,12 +112,14 @@ This command is equivalent to `cat`. `@` is a variable holding the top-level inp
 
 ###### 3.
 
+    :::bash
     $ ./tab 'count(@)'
 
 This command is equivalent to `wc -l`. `count()` is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
 ###### 4.
 
+    :::bash
     $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
 
 This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
@@ -132,6 +138,7 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 ###### 5.
 
+    :::bash
     $ ./tab 'zip(count(), @)'
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
@@ -142,6 +149,7 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 ###### 6.
 
+    :::bash
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
 
 This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.
@@ -156,6 +164,7 @@ Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matche
 
 ###### 7.
 
+    :::bash
     $ ./tab '{ @ : :[ grep(@,"\\S+") ] }'
 
 This command will output an unsorted list of unique words in stdin.
@@ -172,6 +181,7 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 ###### 8.
 
+    :::bash
     $ ./tab '?[ grepif(@,"this"), @ ]'
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
@@ -192,6 +202,7 @@ To write a tuple, simply list its elements separated by commas.
 
 ###### 9.
 
+    :::bash
     $ ./tab '{ @[0] % 2 -> sum(count(@[1])) : zip(count(), @) }'
 
 This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.
@@ -208,6 +219,7 @@ This command will output the number of bytes on even lines versus the number of 
 
 ###### 10.
 
+    :::bash
     $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @[1], @[0] : z ])[-5,-1]'
 
 This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.
@@ -234,6 +246,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
 ###### Bonus track
 
+    :::bash
     $ ./tab -i req.log '
      x=[ uint(cut(@,"|",7)) ],
      x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x }[1],
@@ -253,6 +266,7 @@ Here we run a crude test for the normal distribution in the response lengths (in
 
 Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
+    :::bash
     $ ./tab -i req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
     250.8   23
     501.6   0
@@ -273,12 +287,14 @@ The input file is around 100000 lines of web server logs, and we want to find ou
 
 Here is a solution using standard shell utilities:
 
+    :::bash
     $ cat req.log | cut -d' ' -f3 | cut -d'?' -f1 | sort | uniq -c
 
 Running time: around 2.7 seconds on my particular (slow) laptop.
 
 Here is an equivalent Python script:
 
+    :::python
     import sys
     
     d = {}
@@ -293,6 +309,7 @@ Running time: around 3.1 seconds.
 
 Here is the solution using `tab`:
 
+    :::bash
     $ ./tab -i req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
 
 Running time: around 0.9 seconds.
