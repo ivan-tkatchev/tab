@@ -490,10 +490,11 @@ Usage:
 `has Map[a,b], a -> UInt`
 
 `head`
-: Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
+: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
 Usage:  
-`head Seq[a], Integer -> Seq[a]`
-
+`head Seq[a], Integer -> Seq[a]`  
+`head Arr[a], Integer -> Seq[a]`
+                                    
 `hist`
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
@@ -586,9 +587,10 @@ Usage:
 `sin Number -> Real`
 
 `skip`
-: Accepts a sequence and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
+: Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
 Usage:  
-`skip Seq[a], Integer -> Seq[a]`
+`skip Seq[a], Integer -> Seq[a]`  
+`skip Arr[a], Integer -> Seq[a]`
 
 `sort`
 : Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
@@ -670,9 +672,10 @@ Usage:
 : Synonym for `var`.
 
 `zip`
-: Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
+: Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
-`zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`
+`zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`  
+`zip Arr[a], Arr[b],... -> Seq[(a,b,...)]`
 
 ### Aggregators ###
 

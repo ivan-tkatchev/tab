@@ -485,9 +485,10 @@ Usage:<br>
 Usage:<br>
 <code>has Map[a,b], a -&gt; UInt</code></dd>
 <dt><code>head</code></dt>
-<dd>Accepts a sequence and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <code>skip</code>.<br>
+<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <code>skip</code>.<br>
 Usage:<br>
-<code>head Seq[a], Integer -&gt; Seq[a]</code></dd>
+<code>head Seq[a], Integer -&gt; Seq[a]</code><br>
+<code>head Arr[a], Integer -&gt; Seq[a]</code></dd>
 <dt><code>hist</code></dt>
 <dd>Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  </dd>
 <dd>Usage:<br>
@@ -565,9 +566,10 @@ Usage:<br>
 Usage:<br>
 <code>sin Number -&gt; Real</code></dd>
 <dt><code>skip</code></dt>
-<dd>Accepts a sequence and returns an equivalent sequence where the fist N elements are ignored. See also: <code>head</code>.<br>
+<dd>Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: <code>head</code>.<br>
 Usage:<br>
-<code>skip Seq[a], Integer -&gt; Seq[a]</code></dd>
+<code>skip Seq[a], Integer -&gt; Seq[a]</code><br>
+<code>skip Arr[a], Integer -&gt; Seq[a]</code></dd>
 <dt><code>sort</code></dt>
 <dd>Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also <code>array</code> a version of this function without sorting.<br>
 Usage:<br>
@@ -634,9 +636,10 @@ Usage:<br>
 <dt><code>variance</code></dt>
 <dd>Synonym for <code>var</code>.</dd>
 <dt><code>zip</code></dt>
-<dd>Accepts two or more sequences and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.<br>
+<dd>Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.<br>
 Usage:<br>
-<code>zip Seq[a], Seq[b],... -&gt; Seq[(a,b,...)]</code></dd>
+<code>zip Seq[a], Seq[b],... -&gt; Seq[(a,b,...)]</code><br>
+<code>zip Arr[a], Arr[b],... -&gt; Seq[(a,b,...)]</code></dd>
 </dl>
 <h3 id="aggregators">Aggregators</h3>
 <p>Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What's important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.</p>
