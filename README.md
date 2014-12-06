@@ -29,7 +29,7 @@ Copy the resulting binary of `tab` somewhere in your path.
 
 The default is to read from standard input:
 
-    $ cat myfile | tab <expression>...
+    $ cat mydata | tab <expression>...
 
 The result will be written to standard output.
 

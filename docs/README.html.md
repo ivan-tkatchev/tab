@@ -30,14 +30,21 @@ Copy the resulting binary of `tab` somewhere in your path.
 The default is to read from standard input:
 
     :::bash
-    $ cat myfile | tab <expression>
+    $ cat mydata | tab <expression>...
 
 The result will be written to standard output.
 
-You can also use the `-f` flag to read from a named file:
+You can also use the `-i` flag to read from a named file:
 
     :::bash
-    $ tab -f myfile <expression>
+    $ tab -i mydata <expression>...
+
+If your `<expression>` is too long, you can pass it in via a file, with the `-f` flag:
+
+    :::bash
+    $ tab -f mycode <expression>...
+
+(In this case, the contents of `mycode` will be prepended to `<expression>`, separated with a comma.)
 
 ## Language tutorial ##
 
@@ -240,7 +247,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
 #### Bonus track
 
     :::bash
-    $ ./tab -f req.log '
+    $ ./tab -i req.log '
      x=[ uint(cut(@,"|",7)) ],
      x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x }[1],
      avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],
@@ -260,7 +267,7 @@ Here we run a crude test for the normal distribution in the response lengths (in
 Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
     :::bash
-    $ ./tab -f req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
+    $ ./tab -i req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
     250.8   23
     501.6   0
     752.4   1
@@ -303,7 +310,7 @@ Running time: around 3.1 seconds.
 Here is the solution using `tab`:
 
     :::bash
-    $ ./tab -f req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
+    $ ./tab -i req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
 
 Running time: around 0.9 seconds.
 

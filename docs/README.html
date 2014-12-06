@@ -107,16 +107,22 @@ code {
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
 <h2 id="usage">Usage</h2>
 <p>The default is to read from standard input:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat myfile | tab &lt;expression&gt;
+<div class="codehilite"><pre><span class="nv">$ </span>cat mydata <span class="p">|</span> tab &lt;expression&gt;...
 </pre></div>
 
 
 <p>The result will be written to standard output.</p>
-<p>You can also use the <code>-f</code> flag to read from a named file:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>tab -f myfile &lt;expression&gt;
+<p>You can also use the <code>-i</code> flag to read from a named file:</p>
+<div class="codehilite"><pre><span class="nv">$ </span>tab -i mydata &lt;expression&gt;...
 </pre></div>
 
 
+<p>If your <code>&lt;expression&gt;</code> is too long, you can pass it in via a file, with the <code>-f</code> flag:</p>
+<div class="codehilite"><pre><span class="nv">$ </span>tab -f mycode &lt;expression&gt;...
+</pre></div>
+
+
+<p>(In this case, the contents of <code>mycode</code> will be prepended to <code>&lt;expression&gt;</code>, separated with a comma.)</p>
 <h2 id="language-tutorial">Language tutorial</h2>
 <h3 id="basic-types">Basic types</h3>
 <p><code>tab</code> is a statically-typed language. However, you will not need to declare any types, the appropriate type information will be deduced automatically, and any errors will be reported before execution.</p>
@@ -214,7 +220,7 @@ code {
 <p>(Note: you can use whitespace creatively to make this command prettier, <code>{ @ :: [ grep(@,"\\S+") ] }</code></p>
 <p>You can also wrap the expression in <code>count(...)</code> if you just want the number of unique words in stdin.</p>
 <h4 id="8">8.</h4>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
 </pre></div>
 
 
@@ -261,7 +267,7 @@ code {
 <p>In this case a sub-array of five elements is returned -- the last five elements in the array returned by <code>sort()</code></p>
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <code>index()</code> function.</p>
 <h4 id="bonus-track">Bonus track</h4>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -f req.log <span class="s1">&#39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;</span>
 <span class="s1"> x=[ uint(cut(@,&quot;|&quot;,7)) ],</span>
 <span class="s1"> x={ 1 -&gt; avg(@), stdev(@), max(@), min(@), sort(@) : x }[1],</span>
 <span class="s1"> avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],</span>
@@ -274,23 +280,23 @@ mean/median     1764.54 1728
 68-percentile   1933.15 1840
 95-percentile   2101.75 1992
 99-percentile   2270.35 2419
-min and max     0       2508
+min and max     <span class="m">0</span>       2508
 </pre></div>
 
 
 <p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)</p>
 <p>Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -f req.log <span class="s1">&#39;hist([. uint(cut(@,&quot;|&quot;,7)) .], 10)&#39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint(cut(@,&quot;|&quot;,7)) .], 10)&#39;</span>
 250.8   23
 501.6   0
 752.4   1
 1003.2  0
-1254    0
+<span class="m">1254</span>    0
 1504.8  227
 1755.6  28027
 2006.4  19986
 2257.2  490
-2508    1792
+<span class="m">2508</span>    1792
 </pre></div>
 
 
@@ -298,7 +304,7 @@ min and max     0       2508
 <p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
 <p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
 <p>Here is a solution using standard shell utilities:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat req.log | cut -d<span class="s1">&#39; &#39;</span> -f3 | cut -d<span class="s1">&#39;?&#39;</span> -f1 | sort | uniq -c
+<div class="codehilite"><pre><span class="nv">$ </span>cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
 </pre></div>
 
 
@@ -318,7 +324,7 @@ min and max     0       2508
 
 <p>Running time: around 3.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -f req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
 </pre></div>
 
 
@@ -328,51 +334,51 @@ min and max     0       2508
 <h3 id="grammar">Grammar</h3>
 <div class="codehilite"><pre>expr :<span class="o">=</span> atomic_or_assignment <span class="o">(</span><span class="s2">&quot;,&quot;</span> atomic_or_assignment<span class="o">)</span>*
 
-atomic_or_assignment :<span class="o">=</span> assignment | atomic
+atomic_or_assignment :<span class="o">=</span> assignment <span class="p">|</span> atomic
 
 assignment :<span class="o">=</span> var <span class="s2">&quot;=&quot;</span> atomic
 
 atomic :<span class="o">=</span> e_eq
 
-e_eq :<span class="o">=</span> e_bit |
-        e_bit <span class="s2">&quot;==&quot;</span> e_bit |
-        e_bit <span class="s2">&quot;!=&quot;</span> e_bit |
-        e_bit <span class="s2">&quot;&lt;&quot;</span>  e_bit |
-        e_bit <span class="s2">&quot;&gt;&quot;</span>  e_bit |
-        e_bit <span class="s2">&quot;&lt;=&quot;</span> e_bit |
+e_eq :<span class="o">=</span> e_bit <span class="p">|</span>
+        e_bit <span class="s2">&quot;==&quot;</span> e_bit <span class="p">|</span>
+        e_bit <span class="s2">&quot;!=&quot;</span> e_bit <span class="p">|</span>
+        e_bit <span class="s2">&quot;&lt;&quot;</span>  e_bit <span class="p">|</span>
+        e_bit <span class="s2">&quot;&gt;&quot;</span>  e_bit <span class="p">|</span>
+        e_bit <span class="s2">&quot;&lt;=&quot;</span> e_bit <span class="p">|</span>
         e_bit <span class="s2">&quot;&gt;=&quot;</span> e_bit
 
-e_bit :<span class="o">=</span> e_add |
-         e_add <span class="s2">&quot;&amp;&quot;</span> e_add |
-         e_add <span class="s2">&quot;|&quot;</span> e_add |
+e_bit :<span class="o">=</span> e_add <span class="p">|</span>
+         e_add <span class="s2">&quot;&amp;&quot;</span> e_add <span class="p">|</span>
+         e_add <span class="s2">&quot;|&quot;</span> e_add <span class="p">|</span>
          e_add <span class="s2">&quot;^&quot;</span> e_add
 
-e_add :<span class="o">=</span> e_mul |
-         e_mul <span class="s2">&quot;+&quot;</span> e_mul |
+e_add :<span class="o">=</span> e_mul <span class="p">|</span>
+         e_mul <span class="s2">&quot;+&quot;</span> e_mul <span class="p">|</span>
          e_mul <span class="s2">&quot;-&quot;</span> e_mul
 
-e_mul :<span class="o">=</span> e_exp |
-         e_exp <span class="s2">&quot;*&quot;</span> e_exp |
-         e_exp <span class="s2">&quot;/&quot;</span> e_exp |
+e_mul :<span class="o">=</span> e_exp <span class="p">|</span>
+         e_exp <span class="s2">&quot;*&quot;</span> e_exp <span class="p">|</span>
+         e_exp <span class="s2">&quot;/&quot;</span> e_exp <span class="p">|</span>
          e_exp <span class="s2">&quot;%&quot;</span> e_exp
 
-e_exp :<span class="o">=</span> e_not |
+e_exp :<span class="o">=</span> e_not <span class="p">|</span>
          e_not <span class="s2">&quot;**&quot;</span> e_not
 
 
-e_not :<span class="o">=</span> e_flat |
+e_not :<span class="o">=</span> e_flat <span class="p">|</span>
          <span class="s2">&quot;~&quot;</span> e_not
 
-e_flat :<span class="o">=</span> e_idx |
-          <span class="s2">&quot;:&quot;</span> e_flat |
+e_flat :<span class="o">=</span> e_idx <span class="p">|</span>
+          <span class="s2">&quot;:&quot;</span> e_flat <span class="p">|</span>
           <span class="s2">&quot;?&quot;</span> e_flat
 
-e_idx :<span class="o">=</span> e |
+e_idx :<span class="o">=</span> e <span class="p">|</span>
          e <span class="o">(</span><span class="s2">&quot;[&quot;</span> expr <span class="s2">&quot;]&quot;</span><span class="o">)</span>*
 
-e :<span class="o">=</span> literal | funcall | var | array | map | seq | paren
+e :<span class="o">=</span> literal <span class="p">|</span> funcall <span class="p">|</span> var <span class="p">|</span> array <span class="p">|</span> map <span class="p">|</span> seq <span class="p">|</span> paren
 
-literal :<span class="o">=</span> int | uint | real | string
+literal :<span class="o">=</span> int <span class="p">|</span> uint <span class="p">|</span> real <span class="p">|</span> string
 
 funcall :<span class="o">=</span> var <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span>
 
@@ -384,19 +390,19 @@ seq :<span class="o">=</span> <span class="s2">&quot;[&quot;</span> expr <span c
 
 paren :<span class="o">=</span> <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span>
 
-var :<span class="o">=</span> <span class="s2">&quot;@&quot;</span> | <span class="o">[</span>a-zA-Z<span class="o">][</span>a-zA-Z0-9_<span class="o">]</span>*
+var :<span class="o">=</span> <span class="s2">&quot;@&quot;</span> <span class="p">|</span> <span class="o">[</span>a-zA-Z<span class="o">][</span>a-zA-Z0-9_<span class="o">]</span>*
 
 int :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;-&quot;</span><span class="o">)</span>? <span class="o">[</span>0-9<span class="o">]</span>+
 
 uint :<span class="o">=</span> <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;u&quot;</span>
 
-real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>+ |
+real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>+ <span class="p">|</span>
         <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;e&quot;</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+
 
-string :<span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> chars <span class="s1">&#39;&quot;&#39;</span> |
+string :<span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> chars <span class="s1">&#39;&quot;&#39;</span> <span class="p">|</span>
           <span class="s2">&quot;&#39;&quot;</span> chars <span class="s2">&quot;&#39;&quot;</span>
 
-chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> | <span class="s2">&quot;\n&quot;</span> | <span class="s2">&quot;\r&quot;</span> | <span class="s2">&quot;\e&quot;</span> | <span class="s2">&quot;\\&quot;</span> | any<span class="o">)</span>*
+chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> <span class="p">|</span> <span class="s2">&quot;\n&quot;</span> <span class="p">|</span> <span class="s2">&quot;\r&quot;</span> <span class="p">|</span> <span class="s2">&quot;\e&quot;</span> <span class="p">|</span> <span class="s2">&quot;\\&quot;</span> <span class="p">|</span> any<span class="o">)</span>*
 </pre></div>
 
 
