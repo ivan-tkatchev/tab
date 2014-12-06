@@ -4,7 +4,7 @@ import glob
 
 def run(filename,arg,expected):
     print(">>>", arg.replace('\n',' '))
-    out = subprocess.check_output(["../tab", "-f", "../LICENSE.txt", arg])
+    out = subprocess.check_output(["../tab", "-i", "../LICENSE.txt", arg])
     out = out.decode('ascii')
     if not expected.startswith(out):
         raise Exception("Test failed for: " + filename + ", " + arg)

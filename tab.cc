@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
         unsigned int debuglevel = 0;
         std::string program;
         std::string infile;
+        std::string programfile;
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
@@ -47,7 +48,21 @@ int main(int argc, char** argv) {
                     throw std::runtime_error("The '-f' command line argument expects a filename argument.");
 
                 ++i;
+                programfile = argv[i];
+
+            } else if (arg == "-i") {
+
+                if (i == argc - 1)
+                    throw std::runtime_error("The '-i' command line argument expects a filename argument.");
+
+                ++i;
                 infile = argv[i];
+
+            } else if (arg == "-h") {
+
+                std::cout << "Usage: tab [-i inputdata_file] [-f expression_file] [-v|-vv|-vvv] <expressions...>"
+                          << std::endl;
+                return 1;
                 
             } else {
 
@@ -58,7 +73,21 @@ int main(int argc, char** argv) {
                 program += arg;
             }
         }
-        
+
+        if (programfile.size() > 0) {
+
+            std::ifstream f;
+            f.open(programfile);
+
+            if (!f)
+                throw std::runtime_error("Could not open input program file: " + programfile);
+
+            programfile.assign(std::istreambuf_iterator<char>(f),
+                               std::istreambuf_iterator<char>());
+
+            program = programfile + "," + program;
+        }        
+
         register_functions();
 
         std::vector<Command> commands;
