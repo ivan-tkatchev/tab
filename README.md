@@ -232,7 +232,7 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 
 `[-5,-1]` is the *indexing* operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:
 
-* Tuples can only be indexed with literal iteger values. (Not variables or results of a computation.)
+* Tuples can only be indexed with literal integer values. (Not variables or results of a computation.)
 * Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled.
 * Arrays indexes are more complex, they can be indexed by:
     * 0-based integers. (0 being the first element in an array.)
