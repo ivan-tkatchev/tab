@@ -323,6 +323,13 @@ Perl:
 
 Running time: around 4.1 seconds.
 
+A resonably simple solution using `awk`:
+
+    ::awk
+    $ awk -F" " '{ split($3,x,"?"); paths[x[1]]++; } END { for (path in paths) { print paths[path], path }}'
+
+Running time: around 2.1 seconds.
+
 Here is the solution using `tab`:
 
     :::bash

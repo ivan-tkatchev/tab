@@ -338,6 +338,12 @@ min and max     <span class="m">0</span>       2508
 
 
 <p>Running time: around 4.1 seconds.</p>
+<p>A resonably simple solution using <code>awk</code>:</p>
+<div class="codehilite"><pre><span class="o">$</span> <span class="nx">awk</span> <span class="o">-</span><span class="nx">F</span><span class="s2">&quot; &quot;</span> <span class="s1">&#39;{ split($3,x,&quot;?&quot;); paths[x[1]]++; } END { for (path in paths) { print paths[path], path }}&#39;</span>
+</pre></div>
+
+
+<p>Running time: around 2.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
 </pre></div>
