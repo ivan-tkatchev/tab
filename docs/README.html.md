@@ -433,6 +433,11 @@ Usage:
 `avg`
 : Synonym for `mean`.
 
+`bytes`
+: Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
+Usage:  
+`bytes String -> Arr[UInt]`
+
 `cat`
 : Concatenates strings.  
 Usage:  
@@ -623,11 +628,12 @@ Usage:
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 `string`
-: Converts an unsigned integer, signed integer or floating-point number to a string.  
+: Converts an unsigned integer, signed integer or floating-point number or a byte array to a string.  
 Usage:  
 `string UInt -> String`  
 `string Int -> String`  
-`string Real -> String`
+`string Real -> String`  
+`string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.
 
 `sum`
 : Computes a sum of the elements of a sequence or array.  

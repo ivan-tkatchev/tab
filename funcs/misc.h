@@ -46,6 +46,34 @@ void join(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+void bytes(const obj::Object* in, obj::Object*& out) {
+
+    const std::string& str = obj::get<obj::String>(in).v;
+    std::vector<UInt>& v = obj::get< obj::ArrayAtom<UInt> >(out).v;
+
+    v.clear();
+
+    for (unsigned char c : str) {
+        v.push_back(c);
+    }
+}
+
+void bytes_to_string(const obj::Object* in, obj::Object*& out) {
+
+    const std::vector<UInt>& v = obj::get< obj::ArrayAtom<UInt> >(in).v;
+    std::string& str = obj::get<obj::String>(out).v;
+
+    str.clear();
+
+    for (UInt c : v) {
+
+        if (c >= 256)
+            throw std::runtime_error("Array-to-string only accepts byte (0-255) values.");
+
+        str.push_back((unsigned char)c);
+    }
+}
+
 void cat(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -89,7 +117,9 @@ void register_misc(Functions& funcs) {
     funcs.add("tolower", Type(Type::STRING), Type(Type::STRING), tolower);
     funcs.add("toupper", Type(Type::STRING), Type(Type::STRING), toupper);
     funcs.add("join", Type(Type::TUP, { Type(Type::ARR, { Type(Type::STRING) }), Type(Type::STRING) }), Type(Type::STRING), join);
-
+    funcs.add("bytes", Type(Type::STRING), { Type(Type::ARR, { Type(Type::UINT) }) }, bytes);
+    funcs.add("string", { Type(Type::ARR, { Type(Type::UINT) }) }, Type(Type::STRING), bytes_to_string);
+    
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);
 }

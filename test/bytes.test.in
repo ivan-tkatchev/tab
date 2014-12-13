@@ -1,0 +1,3 @@
+string(sort([. @[0] : {@ :: [bytes(@)]} .]))
+===>
+ "(),-.01237:ABCDEFGHIKLMNOPRSTUVWXYabcdefghijklmnoprstuvwxyz

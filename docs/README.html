@@ -438,6 +438,10 @@ Usage:<br>
 <code>array Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> -- <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. </dd>
 <dt><code>avg</code></dt>
 <dd>Synonym for <code>mean</code>.</dd>
+<dt><code>bytes</code></dt>
+<dd>Accepts a string and returns an array of integers representing the bytes in the string. <em>Warning</em>: this function is not Unicode-aware and assumes the string is an ASCII bytestream.<br>
+Usage:<br>
+<code>bytes String -&gt; Arr[UInt]</code></dd>
 <dt><code>cat</code></dt>
 <dd>Concatenates strings.<br>
 Usage:<br>
@@ -596,11 +600,12 @@ Usage:<br>
 <code>stdev Seq[Number] -&gt; Real</code><br>
 <code>stdev Number -&gt; Real</code> -- <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
 <dt><code>string</code></dt>
-<dd>Converts an unsigned integer, signed integer or floating-point number to a string.<br>
+<dd>Converts an unsigned integer, signed integer or floating-point number or a byte array to a string.<br>
 Usage:<br>
 <code>string UInt -&gt; String</code><br>
 <code>string Int -&gt; String</code><br>
-<code>string Real -&gt; String</code></dd>
+<code>string Real -&gt; String</code><br>
+<code>string Arr[UInt] -&gt; String</code> -- <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
 <dt><code>sum</code></dt>
 <dd>Computes a sum of the elements of a sequence or array.<br>
 Usage:<br>
