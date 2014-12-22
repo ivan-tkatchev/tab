@@ -473,6 +473,11 @@ Usage:
 Usage:  
 `exp Number -> Real`
 
+`file`
+: Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
+Usage:  
+`file String -> Seq[String]`
+
 `filter`
 : Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
 Usage:  

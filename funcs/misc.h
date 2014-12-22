@@ -114,11 +114,30 @@ Functions::func_t tuple_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
 void register_misc(Functions& funcs) {
 
-    funcs.add("tolower", Type(Type::STRING), Type(Type::STRING), tolower);
-    funcs.add("toupper", Type(Type::STRING), Type(Type::STRING), toupper);
-    funcs.add("join", Type(Type::TUP, { Type(Type::ARR, { Type(Type::STRING) }), Type(Type::STRING) }), Type(Type::STRING), join);
-    funcs.add("bytes", Type(Type::STRING), { Type(Type::ARR, { Type(Type::UINT) }) }, bytes);
-    funcs.add("string", { Type(Type::ARR, { Type(Type::UINT) }) }, Type(Type::STRING), bytes_to_string);
+    funcs.add("tolower",
+              Type(Type::STRING),
+              Type(Type::STRING),
+              tolower);
+
+    funcs.add("toupper",
+              Type(Type::STRING),
+              Type(Type::STRING),
+              toupper);
+
+    funcs.add("join",
+              Type(Type::TUP, { Type(Type::ARR, { Type(Type::STRING) }), Type(Type::STRING) }),
+              Type(Type::STRING),
+              join);
+
+    funcs.add("bytes",
+              Type(Type::STRING),
+              Type(Type::ARR, { Type(Type::UINT) }),
+              bytes);
+
+    funcs.add("string",
+              Type(Type::ARR, { Type(Type::UINT) }),
+              Type(Type::STRING),
+              bytes_to_string);
     
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);

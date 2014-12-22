@@ -37,6 +37,7 @@ void register_functions() {
     funcs::register_head(funs);
     funcs::register_cutgrep(funs);
     funcs::register_zip(funs);
+    funcs::register_file(funs);
     funcs::register_sum(funs);
     funcs::register_minmax(funs);
     funcs::register_avg(funs);

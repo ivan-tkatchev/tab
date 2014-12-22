@@ -84,5 +84,72 @@ struct SeqFile : public obj::SeqBase {
     }
 };
 
+struct SeqFileV : public obj::SeqBase {
+
+    obj::String* holder;
+    Linereader* reader;
+    std::ifstream file;
+
+    SeqFileV() {
+        holder = new obj::String;
+        reader = nullptr;
+    }
+
+    ~SeqFileV() {
+        delete holder;
+        delete reader;
+    }
+
+    void open(const std::string& fname) {
+
+        if (file.is_open())
+            file.close();
+
+        file.open(fname);
+
+        if (!file)
+            throw std::runtime_error("Could not open input file: " + fname);
+
+        if (reader)
+            delete reader;
+
+        reader = new Linereader(file);
+    }
+
+    obj::Object* next() {
+        bool ok = reader->getline(holder->v);
+
+        if (!ok) return nullptr;
+
+        return holder;
+    }
+};
+
+
+void file(const obj::Object* in, obj::Object*& out) {
+
+    const std::string& fname = obj::get<obj::String>(in).v;
+    SeqFileV& file = obj::get<SeqFileV>(out);
+
+    file.open(fname);
+}
+
+Functions::func_t file_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (!check_string(args))
+        return nullptr;
+
+    ret = Type(Type::SEQ);
+    ret.push(Type::STRING);
+
+    obj = new SeqFileV;
+    
+    return file;
+}
+
+void register_file(Functions& funcs) {
+
+    funcs.add_poly("file", file_checker);
+}
 
 #endif

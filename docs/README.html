@@ -107,7 +107,7 @@ code {
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
 <h2 id="usage">Usage</h2>
 <p>The default is to read from standard input:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat mydata <span class="p">|</span> tab &lt;expression&gt;...
+<div class="codehilite"><pre><span class="nv">$ </span>cat mydata | tab &lt;expression&gt;...
 </pre></div>
 
 
@@ -280,7 +280,7 @@ mean/median     1764.54 1728
 68-percentile   1933.15 1840
 95-percentile   2101.75 1992
 99-percentile   2270.35 2419
-min and max     <span class="m">0</span>       2508
+min and max     0       2508
 </pre></div>
 
 
@@ -291,12 +291,12 @@ min and max     <span class="m">0</span>       2508
 501.6   0
 752.4   1
 1003.2  0
-<span class="m">1254</span>    0
+1254    0
 1504.8  227
 1755.6  28027
 2006.4  19986
 2257.2  490
-<span class="m">2508</span>    1792
+2508    1792
 </pre></div>
 
 
@@ -304,7 +304,7 @@ min and max     <span class="m">0</span>       2508
 <p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
 <p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
 <p>Here is a solution using standard shell utilities:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
+<div class="codehilite"><pre><span class="nv">$ </span>cat req.log | cut -d<span class="s1">&#39; &#39;</span> -f3 | cut -d<span class="s1">&#39;?&#39;</span> -f1 | sort | uniq -c
 </pre></div>
 
 
@@ -355,51 +355,51 @@ min and max     <span class="m">0</span>       2508
 <h3 id="grammar">Grammar</h3>
 <div class="codehilite"><pre>expr :<span class="o">=</span> atomic_or_assignment <span class="o">(</span><span class="s2">&quot;,&quot;</span> atomic_or_assignment<span class="o">)</span>*
 
-atomic_or_assignment :<span class="o">=</span> assignment <span class="p">|</span> atomic
+atomic_or_assignment :<span class="o">=</span> assignment | atomic
 
 assignment :<span class="o">=</span> var <span class="s2">&quot;=&quot;</span> atomic
 
 atomic :<span class="o">=</span> e_eq
 
-e_eq :<span class="o">=</span> e_bit <span class="p">|</span>
-        e_bit <span class="s2">&quot;==&quot;</span> e_bit <span class="p">|</span>
-        e_bit <span class="s2">&quot;!=&quot;</span> e_bit <span class="p">|</span>
-        e_bit <span class="s2">&quot;&lt;&quot;</span>  e_bit <span class="p">|</span>
-        e_bit <span class="s2">&quot;&gt;&quot;</span>  e_bit <span class="p">|</span>
-        e_bit <span class="s2">&quot;&lt;=&quot;</span> e_bit <span class="p">|</span>
+e_eq :<span class="o">=</span> e_bit |
+        e_bit <span class="s2">&quot;==&quot;</span> e_bit |
+        e_bit <span class="s2">&quot;!=&quot;</span> e_bit |
+        e_bit <span class="s2">&quot;&lt;&quot;</span>  e_bit |
+        e_bit <span class="s2">&quot;&gt;&quot;</span>  e_bit |
+        e_bit <span class="s2">&quot;&lt;=&quot;</span> e_bit |
         e_bit <span class="s2">&quot;&gt;=&quot;</span> e_bit
 
-e_bit :<span class="o">=</span> e_add <span class="p">|</span>
-         e_add <span class="s2">&quot;&amp;&quot;</span> e_add <span class="p">|</span>
-         e_add <span class="s2">&quot;|&quot;</span> e_add <span class="p">|</span>
+e_bit :<span class="o">=</span> e_add |
+         e_add <span class="s2">&quot;&amp;&quot;</span> e_add |
+         e_add <span class="s2">&quot;|&quot;</span> e_add |
          e_add <span class="s2">&quot;^&quot;</span> e_add
 
-e_add :<span class="o">=</span> e_mul <span class="p">|</span>
-         e_mul <span class="s2">&quot;+&quot;</span> e_mul <span class="p">|</span>
+e_add :<span class="o">=</span> e_mul |
+         e_mul <span class="s2">&quot;+&quot;</span> e_mul |
          e_mul <span class="s2">&quot;-&quot;</span> e_mul
 
-e_mul :<span class="o">=</span> e_exp <span class="p">|</span>
-         e_exp <span class="s2">&quot;*&quot;</span> e_exp <span class="p">|</span>
-         e_exp <span class="s2">&quot;/&quot;</span> e_exp <span class="p">|</span>
+e_mul :<span class="o">=</span> e_exp |
+         e_exp <span class="s2">&quot;*&quot;</span> e_exp |
+         e_exp <span class="s2">&quot;/&quot;</span> e_exp |
          e_exp <span class="s2">&quot;%&quot;</span> e_exp
 
-e_exp :<span class="o">=</span> e_not <span class="p">|</span>
+e_exp :<span class="o">=</span> e_not |
          e_not <span class="s2">&quot;**&quot;</span> e_not
 
 
-e_not :<span class="o">=</span> e_flat <span class="p">|</span>
+e_not :<span class="o">=</span> e_flat |
          <span class="s2">&quot;~&quot;</span> e_not
 
-e_flat :<span class="o">=</span> e_idx <span class="p">|</span>
-          <span class="s2">&quot;:&quot;</span> e_flat <span class="p">|</span>
+e_flat :<span class="o">=</span> e_idx |
+          <span class="s2">&quot;:&quot;</span> e_flat |
           <span class="s2">&quot;?&quot;</span> e_flat
 
-e_idx :<span class="o">=</span> e <span class="p">|</span>
+e_idx :<span class="o">=</span> e |
          e <span class="o">(</span><span class="s2">&quot;[&quot;</span> expr <span class="s2">&quot;]&quot;</span><span class="o">)</span>*
 
-e :<span class="o">=</span> literal <span class="p">|</span> funcall <span class="p">|</span> var <span class="p">|</span> array <span class="p">|</span> map <span class="p">|</span> seq <span class="p">|</span> paren
+e :<span class="o">=</span> literal | funcall | var | array | map | seq | paren
 
-literal :<span class="o">=</span> int <span class="p">|</span> uint <span class="p">|</span> real <span class="p">|</span> string
+literal :<span class="o">=</span> int | uint | real | string
 
 funcall :<span class="o">=</span> var <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span>
 
@@ -411,19 +411,19 @@ seq :<span class="o">=</span> <span class="s2">&quot;[&quot;</span> expr <span c
 
 paren :<span class="o">=</span> <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span>
 
-var :<span class="o">=</span> <span class="s2">&quot;@&quot;</span> <span class="p">|</span> <span class="o">[</span>a-zA-Z<span class="o">][</span>a-zA-Z0-9_<span class="o">]</span>*
+var :<span class="o">=</span> <span class="s2">&quot;@&quot;</span> | <span class="o">[</span>a-zA-Z<span class="o">][</span>a-zA-Z0-9_<span class="o">]</span>*
 
 int :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;-&quot;</span><span class="o">)</span>? <span class="o">[</span>0-9<span class="o">]</span>+
 
 uint :<span class="o">=</span> <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;u&quot;</span>
 
-real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>+ <span class="p">|</span>
+real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>+ |
         <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;e&quot;</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+
 
-string :<span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> chars <span class="s1">&#39;&quot;&#39;</span> <span class="p">|</span>
+string :<span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> chars <span class="s1">&#39;&quot;&#39;</span> |
           <span class="s2">&quot;&#39;&quot;</span> chars <span class="s2">&quot;&#39;&quot;</span>
 
-chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> <span class="p">|</span> <span class="s2">&quot;\n&quot;</span> <span class="p">|</span> <span class="s2">&quot;\r&quot;</span> <span class="p">|</span> <span class="s2">&quot;\e&quot;</span> <span class="p">|</span> <span class="s2">&quot;\\&quot;</span> <span class="p">|</span> any<span class="o">)</span>*
+chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> | <span class="s2">&quot;\n&quot;</span> | <span class="s2">&quot;\r&quot;</span> | <span class="s2">&quot;\e&quot;</span> | <span class="s2">&quot;\\&quot;</span> | any<span class="o">)</span>*
 </pre></div>
 
 
@@ -471,6 +471,10 @@ Usage:<br>
 <dd>The exponentiation function. Calling <code>exp(a)</code> is equivalent to <code>e()**a</code>.<br>
 Usage:<br>
 <code>exp Number -&gt; Real</code></dd>
+<dt><code>file</code></dt>
+<dd>Opens a file and returns the lines in the file as a sequence of strings. (This allows a <code>tab</code> expression to process several files instead of just one.)<br>
+Usage:<br>
+<code>file String -&gt; Seq[String]</code></dd>
 <dt><code>filter</code></dt>
 <dd>Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.<br>
 Usage:<br>
