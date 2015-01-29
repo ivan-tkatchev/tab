@@ -423,6 +423,12 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 Listed alphabetically.
 
+`abs`
+: Computes absolute value.  
+Usage:  
+`abs Int -> Int`  
+`abs Real -> Real`
+
 `array`
 : Stores a sequence or map into an array. See also `sort` for a version of this function with sorting.  
 Usage:  
@@ -515,7 +521,7 @@ Usage:
 `hist`
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
-`hist Arr[Number] Integer -> Arr[(Real,UInt)]`  
+`hist Arr[Number], Integer -> Arr[(Real,UInt)]`  
 
 `if`
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.

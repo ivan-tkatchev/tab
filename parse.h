@@ -120,17 +120,35 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     
     auto x_ws = *axe::r_any(" \t\n");
 
-    auto y_int = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, std::stol(std::string(b, e))); });
+    auto y_int = axe::e_ref([&](I b, I e) {
+            try {
+                stack.push(Command::VAL, std::stol(std::string(b, e)));
+            } catch (std::exception& ex) {
+                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an integer.");
+            }
+        });
     
     auto x_int = (~axe::r_lit('-') & +axe::r_num())
         >> y_int;
 
-    auto y_uint = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, std::stoul(std::string(b, e))); });
+    auto y_uint = axe::e_ref([&](I b, I e) {
+            try {
+                stack.push(Command::VAL, std::stoul(std::string(b, e)));
+            } catch (std::exception& ex) {
+                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an integer.");
+            }
+        });
     
     auto x_uint = (+axe::r_num() & axe::r_lit('u'))
         >> y_uint;
 
-    auto y_float = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, std::stod(std::string(b, e))); });
+    auto y_float = axe::e_ref([&](I b, I e) {
+            try {
+                stack.push(Command::VAL, std::stod(std::string(b, e)));
+            } catch (std::exception& ex) {
+                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to a floating-point number.");
+            }
+        });
     
     auto x_floatlit = ~axe::r_any("-+") & +axe::r_num() & axe::r_lit('.') & axe::r_many(axe::r_num(),0);
     auto x_floatexp = ~axe::r_any("-+") & +axe::r_num() & axe::r_any("eE") & ~axe::r_any("-+") & +axe::r_num();

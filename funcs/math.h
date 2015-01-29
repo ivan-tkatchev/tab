@@ -76,7 +76,12 @@ void tan(const obj::Object* in, obj::Object*& out) {
 void round(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = ::round(obj::get<obj::Real>(in).v);
 }
-    
+
+template <typename T>
+void abs(const obj::Object* in, obj::Object*& out) {
+    obj::get<T>(out).v = std::abs(obj::get<T>(in).v);
+}
+
 void register_math(Functions& funcs) {
 
     funcs.add("real", Type(Type::INT), Type(Type::REAL), x_to_y<obj::Int,obj::Real>);
@@ -123,6 +128,9 @@ void register_math(Functions& funcs) {
     funcs.add("tan", Type(Type::REAL), Type(Type::REAL), tan<obj::Real>);
 
     funcs.add("round", Type(Type::REAL), Type(Type::REAL), round);
+
+    funcs.add("abs", Type(Type::REAL), Type(Type::REAL), abs<obj::Real>);
+    funcs.add("abs", Type(Type::INT), Type(Type::INT), abs<obj::Int>);
 }
 
 #endif

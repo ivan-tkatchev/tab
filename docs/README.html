@@ -430,6 +430,11 @@ chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\
 <h3 id="builtin-functions">Builtin functions</h3>
 <p>Listed alphabetically.</p>
 <dl>
+<dt><code>abs</code></dt>
+<dd>Computes absolute value.<br>
+Usage:<br>
+<code>abs Int -&gt; Int</code><br>
+<code>abs Real -&gt; Real</code></dd>
 <dt><code>array</code></dt>
 <dd>Stores a sequence or map into an array. See also <code>sort</code> for a version of this function with sorting.<br>
 Usage:<br>
@@ -506,7 +511,7 @@ Usage:<br>
 <dt><code>hist</code></dt>
 <dd>Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  </dd>
 <dd>Usage:<br>
-<code>hist Arr[Number] Integer -&gt; Arr[(Real,UInt)]</code>  </dd>
+<code>hist Arr[Number], Integer -&gt; Arr[(Real,UInt)]</code>  </dd>
 <dt><code>if</code></dt>
 <dd>Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 <em>Note</em>: this is not a true conditional control structure, since all three arguments are always evaluated.<br>
