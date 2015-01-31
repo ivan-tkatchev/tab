@@ -599,6 +599,11 @@ Usage:
 Usage:  
 `replace String, String, String -> String`
 
+`reverse`
+: Reverses the elements in an array.  
+Usage:  
+`reverse Arr[a] -> Arr[a]`
+
 `round`
 : Rounds a floating-point number to the nearest integer.  
 Usage:  
