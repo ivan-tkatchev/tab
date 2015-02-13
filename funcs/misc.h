@@ -23,7 +23,7 @@ void toupper(const obj::Object* in, obj::Object*& out) {
     }
 }
 
-void join(const obj::Object* in, obj::Object*& out) {
+void join_arr(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
     const std::vector<std::string>& v = obj::get< obj::ArrayAtom<std::string> >(args.v[0]).v;
@@ -43,6 +43,33 @@ void join(const obj::Object* in, obj::Object*& out) {
         }
 
         ret += i;
+    }
+}
+
+void join_seq(const obj::Object* in, obj::Object*& out) {
+
+    const obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::Object* seq = args.v[0];
+    const std::string& sep = obj::get<obj::String>(args.v[1]).v;
+    std::string& ret = obj::get<obj::String>(out).v;
+
+    ret.clear();
+
+    bool first = true;
+
+    while (1) {
+
+        obj::Object* next = seq->next();
+
+        if (!next) break;
+
+        if (first) {
+            first = false;
+        } else {
+            ret += sep;
+        }
+        
+        ret += obj::get<obj::String>(next).v;
     }
 }
 
@@ -127,7 +154,12 @@ void register_misc(Functions& funcs) {
     funcs.add("join",
               Type(Type::TUP, { Type(Type::ARR, { Type(Type::STRING) }), Type(Type::STRING) }),
               Type(Type::STRING),
-              join);
+              join_arr);
+
+    funcs.add("join",
+              Type(Type::TUP, { Type(Type::SEQ, { Type(Type::STRING) }), Type(Type::STRING) }),
+              Type(Type::STRING),
+              join_seq);
 
     funcs.add("bytes",
               Type(Type::STRING),

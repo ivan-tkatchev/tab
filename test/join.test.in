@@ -1,0 +1,4 @@
+join(head(:[cut(@,' ')],10),''),join(array(:[cut(@,' ')])[0,10],'')
+===>
+BoostSoftwareLicense-Version1.0-August17th,2003	Permissionisherebygranted,freeofcharge,toanyperson
+

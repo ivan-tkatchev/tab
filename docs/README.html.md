@@ -547,10 +547,11 @@ Usage:
 `int String -> Int`
 
 `join`
-: Concatenates the elements in a string array using a delimiter.  
+: Concatenates the elements in a string array or sequence using a delimiter.  
 Usage:  
-`join Arr[String], String -> String`
-
+`join Arr[String], String -> String`  
+`join Seq[String], String -> String`
+                                    
 `log`
 : The natural logarithm function.  
 Usage:  
@@ -644,7 +645,7 @@ Usage:
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 `string`
-: Converts an unsigned integer, signed integer or floating-point number or a byte array to a string.  
+: Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.  
 Usage:  
 `string UInt -> String`  
 `string Int -> String`  
@@ -664,9 +665,9 @@ Usage:
 `tan Number -> Real`
 
 `tabulate`  
-: Accepts two or more tuples of the same type and returns an array of those tuples. *Note*: this function is meant for pretty-printing results when there is only a few of them.  (A tuple of tuples will be printed on one line, while an array of tuples will print each tuple on its own line.)  
+: Accepts two or more values of the same type and returns a sequence of those values.  
 Usage:  
-`tabulate (a,b,...),... -> Arr[(a,b,...)]`
+`tabulate (a,...),... -> Seq[a]`
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  

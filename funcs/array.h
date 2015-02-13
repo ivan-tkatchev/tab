@@ -159,12 +159,36 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+struct SeqTupleAsArrayObject : public obj::SeqBase {
+
+    obj::Tuple* tup;
+    typename std::vector<Object*>::const_iterator b;
+    typename std::vector<Object*>::const_iterator e;
+
+    void wrap(Object* a) {
+        tup = (obj::Tuple*)a;
+        b = tup->v.begin();
+        e = tup->v.end();
+    }
+
+    Object* next() {
+
+        if (b == e) {
+            return nullptr;
+        }
+
+        Object* ret = *b;
+        ++b;
+
+        return ret;
+    }
+};
+
 void tabulate(const obj::Object* in, obj::Object*& out) {
 
-    obj::Tuple& x = obj::get<obj::Tuple>(in);
-    obj::ArrayObject& y = obj::get<obj::ArrayObject>(out);
+    SeqTupleAsArrayObject& seq = obj::get<SeqTupleAsArrayObject>(out);
 
-    y.v = x.v;
+    seq.wrap((obj::Object*)in);
 }
 
 Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& obj) {
@@ -172,9 +196,6 @@ Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& ob
     if (args.type == Type::TUP && args.tuple && args.tuple->size() > 1) {
 
         const Type& t = args.tuple->at(0);
-
-        if (t.type != Type::TUP)
-            return nullptr;
         
         for (const Type& i : *(args.tuple)) {
 
@@ -184,7 +205,8 @@ Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& ob
 
         ret = Type(Type::ARR);
         ret.push(t);
-
+        obj = new SeqTupleAsArrayObject;
+        
         return tabulate;
     }
 

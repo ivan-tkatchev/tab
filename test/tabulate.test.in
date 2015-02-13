@@ -1,0 +1,9 @@
+tabulate(1,2,3),tabulate(tuple('a'),tuple('b'),tuple('c')),tabulate(tuple('a',1),tuple('b',2),tuple('c',3))
+===>
+1
+2
+3	a
+b
+c	a	1
+b	2
+c	3

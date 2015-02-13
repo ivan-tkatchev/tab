@@ -1,21 +1,22 @@
 Makefile
 ===>
-x=:[ grep(@,"funcs/[a-z]*.h") ], { @ -> count(?[@!="", @ : file(cat("../",@))]) : x }
+x=:[ grep(@,"funcs/[a-z]*.h") ], sort({ @ -> count(?[@!="", @ : file(cat("../",@))]) : x })
 ===>
-funcs/hist.h	76
-funcs/minmax.h	165
-funcs/array.h	150
-funcs/sort.h	131
-funcs/if.h	55
+funcs/array.h	167
+funcs/avg.h	236
 funcs/count.h	90
 funcs/cutgrep.h	237
-funcs/avg.h	236
-funcs/flatten.h	73
-funcs/index.h	199
-funcs/math.h	101
-funcs/head.h	91
 funcs/file.h	111
+funcs/filter.h	77
+funcs/flatten.h	73
+funcs/head.h	91
+funcs/hist.h	76
+funcs/if.h	55
+funcs/index.h	199
+funcs/math.h	106
+funcs/minmax.h	165
+funcs/misc.h	127
+funcs/reverse.h	40
+funcs/sort.h	131
 funcs/sum.h	95
 funcs/zip.h	79
-funcs/misc.h	104
-funcs/filter.h	77

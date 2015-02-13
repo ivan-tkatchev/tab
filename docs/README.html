@@ -533,9 +533,10 @@ Usage:<br>
 <code>int Real -&gt; Int</code><br>
 <code>int String -&gt; Int</code></dd>
 <dt><code>join</code></dt>
-<dd>Concatenates the elements in a string array using a delimiter.<br>
+<dd>Concatenates the elements in a string array or sequence using a delimiter.<br>
 Usage:<br>
-<code>join Arr[String], String -&gt; String</code></dd>
+<code>join Arr[String], String -&gt; String</code><br>
+<code>join Seq[String], String -&gt; String</code></dd>
 <dt><code>log</code></dt>
 <dd>The natural logarithm function.<br>
 Usage:<br>
@@ -613,7 +614,7 @@ Usage:<br>
 <code>stdev Seq[Number] -&gt; Real</code><br>
 <code>stdev Number -&gt; Real</code> -- <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
 <dt><code>string</code></dt>
-<dd>Converts an unsigned integer, signed integer or floating-point number or a byte array to a string.<br>
+<dd>Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.<br>
 Usage:<br>
 <code>string UInt -&gt; String</code><br>
 <code>string Int -&gt; String</code><br>
@@ -630,9 +631,9 @@ Usage:<br>
 Usage:<br>
 <code>tan Number -&gt; Real</code></dd>
 <dt><code>tabulate</code></dt>
-<dd>Accepts two or more tuples of the same type and returns an array of those tuples. <em>Note</em>: this function is meant for pretty-printing results when there is only a few of them.  (A tuple of tuples will be printed on one line, while an array of tuples will print each tuple on its own line.)<br>
+<dd>Accepts two or more values of the same type and returns a sequence of those values.<br>
 Usage:<br>
-<code>tabulate (a,b,...),... -&gt; Arr[(a,b,...)]</code></dd>
+<code>tabulate (a,...),... -&gt; Seq[a]</code></dd>
 <dt><code>tolower</code></dt>
 <dd>Converts to bytes of a string to lowercase. <em>Note:</em> only works on ASCII data, Unicode is not supported.<br>
 Usage:<br>
