@@ -44,9 +44,11 @@ void count_map(const obj::Object* in, obj::Object*& out) {
 struct CountNull : public obj::SeqBase {
 
     obj::UInt* i;
+    UInt max;
 
     CountNull() {
         i = new obj::UInt(0);
+        max = 0;
     }
 
     ~CountNull() {
@@ -55,6 +57,10 @@ struct CountNull : public obj::SeqBase {
 
     obj::Object* next() {
         ++(i->v);
+
+        if (i->v == max)
+            return nullptr;
+
         return i;
     }
 };
@@ -63,6 +69,20 @@ void count_null(const obj::Object* in, obj::Object*& out) {
 
     CountNull& v = obj::get<CountNull>(out);
     v.i->v = 0;
+    v.max = 0;
+}
+
+template <typename T>
+void count_nulln(const obj::Object* in, obj::Object*& out) {
+
+    CountNull& v = obj::get<CountNull>(out);
+    auto max = obj::get<T>(in).v;
+
+    if (max < 0)
+        throw std::runtime_error("count() with a negative integer argument.");
+    
+    v.i->v = 0;
+    v.max = max + 1;
 }
 
 void count_string(const obj::Object* in, obj::Object*& out) {
@@ -106,10 +126,27 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) 
         }
 
     case Type::ATOM:
-        if (args.atom == Type::STRING) {
+        switch (args.atom) {
+
+        case Type::STRING:
             return count_string;
+
+        case Type::UINT:
+            ret = Type(Type::SEQ);
+            ret.push(Type::UINT);
+            obj = new CountNull;
+            return count_nulln<obj::UInt>;
+
+        case Type::INT:
+            ret = Type(Type::SEQ);
+            ret.push(Type::UINT);
+            obj = new CountNull;
+            return count_nulln<obj::Int>;
+
+        default:
+            return nullptr;
         }
-        return nullptr;
+        break;
 
     default:
         return nullptr;

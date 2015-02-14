@@ -1,0 +1,3 @@
+s=join(@,''),s[count(s)/2-10,count(s)/2+10]
+===>
+re, in whole or in pa

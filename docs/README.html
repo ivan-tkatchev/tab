@@ -263,6 +263,7 @@ code {
 <li>Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last. (The last element is also part of the range, unlike in Python and C++.)</li>
 </ul>
 </li>
+<li>Strings can be spliced as if they were byte arrays; substrings will returned.</li>
 </ul>
 <p>In this case a sub-array of five elements is returned -- the last five elements in the array returned by <code>sort()</code></p>
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <code>index()</code> function.</p>
@@ -459,6 +460,7 @@ Usage:<br>
 <dd>Counts the number of elements.<br>
 Usage:<br>
 <code>count None -&gt; Seq[UInt]</code> -- returns an infinite sequence that counts from 1 to infinity.<br>
+<code>count Integer -&gt; Seq[UInt]</code> -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)<br>
 <code>count String -&gt; UInt</code> -- returns the number of bytes in the string.<br>
 <code>count Seq[a] -&gt; UInt</code> -- returns the number of elements in the sequence. (<em>Warning</em>: counting the number of elements will consume the sequence!)<br>
 <code>count Map[a] -&gt; UInt</code> -- returns the number of keys in the map.<br>
@@ -529,7 +531,8 @@ Usage:<br>
 <code>index Arr[a], Real -&gt; a</code> -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
 <code>index Map[a,b], a -&gt; b</code> -- returns the element stored in the map with the given key. It is an error if the key is not found; see <code>get</code> for a version that returns a default value instead.<br>
 <code>index (a,b,...), Integer</code> -- returns an element from a tuple.<br>
-<code>index Arr[a], Number, Number -&gt; Arr[a]</code> -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <code>index</code>.</dd>
+<code>index Arr[a], Number, Number -&gt; Arr[a]</code> -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <code>index</code>.<br>
+<code>index String, Integer, Integer -&gt; String</code> -- returns a substring from a string, as with the array slicing above. <em>Note:</em> string indexes refer to <em>bytes</em>, <code>tab</code> is not Unicode-aware.</dd>
 <dt><code>int</code></dt>
 <dd>Converts an unsigned integer, floating-point value or string into a signed integer.<br>
 Usage:<br>

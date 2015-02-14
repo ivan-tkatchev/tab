@@ -178,12 +178,53 @@ void tup_index(const obj::Object* in, obj::Object*& out) {
     out = tup.v[i.v];
 }
 
+template <typename T1,typename T2>
+void index_substr(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    const std::string& v = obj::get<obj::String>(args.v[0]).v;
+    auto a1 = obj::get<T1>(args.v[1]).v;
+    auto a2 = obj::get<T2>(args.v[2]).v;
+    std::string& o = obj::get<obj::String>(out).v;
+
+    size_t i1 = __array_ix_conform(v.size(), a1);
+    size_t i2 = __array_ix_conform(v.size(), a2);
+
+    if (i1 >= v.size() || i2 >= v.size())
+        throw std::runtime_error("Substring index out of bounds");
+
+    if (i2 < i1)
+        throw std::runtime_error("Substring indexes are not in order");
+
+    o = v.substr(i1, i2-i1+1);
+}
+
 Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() <= 1)
         return nullptr;
 
     const Type& ci = args.tuple->at(0);
+
+    if (check_string(ci) && args.tuple->size() == 3) {
+
+        const Type& a1 = args.tuple->at(1);
+        const Type& a2 = args.tuple->at(2);
+
+        if (!check_integer(a1) || !check_integer(a2))
+            return nullptr;
+
+        ret = ci;
+
+        if (check_unsigned(a1) && check_unsigned(a2))
+            return index_substr<obj::UInt,obj::UInt>;
+        else if (check_unsigned(a1))
+            return index_substr<obj::UInt,obj::Int>;
+        else if (check_unsigned(a2))
+            return index_substr<obj::Int,obj::UInt>;
+        else
+            return index_substr<obj::Int,obj::Int>;
+    }
 
     if (ci.type == Type::MAP) {
 

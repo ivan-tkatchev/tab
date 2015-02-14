@@ -239,6 +239,7 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
     * Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
     * Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)
     * Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last. (The last element is also part of the range, unlike in Python and C++.)
+* Strings can be spliced as if they were byte arrays; substrings will returned.
 
 In this case a sub-array of five elements is returned -- the last five elements in the array returned by `sort()`
 
@@ -458,6 +459,7 @@ Usage:
 : Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
+`count Integer -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)  
 `count String -> UInt` -- returns the number of bytes in the string.  
 `count Seq[a] -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
@@ -542,7 +544,8 @@ Usage:
 `index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
 `index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see `get` for a version that returns a default value instead.  
 `index (a,b,...), Integer` -- returns an element from a tuple.  
-`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
+`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.  
+`index String, Integer, Integer -> String` -- returns a substring from a string, as with the array slicing above. _Note:_ string indexes refer to _bytes_, `tab` is not Unicode-aware.
 
 `int`
 : Converts an unsigned integer, floating-point value or string into a signed integer.  
