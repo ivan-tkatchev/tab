@@ -85,7 +85,11 @@ int main(int argc, char** argv) {
             programfile.assign(std::istreambuf_iterator<char>(f),
                                std::istreambuf_iterator<char>());
 
-            program = programfile + "," + program;
+            if (program.empty()) {
+                program = programfile;
+            } else {
+                program = programfile + "," + program;
+            }
         }        
 
         register_functions();
