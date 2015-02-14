@@ -275,10 +275,51 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+void map_get(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::Object* key = args.v[1];
+    obj::Object* val = args.v[2];
+
+    auto i = map.v.find(key);
+
+    if (i == map.v.end()) {
+        out = val;
+    } else {
+        out = i->second;
+    }
+}
+
+Functions::func_t get_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 3)
+        return nullptr;
+
+    const Type& ci = args.tuple->at(0);
+
+    if (ci.type != Type::MAP)
+        return nullptr;
+
+    Type key = args.tuple->at(1);
+    Type val = args.tuple->at(2);
+    
+    const Type& mkey = ci.tuple->at(0);
+    const Type& mval = ci.tuple->at(1);
+
+    if (mkey != key || mval != val)
+        return nullptr;
+
+    obj = obj::nothing();
+    ret = mval;
+
+    return map_get;
+}
 
 void register_index(Functions& funcs) {
 
     funcs.add_poly("index", index_checker);
+    funcs.add_poly("get", get_checker);
 }
 
 #endif

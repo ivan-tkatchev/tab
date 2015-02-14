@@ -491,6 +491,10 @@ Usage:<br>
 <code>flatten Seq[ Arr[a] ] -&gt; Seq[a]</code><br>
 <code>flatten Seq[ Map[a,b] ] -&gt; Seq[(a,b)]</code><br>
 <code>flatten Seq[a] -&gt; Seq[a]</code> -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)</dd>
+<dt><code>get</code></dt>
+<dd>Accesses map elements (like <code>index</code>), but returns a default value if the key is not found in the map. (Unlike <code>index</code> which throws an exception.)<br>
+Usage:<br>
+<code>get Map[a,b], a, b -&gt; b</code> -- returns the element stored in the map with the given key, or the third argument if the key is not found.</dd>
 <dt><code>grep</code></dt>
 <dd>Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.<br>
 Usage:<br>
@@ -523,7 +527,7 @@ Usage:<br>
 <code>index Arr[a], UInt -&gt; a</code> -- returns element from the array, using a 0-based index.<br>
 <code>index Arr[a], Int -&gt; a</code> -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.<br>
 <code>index Arr[a], Real -&gt; a</code> -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
-<code>index Map[a,b], a -&gt; b</code> -- returns the element stored in the map with the given key.<br>
+<code>index Map[a,b], a -&gt; b</code> -- returns the element stored in the map with the given key. It is an error if the key is not found; see <code>get</code> for a version that returns a default value instead.<br>
 <code>index (a,b,...), Integer</code> -- returns an element from a tuple.<br>
 <code>index Arr[a], Number, Number -&gt; Arr[a]</code> -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <code>index</code>.</dd>
 <dt><code>int</code></dt>

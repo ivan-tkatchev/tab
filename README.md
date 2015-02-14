@@ -233,7 +233,7 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 `[-5,-1]` is the *indexing* operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:
 
 * Tuples can only be indexed with literal integer values. (Not variables or results of a computation.)
-* Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled.
+* Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled. (There is a corresponding `get` function that returns a default value instead signalling an error.)
 * Arrays indexes are more complex, they can be indexed by:
     * 0-based integers. (0 being the first element in an array.)
     * Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.
@@ -497,6 +497,11 @@ Usage:
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
+`get`
+: Accesses map elements (like `index`), but returns a default value if the key is not found in the map. (Unlike `index` which throws an exception.)  
+Usage:  
+`get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
+
 `grep`
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
 Usage:  
@@ -535,7 +540,7 @@ Usage:
 `index Arr[a], UInt -> a` -- returns element from the array, using a 0-based index.  
 `index Arr[a], Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
 `index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
-`index Map[a,b], a -> b` -- returns the element stored in the map with the given key.  
+`index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see `get` for a version that returns a default value instead.  
 `index (a,b,...), Integer` -- returns an element from a tuple.  
 `index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.
 

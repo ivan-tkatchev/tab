@@ -1,22 +1,13 @@
-Makefile
+axe/axe.h
 ===>
-x=:[ grep(@,"funcs/[a-z]*.h") ], sort({ @ -> count(?[@!="", @ : file(cat("../",@))]) : x })
+x=:[ grep(@,"axe_[a-z_]*.h") ], sort({ @ -> count(?[@!="", @ : file(cat("../axe/",@))]) : x })
 ===>
-funcs/array.h	167
-funcs/avg.h	236
-funcs/count.h	90
-funcs/cutgrep.h	237
-funcs/file.h	111
-funcs/filter.h	77
-funcs/flatten.h	73
-funcs/head.h	91
-funcs/hist.h	76
-funcs/if.h	55
-funcs/index.h	199
-funcs/math.h	106
-funcs/minmax.h	165
-funcs/misc.h	127
-funcs/reverse.h	40
-funcs/sort.h	131
-funcs/sum.h	95
-funcs/zip.h	79
+axe_composite_function.h	466
+axe_exception.h	94
+axe_expression_function.h	38
+axe_extractor_function.h	78
+axe_iterator.h	255
+axe_numeric_function.h	94
+axe_predicate_function.h	109
+axe_shortcut.h	56
+axe_terminal_function.h	1103
