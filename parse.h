@@ -241,8 +241,10 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(make_string("index")); });
     auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::FUN, false); });
 
-    auto x_index = *(axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_idx);
-
+    auto x_index_brac = axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_idx;
+    auto x_index_tild = axe::r_lit('~') & x_expr_bottom >> y_close_idx;
+    auto x_index = *(x_index_brac | x_index_tild);
+    
     auto x_expr_idx =
         ((axe::r_empty() >> y_mark_idx) & x_expr_bottom & x_index >> y_unmark) |
         (r_fail(y_unmark));
@@ -260,7 +262,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     axe::r_rule<I> x_expr_not;
     x_expr_not = x_ws &
-        ((axe::r_lit('~') & x_expr_not >> y_expr_not) |
+        ((axe::r_lit('!') & x_expr_not >> y_expr_not) |
          x_expr_flat);
 
     auto y_expr_exp = axe::e_ref([&](I b, I e) { stack.push(Command::EXP); });

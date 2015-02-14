@@ -220,7 +220,7 @@ This command will output the number of bytes on even lines versus the number of 
 ###### 10.
 
     :::bash
-    $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @[1], @[0] : z ])[-5,-1]'
+    $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @~1, @~0 : z ])[-5,-1]'
 
 This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.
 
@@ -229,6 +229,8 @@ The `z=` here is an example of *variable assignment*. Here the variable `z` will
 Variable assignments do not produce a type and do not evaluate to a value; whatever is between the `=` and the `,` (the map comprehension in this case) will not be output.
 
 Moving on: `sort()` is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map `z` by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.
+
+`@~0` is syntactic sugar that is completely equivalent to `@[0]`.
 
 `[-5,-1]` is the *indexing* operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:
 
@@ -244,6 +246,8 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
 In this case a sub-array of five elements is returned -- the last five elements in the array returned by `sort()`
 
 **Note**: the `[...]` indexing operator is straightforward syntactic sugar for the `index()` function.
+
+**Note**: the `~` indexing operator is equivalent to `[...]`. It's syntactic sugar to make chained indexes more palatable: `a~0~1` is equivalent to `a[0][1]`. (The `~` will only work for single-element indexes, not splices.)
 
 ###### Bonus track
 
@@ -379,16 +383,16 @@ e_mul := e_exp |
 e_exp := e_not |
          e_not "**" e_not
 
-
 e_not := e_flat |
-         "~" e_not
+         "!" e_not
 
 e_flat := e_idx |
           ":" e_flat |
           "?" e_flat
 
 e_idx := e |
-         e ("[" expr "]")*
+         e ("[" expr "]")* |
+         e ("~" e)*
 
 e := literal | funcall | var | array | map | seq | paren
 

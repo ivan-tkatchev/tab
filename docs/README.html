@@ -244,7 +244,7 @@ code {
 <p><code>sum()</code> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <code>sum()</code> when groupped together as part of the map's value.</p>
 <p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
 <h4 id="10">10.</h4>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @[1], @[0] : z ])[-5,-1]&#39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
 </pre></div>
 
 
@@ -252,6 +252,7 @@ code {
 <p>The <code>z=</code> here is an example of <em>variable assignment</em>. Here the variable <code>z</code> will be assigned a map of unique words with their frequencies. (See example 7; <code>z</code> here is the same, except that each word is lowercased and a word count is tallied.)</p>
 <p>Variable assignments do not produce a type and do not evaluate to a value; whatever is between the <code>=</code> and the <code>,</code> (the map comprehension in this case) will not be output.</p>
 <p>Moving on: <code>sort()</code> is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map <code>z</code> by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.</p>
+<p><code>@~0</code> is syntactic sugar that is completely equivalent to <code>@[0]</code>.</p>
 <p><code>[-5,-1]</code> is the <em>indexing</em> operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:</p>
 <ul>
 <li>Tuples can only be indexed with literal integer values. (Not variables or results of a computation.)</li>
@@ -267,6 +268,7 @@ code {
 </ul>
 <p>In this case a sub-array of five elements is returned -- the last five elements in the array returned by <code>sort()</code></p>
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <code>index()</code> function.</p>
+<p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It's syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h4 id="bonus-track">Bonus track</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;</span>
 <span class="s1"> x=[ uint(cut(@,&quot;|&quot;,7)) ],</span>
@@ -389,7 +391,7 @@ e_exp :<span class="o">=</span> e_not <span class="p">|</span>
 
 
 e_not :<span class="o">=</span> e_flat <span class="p">|</span>
-         <span class="s2">&quot;~&quot;</span> e_not
+         <span class="s2">&quot;!&quot;</span> e_not
 
 e_flat :<span class="o">=</span> e_idx <span class="p">|</span>
           <span class="s2">&quot;:&quot;</span> e_flat <span class="p">|</span>
@@ -397,6 +399,7 @@ e_flat :<span class="o">=</span> e_idx <span class="p">|</span>
 
 e_idx :<span class="o">=</span> e <span class="p">|</span>
          e <span class="o">(</span><span class="s2">&quot;[&quot;</span> expr <span class="s2">&quot;]&quot;</span><span class="o">)</span>*
+         e <span class="o">(</span><span class="s2">&quot;~&quot;</span> e<span class="o">)</span>*
 
 e :<span class="o">=</span> literal <span class="p">|</span> funcall <span class="p">|</span> var <span class="p">|</span> array <span class="p">|</span> map <span class="p">|</span> seq <span class="p">|</span> paren
 
