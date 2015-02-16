@@ -364,7 +364,6 @@ Type infer_map_generator(const std::vector<Type>& stack) {
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty = false) {
 
     std::vector<Type> stack;
-    auto& vars = typer.vars;
 
     for (auto ci = commands.begin(); ci != commands.end(); ++ci) {
         Command& c = *ci;
