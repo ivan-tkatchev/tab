@@ -253,8 +253,10 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
     :::bash
     $ ./tab -i req.log '
-     x=[ uint(cut(@,"|",7)) ],
-     x={ 1 -> avg(@), stdev(@), max(@), min(@), sort(@) : x }[1],
+     def stats tuple(avg(@), stdev(@), max(@), min(@), sort(@)),
+     def uniq { 1 -> stats(@) }[1],
+     x=[ uint(cut(@,"|",3)) ],
+     x=uniq(x),
      avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],
      tabulate(tuple("mean/median", avg, q[0.5]),
               tuple("68-percentile", avg + stdev, q[0.68]),
@@ -268,6 +270,8 @@ In this case a sub-array of five elements is returned -- the last five elements 
     min and max     0       2508
 
 Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)
+
+**Note**: The `def` keyword is for defining user-defined functions. User-defined functions in `tab` are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)
 
 Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
@@ -352,9 +356,11 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 
 expr := atomic_or_assignment ("," atomic_or_assignment)*
 
-atomic_or_assignment := assignment | atomic
+atomic_or_assignment := assignment | define | atomic
 
 assignment := var "=" atomic
+
+define := "def" var atomic
 
 atomic := e_eq
 
