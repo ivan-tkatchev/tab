@@ -291,7 +291,7 @@ min and max     <span class="m">0</span>       2508
 
 <p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)</p>
 <p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
-<p>Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
+<p>Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint(cut(@,&quot;|&quot;,7)) .], 10)&#39;</span>
 250.8   23
 501.6   0
@@ -546,7 +546,8 @@ Usage:<br>
 Usage:<br>
 <code>int UInt -&gt; Int</code><br>
 <code>int Real -&gt; Int</code><br>
-<code>int String -&gt; Int</code></dd>
+<code>int String -&gt; Int</code><br>
+<code>int String, Integer -&gt; Int</code> -- tries to convert the string to an integer; if the conversion fails, returns the second argument instead.</dd>
 <dt><code>join</code></dt>
 <dd>Concatenates the elements in a string array or sequence using a delimiter.<br>
 Usage:<br>
@@ -583,7 +584,8 @@ Usage:<br>
 Usage:<br>
 <code>real UInt -&gt; Real</code><br>
 <code>real Int -&gt; Real</code><br>
-<code>real String -&gt; Real</code></dd>
+<code>real String -&gt; Real</code><br>
+<code>real String, Real -&gt; Real</code> -- tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.</dd>
 <dt><code>recut</code></dt>
 <dd>Splits a string using a regular expression. See also <code>cut</code> for splitting with a byte string.<br>
 <code>recut String, String -&gt; Arr[String]</code> -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
@@ -666,7 +668,8 @@ Usage:<br>
 Usage:<br>
 <code>uint UInt -&gt; UInt</code><br>
 <code>uint Real -&gt; UInt</code><br>
-<code>uint String -&gt; UInt</code></dd>
+<code>uint String -&gt; UInt</code><br>
+<code>uint String, Integer -&gt; UInt</code> -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
 <dt><code>var</code></dt>
 <dd>Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: <code>mean</code> and <code>stdev</code>.<br>
 Usage:<br>

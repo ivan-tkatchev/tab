@@ -26,7 +26,36 @@ void string_to_uint(const obj::Object* in, obj::Object*& out) {
     try {
         obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
     } catch (std::exception& e) {
-        throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an integer.");
+        throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an unsigned integer.");
+    }
+}
+
+void string_to_real_def(const obj::Object* in, obj::Object*& out) {
+    obj::Tuple& arg = obj::get<obj::Tuple>(in);
+    try {
+        obj::get<obj::Real>(out).v = std::stod(obj::get<obj::String>(arg.v[0]).v);
+    } catch (std::exception& e) {
+        obj::get<obj::Real>(out).v = obj::get<obj::Real>(arg.v[1]).v;
+    }
+}
+
+template <typename T>
+void string_to_int_def(const obj::Object* in, obj::Object*& out) {
+    obj::Tuple& arg = obj::get<obj::Tuple>(in);
+    try {
+        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(arg.v[0]).v);
+    } catch (std::exception& e) {
+        obj::get<obj::Int>(out).v = obj::get<T>(arg.v[1]).v;
+    }
+}
+
+template <typename T>
+void string_to_uint_def(const obj::Object* in, obj::Object*& out) {
+    obj::Tuple& arg = obj::get<obj::Tuple>(in);
+    try {
+        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(arg.v[0]).v);
+    } catch (std::exception& e) {
+        obj::get<obj::UInt>(out).v = obj::get<T>(arg.v[1]).v;
     }
 }
 
@@ -87,14 +116,24 @@ void register_math(Functions& funcs) {
     funcs.add("real", Type(Type::INT), Type(Type::REAL), x_to_y<obj::Int,obj::Real>);
     funcs.add("real", Type(Type::UINT), Type(Type::REAL), x_to_y<obj::UInt,obj::Real>);
     funcs.add("real", Type(Type::STRING), Type(Type::REAL), string_to_real);
+    funcs.add("real", Type(Type::TUP, { Type(Type::STRING), Type(Type::REAL) }), Type(Type::REAL),
+              string_to_real_def);
 
     funcs.add("int", Type(Type::UINT), Type(Type::INT), x_to_y<obj::UInt,obj::Int>);
     funcs.add("int", Type(Type::REAL), Type(Type::INT), x_to_y<obj::Real,obj::Int>);
     funcs.add("int", Type(Type::STRING), Type(Type::INT), string_to_int);
+    funcs.add("int", Type(Type::TUP, { Type(Type::STRING), Type(Type::INT) }), Type(Type::INT),
+              string_to_int_def<obj::Int>);
+    funcs.add("int", Type(Type::TUP, { Type(Type::STRING), Type(Type::UINT) }), Type(Type::INT),
+              string_to_int_def<obj::UInt>);
 
     funcs.add("uint", Type(Type::INT), Type(Type::UINT), x_to_y<obj::Int,obj::UInt>);
     funcs.add("uint", Type(Type::REAL), Type(Type::UINT), x_to_y<obj::Real,obj::UInt>);
     funcs.add("uint", Type(Type::STRING), Type(Type::UINT), string_to_uint);
+    funcs.add("uint", Type(Type::TUP, { Type(Type::STRING), Type(Type::INT) }), Type(Type::UINT),
+              string_to_uint_def<obj::Int>);
+    funcs.add("uint", Type(Type::TUP, { Type(Type::STRING), Type(Type::UINT) }), Type(Type::UINT),
+              string_to_uint_def<obj::UInt>);
 
     funcs.add("string", Type(Type::INT), Type(Type::STRING), to_string<obj::Int>);
     funcs.add("string", Type(Type::UINT), Type(Type::STRING), to_string<obj::UInt>);

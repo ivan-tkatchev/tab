@@ -273,7 +273,7 @@ Here we run a crude test for the normal distribution in the response lengths (in
 
 **Note**: The `def` keyword is for defining user-defined functions. User-defined functions in `tab` are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)
 
-Let's check the distribution visually, with a historgram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
+Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
     :::bash
     $ ./tab -i req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
@@ -563,7 +563,8 @@ Usage:
 Usage:  
 `int UInt -> Int`  
 `int Real -> Int`  
-`int String -> Int`
+`int String -> Int`  
+`int String, Integer -> Int` -- tries to convert the string to an integer; if the conversion fails, returns the second argument instead.
 
 `join`
 : Concatenates the elements in a string array or sequence using a delimiter.  
@@ -607,7 +608,8 @@ Usage:
 Usage:  
 `real UInt -> Real`  
 `real Int -> Real`  
-`real String -> Real`
+`real String -> Real`  
+`real String, Real -> Real` -- tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.
 
 `recut`
 : Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
@@ -708,7 +710,8 @@ Usage:
 Usage:  
 `uint UInt -> UInt`  
 `uint Real -> UInt`  
-`uint String -> UInt`
+`uint String -> UInt`  
+`uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
 `var`
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
