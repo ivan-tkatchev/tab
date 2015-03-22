@@ -7,8 +7,6 @@ struct ParseStack {
 
     std::vector<Command> stack;
 
-    std::unordered_map< String, std::vector<Command> > defines;
-
     void push(Command::cmd_t c) { stack.emplace_back(c); }
 
     template <typename T>
@@ -47,9 +45,9 @@ struct ParseStack {
 
     void close(Command::cmd_t cmd, bool do_pop = true) {
 
-        auto c = std::make_shared<Command::Closure>();
+        Command::Closure c;
 
-        String name = close_to(c->code, do_pop);
+        String name = close_to(c.code, do_pop);
 
         if (name.ix == 0) {
             stack.emplace_back(cmd);
@@ -63,42 +61,12 @@ struct ParseStack {
 
     void close() {
 
-        auto c = std::make_shared<Command::Closure>();
+        Command::Closure c;
 
-        close_to(c->code);
+        close_to(c.code);
 
         stack.back().closure.resize(stack.back().closure.size() + 1);
         stack.back().closure.back().swap(c);
-    }
-
-    void define() {
-
-        String name = names.back();
-        names.pop_back();
-
-        close_to(defines[name]);
-    }
-
-    void fun_or_def() {
-
-        String name = _mark.back().second;
-
-        auto i = defines.find(name);
-
-        if (i == defines.end()) {
-
-            close(Command::FUN);
-
-        } else {
-
-            close(Command::LAM);
-
-            auto c = std::make_shared<Command::Closure>();
-            c->code.assign(i->second.begin(), i->second.end());
-
-            stack.back().closure.resize(stack.back().closure.size() + 1);
-            stack.back().closure.back().swap(c);
-        }
     }
     
     static void print(const std::vector<Command>& c, size_t level, bool print_types) {
@@ -107,7 +75,8 @@ struct ParseStack {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
-                i.cmd == Command::TUP || (print_types && i.cmd == Command::GEN)) {
+                i.cmd == Command::TUP || i.cmd == Command::LAMD ||
+                (print_types && i.cmd == Command::GEN)) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -126,7 +95,7 @@ struct ParseStack {
                     std::cout << " " << std::string(level*2, ' ') << "-" << std::endl;
                 }
 
-                print(ii->code, level + 1, print_types);
+                print(ii.code, level + 1, print_types);
             }
         }
     }        
@@ -255,7 +224,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
           (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
         x_from & axe::r_lit('}') >> y_map;
 
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.fun_or_def(); });
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
     auto x_funcall =
         (x_var >> y_mark_name) &
@@ -355,7 +324,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     auto y_no_assign = axe::e_ref([&](I b, I e) { stack.names.pop_back(); });
 
-    auto y_expr_define = axe::e_ref([&](I b, I e) { stack.define(); });
+    auto y_expr_define = axe::e_ref([&](I b, I e) { stack.close(Command::LAMD); });
     
     auto x_expr_assign = 
         x_ws &
@@ -368,7 +337,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto x_expr_define =
         x_ws &
         axe::r_lit("def") & x_ws &
-        (x_var >> y_expr_assign_var >> y_mark) &
+        (x_var >> y_mark_name) &
         x_ws &
         (x_expr_atom >> y_expr_define);
 

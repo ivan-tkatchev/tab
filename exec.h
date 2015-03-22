@@ -23,8 +23,7 @@ void execute_init(std::vector<Command>& commands) {
 
     for (auto& c : commands) {
 
-        for (auto& cloptr : c.closure) {
-            auto& clo = *cloptr;
+        for (auto& clo : c.closure) {
             execute_init(clo.code);
         }
             
@@ -50,7 +49,7 @@ void execute_init(std::vector<Command>& commands) {
         case Command::SEQ:
         case Command::ROT:
         case Command::VAW:
-        case Command::LAM:
+        case Command::LAMD:
             break;
 
         case Command::FUN:
@@ -132,7 +131,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             obj::Object* seq = r.stack.back();
             r.stack.pop_back();
 
-            Command::Closure& clo = *(c.closure[0]);
+            Command::Closure& clo = c.closure[0];
             UInt var = c.arg.uint;
 
             obj::SeqGenerator& gen = obj::get<obj::SeqGenerator>(c.object);
@@ -353,7 +352,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             break;
         }
 
-        case Command::LAM:
+        case Command::LAMD:
             // This opcode is a no-op.
             break;
         }

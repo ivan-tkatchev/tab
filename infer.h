@@ -234,8 +234,14 @@ Type unwrap_seq(const Type& t) {
 
 struct TypeRuntime {
 
-    std::unordered_map< std::pair<String,size_t>, std::pair<Type,UInt> > vars;
+    typedef std::pair<String,size_t> var_key;
 
+    std::unordered_map< var_key, std::pair<Type,UInt> > vars;
+
+    std::unordered_map< var_key, std::pair< std::vector<Command>, UInt > > defines;
+
+    std::vector<var_key> define_stack;
+    
     size_t nscopes;
     std::vector<size_t> scope;
 
@@ -243,23 +249,61 @@ struct TypeRuntime {
         scope.push_back(0);
     }
 
-    UInt add_var(const String& name, const Type& type) {
+    template <typename T, typename H>
+    UInt add_(H& holder, const String& name, const T& data) {
 
         size_t sc = scope.back();
 
-        auto i = vars.find(std::make_pair(name,sc));
+        auto i = holder.find(std::make_pair(name, sc));
 
-        if (i == vars.end()) {
+        if (i == holder.end()) {
 
-            UInt ret = vars.size();
-            vars.insert(i, std::make_pair(std::make_pair(name, sc), std::make_pair(type, ret)));
+            UInt ret = holder.size();
+            holder.insert(i, std::make_pair(std::make_pair(name, sc), std::make_pair(data, ret)));
             return ret;
         }
 
-        i->second.first = type;
+        i->second.first = data;
         return i->second.second;
     }
 
+    UInt add_def(const String& name, const std::vector<Command>& code) {
+
+        return add_(defines, name, code);
+    }
+
+    UInt add_var(const String& name, const Type& type) {
+
+        return add_(vars, name, type);
+    }
+
+    std::vector<Command> get_def(const String& name) {
+
+        for (auto si = scope.rbegin(); si != scope.rend(); ++si) {
+
+            var_key key(name, *si);
+            auto i = defines.find(key);
+
+            if (i != defines.end()) {
+
+                for (const auto& zi : define_stack) {
+                    if (zi == key)
+                        throw std::runtime_error("Detected recursive function call of " + strings().get(name));
+                }
+
+                define_stack.push_back(key);
+
+                return i->second.first;
+            }
+        }
+
+        return std::vector<Command>();
+    }
+
+    void unget_def() {
+        define_stack.pop_back();
+    }
+    
     std::pair<Type,UInt> get_var(const String& name) const {
 
         for (auto si = scope.rbegin(); si != scope.rend(); ++si) {
@@ -294,21 +338,13 @@ struct TypeRuntime {
 
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty);
 
-Type infer_lam_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
-
-    if (c.closure.size() != 2)
-        throw std::runtime_error("Sanity error, 'define' call is not a closure.");
+Type infer_lam_generator(const Type& args, std::vector<Command>& code, TypeRuntime& typer, UInt& tlvar) {
 
     typer.enter_scope();
 
-    Command::Closure& clo0 = *(c.closure[0]);
-    Command::Closure& clo1 = *(c.closure[1]);
+    tlvar = typer.add_var(strings().add("@"), args);
 
-    Type toplevel = infer_expr(clo0.code, typer, false);
-
-    tlvar = typer.add_var(strings().add("@"), toplevel);
-
-    Type t = infer_expr(clo1.code, typer, false);
+    Type t = infer_expr(code, typer, false);
 
     typer.exit_scope();
 
@@ -322,8 +358,8 @@ Type infer_gen_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
 
     typer.enter_scope();
 
-    Command::Closure& clo0 = *(c.closure[0]);
-    Command::Closure& clo1 = *(c.closure[1]);
+    Command::Closure& clo0 = c.closure[0];
+    Command::Closure& clo1 = c.closure[1];
 
     Type toplevel = unwrap_seq(infer_expr(clo1.code, typer, false));
 
@@ -544,29 +580,15 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             break;
         }
 
-        case Command::LAM:
+        case Command::LAMD:
         {
-            UInt tlvar;
-            Type t = infer_lam_generator(c, typer, tlvar);
-            stack.emplace_back(t);
+            Command::Closure& clo0 = c.closure[0];
 
-            std::shared_ptr<Command::Closure> clo0 = c.closure[0];
-            std::shared_ptr<Command::Closure> clo1 = c.closure[1];
+            typer.add_def(c.arg.str, clo0.code);
 
-            ci = commands.insert(ci, clo0->code.begin(), clo0->code.end());
-            ci += clo0->code.size();
-
-            ci = commands.insert(ci, Command(Command::VAW, tlvar));
-            ++ci;
-
-            ci = commands.insert(ci, clo1->code.begin(), clo1->code.end());
-            ci += clo1->code.size();
-
-            // This opcode isn't actually ever executed, functions are inlined.
             has_type = false;
             ci = commands.erase(ci);
             --ci;
-
             break;
         }
 
@@ -577,7 +599,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             c.arg.uint = tlvar;
             stack.emplace_back(t);
 
-            Command::Closure& clo1 = *(c.closure[1]);
+            Command::Closure clo1 = c.closure[1];
             ci = commands.insert(ci, clo1.code.begin(), clo1.code.end());
             ci += clo1.code.size();
             ci->closure.pop_back();
@@ -592,23 +614,53 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             if (c.closure.size() != 1)
                 throw std::runtime_error("Sanity error, function call without arguments.");
 
-            Command::Closure& clo = *(c.closure[0]);
+            Command::Closure clo = c.closure[0];
 
             Type args = infer_expr(clo.code, typer, true);
 
-            auto tmp = functions().get(c.arg.str, args, c.object);
-            c.function = (void*)tmp.first;
-            stack.emplace_back(tmp.second);
+            std::vector<Command> def = typer.get_def(c.arg.str);
 
-            if (args.type == Type::NONE)
-                c.cmd = Command::FUN0;
-            else
-                c.cmd = Command::FUN;
+            // User-defined function.
+            if (def.size() > 0 && args.type != Type::NONE) {
+
+                UInt tlvar;
+                Type t = infer_lam_generator(args, def, typer, tlvar);
+
+                typer.unget_def();
+
+                stack.emplace_back(t);
+
+                ci = commands.insert(ci, clo.code.begin(), clo.code.end());
+                ci += clo.code.size();
+                ci->closure.clear();
+
+                ci = commands.insert(ci, Command(Command::VAW, tlvar));
+                ++ci;
+
+                ci = commands.insert(ci, def.begin(), def.end());
+                ci += def.size();
+
+                // User-defined functions are always inlined;
+                // this isn't actually a call.
+                has_type = false;
+                ci = commands.erase(ci);
+                --ci;
+
+            } else {
             
-            ci = commands.insert(ci, clo.code.begin(), clo.code.end());
-            ci += clo.code.size();
-            ci->closure.clear();
+                auto tmp = functions().get(c.arg.str, args, c.object);
+                c.function = (void*)tmp.first;
+                stack.emplace_back(tmp.second);
 
+                if (args.type == Type::NONE)
+                    c.cmd = Command::FUN0;
+                else
+                    c.cmd = Command::FUN;
+            
+                ci = commands.insert(ci, clo.code.begin(), clo.code.end());
+                ci += clo.code.size();
+                ci->closure.clear();
+            }
             break;
         }
 

@@ -48,7 +48,7 @@ struct Command {
         SEQ,
         TUP,
         GEN,
-        LAM
+        LAMD
     };
 
     cmd_t cmd;
@@ -57,9 +57,13 @@ struct Command {
 
     struct Closure {
         std::vector<Command> code;
+
+        void swap(Closure& c) {
+            code.swap(c.code);
+        }
     };
     
-    std::vector< std::shared_ptr<Closure> > closure;
+    std::vector< Closure > closure;
 
     Type type;
     obj::Object* object;
@@ -109,7 +113,7 @@ struct Command {
         case SEQ: return "SEQ";
         case TUP: return "TUP";
         case GEN: return "GEN";
-        case LAM: return "LAM";
+        case LAMD: return "LAMD";
         }
         return ":~(";
     }
