@@ -50,6 +50,7 @@ void execute_init(std::vector<Command>& commands) {
         case Command::SEQ:
         case Command::ROT:
         case Command::VAW:
+        case Command::LAM:
             break;
 
         case Command::FUN:
@@ -352,6 +353,9 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             break;
         }
 
+        case Command::LAM:
+            // This opcode is a no-op.
+            break;
         }
     }
 }

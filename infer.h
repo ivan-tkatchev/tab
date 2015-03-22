@@ -238,7 +238,7 @@ struct TypeRuntime {
 
     size_t nscopes;
     std::vector<size_t> scope;
-    
+
     TypeRuntime() : nscopes(0) {
         scope.push_back(0);
     }
@@ -293,6 +293,27 @@ struct TypeRuntime {
 
 
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty);
+
+Type infer_lam_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
+
+    if (c.closure.size() != 2)
+        throw std::runtime_error("Sanity error, 'define' call is not a closure.");
+
+    typer.enter_scope();
+
+    Command::Closure& clo0 = *(c.closure[0]);
+    Command::Closure& clo1 = *(c.closure[1]);
+
+    Type toplevel = infer_expr(clo0.code, typer, false);
+
+    tlvar = typer.add_var(strings().add("@"), toplevel);
+
+    Type t = infer_expr(clo1.code, typer, false);
+
+    typer.exit_scope();
+
+    return t;
+}
 
 Type infer_gen_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
 
@@ -482,7 +503,8 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             stack.pop_back();
 
             if (t1 != t2) {
-                throw std::runtime_error("Only objects of the same type can be compared. Tried comparing " + Type::print(t1) + " and " + Type::print(t2));
+                throw std::runtime_error("Only objects of the same type can be compared. Tried comparing " +
+                                         Type::print(t1) + " and " + Type::print(t2));
             }
 
             stack.emplace_back(Type::UINT);
@@ -519,6 +541,32 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             Type t = infer_map_generator(stack);
             stack.pop_back();
             stack.emplace_back(t);
+            break;
+        }
+
+        case Command::LAM:
+        {
+            UInt tlvar;
+            Type t = infer_lam_generator(c, typer, tlvar);
+            stack.emplace_back(t);
+
+            std::shared_ptr<Command::Closure> clo0 = c.closure[0];
+            std::shared_ptr<Command::Closure> clo1 = c.closure[1];
+
+            ci = commands.insert(ci, clo0->code.begin(), clo0->code.end());
+            ci += clo0->code.size();
+
+            ci = commands.insert(ci, Command(Command::VAW, tlvar));
+            ++ci;
+
+            ci = commands.insert(ci, clo1->code.begin(), clo1->code.end());
+            ci += clo1->code.size();
+
+            // This opcode isn't actually ever executed, functions are inlined.
+            has_type = false;
+            ci = commands.erase(ci);
+            --ci;
+
             break;
         }
 

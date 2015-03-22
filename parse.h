@@ -7,6 +7,8 @@ struct ParseStack {
 
     std::vector<Command> stack;
 
+    std::unordered_map< String, std::vector<Command> > defines;
+
     void push(Command::cmd_t c) { stack.emplace_back(c); }
 
     template <typename T>
@@ -26,24 +28,33 @@ struct ParseStack {
     void unmark() {
         _mark.pop_back();
     }
-    
-    void close(Command::cmd_t cmd, bool do_pop = true) {
+
+    String close_to(std::vector<Command>& otherstack, bool do_pop = true) {
 
         push(Command::TUP);
 
         auto m = _mark.back();
+        String ret = m.second;
 
         if (do_pop)
             _mark.pop_back();
 
-        auto c = std::make_shared<Command::Closure>();
-        c->code.assign(stack.begin() + m.first, stack.end());
+        otherstack.assign(stack.begin() + m.first, stack.end());
         stack.erase(stack.begin() + m.first, stack.end());
 
-        if (m.second.ix == 0) {
+        return ret;
+    }
+
+    void close(Command::cmd_t cmd, bool do_pop = true) {
+
+        auto c = std::make_shared<Command::Closure>();
+
+        String name = close_to(c->code, do_pop);
+
+        if (name.ix == 0) {
             stack.emplace_back(cmd);
         } else {
-            stack.emplace_back(cmd, m.second);
+            stack.emplace_back(cmd, name);
         }
         
         stack.back().closure.resize(1);
@@ -52,17 +63,42 @@ struct ParseStack {
 
     void close() {
 
-        push(Command::TUP);
-
-        auto m = _mark.back();
-        _mark.pop_back();
-
         auto c = std::make_shared<Command::Closure>();
-        c->code.assign(stack.begin() + m.first, stack.end());
-        stack.erase(stack.begin() + m.first, stack.end());
+
+        close_to(c->code);
 
         stack.back().closure.resize(stack.back().closure.size() + 1);
         stack.back().closure.back().swap(c);
+    }
+
+    void define() {
+
+        String name = names.back();
+        names.pop_back();
+
+        close_to(defines[name]);
+    }
+
+    void fun_or_def() {
+
+        String name = _mark.back().second;
+
+        auto i = defines.find(name);
+
+        if (i == defines.end()) {
+
+            close(Command::FUN);
+
+        } else {
+
+            close(Command::LAM);
+
+            auto c = std::make_shared<Command::Closure>();
+            c->code.assign(i->second.begin(), i->second.end());
+
+            stack.back().closure.resize(stack.back().closure.size() + 1);
+            stack.back().closure.back().swap(c);
+        }
     }
     
     static void print(const std::vector<Command>& c, size_t level, bool print_types) {
@@ -219,7 +255,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
           (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
         x_from & axe::r_lit('}') >> y_map;
 
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.fun_or_def(); });
 
     auto x_funcall =
         (x_var >> y_mark_name) &
@@ -299,7 +335,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto y_expr_neq = axe::e_ref([&](I b, I e) { stack.push(Command::EQ); stack.push(Command::NEG); });
     auto y_expr_lt = axe::e_ref([&](I b, I e) { stack.push(Command::LT); });
     auto y_expr_gt = axe::e_ref([&](I b, I e) { stack.push(Command::ROT); stack.push(Command::LT); });
-    auto y_expr_lte = axe::e_ref([&](I b, I e) { stack.push(Command::ROT); stack.push(Command::LT); stack.push(Command::NEG); });
+    auto y_expr_lte = axe::e_ref([&](I b, I e) { stack.push(Command::ROT); stack.push(Command::LT);
+                                                 stack.push(Command::NEG); });
     auto y_expr_gte = axe::e_ref([&](I b, I e) { stack.push(Command::LT); stack.push(Command::NEG); });
 
     auto x_expr_eq =
@@ -317,17 +354,30 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
                                                     stack.names.pop_back(); });
 
     auto y_no_assign = axe::e_ref([&](I b, I e) { stack.names.pop_back(); });
+
+    auto y_expr_define = axe::e_ref([&](I b, I e) { stack.define(); });
     
     auto x_expr_assign = 
-        (x_ws &
-         (x_var >> y_expr_assign_var) &
-         x_ws &
-         (axe::r_lit('=') | r_fail(y_no_assign)) &
-         x_ws &
-         (x_expr_atom >> y_expr_assign)) | 
+        x_ws &
+        (x_var >> y_expr_assign_var) &
+        x_ws &
+        (axe::r_lit('=') | r_fail(y_no_assign)) &
+        x_ws &
+        (x_expr_atom >> y_expr_assign);
+
+    auto x_expr_define =
+        x_ws &
+        axe::r_lit("def") & x_ws &
+        (x_var >> y_expr_assign_var >> y_mark) &
+        x_ws &
+        (x_expr_atom >> y_expr_define);
+
+    auto x_topexpr =
+        x_expr_define |
+        x_expr_assign |
         x_expr_atom;
 
-    auto x_expr_seq = x_expr_assign & *(axe::r_lit(',') & x_expr_assign);
+    auto x_expr_seq = x_topexpr & *(axe::r_lit(',') & x_topexpr);
 
     x_expr = x_expr_seq;
 
