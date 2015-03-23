@@ -217,6 +217,7 @@ void register_array(Functions& funcs) {
 
     funcs.add_poly("array", array_checker);
     funcs.add_poly("tabulate", tabulate_checker);
+    funcs.add_poly("seq", tabulate_checker);
 }
 
 #endif

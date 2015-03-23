@@ -631,6 +631,11 @@ Usage:
 Usage:  
 `round Real -> Real`
 
+`seq`
+: Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
+Usage:  
+`seq (a,...),... -> Seq[a]`
+
 `sin`
 : The sine function.  
 Usage:  
@@ -685,10 +690,8 @@ Usage:
 Usage:  
 `tan Number -> Real`
 
-`tabulate`  
-: Accepts two or more values of the same type and returns a sequence of those values.  
-Usage:  
-`tabulate (a,...),... -> Seq[a]`
+`tabulate`
+: A synonym for `seq`.
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
