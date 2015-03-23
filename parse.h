@@ -189,7 +189,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     auto x_literal = x_float | x_uint | x_int | x_string;
 
-    auto x_var = axe::r_lit('@') | (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
+    auto x_ident = (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
+    auto x_var = axe::r_lit('@') | x_ident;
 
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
@@ -226,12 +227,17 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
 
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
-    auto x_funcall =
-        (x_var >> y_mark_name) &
-        x_ws &
-        (axe::r_lit('(') | r_fail(y_unmark)) &
-        ~x_expr & x_ws &
-        axe::r_lit(')') >> y_close_fun;
+    auto x_funcall_b =
+        (x_ident >> y_mark_name) &
+        ((x_ws & axe::r_lit('(') & ~x_expr & x_ws & (axe::r_lit(')') >> y_close_fun)) |
+         r_fail(y_unmark));
+
+    auto x_funcall_d =
+        (x_ident >> y_mark_name) &
+        ((x_ws & axe::r_lit('.') & (x_expr_atom >> y_close_fun)) |
+         r_fail(y_unmark));
+
+    auto x_funcall = x_funcall_b | x_funcall_d;
 
     auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, make_string(b, e)); });
     
@@ -251,8 +257,9 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto x_index = *(x_index_brac | x_index_tild);
     
     auto x_expr_idx =
-        ((axe::r_empty() >> y_mark_idx) & x_expr_bottom & x_index >> y_unmark) |
-        (r_fail(y_unmark));
+        (axe::r_empty() >> y_mark_idx) &
+        ((x_expr_bottom & (x_index >> y_unmark)) |
+         r_fail(y_unmark));
 
     auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(make_string("flatten")); });
     auto y_mark_filter = axe::e_ref([&](I b, I e) { stack.mark(make_string("filter")); });
@@ -329,15 +336,13 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
     auto x_expr_assign = 
         x_ws &
         (x_var >> y_expr_assign_var) &
-        x_ws &
-        (axe::r_lit('=') | r_fail(y_no_assign)) &
-        x_ws &
-        (x_expr_atom >> y_expr_assign);
+        ((x_ws & axe::r_lit('=') & x_ws & (x_expr_atom >> y_expr_assign))
+         | r_fail(y_no_assign));
 
     auto x_expr_define =
         x_ws &
         axe::r_lit("def") & x_ws &
-        (x_var >> y_mark_name) &
+        (x_ident >> y_mark_name) &
         x_ws &
         (x_expr_atom >> y_expr_define);
 

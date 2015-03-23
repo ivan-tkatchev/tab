@@ -111,6 +111,18 @@ void abs(const obj::Object* in, obj::Object*& out) {
     obj::get<T>(out).v = std::abs(obj::get<T>(in).v);
 }
 
+template <typename T, typename T2>
+void rsh(const obj::Object* in, obj::Object*& out) {
+    obj::Tuple& arg = obj::get<obj::Tuple>(in);
+    obj::get<T>(out).v = (obj::get<T>(arg.v[0]).v) >> (obj::get<T2>(arg.v[1]).v);
+}
+
+template <typename T, typename T2>
+void lsh(const obj::Object* in, obj::Object*& out) {
+    obj::Tuple& arg = obj::get<obj::Tuple>(in);
+    obj::get<T>(out).v = (obj::get<T>(arg.v[0]).v) << (obj::get<T2>(arg.v[1]).v);
+}
+
 void register_math(Functions& funcs) {
 
     funcs.add("real", Type(Type::INT), Type(Type::REAL), x_to_y<obj::Int,obj::Real>);
@@ -170,6 +182,16 @@ void register_math(Functions& funcs) {
 
     funcs.add("abs", Type(Type::REAL), Type(Type::REAL), abs<obj::Real>);
     funcs.add("abs", Type(Type::INT), Type(Type::INT), abs<obj::Int>);
+
+    funcs.add("rsh", Type(Type::TUP, { Type(Type::INT),  Type(Type::INT) }),  Type(Type::INT),  rsh<obj::Int, obj::Int>);
+    funcs.add("rsh", Type(Type::TUP, { Type(Type::UINT), Type(Type::INT) }),  Type(Type::UINT), rsh<obj::UInt,obj::Int>);
+    funcs.add("rsh", Type(Type::TUP, { Type(Type::INT),  Type(Type::UINT) }), Type(Type::INT),  rsh<obj::Int, obj::UInt>);
+    funcs.add("rsh", Type(Type::TUP, { Type(Type::UINT), Type(Type::UINT) }), Type(Type::UINT), rsh<obj::UInt,obj::UInt>);
+
+    funcs.add("lsh", Type(Type::TUP, { Type(Type::INT),  Type(Type::INT) }),  Type(Type::INT),  lsh<obj::Int, obj::Int>);
+    funcs.add("lsh", Type(Type::TUP, { Type(Type::UINT), Type(Type::INT) }),  Type(Type::UINT), lsh<obj::UInt,obj::Int>);
+    funcs.add("lsh", Type(Type::TUP, { Type(Type::INT),  Type(Type::UINT) }), Type(Type::INT),  lsh<obj::Int, obj::UInt>);
+    funcs.add("lsh", Type(Type::TUP, { Type(Type::UINT), Type(Type::UINT) }), Type(Type::UINT), lsh<obj::UInt,obj::UInt>);
 }
 
 #endif
