@@ -405,7 +405,11 @@ e := literal | funcall | var | array | map | seq | paren
 
 literal := int | uint | real | string
 
-funcall := var "(" expr ")"
+funcall := funcall_paren | funcall_dot
+
+funcall_paren := var "(" expr ")"
+
+funcall_dot := var "." atomic
 
 array := "[." expr (":" expr)? ".]"
 
@@ -577,6 +581,12 @@ Usage:
 Usage:  
 `log Number -> Real`
 
+`lsh`
+: Bit shift left; like the C `<<` operator. (See also `rsh`.)  
+Usage:  
+`lsh Int Integer -> Int`  
+`lsh UInt Integer -> UInt`
+
 `max`
 : Finds the maximum element in a sequence or array. See also: `min`.  
 Usage:  
@@ -630,6 +640,12 @@ Usage:
 : Rounds a floating-point number to the nearest integer.  
 Usage:  
 `round Real -> Real`
+
+`rsh`
+: Bit shift right; like the C `>>` operator. (See also `lsh`.)  
+Usage:  
+`rsh Int Integer -> Int`  
+`rsh UInt Integer -> UInt`
 
 `seq`
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
