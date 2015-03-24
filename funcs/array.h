@@ -203,7 +203,7 @@ Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& ob
                 return nullptr;
         }
 
-        ret = Type(Type::ARR);
+        ret = Type(Type::SEQ);
         ret.push(t);
         obj = new SeqTupleAsArrayObject;
         
