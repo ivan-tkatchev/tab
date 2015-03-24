@@ -271,9 +271,9 @@ code {
 <p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It's syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h4 id="bonus-track">Bonus track</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;</span>
-<span class="s1"> def stats tuple(avg(@), stdev(@), max(@), min(@), sort(@)),</span>
+<span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
 <span class="s1"> def uniq { 1 -&gt; stats(@) }[1],</span>
-<span class="s1"> x=[ uint(cut(@,&quot;|&quot;,3)) ],</span>
+<span class="s1"> x=[ uint.cut(@,&quot;|&quot;,3)) ],</span>
 <span class="s1"> x=uniq(x),</span>
 <span class="s1"> avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],</span>
 <span class="s1"> tabulate(tuple(&quot;mean/median&quot;, avg, q[0.5]),</span>
@@ -291,8 +291,9 @@ min and max     <span class="m">0</span>       2508
 
 <p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)</p>
 <p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
+<p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
 <p>Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint(cut(@,&quot;|&quot;,7)) .], 10)&#39;</span>
+<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
 250.8   23
 501.6   0
 752.4   1
