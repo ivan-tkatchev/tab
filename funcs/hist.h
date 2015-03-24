@@ -6,12 +6,14 @@ void hist(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& arg = obj::get<obj::Tuple>(in);
     obj::ArrayAtom<T>& a = obj::get< obj::ArrayAtom<T> >(arg.v[0]);
-    size_t n = obj::get< obj::Atom<T2> >(arg.v[1]).v;
+    ssize_t _n = obj::get< obj::Atom<T2> >(arg.v[1]).v;
 
-    if (n <= 0) {
-        throw std::runtime_error("Historgram bucket count cannot be zero or less.");
+    if (_n <= 0) {
+        throw std::runtime_error("Histogram bucket count cannot be zero or less.");
     }
-    
+
+    size_t n = _n;
+
     std::vector<size_t> buckets;
     buckets.resize(n);
 
