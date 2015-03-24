@@ -19,3 +19,6 @@ dist: $(SRC) $(INCLUDE) $(FUNCS)
 	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm tab.cc -static -o tab-linux-x86_64
 	strip tab-linux-x86_64
 
+install: tab
+	strip tab
+	cp tab /usr/local/bin/

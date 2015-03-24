@@ -253,9 +253,9 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
     :::bash
     $ ./tab -i req.log '
-     def stats tuple(avg(@), stdev(@), max(@), min(@), sort(@)),
+     def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),
      def uniq { 1 -> stats(@) }[1],
-     x=[ uint(cut(@,"|",3)) ],
+     x=[ uint.cut(@,"|",3) ],
      x=uniq(x),
      avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],
      tabulate(tuple("mean/median", avg, q[0.5]),
@@ -273,10 +273,12 @@ Here we run a crude test for the normal distribution in the response lengths (in
 
 **Note**: The `def` keyword is for defining user-defined functions. User-defined functions in `tab` are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)
 
+**Note**: The `f.x` notation is an alternative syntax for calling functions with only one argument; `f.x` is completely equivalent to `f(x)`. (Likewise, `g.f.x` is equivalent to `g(f(x))`.)
+
 Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
     :::bash
-    $ ./tab -i req.log 'hist([. uint(cut(@,"|",7)) .], 10)'
+    $ ./tab -i req.log 'hist([. uint.cut(@,"|",3) .], 10)'
     250.8   23
     501.6   0
     752.4   1
