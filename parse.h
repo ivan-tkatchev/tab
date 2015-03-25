@@ -156,8 +156,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         });
     
     auto x_floatlit = ~axe::r_any("-+") & +axe::r_num() & axe::r_lit('.') & axe::r_many(axe::r_num(),0);
-    auto x_floatexp = ~axe::r_any("-+") & +axe::r_num() & axe::r_any("eE") & ~axe::r_any("-+") & +axe::r_num();
-    auto x_float = (x_floatlit | x_floatexp)
+    auto x_floatexp = x_floatlit & ~(axe::r_any("eE") & ~axe::r_any("-+") & +axe::r_num());
+    auto x_float = (x_floatexp)
         >> y_float;
 
     auto y_string_start = axe::e_ref([&](I b, I e) { str_buff.clear(); });

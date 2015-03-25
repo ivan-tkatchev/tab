@@ -172,6 +172,49 @@ void grepif(const obj::Object* in, obj::Object*& out) {
     res.v = (found ? 1 : 0);
 }
 
+struct SeqGrepIf : public obj::SeqBase {
+
+    obj::Object* seq;
+    std::regex regex;
+
+    void set_regex(const std::regex& r) {
+        regex = r;
+    }
+
+    void wrap(obj::Object* s) {
+        seq = s;
+    }
+
+    obj::Object* next() {
+
+        while (1) {
+            obj::Object* ret = seq->next();
+
+            if (!ret)
+                return ret;
+
+            const std::string& str = obj::get<obj::String>(ret).v;
+
+            if (std::regex_search(str, regex))
+                return ret;
+        }
+    }
+};
+
+void grepif_seq(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    obj::Object* sseq = args.v[0];
+    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+
+    SeqGrepIf& sgrep = obj::get<SeqGrepIf>(out);
+
+    sgrep.set_regex(regex_cache(regex));
+    sgrep.wrap(sseq);
+}
+
+
 void replace(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -273,6 +316,40 @@ void recutn(const obj::Object* in, obj::Object*& out) {
     throw std::runtime_error("Substring not found in 'recut'");
 }
 
+Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
+        return nullptr;
+
+    const Type& t1 = args.tuple->at(0);
+    const Type& t2 = args.tuple->at(1);
+
+    if (!check_string(t2))
+        return nullptr;
+
+    if (check_string(t1)) {
+
+        ret = Type(Type::UINT);
+        return grepif;
+    }
+
+    if (t1.type == Type::SEQ && t1.tuple && t1.tuple->size() == 1) {
+
+        const Type& t3 = t1.tuple->at(0);
+
+        if (!check_string(t3))
+            return nullptr;
+
+        ret = Type(Type::SEQ);
+        ret.push(Type(Type::STRING));
+        obj = new SeqGrepIf;
+        return grepif_seq;
+    }
+
+    return nullptr;
+}
+
+
 void register_cutgrep(Functions& funcs) {
 
     funcs.add("cut",
@@ -295,10 +372,7 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::ARR, { Type::STRING }),
               grep);
 
-    funcs.add("grepif",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
-              Type(Type::UINT),
-              grepif);
+    funcs.add_poly("grepif", grepif_checker);
 
     funcs.add("replace",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::STRING) }),

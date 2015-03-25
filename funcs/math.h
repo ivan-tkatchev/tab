@@ -106,6 +106,14 @@ void round(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = ::round(obj::get<obj::Real>(in).v);
 }
 
+void floor(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::floor(obj::get<obj::Real>(in).v);
+}
+
+void ceil(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::Real>(out).v = ::ceil(obj::get<obj::Real>(in).v);
+}
+
 template <typename T>
 void abs(const obj::Object* in, obj::Object*& out) {
     obj::get<T>(out).v = std::abs(obj::get<T>(in).v);
@@ -179,6 +187,8 @@ void register_math(Functions& funcs) {
     funcs.add("tan", Type(Type::REAL), Type(Type::REAL), tan<obj::Real>);
 
     funcs.add("round", Type(Type::REAL), Type(Type::REAL), round);
+    funcs.add("floor", Type(Type::REAL), Type(Type::REAL), floor);
+    funcs.add("ceil", Type(Type::REAL), Type(Type::REAL), ceil);
 
     funcs.add("abs", Type(Type::REAL), Type(Type::REAL), abs<obj::Real>);
     funcs.add("abs", Type(Type::INT), Type(Type::INT), abs<obj::Int>);

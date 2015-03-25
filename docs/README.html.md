@@ -200,6 +200,8 @@ To write a tuple, simply list its elements separated by commas.
 
 **Note**: the `?` operator is straightforward syntactic sugar for the `filter()` function.
 
+**Note**: the `?[ grepif(@,b), @ : a ]` expression has a shortcut convenience function, written simply as `grepif(a, b)`. Thus, one could have simply run `./tab 'grepif(@,"this")'` instead.
+                              
 #### 9.
 
     :::bash
@@ -467,6 +469,11 @@ Usage:
 Usage:  
 `cat String,... -> String`. At least one string argument is required.
 
+`ceil`
+: Rounds a floating-point number to the smallest integer that is greater than the input value.  
+Usage:  
+`ceil Real -> Real`
+
 `cos`
 : The cosine function.  
 Usage:  
@@ -516,6 +523,11 @@ Usage:
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
+`floor`
+: Rounds a floating-point number to the greatest integer that is less than the input value.  
+Usage:  
+`floor Real -> Real`
+
 `get`
 : Accesses map elements (like `index`), but returns a default value if the key is not found in the map. (Unlike `index` which throws an exception.)  
 Usage:  
@@ -527,9 +539,10 @@ Usage:
 `grep String, String -> Arr[String]`
 
 `grepif`
-: Returns 1 if a regular expression has matches in a string, 0 otherwise. Calling `grepif(a,b)` is equivalent to `count(grep(a,b)) != 0u`, except much faster.  
+: Filter strings according to a regular expression.  
 Usage:  
-`grepif String, String -> UInt`
+`grepif String, String -> UInt` -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
+`grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.
 
 `has`
 : Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.  
