@@ -424,7 +424,7 @@ map :<span class="o">=</span> <span class="s2">&quot;{&quot;</span> expr <span c
 
 seq :<span class="o">=</span> <span class="s2">&quot;[&quot;</span> expr <span class="o">(</span><span class="s2">&quot;:&quot;</span> expr<span class="o">)</span>? <span class="s2">&quot;]&quot;</span>
 
-paren :<span class="o">=</span> <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span>
+paren :<span class="o">=</span> <span class="s2">&quot;(&quot;</span> atomic <span class="s2">&quot;)&quot;</span>
 
 var :<span class="o">=</span> <span class="s2">&quot;@&quot;</span> | <span class="o">[</span>a-zA-Z<span class="o">][</span>a-zA-Z0-9_<span class="o">]</span>*
 
@@ -432,8 +432,7 @@ int :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;-&q
 
 uint :<span class="o">=</span> <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;u&quot;</span>
 
-real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>+ |
-        <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;e&quot;</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+
+real :<span class="o">=</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+ <span class="s2">&quot;.&quot;</span> <span class="o">[</span>0-9<span class="o">]</span>* <span class="o">([</span>eE<span class="o">]</span> <span class="o">[</span>-+<span class="o">]</span>? <span class="o">[</span>0-9<span class="o">]</span>+<span class="o">)</span>?
 
 string :<span class="o">=</span> <span class="s1">&#39;&quot;&#39;</span> chars <span class="s1">&#39;&quot;&#39;</span> |
           <span class="s2">&quot;&#39;&quot;</span> chars <span class="s2">&quot;&#39;&quot;</span>
