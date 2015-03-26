@@ -588,7 +588,9 @@ Usage:
 : Concatenates the elements in a string array or sequence using a delimiter.  
 Usage:  
 `join Arr[String], String -> String`  
-`join Seq[String], String -> String`
+`join Seq[String], String -> String`  
+`join String, Arr[String], String, String -> String` -- adds a prefix and suffix as well. Equivalent to `cat(p, join(a, d), s)`.  
+`join String, Seq[String], String, String -> String`
                                     
 `log`
 : The natural logarithm function.  
