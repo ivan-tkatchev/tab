@@ -22,3 +22,6 @@ dist: $(SRC) $(INCLUDE) $(FUNCS)
 install: tab
 	strip tab
 	cp tab /usr/local/bin/
+
+clean:
+	rm tab

@@ -266,7 +266,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         if (!arg.literal || !check_integer(arg)) 
             throw std::runtime_error("Indexing tuples is only possible with integer literals.");
 
-        size_t i;
+        size_t i = 0;
         Functions::func_t fun;
         
         if (arg.atom == Type::UINT) {
