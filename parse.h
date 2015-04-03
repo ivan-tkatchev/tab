@@ -154,11 +154,14 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
                 throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to a floating-point number.");
             }
         });
-    
-    auto x_floatlit = ~axe::r_any("-+") & +axe::r_num() & axe::r_lit('.') & axe::r_many(axe::r_num(),0);
-    auto x_floatexp = x_floatlit & ~(axe::r_any("eE") & ~axe::r_any("-+") & +axe::r_num());
 
-    auto x_float = x_floatexp >> y_float;
+    auto x_floathead = ~axe::r_any("-+") & +axe::r_num();
+    auto x_floatdots = axe::r_lit('.') & axe::r_many(axe::r_num(),0);
+    auto x_floatexp = x_floathead & ~x_floatdots & axe::r_any("eE") & x_floathead;
+    auto x_floatdot = x_floathead & x_floatdots;
+    auto x_floatlit = x_floatexp | x_floatdot;
+
+    auto x_float = x_floatlit >> y_float;
 
     auto y_string_start = axe::e_ref([&](I b, I e) { str_buff.clear(); });
     auto y_string_end = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, strings().add(str_buff)); });
