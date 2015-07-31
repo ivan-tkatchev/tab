@@ -576,8 +576,8 @@ Usage:<br>
 <dt><code>lsh</code></dt>
 <dd>Bit shift left; like the C <code>&lt;&lt;</code> operator. (See also <code>rsh</code>.)<br>
 Usage:<br>
-<code>lsh Int Integer -&gt; Int</code><br>
-<code>lsh UInt Integer -&gt; UInt</code></dd>
+<code>lsh Int, Integer -&gt; Int</code><br>
+<code>lsh UInt, Integer -&gt; UInt</code></dd>
 <dt><code>max</code></dt>
 <dd>Finds the maximum element in a sequence or array. See also: <code>min</code>.<br>
 Usage:<br>
@@ -596,10 +596,22 @@ Usage:<br>
 <code>min Arr[a] -&gt; a</code><br>
 <code>min Seq[a] -&gt; a</code><br>
 <code>min Number -&gt; Number</code> -- <strong>Note:</strong> this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.</dd>
+<dt><code>normal</code></dt>
+<dd>Returns random numbers from the normal (gaussian) distribution. (See also: <code>rand</code>, <code>sample</code>.)<br>
+Usage:<br>
+<code>normal None -&gt; Real</code> -- returns a random number with mean <code>0</code> and standard deviation <code>1</code>.<br>
+<code>normal Real, Real -&gt; Real</code> -- same, but with mean and standard deviation of <code>a</code> and <code>b</code>.</dd>
 <dt><code>pi</code></dt>
 <dd>Return the number <em>pi</em>.<br>
 Usage:<br>
 <code>pi None -&gt; Real</code></dd>
+<dt><code>rand</code></dt>
+<dd>Returns random numbers from the uniform distribution. (See also: <code>normal</code>, <code>sample</code>.)<br>
+Usage:<br>
+<code>rand None -&gt; Real</code> -- returns a random real number from the range <code>[0, 1)</code>.<br>
+<code>rand Real, Real -&gt; Real</code> -- same, but with the range <code>[a, b)</code>.<br>
+<code>rand UInt, UInt -&gt; UInt</code><br>
+<code>rand Int, Int -&gt; Int</code> -- returns a random number from the integer range <code>[a, b]</code>.</dd>
 <dt><code>real</code></dt>
 <dd>Converts an unsigned integer, signed integer or string into a floating-point value.<br>
 Usage:<br>
@@ -626,8 +638,15 @@ Usage:<br>
 <dt><code>rsh</code></dt>
 <dd>Bit shift right; like the C <code>&gt;&gt;</code> operator. (See also <code>lsh</code>.)<br>
 Usage:<br>
-<code>rsh Int Integer -&gt; Int</code><br>
-<code>rsh UInt Integer -&gt; UInt</code></dd>
+<code>rsh Int, Integer -&gt; Int</code><br>
+<code>rsh UInt, Integer -&gt; UInt</code></dd>
+<dt><code>sample</code></dt>
+<dd>Sample from a sequence of atomic values, without replacement. (See also: <code>rand</code>, <code>normal</code>.)<br>
+Usage:<br>
+<code>sample Integer, Seq[Int] -&gt; Arr[Int]</code><br>
+<code>sample Integer, Seq[UInt] -&gt; Arr[UInt]</code><br>
+<code>sample Integer, Seq[Real] -&gt; Arr[Real]</code><br>
+<code>sample Integer, Seq[String] -&gt; Arr[String]</code> -- the first argument is the sample size.</dd>
 <dt><code>seq</code></dt>
 <dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <code>tabulate</code>.)<br>
 Usage:<br>

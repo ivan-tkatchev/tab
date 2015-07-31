@@ -600,8 +600,8 @@ Usage:
 `lsh`
 : Bit shift left; like the C `<<` operator. (See also `rsh`.)  
 Usage:  
-`lsh Int Integer -> Int`  
-`lsh UInt Integer -> UInt`
+`lsh Int, Integer -> Int`  
+`lsh UInt, Integer -> UInt`
 
 `max`
 : Finds the maximum element in a sequence or array. See also: `min`.  
@@ -624,10 +624,24 @@ Usage:
 `min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
+`normal`
+: Returns random numbers from the normal (gaussian) distribution. (See also: `rand`, `sample`.)  
+Usage:  
+`normal None -> Real` -- returns a random number with mean `0` and standard deviation `1`.  
+`normal Real, Real -> Real` -- same, but with mean and standard deviation of `a` and `b`.
+
 `pi`
 : Return the number *pi*.  
 Usage:  
 `pi None -> Real`
+
+`rand`
+: Returns random numbers from the uniform distribution. (See also: `normal`, `sample`.)  
+Usage:  
+`rand None -> Real` -- returns a random real number from the range `[0, 1)`.  
+`rand Real, Real -> Real` -- same, but with the range `[a, b)`.  
+`rand UInt, UInt -> UInt`  
+`rand Int, Int -> Int` -- returns a random number from the integer range `[a, b]`.
 
 `real`
 : Converts an unsigned integer, signed integer or string into a floating-point value.  
@@ -660,8 +674,16 @@ Usage:
 `rsh`
 : Bit shift right; like the C `>>` operator. (See also `lsh`.)  
 Usage:  
-`rsh Int Integer -> Int`  
-`rsh UInt Integer -> UInt`
+`rsh Int, Integer -> Int`  
+`rsh UInt, Integer -> UInt`
+
+`sample`
+: Sample from a sequence of atomic values, without replacement. (See also: `rand`, `normal`.)  
+Usage:  
+`sample Integer, Seq[Int] -> Arr[Int]`  
+`sample Integer, Seq[UInt] -> Arr[UInt]`  
+`sample Integer, Seq[Real] -> Arr[Real]`  
+`sample Integer, Seq[String] -> Arr[String]` -- the first argument is the sample size.
 
 `seq`
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
