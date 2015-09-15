@@ -531,6 +531,10 @@ Usage:<br>
 <dd>Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.<br>
 Usage:<br>
 <code>has Map[a,b], a -&gt; UInt</code></dd>
+<dt><code>hash</code></dt>
+<dd>Hashes a string to a 32-bit integer. The 32-bit FNV hash function is used.<br>
+Usage:<br>
+<code>hash String -&gt; UInt</code></dd>
 <dt><code>head</code></dt>
 <dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <code>skip</code>.<br>
 Usage:<br>

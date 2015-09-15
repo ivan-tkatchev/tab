@@ -145,6 +145,19 @@ void bytes_to_string(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+void string_hash(const obj::Object* in, obj::Object*& out) {
+
+    const std::string& str = obj::get<obj::String>(in).v;
+    UInt& hash = obj::get<obj::UInt>(out).v;
+
+    hash = 0x811c9dc5;
+
+    for (unsigned char c : str) {
+        hash ^= (uint32_t)(c);
+        hash *= (uint32_t)0x01000193;
+    }
+}
+
 void cat(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -226,6 +239,8 @@ void register_misc(Functions& funcs) {
               Type(Type::ARR, { Type(Type::UINT) }),
               Type(Type::STRING),
               bytes_to_string);
+
+    funcs.add("hash", Type(Type::STRING), Type(Type::UINT), string_hash);
     
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);

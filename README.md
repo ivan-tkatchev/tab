@@ -547,6 +547,11 @@ Usage:
 Usage:  
 `has Map[a,b], a -> UInt`
 
+`hash`
+: Hashes a string to a 32-bit integer. The 32-bit FNV hash function is used.  
+Usage:  
+`hash String -> UInt`
+
 `head`
 : Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
 Usage:  
