@@ -145,17 +145,29 @@ void bytes_to_string(const obj::Object* in, obj::Object*& out) {
     }
 }
 
-void string_hash(const obj::Object* in, obj::Object*& out) {
+void string_hash_p(const obj::Object* in, obj::Object*& out, UInt init, UInt mul) {
 
     const std::string& str = obj::get<obj::String>(in).v;
     UInt& hash = obj::get<obj::UInt>(out).v;
 
-    hash = 0x811c9dc5;
+    hash = init;
 
     for (unsigned char c : str) {
-        hash ^= (uint32_t)(c);
-        hash *= (uint32_t)0x01000193;
+        hash ^= (UInt)(c);
+        hash *= (UInt)mul;
     }
+}
+
+constexpr UInt fnv_basis() {
+    return (sizeof(UInt) >= 8 ? 0xcbf29ce484222325 : 0x811c9dc5);
+}
+
+constexpr UInt fnv_prime() {
+    return (sizeof(UInt) >= 8 ? 0x100000001b3 : 0x01000193);
+}
+
+void string_hash(const obj::Object* in, obj::Object*& out) {
+    string_hash_p(in, out, fnv_basis(), fnv_prime());
 }
 
 void cat(const obj::Object* in, obj::Object*& out) {
