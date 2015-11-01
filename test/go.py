@@ -1,6 +1,7 @@
 
 import subprocess
 import glob
+import struct
 
 def exec(*popenargs, **kwargs):
     with subprocess.Popen(*popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs) as process:
@@ -28,7 +29,8 @@ def run(filename, arg, expected, infile = "LICENSE.txt", errcode = 0):
         raise Exception("Test failed for: " + filename + ", " + arg)
 
 def go():
-    l = glob.glob("*.test.in")
+    wordsize = len(struct.pack("@L",0))
+    l = glob.glob("*.test.in") + glob.glob("*.test64.in" if wordsize >= 8 else "*.test32.in")
     for i in l:
         txt = open(i).read()
         txt = txt.split('===>\n')
