@@ -431,7 +431,7 @@ struct MapObject : public Object {
             Object* key = tup.v[0];
             Object* val = tup.v[1];
 
-            auto i  = v.find(key);
+            auto i = v.find(key);
             
             if (i != v.end()) {
                 i->second->merge(val);
