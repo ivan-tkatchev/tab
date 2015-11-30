@@ -364,7 +364,7 @@ atomic_or_assignment := assignment | define | atomic
 
 assignment := var "=" atomic
 
-define := "def" var atomic
+define := "def" var (atomic | "(" expr ")")
 
 atomic := e_eq
 

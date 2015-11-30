@@ -367,7 +367,7 @@ atomic_or_assignment :<span class="o">=</span> assignment | define | atomic
 
 assignment :<span class="o">=</span> var <span class="s2">&quot;=&quot;</span> atomic
 
-define :<span class="o">=</span> <span class="s2">&quot;def&quot;</span> var atomic
+define :<span class="o">=</span> <span class="s2">&quot;def&quot;</span> var <span class="o">(</span>atomic | <span class="s2">&quot;(&quot;</span> expr <span class="s2">&quot;)&quot;</span><span class="o">)</span>
 
 atomic :<span class="o">=</span> e_eq
 

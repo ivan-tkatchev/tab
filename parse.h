@@ -342,12 +342,16 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         ((x_ws & axe::r_lit('=') & x_ws & (x_expr_atom >> y_expr_assign))
          | r_fail(y_no_assign));
 
+    auto x_expr_defbody =
+        (axe::r_lit('(') & x_expr & axe::r_lit(')')) |
+        (x_expr_atom);
+
     auto x_expr_define =
         x_ws &
         axe::r_lit("def") & x_ws &
         (x_ident >> y_mark_name) &
         x_ws &
-        (x_expr_atom >> y_expr_define);
+        (x_expr_defbody >> y_expr_define);
 
     auto x_topexpr =
         x_expr_define |
