@@ -81,30 +81,43 @@ struct Type {
         std::string ret;
 
         switch (t.type) {
-        case NONE: ret += "NONE"; break;
+        case NONE: ret += "None"; break;
         case ATOM:
             switch (t.atom) {
-            case INT: ret += "INT"; break;
-            case UINT: ret += "UINT"; break;
-            case REAL: ret += "REAL"; break;
-            case STRING: ret += "STRING"; break;
+            case INT: ret += "Int"; break;
+            case UINT: ret += "UInt"; break;
+            case REAL: ret += "Real"; break;
+            case STRING: ret += "String"; break;
             }
             break;
-        case TUP: ret += "TUPLE"; break;
-        case ARR: ret += "ARRAY"; break;
-        case MAP: ret += "MAP"; break;
-        case SEQ: ret += "SEQ"; break;
+        case TUP: ret += "("; break;
+        case ARR: ret += "Arr["; break;
+        case MAP: ret += "Map["; break;
+        case SEQ: ret += "Seq["; break;
         }
 
         if (t.tuple) {
-            ret += "(";
+            bool first = true;
 
             for (const Type& tt : *(t.tuple)) {
-                ret += " ";
+                if (first) {
+                    first = false;
+                } else {
+                    ret += ", ";
+                }
                 ret += print(tt);
             }
 
-            ret += " )";
+            switch (t.type) {
+            case TUP:
+                ret += ")"; break;
+            case ARR:
+            case MAP:
+            case SEQ:
+                ret += "]"; break;
+            default:
+                break;
+            }
         }
 
         return ret;
