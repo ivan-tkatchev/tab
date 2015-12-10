@@ -497,12 +497,12 @@ Usage:
 `date`
 : Converts a UNIX timestamp to a textual representation of a UTC date.  
 Usage:  
-`date Int -> String` -- returns a UTC date in the `"%Y-%m-%d"` format.
+`date Int -> String` -- returns a UTC date in the `"YYYY-MM-DD"` format.
 
 `datetime`
 : Converts a UNIX timestamp to a textual representation of a UTC date and time.  
 Usage:  
-`datetime Int -> String` -- returns a UTC date and time in the `"%Y-%m-%d %H:%M:%S"` format.
+`datetime Int -> String` -- returns a UTC date and time in the `"YYYY-MM-DD HH:MM:SS"` format.
 
 `e`
 : Returns the number *e*.  
@@ -775,7 +775,7 @@ Usage:
 `time`
 : Converts a UNIX timestamp to a textual representation of a UTC time.  
 Usage:  
-`time Int -> String` -- returns a UTC time in the `"%H:%M:%S"` format.
+`time Int -> String` -- returns a UTC time in the `"HH:MM:SS"` format.
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
