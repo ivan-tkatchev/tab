@@ -21,6 +21,7 @@ namespace funcs {
 #include "funcs/reverse.h"
 #include "funcs/rand.h"
 #include "funcs/misc.h"
+#include "funcs/time.h"
 #include "funcs/hist.h"
 
 }
@@ -49,6 +50,7 @@ void register_functions() {
     funcs::register_reverse(funs);
     funcs::register_rand(funs);
     funcs::register_misc(funs);
+    funcs::register_time(funs);
     funcs::register_hist(funs);
 }
 

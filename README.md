@@ -493,6 +493,16 @@ Usage:
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
+`date`
+: Converts a UNIX timestamp to a textual representation of a UTC date.  
+Usage:  
+`date Int -> String` -- returns a UTC date in the `"%Y-%m-%d"` format.
+
+`datetime`
+: Converts a UNIX timestamp to a textual representation of a UTC date and time.  
+Usage:  
+`datetime Int -> String` -- returns a UTC date and time in the `"%Y-%m-%d %H:%M:%S"` format.
+
 `e`
 : Returns the number *e*.  
 Usage:  
@@ -530,6 +540,11 @@ Usage:
 : Accesses map elements (like `index`), but returns a default value if the key is not found in the map. (Unlike `index` which throws an exception.)  
 Usage:  
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
+
+`gmtime`
+: Converts a UNIX timestamp to a UTC date and time.  
+Usage:  
+`gmtime Int -> Int, Int, Int, Int, Int, Int` -- returns year, month, day, hour, minute, second.
 
 `grep`
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
@@ -633,6 +648,11 @@ Usage:
 Usage:  
 `normal None -> Real` -- returns a random number with mean `0` and standard deviation `1`.  
 `normal Real, Real -> Real` -- same, but with mean and standard deviation of `a` and `b`.
+
+`now`
+: Returns the current UNIX timestamp.  
+Usage:  
+`now None -> Int`
 
 `pi`
 : Return the number *pi*.  
@@ -750,6 +770,11 @@ Usage:
 
 `tabulate`
 : A synonym for `seq`.
+
+`time`
+: Converts a UNIX timestamp to a textual representation of a UTC time.  
+Usage:  
+`time Int -> String` -- returns a UTC time in the `"%H:%M:%S"` format.
 
 `tolower`
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
