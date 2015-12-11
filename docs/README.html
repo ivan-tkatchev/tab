@@ -291,8 +291,15 @@ min and max     <span class="m">0</span>       2508
 
 
 <p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)</p>
-<p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
 <p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
+<p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
+<p>You can use parentheses to delimit code blocks in function definitions. For example:</p>
+<div class="codehilite"><pre>def square_of_square <span class="o">(</span> def square @*@<span class="p">;</span> square<span class="o">(</span>@<span class="o">)</span>*square<span class="o">(</span>@<span class="o">)</span> <span class="o">)</span><span class="p">;</span>
+square_of_square<span class="o">(</span>4<span class="o">)</span>
+</pre></div>
+
+
+<p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
 <p>Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
 250.8   23
@@ -361,7 +368,7 @@ min and max     <span class="m">0</span>       2508
 <p>Not only is <code>tab</code> faster in this case, it is also (in my opinion) more concise and idiomatic.</p>
 <h2 id="reference">Reference</h2>
 <h3 id="grammar">Grammar</h3>
-<div class="codehilite"><pre>expr :<span class="o">=</span> atomic_or_assignment <span class="o">(</span><span class="s2">&quot;,&quot;</span> atomic_or_assignment<span class="o">)</span>*
+<div class="codehilite"><pre>expr :<span class="o">=</span> atomic_or_assignment <span class="o">((</span><span class="s2">&quot;,&quot;</span> <span class="p">|</span> <span class="s2">&quot;;&quot;</span><span class="o">)</span> atomic_or_assignment<span class="o">)</span>*
 
 atomic_or_assignment :<span class="o">=</span> assignment <span class="p">|</span> define <span class="p">|</span> atomic
 
