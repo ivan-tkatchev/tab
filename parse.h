@@ -358,7 +358,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         x_expr_assign |
         x_expr_atom;
 
-    auto x_expr_seq = x_topexpr & *(axe::r_lit(',') & x_topexpr);
+    auto x_expr_seq = x_topexpr & *(axe::r_any(",;") & x_topexpr);
 
     x_expr = x_expr_seq;
 

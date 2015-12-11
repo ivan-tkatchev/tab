@@ -273,9 +273,17 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
 Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)
 
+**Note**: The `f.x` notation is an alternative syntax for calling functions with only one argument; `f.x` is completely equivalent to `f(x)`. (Likewise, `g.f.x` is equivalent to `g(f(x))`.)
+
 **Note**: The `def` keyword is for defining user-defined functions. User-defined functions in `tab` are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)
 
-**Note**: The `f.x` notation is an alternative syntax for calling functions with only one argument; `f.x` is completely equivalent to `f(x)`. (Likewise, `g.f.x` is equivalent to `g(f(x))`.)
+You can use parentheses to delimit code blocks in function definitions. For example:
+
+    :::bash
+    def square_of_square ( def square @*@; square(@)*square(@) );
+    square_of_square(4)
+
+**Note**: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.
 
 Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
 
@@ -358,7 +366,7 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 
 ```bash
 
-expr := atomic_or_assignment ("," atomic_or_assignment)*
+expr := atomic_or_assignment (("," | ";") atomic_or_assignment)*
 
 atomic_or_assignment := assignment | define | atomic
 
