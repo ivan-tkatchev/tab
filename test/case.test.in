@@ -1,0 +1,6 @@
+sort.{case(tolower.@,'the','ARTICLE','a','ARTICLE','an','ARTICLE','is','COPULA','be','COPULA','to','PARTICLE','OTHER')->sum.1::[recut(@,'\\\s+')]}
+===>
+ARTICLE	22
+COPULA	5
+OTHER	180
+PARTICLE	8

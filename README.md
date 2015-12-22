@@ -470,6 +470,12 @@ Usage:
 Usage:  
 `bytes String -> Arr[UInt]`
 
+`case`
+: A switch/case function. The first argument is compared to every argument at position `n+1`, and if they compare equal, the argument at position `n+2` is returned. If none match equal, then the last argument is returned. See also: `if`.  
+Example: `[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]` returns `a b c c`.  
+Usage:  
+`case a,a,b,...,b -> b`
+
 `cat`
 : Concatenates strings.  
 Usage:  

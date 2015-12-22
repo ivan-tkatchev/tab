@@ -468,6 +468,11 @@ Usage:<br>
 <dd>Accepts a string and returns an array of integers representing the bytes in the string. <em>Warning</em>: this function is not Unicode-aware and assumes the string is an ASCII bytestream.<br>
 Usage:<br>
 <code>bytes String -&gt; Arr[UInt]</code></dd>
+<dt><code>case</code></dt>
+<dd>A switch/case function. The first argument is compared to every argument at position <code>n+1</code>, and if they compare equal, the argument at position <code>n+2</code> is returned. If none match equal, then the last argument is returned. See also: <code>if</code>.<br>
+Example: <code>[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]</code> returns <code>a b c c</code>.<br>
+Usage:<br>
+<code>case a,a,b,...,b -&gt; b</code></dd>
 <dt><code>cat</code></dt>
 <dd>Concatenates strings.<br>
 Usage:<br>
