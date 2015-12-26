@@ -112,18 +112,25 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) 
         return count_map;
 
     case Type::ARR:
-        switch (args.tuple->at(0).type) {
-        case Type::INT:
-            return count_arratom<Int>;
-        case Type::UINT:
-            return count_arratom<UInt>;
-        case Type::REAL:
-            return count_arratom<Real>;
-        case Type::STRING:
-            return count_arratom<std::string>;
-        default:
+    {
+        const Type& at = args.tuple->at(0);
+
+        if (at.type == Type::ATOM) {
+            switch (at.atom) {
+            case Type::INT:
+                return count_arratom<Int>;
+            case Type::UINT:
+                return count_arratom<UInt>;
+            case Type::REAL:
+                return count_arratom<Real>;
+            case Type::STRING:
+                return count_arratom<std::string>;
+            }
+
+        } else {
             return count_arr;
         }
+    }
 
     case Type::ATOM:
         switch (args.atom) {
