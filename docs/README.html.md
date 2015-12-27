@@ -1,6 +1,6 @@
 # Introduction #
 
-This is a tutorial and reference for [tab](../index.html), a shell language for text/number manipulation.
+This is a tutorial and reference for [tab](index.html), a shell language for text/number manipulation.
 
 Skip to:
 
