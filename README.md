@@ -5,13 +5,13 @@ This is a tutorial and reference for `tab`, a kind of programming language/shell
 Why another programming language? Because `tab` is a special programming language unlike any other:
 
 * It's statically-typed and type-infered.
-* It also infers memory consumption and guarantees O(n) memory use.</li>
-* It is designed for concise one-liner computations right in the shell prompt.</li>
-* It features both a mathematics library and a set of data slicing and aggregation primitives.</li>
-* It is faster than all other interpreted languages with a similar scope. (Perl, Python, awk, ...)</li>
-* It is not Turing-complete. (But can compute virtually anything nonetheless.)</li>
-* It is self-contained: distributed as a single statically linked binary and nothing else.</li>
-* It has no platform dependencies.</li>
+* It also infers memory consumption and guarantees O(n) memory use.
+* It is designed for concise one-liner computations right in the shell prompt.
+* It features both a mathematics library and a set of data slicing and aggregation primitives.
+* It is faster than all other interpreted languages with a similar scope. (Perl, Python, awk, ...)
+* It is not Turing-complete. (But can compute virtually anything nonetheless.)
+* It is self-contained: distributed as a single statically linked binary and nothing else.
+* It has no platform dependencies.
 
 You can think of `tab` as a kind of general-purpose query language for text files.
 
