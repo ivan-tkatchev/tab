@@ -18,10 +18,11 @@ Skip to:
 * [Grammar reference](#grammar)
 * [Builtin functions reference](#builtin-functions)
 * [Aggregators reference](#aggregators)
+* [Function index](#builtin-function-index)
 
 ## Compiling and installing ##
 
-Type `make`. Currently the `Makefile` requires a recent C++ compiler. (Tested with gcc 4.9; please send patches to the Makefile for supporting other compilers.)
+Type `make`. Requires a modern C++11 compiler. (Recent versions of g++ and clang++ will work.)
 
 Copy the resulting binary of `tab` somewhere in your path.
 
@@ -108,21 +109,21 @@ This command is equivalent to `cat`. `@` is a variable holding the top-level inp
     $ ./tab 'cos(1)**2+sin(1)**2'
     1
 
-`tab` can also be used as a desktop calculator. `pi()` is a function that returns the value of *pi*, `cos()` and `sin()` are the familiar trigonometric functions. The usual mathematical infix operators are supported; `**` is the exponentiation oprator.
+`tab` can also be used as a desktop calculator. [[pi]] is a function that returns the value of *pi*, [[cos]] and [[sin]] are the familiar trigonometric functions. The usual mathematical infix operators are supported; `**` is the exponentiation oprator.
 
 #### 3.
 
     :::bash
     $ ./tab 'count(@)'
 
-This command is equivalent to `wc -l`. `count()` is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
+This command is equivalent to `wc -l`. [[count]] is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
 #### 4.
 
     :::bash
     $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
 
-This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
+This command is equivalent to `egrep -o "[a-zA-Z]+"`. [[grep]] is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
 
 `[...]` is the syntax for *sequence comprehensions* -- transformers that apply an expression to all elements of a sequence; the result of a sequence comprehension is also a sequence.
 
@@ -143,9 +144,9 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
 
-`zip()` is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)
+[[zip]] is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)
 
-`count()` when called without arguments will return an infinite sequence of successive numbers, starting with `1`.
+[[count]] when called without arguments will return an infinite sequence of successive numbers, starting with `1`.
 
 #### 6.
 
@@ -154,13 +155,13 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.
 
-`:` here is *not* part of a comprehension, it is a special `flatten` operator: given a sequence of sequences, it will return a "flattened" sequence of elements in all the interior sequences.
+`:` here is *not* part of a comprehension, it is a special [[flatten]] operator: given a sequence of sequences, it will return a "flattened" sequence of elements in all the interior sequences.
 
 If given a sequence of arrays, maps or atomic values then this operator will automatically convert the interior structures into equivalent sequences.
 
 Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of `\S+` in stdin.
 
-**Note:** the unary prefix `:` operator is just straightforward syntactic sugar for the `flatten()` builtin function.
+**Note:** the unary prefix `:` operator is just straightforward syntactic sugar for the [[flatten]] builtin function.
 
 #### 7.
 
@@ -186,7 +187,7 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
 
-`grepif()` is a lighter version of `grep()`: given a string and a regular expression it will return an integer: `1` if the regex is found in the string and `0` if it not. (You could use `count(grep(@,"this"))` instead, but `grepif` is obviously shorter and quicker.)
+[[grepif]] is a lighter version of [[grep]]: given a string and a regular expression it will return an integer: `1` if the regex is found in the string and `0` if it not. (You could use `count(grep(@,"this"))` instead, but [[grepif]] is obviously shorter and quicker.)
 
 `grepif(@,"this"), @` is a tuple of two elements: the first element is `1` or `0` depending on if the line has `"this"` as a substring, and the second element is the whole line itself.
 
@@ -194,11 +195,11 @@ This command is equivalent to `grep`; it will output all lines from stdin having
 
 To write a tuple, simply list its elements separated by commas.
 
-`?` is the *filter* operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has `0` as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.
+`?` is the [[filter]] operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has `0` as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.
 
 (So, for example: `?[1,@ : x]` is equivalent to the original sequence `x`.)
 
-**Note**: the `?` operator is straightforward syntactic sugar for the `filter()` function.
+**Note**: the `?` operator is straightforward syntactic sugar for the [[filter]] function.
 
 **Note**: the `?[ grepif(@,b), @ : a ]` expression has a shortcut convenience function, written simply as `grepif(a, b)`. Thus, one could have simply run `./tab 'grepif(@,"this")'` instead.
                               
@@ -213,9 +214,9 @@ This command will output the number of bytes on even lines versus the number of 
 
 `@[0] % 2` is the key in the map: we use the indexing operator `[]` to select the first element from the input pair, which is the line number. `%` is the mathematical modulo operator (like in C); line number modulo 2 gives us `0` for even line numbers and `1` for odd line numbers.
 
-`sum(count(@[1]))` is the mapped value in the map. As before, indexing the input pair with `1` gives us the second element, which is the contents of the line from stdin; `count()`, when applied to a string, gives us the length of the string in bytes. 
+`sum(count(@[1]))` is the mapped value in the map. As before, indexing the input pair with `1` gives us the second element, which is the contents of the line from stdin; [[count]], when applied to a string, gives us the length of the string in bytes. 
 
-`sum()` is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with `sum()` when groupped together as part of the map's value.
+[[sum]] is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with [[sum]] when groupped together as part of the map's value.
 
 (So, for example, using `sum(1)` on the right side of `->` in a map comprehension will count the number of occurences of whatever is on the left side of `->`.)
 
@@ -230,7 +231,7 @@ The `z=` here is an example of *variable assignment*. Here the variable `z` will
 
 Variable assignments do not produce a type and do not evaluate to a value; whatever is between the `=` and the `,` (the map comprehension in this case) will not be output.
 
-Moving on: `sort()` is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map `z` by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.
+Moving on: [[sort]] is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map `z` by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.
 
 `@~0` is syntactic sugar that is completely equivalent to `@[0]`.
 
@@ -245,9 +246,9 @@ Moving on: `sort()` is a function that accepts an array, map or sequence and ret
     * Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last. (The last element is also part of the range, unlike in Python and C++.)
 * Strings can be spliced as if they were byte arrays; substrings will returned.
 
-In this case a sub-array of five elements is returned -- the last five elements in the array returned by `sort()`
+In this case a sub-array of five elements is returned -- the last five elements in the array returned by [[sort]]
 
-**Note**: the `[...]` indexing operator is straightforward syntactic sugar for the `index()` function.
+**Note**: the `[...]` indexing operator is straightforward syntactic sugar for the [[index]] function.
 
 **Note**: the `~` indexing operator is equivalent to `[...]`. It's syntactic sugar to make chained indexes more palatable: `a~0~1` is equivalent to `a[0][1]`. (The `~` will only work for single-element indexes, not splices.)
 
@@ -450,49 +451,49 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 Listed alphabetically.
 
-`abs`
+abs {: #fn_abs}
 : Computes absolute value.  
 Usage:  
 `abs Int -> Int`  
 `abs Real -> Real`
 
-`array`
-: Stores a sequence or map into an array. See also `sort` for a version of this function with sorting.  
+array {: #fn_array}
+: Stores a sequence or map into an array. See also [[sort]] for a version of this function with sorting.  
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
 `array Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
 
-`avg`
-: Synonym for `mean`.
+avg {: #fn_avg}
+: Synonym for [[mean]].
 
-`bytes`
+bytes {: #fn_bytes}
 : Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
 Usage:  
 `bytes String -> Arr[UInt]`
 
-`case`
-: A switch/case function. The first argument is compared to every argument at position `n+1`, and if they compare equal, the argument at position `n+2` is returned. If none match equal, then the last argument is returned. See also: `if`.  
+case {: #fn_case}
+: A switch/case function. The first argument is compared to every argument at position `n+1`, and if they compare equal, the argument at position `n+2` is returned. If none match equal, then the last argument is returned. See also: [[if]].  
 Example: `[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]` returns `a b c c`.  
 Usage:  
 `case a,a,b,...,b -> b`
 
-`cat`
+cat {: #fn_cat}
 : Concatenates strings.  
 Usage:  
 `cat String,... -> String`. At least one string argument is required.
 
-`ceil`
+ceil {: #fn_ceil}
 : Rounds a floating-point number to the smallest integer that is greater than the input value.  
 Usage:  
 `ceil Real -> Real`
 
-`cos`
+cos {: #fn_cos}
 : The cosine function.  
 Usage:  
 `cos Number -> Real`
 
-`count`
+count {: #fn_count}
 : Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
@@ -502,43 +503,43 @@ Usage:
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
 `count Arr[a] -> UInt` -- returns the number of elements in the array.
 
-`cut`
-: Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
+cut {: #fn_cut}
+: Splits a string using a delimiter. See also [[recut]] for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
-`date`
+date {: #fn_date}
 : Converts a UNIX timestamp to a textual representation of a UTC date.  
 Usage:  
 `date Int -> String` -- returns a UTC date in the `"YYYY-MM-DD"` format.
 
-`datetime`
+datetime {: #fn_datetime}
 : Converts a UNIX timestamp to a textual representation of a UTC date and time.  
 Usage:  
 `datetime Int -> String` -- returns a UTC date and time in the `"YYYY-MM-DD HH:MM:SS"` format.
 
-`e`
+e {: #fn_e}
 : Returns the number *e*.  
 Usage:  
 `e None -> Real`.
 
-`exp`
+exp {: #fn_exp}
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
 Usage:  
 `exp Number -> Real`
 
-`file`
+file {: #fn_file}
 : Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
 Usage:  
 `file String -> Seq[String]`
 
-`filter`
+filter {: #fn_filter}
 : Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
-`flatten`
+flatten {: #fn_flatten}
 : Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
 `flatten Seq[ Seq[a] ] -> Seq[a]`  
@@ -546,71 +547,71 @@ Usage:
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
-`floor`
+floor {: #fn_floor}
 : Rounds a floating-point number to the greatest integer that is less than the input value.  
 Usage:  
 `floor Real -> Real`
 
-`get`
-: Accesses map elements (like `index`), but returns a default value if the key is not found in the map. (Unlike `index` which throws an exception.)  
+get {: #fn_get}
+: Accesses map elements (like [[index]]), but returns a default value if the key is not found in the map. (Unlike [[index]] which throws an exception.)  
 Usage:  
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
 
-`gmtime`
+gmtime {: #fn_gmtime}
 : Converts a UNIX timestamp to a UTC date and time.  
 Usage:  
 `gmtime Int -> Int, Int, Int, Int, Int, Int` -- returns year, month, day, hour, minute, second.
 
-`grep`
+grep {: #fn_grep}
 : Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
 Usage:  
 `grep String, String -> Arr[String]`
 
-`grepif`
+grepif {: #fn_grepif}
 : Filter strings according to a regular expression.  
 Usage:  
 `grepif String, String -> UInt` -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 `grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.
 
-`has`
+has {: #fn_hase}
 : Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.  
 Usage:  
 `has Map[a,b], a -> UInt`
 
-`hash`
+hash {: #fn_hash}
 : Hashes a string to a 32-bit integer. The 32-bit FNV hash function is used.  
 Usage:  
 `hash String -> UInt`
 
-`head`
-: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`.  
+head {: #fn_head}
+: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: [[skip]].  
 Usage:  
 `head Seq[a], Integer -> Seq[a]`  
 `head Arr[a], Integer -> Seq[a]`
                                     
-`hist`
+hist {: #fn_hist}
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
 `hist Arr[Number], Integer -> Arr[(Real,UInt)]`  
 
-`if`
+if {: #fn_if}
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
 Usage:  
 `if Integer, a, a -> a`  
 
-`index`
+index {: #fn_index}
 : Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
 Usage:  
 `index Arr[a], UInt -> a` -- returns element from the array, using a 0-based index.  
 `index Arr[a], Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
 `index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
-`index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see `get` for a version that returns a default value instead.  
+`index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see [[get]] for a version that returns a default value instead.  
 `index (a,b,...), Integer` -- returns an element from a tuple.  
-`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of `index`.  
+`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of [[index]].  
 `index String, Integer, Integer -> String` -- returns a substring from a string, as with the array slicing above. _Note:_ string indexes refer to _bytes_, `tab` is not Unicode-aware.
 
-`int`
+int {: #fn_int}
 : Converts an unsigned integer, floating-point value or string into a signed integer.  
 Usage:  
 `int UInt -> Int`  
@@ -618,7 +619,7 @@ Usage:
 `int String -> Int`  
 `int String, Integer -> Int` -- tries to convert the string to an integer; if the conversion fails, returns the second argument instead.
 
-`join`
+join {: #fn_join}
 : Concatenates the elements in a string array or sequence using a delimiter.  
 Usage:  
 `join Arr[String], String -> String`  
@@ -626,63 +627,63 @@ Usage:
 `join String, Arr[String], String, String -> String` -- adds a prefix and suffix as well. Equivalent to `cat(p, join(a, d), s)`.  
 `join String, Seq[String], String, String -> String`
                                     
-`log`
+log {: #fn_log}
 : The natural logarithm function.  
 Usage:  
 `log Number -> Real`
 
-`lsh`
-: Bit shift left; like the C `<<` operator. (See also `rsh`.)  
+lsh {: #fn_lsh}
+: Bit shift left; like the C `<<` operator. (See also [[rsh]].)  
 Usage:  
 `lsh Int, Integer -> Int`  
 `lsh UInt, Integer -> UInt`
 
-`max`
-: Finds the maximum element in a sequence or array. See also: `min`.  
+max {: #fn_max}
+: Finds the maximum element in a sequence or array. See also: [[min]].  
 Usage:  
 `max Arr[a] -> a`  
 `max Seq[a] -> a`  
 `max Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
 
-`mean`
-: Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
+mean {: #fn_mean}
+: Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: [[var]] and [[stdev]].  
 Usage:  
 `mean Arr[Number] -> Real`  
 `mean Seq[Number] -> Real`  
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
-`min`
-: Finds the minimum element in a sequence or array. See also: `max`.  
+min {: #fn_min}
+: Finds the minimum element in a sequence or array. See also: [[max]].  
 Usage:  
 `min Arr[a] -> a`  
 `min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
-`normal`
-: Returns random numbers from the normal (gaussian) distribution. (See also: `rand`, `sample`.)  
+normal {: #fn_normal}
+: Returns random numbers from the normal (gaussian) distribution. (See also: [[rand]], [[sample]].)  
 Usage:  
 `normal None -> Real` -- returns a random number with mean `0` and standard deviation `1`.  
 `normal Real, Real -> Real` -- same, but with mean and standard deviation of `a` and `b`.
 
-`now`
+now {: #fn_now}
 : Returns the current UNIX timestamp.  
 Usage:  
 `now None -> Int`
 
-`pi`
+pi {: #fn_pi}
 : Return the number *pi*.  
 Usage:  
 `pi None -> Real`
 
-`rand`
-: Returns random numbers from the uniform distribution. (See also: `normal`, `sample`.)  
+rand {: #fn_rand}
+: Returns random numbers from the uniform distribution. (See also: [[normal]], [[sample]].)  
 Usage:  
 `rand None -> Real` -- returns a random real number from the range `[0, 1)`.  
 `rand Real, Real -> Real` -- same, but with the range `[a, b)`.  
 `rand UInt, UInt -> UInt`  
 `rand Int, Int -> Int` -- returns a random number from the integer range `[a, b]`.
 
-`real`
+real {: #fn_real}
 : Converts an unsigned integer, signed integer or string into a floating-point value.  
 Usage:  
 `real UInt -> Real`  
@@ -690,80 +691,80 @@ Usage:
 `real String -> Real`  
 `real String, Real -> Real` -- tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.
 
-`recut`
-: Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
+recut {: #fn_recut}
+: Splits a string using a regular expression. See also [[cut]] for splitting with a byte string.  
 `recut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.  
 `recut String, String, Integer -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.
 
-`replace`
+replace {: #fn_replace}
 : Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
 Usage:  
 `replace String, String, String -> String`
 
-`reverse`
+reverse {: #fn_reverse}
 : Reverses the elements in an array.  
 Usage:  
 `reverse Arr[a] -> Arr[a]`
 
-`round`
+round {: #fn_round}
 : Rounds a floating-point number to the nearest integer.  
 Usage:  
 `round Real -> Real`
 
-`rsh`
-: Bit shift right; like the C `>>` operator. (See also `lsh`.)  
+rsh {: #fn_rsh}
+: Bit shift right; like the C `>>` operator. (See also [[lsh]].)  
 Usage:  
 `rsh Int, Integer -> Int`  
 `rsh UInt, Integer -> UInt`
 
-`sample`
-: Sample from a sequence of atomic values, without replacement. (See also: `rand`, `normal`.)  
+sample {: #fn_sample}
+: Sample from a sequence of atomic values, without replacement. (See also: [[rand]], [[normal]].)  
 Usage:  
 `sample Integer, Seq[Int] -> Arr[Int]`  
 `sample Integer, Seq[UInt] -> Arr[UInt]`  
 `sample Integer, Seq[Real] -> Arr[Real]`  
 `sample Integer, Seq[String] -> Arr[String]` -- the first argument is the sample size.
 
-`seq`
-: Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
+seq {: #fn_seq}
+: Accepts two or more values of the same type and returns a sequence of those values. (A synonym for [[tabulate]].)  
 Usage:  
 `seq (a,...),... -> Seq[a]`
 
-`sin`
+sin {: #fn_sin}
 : The sine function.  
 Usage:  
 `sin Number -> Real`
 
-`skip`
-: Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: `head`.  
+skip {: #fn_skip}
+: Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: [[head]].  
 Usage:  
 `skip Seq[a], Integer -> Seq[a]`  
 `skip Arr[a], Integer -> Seq[a]`
 
-`sort`
-: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
+sort {: #fn_sort}
+: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also [[array]], a version of this function without sorting.  
 Usage:  
 `sort Arr[a] -> Arr[a]`  
 `sort Map[a,b] -> Arr[(a,b)]`  
 `sort Seq[a] -> Arr[a]`  
 `sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
 
-`sqrt`
+sqrt {: #fn_sqrt}
 : The square root function.  
 Usage:  
 `sqrt Number -> Real`
 
-`stddev`
-: Synonym for `stdev`.
+stddev {: #fn_stddev}
+: Synonym for [[stdev]].
 
-`stdev`
-: Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
+stdev {: #fn_stdev}
+: Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to [[var]], with the difference that the square root of the result is taken. See also: [[mean]].  
 Usage:  
 `stdev Arr[Number] -> Real`  
 `stdev Seq[Number] -> Real`  
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
-`string`
+string {: #fn_string}
 : Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.  
 Usage:  
 `string UInt -> String`  
@@ -771,42 +772,42 @@ Usage:
 `string Real -> String`  
 `string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.
 
-`sum`
+sum {: #fn_sum}
 : Computes a sum of the elements of a sequence or array.  
 Usage:  
 `sum Arr[Number] -> Number`  
 `sum Seq[Number] -> Number`  
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
-`tan`
+tan {: #fn_tan}
 : The tangent function.  
 Usage:  
 `tan Number -> Real`
 
-`tabulate`
-: A synonym for `seq`.
+tabulate {: #fn_tabulate}
+: A synonym for [[seq]].
 
-`time`
+time {: #fn_time}
 : Converts a UNIX timestamp to a textual representation of a UTC time.  
 Usage:  
 `time Int -> String` -- returns a UTC time in the `"HH:MM:SS"` format.
 
-`tolower`
+tolower {: #fn_tolower}
 : Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
 Usage:  
 `tolower String -> String`
 
-`toupper`
+toupper {: #fn_toupper}
 : Converts to bytes of a string to uppercase. *Note:* only works on ASCII data, Unicode is not supported.  
 Usage:  
 `toupper String -> String`
 
-`tuple`
+tuple {: #fn_tuple}
 : Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
 Usage:  
 `tuple (a,b,...) -> (a,b,...)`
 
-`uint`
+uint {: #fn_uint}
 : Converts a signed integer, floating-point number or string to an unsigned integer.  
 Usage:  
 `uint UInt -> UInt`  
@@ -814,17 +815,17 @@ Usage:
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
-`var`
-: Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
+var {: #fn_var}
+: Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: [[mean]] and [[stdev]].  
 Usage:  
 `var Arr[Number] -> Real`  
 `var Seq[Number] -> Real`  
 `var Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
 
-`variance`
-: Synonym for `var`.
+variance {: #fn_variance}
+: Synonym for [[var]].
 
-`zip`
+zip {: #fn_zip}
 : Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
 `zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`  
@@ -838,36 +839,83 @@ Aggregation is performed efficiently: no unnecessary temporary data structures a
 
 Here is a list of aggregators and their effects, sorted alphabetically:
 
-`array`
-: Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: `sort`.
+array
+: Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: [[sort]].
 
-`avg`
+avg
 : Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
 
-`max`
+max
 : Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.
 
-`mean`
-: Synonymous with `avg`.
+mean
+: Synonymous with [[avg]].
 
-`min`
+min
 : Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.
 
-`sort`
-: Like `array`, except that the resulting elements will be sorted in ascending order.
+sort
+: Like [[array]], except that the resulting elements will be sorted in ascending order.
 
-`stddev`
-: Synonymous with `stddev`.
+stddev
+: Synonymous with [[stddev]].
 
-`stdev`
-: Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: `var`.
+stdev
+: Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: [[var]].
 
-`sum`
+sum
 : Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.
 
-`var`
+var
 : Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.
 
-`variance`
-: Synonymous with `var`.
+variance
+: Synonymous with [[var]].
 
+### Builtin function index ###
+
+#### Alphabetically by name: 
+
+[[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
+[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[flatten]]
+[[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
+[[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[max]] [[mean]]
+[[min]] [[normal]] [[now]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]]
+[[reverse]] [[round]] [[rsh]] [[sample]] [[seq]] [[sin]] [[skip]] [[sort]]
+[[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]] [[tabulate]]
+[[time]] [[tolower]] [[toupper]] [[tuple]] [[uint]] [[var]] [[variance]] [[zip]]
+
+#### By kind:
+
+**Core language:** [[filter]] [[flatten]] [[index]]
+
+**Math:** [[abs]] [[ceil]] [[cos]] [[e]] [[exp]] [[floor]] [[log]] [[pi]] [[round]]
+[[sin]] [[sqrt]]
+
+**Sampling:** [[avg]] [[hist]] [[max]] [[mean]] [[min]] [[normal]] [[rand]] [[sample]]
+[[stddev]] [[stdev]] [[var]] [[variance]]
+
+**Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
+[[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
+
+**Arrays:** [[array]] [[count]] [[filter]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
+[[skip]] [[sort]] [[zip]]
+
+**Maps:** [[has]] [[hash]] [[get]]
+
+**Sequences:** [[count]] [[filter]] [[flatten]] [[head]] [[skip]] [[seq]] [[zip]]
+
+**Tuples:** [[tuple]]
+
+**Bit manipulation:** [[lsh]] [[rsh]]
+
+**Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
+
+**Conditionals:** [[case]] [[filter]] [[grepif]] [[has]] [[if]]
+
+**Files:** [[file]]
+
+**Type converstion:** [[int]] [[real]] [[string]] [[uint]] [[array]]
+
+**Aggregators:** [[array]] [[avg]] [[max]] [[mean]] [[min]] [[sort]] [[stddev]]
+[[stdev]] [[sum]] [[var]] [[variance]]

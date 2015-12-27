@@ -60,6 +60,23 @@
 .vi { color: #19177C } /* Name.Variable.Instance */
 .il { color: #666666 } /* Literal.Number.Integer.Long */
 
+.wikilink {
+    text-decoration: none;
+    background-color: #F6F0AC;
+    border-radius: 4px;
+    text-shadow: 1px 1px white;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-family: monospace;
+}
+
+dt {
+    margin-top: 1em;
+    font-family: monospace;
+    font-size: 110%;
+    font-weight: bold;
+}
+
 body {
     color: #303030;
     font-size: 14px;
@@ -76,9 +93,10 @@ pre {
 }
 
 code {
-    background: #E5E5E5;
+    background: #E8E8E8;
     border: 0px solid #C0C0C0;
     border-radius: 3px;
     padding: 1px 3px;
+    font-size: 90%;
 }
 

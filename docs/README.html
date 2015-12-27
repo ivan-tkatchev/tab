@@ -61,6 +61,23 @@
 .vi { color: #19177C } /* Name.Variable.Instance */
 .il { color: #666666 } /* Literal.Number.Integer.Long */
 
+.wikilink {
+    text-decoration: none;
+    background-color: #F6F0AC;
+    border-radius: 4px;
+    text-shadow: 1px 1px white;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-family: monospace;
+}
+
+dt {
+    margin-top: 1em;
+    font-family: monospace;
+    font-size: 110%;
+    font-weight: bold;
+}
+
 body {
     color: #303030;
     font-size: 14px;
@@ -77,15 +94,16 @@ pre {
 }
 
 code {
-    background: #E5E5E5;
+    background: #E8E8E8;
     border: 0px solid #C0C0C0;
     border-radius: 3px;
     padding: 1px 3px;
+    font-size: 90%;
 }
 
 </style></head><body>
 <h1 id="introduction">Introduction</h1>
-<p>This is a tutorial and reference for <code>tab</code>, a modern text processing language that's similar to awk in spirit. (But not similar in design philosophy, implementation or syntax.)</p>
+<p>This is a tutorial and reference for <code>tab</code>, a modern text processing language that&rsquo;s similar to awk in spirit. (But not similar in design philosophy, implementation or syntax.)</p>
 <p>Highlights:</p>
 <ul>
 <li>Designed for concise one-liner aggregation and manupulation of tabular text data.</li>
@@ -94,16 +112,17 @@ code {
 <li>Statically typed, type-inferred, declarative.</li>
 <li>Portable: requires only a standards-compliant C++11 compiler and nothing else.</li>
 </ul>
-<p>(Also see <a href="#comparison">'Comparison'</a> below.)</p>
+<p>(Also see <a href="#comparison">&lsquo;Comparison&rsquo;</a> below.)</p>
 <p>Skip to:</p>
 <ul>
 <li><a href="#language-tutorial">Tutorial</a></li>
 <li><a href="#grammar">Grammar reference</a></li>
 <li><a href="#builtin-functions">Builtin functions reference</a></li>
 <li><a href="#aggregators">Aggregators reference</a></li>
+<li><a href="#builtin-function-index">Function index</a></li>
 </ul>
 <h2 id="compiling-and-installing">Compiling and installing</h2>
-<p>Type <code>make</code>. Currently the <code>Makefile</code> requires a recent C++ compiler. (Tested with gcc 4.9; please send patches to the Makefile for supporting other compilers.)</p>
+<p>Type <code>make</code>. Requires a modern C++11 compiler. (Recent versions of g++ and clang++ will work.)</p>
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
 <h2 id="usage">Usage</h2>
 <p>The default is to read from standard input:</p>
@@ -138,14 +157,14 @@ code {
 <li><strong>Tuple</strong>, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.</li>
 <li><strong>Array</strong>, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.</li>
 <li><strong>Map</strong>, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.</li>
-<li><strong>Sequence</strong>, a.k.a. "lazy list" or "generator". A sequence doesn't store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.</li>
+<li><strong>Sequence</strong>, a.k.a. &ldquo;lazy list&rdquo; or &ldquo;generator&rdquo;. A sequence doesn&rsquo;t store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.</li>
 </ul>
 <p>Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)</p>
 <p>When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, <code>\t</code>.</p>
 <p>(So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)</p>
 <h3 id="control-structures">Control structures</h3>
-<p><code>tab</code> has no loops or conditional "if" statements; the input expression is evaluated, and the resulting value is printed on standard output.</p>
-<p>Instead of loops you'd use sequences and comprehensions.</p>
+<p><code>tab</code> has no loops or conditional &ldquo;if&rdquo; statements; the input expression is evaluated, and the resulting value is printed on standard output.</p>
+<p>Instead of loops you&rsquo;d use sequences and comprehensions.</p>
 <p>The input is a file stream, usually the standard input. A file stream in <code>tab</code> is represented as a sequence of strings, each string being a line from the file. (Lines are assumed be be separated by <code>\n</code>.)</p>
 <p>Built-in functions in <code>tab</code> are polymorphic, meaning that a function with the same name will act differently with input arguments of different types.</p>
 <p>You can enable a verbose debug mode to output the precise derivations of types in the input expression:</p>
@@ -171,20 +190,20 @@ code {
 </pre></div>
 
 
-<p><code>tab</code> can also be used as a desktop calculator. <code>pi()</code> is a function that returns the value of <em>pi</em>, <code>cos()</code> and <code>sin()</code> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
+<p><code>tab</code> can also be used as a desktop calculator. <a class="wikilink" href="#fn_pi">pi</a> is a function that returns the value of <em>pi</em>, <a class="wikilink" href="#fn_cos">cos</a> and <a class="wikilink" href="#fn_sin">sin</a> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
 <h4 id="3">3.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;count(@)&#39;</span>
 </pre></div>
 
 
-<p>This command is equivalent to <code>wc -l</code>. <code>count()</code> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
+<p>This command is equivalent to <code>wc -l</code>. <a class="wikilink" href="#fn_count">count</a> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
 <h4 id="4">4.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
 </pre></div>
 
 
-<p>This command is equivalent to <code>egrep -o "[a-zA-Z]+"</code>. <code>grep()</code> is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.</p>
-<p><code>[...]</code> is the syntax for <em>sequence comprehensions</em> -- transformers that apply an expression to all elements of a sequence; the result of a sequence comprehension is also a sequence.</p>
+<p>This command is equivalent to <code>egrep -o "[a-zA-Z]+"</code>. <a class="wikilink" href="#fn_grep">grep</a> is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings &ndash; the array of any found matches.</p>
+<p><code>[...]</code> is the syntax for <em>sequence comprehensions</em> &ndash; transformers that apply an expression to all elements of a sequence; the result of a sequence comprehension is also a sequence.</p>
 <p>The general syntax for sequence comprehensions is this: <code>[ &lt;element&gt; : &lt;input&gt; ]</code>. Here <code>&lt;input&gt;</code> is evaluated (once), converted to a sequence, and each element of that sequence becomes the input to the epxression <code>&lt;element&gt;</code>. The result is a sequence of <code>&lt;element&gt;</code>. (Or, in other words, a sequence of transformed elements from <code>&lt;input&gt;</code>.)</p>
 <p>If the <code>: &lt;input&gt;</code> part is omitted, then <code>: @</code> is automatically implied instead.</p>
 <p>Each time <code>&lt;element&gt;</code> is evaluated, its argument (an individual element in <code>&lt;input&gt;</code>) is passed via a variable that is also called <code>@</code>.</p>
@@ -196,18 +215,18 @@ code {
 
 
 <p>This command is equivalent to <code>nl -ba -w1</code>; that is, it outputs stdin with a line number prefixed to each line.</p>
-<p><code>zip()</code> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
-<p><code>count()</code> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
+<p><a class="wikilink" href="#fn_zip">zip</a> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
+<p><a class="wikilink" href="#fn_count">count</a> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
 <h4 id="6">6.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
 </pre></div>
 
 
-<p>This command is equivalent to <code>wc -w</code>: it prints the number of words in stdin. <code>[ grep(@,"\\S+") ]</code> is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.</p>
-<p><code>:</code> here is <em>not</em> part of a comprehension, it is a special <code>flatten</code> operator: given a sequence of sequences, it will return a "flattened" sequence of elements in all the interior sequences.</p>
+<p>This command is equivalent to <code>wc -w</code>: it prints the number of words in stdin. <code>[ grep(@,"\\S+") ]</code> is an expression we have seen earlier &ndash; it returns a sequence of arrays of regex matches.</p>
+<p><code>:</code> here is <em>not</em> part of a comprehension, it is a special <a class="wikilink" href="#fn_flatten">flatten</a> operator: given a sequence of sequences, it will return a &ldquo;flattened&rdquo; sequence of elements in all the interior sequences.</p>
 <p>If given a sequence of arrays, maps or atomic values then this operator will automatically convert the interior structures into equivalent sequences.</p>
 <p>Thus, the result of <code>:[ grep(@,"\\S+") ]</code> is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of <code>\S+</code> in stdin.</p>
-<p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <code>flatten()</code> builtin function.</p>
+<p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <a class="wikilink" href="#fn_flatten">flatten</a> builtin function.</p>
 <h4 id="7">7.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
 </pre></div>
@@ -225,13 +244,13 @@ code {
 
 
 <p>This command is equivalent to <code>grep</code>; it will output all lines from stdin having the string <code>"this"</code>.</p>
-<p><code>grepif()</code> is a lighter version of <code>grep()</code>: given a string and a regular expression it will return an integer: <code>1</code> if the regex is found in the string and <code>0</code> if it not. (You could use <code>count(grep(@,"this"))</code> instead, but <code>grepif</code> is obviously shorter and quicker.)</p>
+<p><a class="wikilink" href="#fn_grepif">grepif</a> is a lighter version of <a class="wikilink" href="#fn_grep">grep</a>: given a string and a regular expression it will return an integer: <code>1</code> if the regex is found in the string and <code>0</code> if it not. (You could use <code>count(grep(@,"this"))</code> instead, but <a class="wikilink" href="#fn_grepif">grepif</a> is obviously shorter and quicker.)</p>
 <p><code>grepif(@,"this"), @</code> is a tuple of two elements: the first element is <code>1</code> or <code>0</code> depending on if the line has <code>"this"</code> as a substring, and the second element is the whole line itself.</p>
 <p><strong>Note</strong>: tuples in <code>tab</code> are <em>not</em> surrounded by brackets. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called <code>tuple</code> for doing just that.)</p>
 <p>To write a tuple, simply list its elements separated by commas.</p>
-<p><code>?</code> is the <em>filter</em> operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has <code>0</code> as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.</p>
+<p><code>?</code> is the <a class="wikilink" href="#fn_filter">filter</a> operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has <code>0</code> as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.</p>
 <p>(So, for example: <code>?[1,@ : x]</code> is equivalent to the original sequence <code>x</code>.)</p>
-<p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <code>filter()</code> function.</p>
+<p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_filter">filter</a> function.</p>
 <p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
 <h4 id="9">9.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
@@ -241,8 +260,8 @@ code {
 <p>This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.</p>
 <p><code>{ ... : zip(count(), @) }</code> is, as before, a map comprehension, with a sequence of pairs (line number, line) as the input.</p>
 <p><code>@[0] % 2</code> is the key in the map: we use the indexing operator <code>[]</code> to select the first element from the input pair, which is the line number. <code>%</code> is the mathematical modulo operator (like in C); line number modulo 2 gives us <code>0</code> for even line numbers and <code>1</code> for odd line numbers.</p>
-<p><code>sum(count(@[1]))</code> is the mapped value in the map. As before, indexing the input pair with <code>1</code> gives us the second element, which is the contents of the line from stdin; <code>count()</code>, when applied to a string, gives us the length of the string in bytes. </p>
-<p><code>sum()</code> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <code>sum()</code> when groupped together as part of the map's value.</p>
+<p><code>sum(count(@[1]))</code> is the mapped value in the map. As before, indexing the input pair with <code>1</code> gives us the second element, which is the contents of the line from stdin; <a class="wikilink" href="#fn_count">count</a>, when applied to a string, gives us the length of the string in bytes. </p>
+<p><a class="wikilink" href="#fn_sum">sum</a> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <a class="wikilink" href="#fn_sum">sum</a> when groupped together as part of the map&rsquo;s value.</p>
 <p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
 <h4 id="10">10.</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
@@ -252,7 +271,7 @@ code {
 <p>This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.</p>
 <p>The <code>z=</code> here is an example of <em>variable assignment</em>. Here the variable <code>z</code> will be assigned a map of unique words with their frequencies. (See example 7; <code>z</code> here is the same, except that each word is lowercased and a word count is tallied.)</p>
 <p>Variable assignments do not produce a type and do not evaluate to a value; whatever is between the <code>=</code> and the <code>,</code> (the map comprehension in this case) will not be output.</p>
-<p>Moving on: <code>sort()</code> is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map <code>z</code> by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.</p>
+<p>Moving on: <a class="wikilink" href="#fn_sort">sort</a> is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map <code>z</code> by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.</p>
 <p><code>@~0</code> is syntactic sugar that is completely equivalent to <code>@[0]</code>.</p>
 <p><code>[-5,-1]</code> is the <em>indexing</em> operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:</p>
 <ul>
@@ -267,9 +286,9 @@ code {
 </li>
 <li>Strings can be spliced as if they were byte arrays; substrings will returned.</li>
 </ul>
-<p>In this case a sub-array of five elements is returned -- the last five elements in the array returned by <code>sort()</code></p>
-<p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <code>index()</code> function.</p>
-<p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It's syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
+<p>In this case a sub-array of five elements is returned &ndash; the last five elements in the array returned by <a class="wikilink" href="#fn_sort">sort</a></p>
+<p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_index">index</a> function.</p>
+<p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It&rsquo;s syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h4 id="bonus-track">Bonus track</h4>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;</span>
 <span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
@@ -290,7 +309,7 @@ min and max     <span class="m">0</span>       2508
 </pre></div>
 
 
-<p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)</p>
+<p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn&rsquo;t look to be normally-distributed.)</p>
 <p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
 <p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
 <p>You can use parentheses to delimit code blocks in function definitions. For example:</p>
@@ -300,7 +319,7 @@ square_of_square<span class="o">(</span>4<span class="o">)</span>
 
 
 <p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
-<p>Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
+<p>Let&rsquo;s check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)</p>
 <div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
 250.8   23
 501.6   0
@@ -451,347 +470,377 @@ chars :<span class="o">=</span> <span class="o">(</span><span class="s2">&quot;\
 <h3 id="builtin-functions">Builtin functions</h3>
 <p>Listed alphabetically.</p>
 <dl>
-<dt><code>abs</code></dt>
+<dt id="fn_abs">abs</dt>
 <dd>Computes absolute value.<br>
 Usage:<br>
 <code>abs Int -&gt; Int</code><br>
 <code>abs Real -&gt; Real</code></dd>
-<dt><code>array</code></dt>
-<dd>Stores a sequence or map into an array. See also <code>sort</code> for a version of this function with sorting.<br>
+<dt id="fn_array">array</dt>
+<dd>Stores a sequence or map into an array. See also <a class="wikilink" href="#fn_sort">sort</a> for a version of this function with sorting.<br>
 Usage:<br>
 <code>array Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>array Seq[a] -&gt; Arr[a]</code><br>
-<code>array Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> -- <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. </dd>
-<dt><code>avg</code></dt>
-<dd>Synonym for <code>mean</code>.</dd>
-<dt><code>bytes</code></dt>
+<code>array Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> &ndash; <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. </dd>
+<dt id="fn_avg">avg</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_mean">mean</a>.</dd>
+<dt id="fn_bytes">bytes</dt>
 <dd>Accepts a string and returns an array of integers representing the bytes in the string. <em>Warning</em>: this function is not Unicode-aware and assumes the string is an ASCII bytestream.<br>
 Usage:<br>
 <code>bytes String -&gt; Arr[UInt]</code></dd>
-<dt><code>case</code></dt>
-<dd>A switch/case function. The first argument is compared to every argument at position <code>n+1</code>, and if they compare equal, the argument at position <code>n+2</code> is returned. If none match equal, then the last argument is returned. See also: <code>if</code>.<br>
+<dt id="fn_case">case</dt>
+<dd>A switch/case function. The first argument is compared to every argument at position <code>n+1</code>, and if they compare equal, the argument at position <code>n+2</code> is returned. If none match equal, then the last argument is returned. See also: <a class="wikilink" href="#fn_if">if</a>.<br>
 Example: <code>[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]</code> returns <code>a b c c</code>.<br>
 Usage:<br>
 <code>case a,a,b,...,b -&gt; b</code></dd>
-<dt><code>cat</code></dt>
+<dt id="fn_cat">cat</dt>
 <dd>Concatenates strings.<br>
 Usage:<br>
 <code>cat String,... -&gt; String</code>. At least one string argument is required.</dd>
-<dt><code>ceil</code></dt>
+<dt id="fn_ceil">ceil</dt>
 <dd>Rounds a floating-point number to the smallest integer that is greater than the input value.<br>
 Usage:<br>
 <code>ceil Real -&gt; Real</code></dd>
-<dt><code>cos</code></dt>
+<dt id="fn_cos">cos</dt>
 <dd>The cosine function.<br>
 Usage:<br>
 <code>cos Number -&gt; Real</code></dd>
-<dt><code>count</code></dt>
+<dt id="fn_count">count</dt>
 <dd>Counts the number of elements.<br>
 Usage:<br>
-<code>count None -&gt; Seq[UInt]</code> -- returns an infinite sequence that counts from 1 to infinity.<br>
-<code>count Integer -&gt; Seq[UInt]</code> -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)<br>
-<code>count String -&gt; UInt</code> -- returns the number of bytes in the string.<br>
-<code>count Seq[a] -&gt; UInt</code> -- returns the number of elements in the sequence. (<em>Warning</em>: counting the number of elements will consume the sequence!)<br>
-<code>count Map[a] -&gt; UInt</code> -- returns the number of keys in the map.<br>
-<code>count Arr[a] -&gt; UInt</code> -- returns the number of elements in the array.</dd>
-<dt><code>cut</code></dt>
-<dd>Splits a string using a delimiter. See also <code>recut</code> for splitting with a regular expression.<br>
+<code>count None -&gt; Seq[UInt]</code> &ndash; returns an infinite sequence that counts from 1 to infinity.<br>
+<code>count Integer -&gt; Seq[UInt]</code> &ndash; returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)<br>
+<code>count String -&gt; UInt</code> &ndash; returns the number of bytes in the string.<br>
+<code>count Seq[a] -&gt; UInt</code> &ndash; returns the number of elements in the sequence. (<em>Warning</em>: counting the number of elements will consume the sequence!)<br>
+<code>count Map[a] -&gt; UInt</code> &ndash; returns the number of keys in the map.<br>
+<code>count Arr[a] -&gt; UInt</code> &ndash; returns the number of elements in the array.</dd>
+<dt id="fn_cut">cut</dt>
+<dd>Splits a string using a delimiter. See also <a class="wikilink" href="#fn_recut">recut</a> for splitting with a regular expression.<br>
 Usage:<br>
-<code>cut String, String -&gt; Arr[String]</code> -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
-<code>cut String, String, Integer -&gt; String</code> -- calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.</dd>
-<dt><code>date</code></dt>
+<code>cut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
+<code>cut String, String, Integer -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.</dd>
+<dt id="fn_date">date</dt>
 <dd>Converts a UNIX timestamp to a textual representation of a UTC date.<br>
 Usage:<br>
-<code>date Int -&gt; String</code> -- returns a UTC date in the <code>"YYYY-MM-DD"</code> format.</dd>
-<dt><code>datetime</code></dt>
+<code>date Int -&gt; String</code> &ndash; returns a UTC date in the <code>"YYYY-MM-DD"</code> format.</dd>
+<dt id="fn_datetime">datetime</dt>
 <dd>Converts a UNIX timestamp to a textual representation of a UTC date and time.<br>
 Usage:<br>
-<code>datetime Int -&gt; String</code> -- returns a UTC date and time in the <code>"YYYY-MM-DD HH:MM:SS"</code> format.</dd>
-<dt><code>e</code></dt>
+<code>datetime Int -&gt; String</code> &ndash; returns a UTC date and time in the <code>"YYYY-MM-DD HH:MM:SS"</code> format.</dd>
+<dt id="fn_e">e</dt>
 <dd>Returns the number <em>e</em>.<br>
 Usage:<br>
 <code>e None -&gt; Real</code>.</dd>
-<dt><code>exp</code></dt>
+<dt id="fn_exp">exp</dt>
 <dd>The exponentiation function. Calling <code>exp(a)</code> is equivalent to <code>e()**a</code>.<br>
 Usage:<br>
 <code>exp Number -&gt; Real</code></dd>
-<dt><code>file</code></dt>
+<dt id="fn_file">file</dt>
 <dd>Opens a file and returns the lines in the file as a sequence of strings. (This allows a <code>tab</code> expression to process several files instead of just one.)<br>
 Usage:<br>
 <code>file String -&gt; Seq[String]</code></dd>
-<dt><code>filter</code></dt>
+<dt id="fn_filter">filter</dt>
 <dd>Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.<br>
 Usage:<br>
 <code>filter Seq[(Integer,a...) -&gt; Seq[(a...)]</code></dd>
-<dt><code>flatten</code></dt>
+<dt id="fn_flatten">flatten</dt>
 <dd>Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.<br>
 Usage:<br>
 <code>flatten Seq[ Seq[a] ] -&gt; Seq[a]</code><br>
 <code>flatten Seq[ Arr[a] ] -&gt; Seq[a]</code><br>
 <code>flatten Seq[ Map[a,b] ] -&gt; Seq[(a,b)]</code><br>
-<code>flatten Seq[a] -&gt; Seq[a]</code> -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)</dd>
-<dt><code>floor</code></dt>
+<code>flatten Seq[a] -&gt; Seq[a]</code> &ndash; sequences that are already flat will be returned unchanged. (Though at a performance cost.)</dd>
+<dt id="fn_floor">floor</dt>
 <dd>Rounds a floating-point number to the greatest integer that is less than the input value.<br>
 Usage:<br>
 <code>floor Real -&gt; Real</code></dd>
-<dt><code>get</code></dt>
-<dd>Accesses map elements (like <code>index</code>), but returns a default value if the key is not found in the map. (Unlike <code>index</code> which throws an exception.)<br>
+<dt id="fn_get">get</dt>
+<dd>Accesses map elements (like <a class="wikilink" href="#fn_index">index</a>), but returns a default value if the key is not found in the map. (Unlike <a class="wikilink" href="#fn_index">index</a> which throws an exception.)<br>
 Usage:<br>
-<code>get Map[a,b], a, b -&gt; b</code> -- returns the element stored in the map with the given key, or the third argument if the key is not found.</dd>
-<dt><code>gmtime</code></dt>
+<code>get Map[a,b], a, b -&gt; b</code> &ndash; returns the element stored in the map with the given key, or the third argument if the key is not found.</dd>
+<dt id="fn_gmtime">gmtime</dt>
 <dd>Converts a UNIX timestamp to a UTC date and time.<br>
 Usage:<br>
-<code>gmtime Int -&gt; Int, Int, Int, Int, Int, Int</code> -- returns year, month, day, hour, minute, second.</dd>
-<dt><code>grep</code></dt>
+<code>gmtime Int -&gt; Int, Int, Int, Int, Int, Int</code> &ndash; returns year, month, day, hour, minute, second.</dd>
+<dt id="fn_grep">grep</dt>
 <dd>Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.<br>
 Usage:<br>
 <code>grep String, String -&gt; Arr[String]</code></dd>
-<dt><code>grepif</code></dt>
+<dt id="fn_grepif">grepif</dt>
 <dd>Filter strings according to a regular expression.<br>
 Usage:<br>
-<code>grepif String, String -&gt; UInt</code> -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to <code>count(grep(a,b)) != 0u</code>, except much faster.<br>
-<code>grepif Seq[String], String -&gt; Seq[String]</code> -- returns a sequence of only those strings that have regular expression matches. Equivalent to <code>?[ grepif(@,b), @ : a ]</code>.</dd>
-<dt><code>has</code></dt>
+<code>grepif String, String -&gt; UInt</code> &ndash; returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to <code>count(grep(a,b)) != 0u</code>, except much faster.<br>
+<code>grepif Seq[String], String -&gt; Seq[String]</code> &ndash; returns a sequence of only those strings that have regular expression matches. Equivalent to <code>?[ grepif(@,b), @ : a ]</code>.</dd>
+<dt id="fn_hase">has</dt>
 <dd>Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.<br>
 Usage:<br>
 <code>has Map[a,b], a -&gt; UInt</code></dd>
-<dt><code>hash</code></dt>
+<dt id="fn_hash">hash</dt>
 <dd>Hashes a string to a 32-bit integer. The 32-bit FNV hash function is used.<br>
 Usage:<br>
 <code>hash String -&gt; UInt</code></dd>
-<dt><code>head</code></dt>
-<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <code>skip</code>.<br>
+<dt id="fn_head">head</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <a class="wikilink" href="#fn_skip">skip</a>.<br>
 Usage:<br>
 <code>head Seq[a], Integer -&gt; Seq[a]</code><br>
 <code>head Arr[a], Integer -&gt; Seq[a]</code></dd>
-<dt><code>hist</code></dt>
+<dt id="fn_hist">hist</dt>
 <dd>Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  </dd>
 <dd>Usage:<br>
 <code>hist Arr[Number], Integer -&gt; Arr[(Real,UInt)]</code>  </dd>
-<dt><code>if</code></dt>
+<dt id="fn_if">if</dt>
 <dd>Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 <em>Note</em>: this is not a true conditional control structure, since all three arguments are always evaluated.<br>
 Usage:<br>
 <code>if Integer, a, a -&gt; a</code>  </dd>
-<dt><code>index</code></dt>
+<dt id="fn_index">index</dt>
 <dd>Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.<br>
 Usage:<br>
-<code>index Arr[a], UInt -&gt; a</code> -- returns element from the array, using a 0-based index.<br>
-<code>index Arr[a], Int -&gt; a</code> -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.<br>
-<code>index Arr[a], Real -&gt; a</code> -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
-<code>index Map[a,b], a -&gt; b</code> -- returns the element stored in the map with the given key. It is an error if the key is not found; see <code>get</code> for a version that returns a default value instead.<br>
-<code>index (a,b,...), Integer</code> -- returns an element from a tuple.<br>
-<code>index Arr[a], Number, Number -&gt; Arr[a]</code> -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <code>index</code>.<br>
-<code>index String, Integer, Integer -&gt; String</code> -- returns a substring from a string, as with the array slicing above. <em>Note:</em> string indexes refer to <em>bytes</em>, <code>tab</code> is not Unicode-aware.</dd>
-<dt><code>int</code></dt>
+<code>index Arr[a], UInt -&gt; a</code> &ndash; returns element from the array, using a 0-based index.<br>
+<code>index Arr[a], Int -&gt; a</code> &ndash; negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.<br>
+<code>index Arr[a], Real -&gt; a</code> &ndash; returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
+<code>index Map[a,b], a -&gt; b</code> &ndash; returns the element stored in the map with the given key. It is an error if the key is not found; see <a class="wikilink" href="#fn_get">get</a> for a version that returns a default value instead.<br>
+<code>index (a,b,...), Integer</code> &ndash; returns an element from a tuple.<br>
+<code>index Arr[a], Number, Number -&gt; Arr[a]</code> &ndash; returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <a class="wikilink" href="#fn_index">index</a>.<br>
+<code>index String, Integer, Integer -&gt; String</code> &ndash; returns a substring from a string, as with the array slicing above. <em>Note:</em> string indexes refer to <em>bytes</em>, <code>tab</code> is not Unicode-aware.</dd>
+<dt id="fn_int">int</dt>
 <dd>Converts an unsigned integer, floating-point value or string into a signed integer.<br>
 Usage:<br>
 <code>int UInt -&gt; Int</code><br>
 <code>int Real -&gt; Int</code><br>
 <code>int String -&gt; Int</code><br>
-<code>int String, Integer -&gt; Int</code> -- tries to convert the string to an integer; if the conversion fails, returns the second argument instead.</dd>
-<dt><code>join</code></dt>
+<code>int String, Integer -&gt; Int</code> &ndash; tries to convert the string to an integer; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_join">join</dt>
 <dd>Concatenates the elements in a string array or sequence using a delimiter.<br>
 Usage:<br>
 <code>join Arr[String], String -&gt; String</code><br>
 <code>join Seq[String], String -&gt; String</code><br>
-<code>join String, Arr[String], String, String -&gt; String</code> -- adds a prefix and suffix as well. Equivalent to <code>cat(p, join(a, d), s)</code>.<br>
+<code>join String, Arr[String], String, String -&gt; String</code> &ndash; adds a prefix and suffix as well. Equivalent to <code>cat(p, join(a, d), s)</code>.<br>
 <code>join String, Seq[String], String, String -&gt; String</code></dd>
-<dt><code>log</code></dt>
+<dt id="fn_log">log</dt>
 <dd>The natural logarithm function.<br>
 Usage:<br>
 <code>log Number -&gt; Real</code></dd>
-<dt><code>lsh</code></dt>
-<dd>Bit shift left; like the C <code>&lt;&lt;</code> operator. (See also <code>rsh</code>.)<br>
+<dt id="fn_lsh">lsh</dt>
+<dd>Bit shift left; like the C <code>&lt;&lt;</code> operator. (See also <a class="wikilink" href="#fn_rsh">rsh</a>.)<br>
 Usage:<br>
 <code>lsh Int, Integer -&gt; Int</code><br>
 <code>lsh UInt, Integer -&gt; UInt</code></dd>
-<dt><code>max</code></dt>
-<dd>Finds the maximum element in a sequence or array. See also: <code>min</code>.<br>
+<dt id="fn_max">max</dt>
+<dd>Finds the maximum element in a sequence or array. See also: <a class="wikilink" href="#fn_min">min</a>.<br>
 Usage:<br>
 <code>max Arr[a] -&gt; a</code><br>
 <code>max Seq[a] -&gt; a</code><br>
-<code>max Number -&gt; Number</code> -- <strong>Note:</strong> this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.</dd>
-<dt><code>mean</code></dt>
-<dd>Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: <code>var</code> and <code>stdev</code>.<br>
+<code>max Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.</dd>
+<dt id="fn_mean">mean</dt>
+<dd>Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: <a class="wikilink" href="#fn_var">var</a> and <a class="wikilink" href="#fn_stdev">stdev</a>.<br>
 Usage:<br>
 <code>mean Arr[Number] -&gt; Real</code><br>
 <code>mean Seq[Number] -&gt; Real</code><br>
-<code>mean Number -&gt; Real</code> -- <strong>Note:</strong> this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.</dd>
-<dt><code>min</code></dt>
-<dd>Finds the minimum element in a sequence or array. See also: <code>max</code>.<br>
+<code>mean Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.</dd>
+<dt id="fn_min">min</dt>
+<dd>Finds the minimum element in a sequence or array. See also: <a class="wikilink" href="#fn_max">max</a>.<br>
 Usage:<br>
 <code>min Arr[a] -&gt; a</code><br>
 <code>min Seq[a] -&gt; a</code><br>
-<code>min Number -&gt; Number</code> -- <strong>Note:</strong> this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.</dd>
-<dt><code>normal</code></dt>
-<dd>Returns random numbers from the normal (gaussian) distribution. (See also: <code>rand</code>, <code>sample</code>.)<br>
+<code>min Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.</dd>
+<dt id="fn_normal">normal</dt>
+<dd>Returns random numbers from the normal (gaussian) distribution. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
 Usage:<br>
-<code>normal None -&gt; Real</code> -- returns a random number with mean <code>0</code> and standard deviation <code>1</code>.<br>
-<code>normal Real, Real -&gt; Real</code> -- same, but with mean and standard deviation of <code>a</code> and <code>b</code>.</dd>
-<dt><code>now</code></dt>
+<code>normal None -&gt; Real</code> &ndash; returns a random number with mean <code>0</code> and standard deviation <code>1</code>.<br>
+<code>normal Real, Real -&gt; Real</code> &ndash; same, but with mean and standard deviation of <code>a</code> and <code>b</code>.</dd>
+<dt id="fn_now">now</dt>
 <dd>Returns the current UNIX timestamp.<br>
 Usage:<br>
 <code>now None -&gt; Int</code></dd>
-<dt><code>pi</code></dt>
+<dt id="fn_pi">pi</dt>
 <dd>Return the number <em>pi</em>.<br>
 Usage:<br>
 <code>pi None -&gt; Real</code></dd>
-<dt><code>rand</code></dt>
-<dd>Returns random numbers from the uniform distribution. (See also: <code>normal</code>, <code>sample</code>.)<br>
+<dt id="fn_rand">rand</dt>
+<dd>Returns random numbers from the uniform distribution. (See also: <a class="wikilink" href="#fn_normal">normal</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
 Usage:<br>
-<code>rand None -&gt; Real</code> -- returns a random real number from the range <code>[0, 1)</code>.<br>
-<code>rand Real, Real -&gt; Real</code> -- same, but with the range <code>[a, b)</code>.<br>
+<code>rand None -&gt; Real</code> &ndash; returns a random real number from the range <code>[0, 1)</code>.<br>
+<code>rand Real, Real -&gt; Real</code> &ndash; same, but with the range <code>[a, b)</code>.<br>
 <code>rand UInt, UInt -&gt; UInt</code><br>
-<code>rand Int, Int -&gt; Int</code> -- returns a random number from the integer range <code>[a, b]</code>.</dd>
-<dt><code>real</code></dt>
+<code>rand Int, Int -&gt; Int</code> &ndash; returns a random number from the integer range <code>[a, b]</code>.</dd>
+<dt id="fn_real">real</dt>
 <dd>Converts an unsigned integer, signed integer or string into a floating-point value.<br>
 Usage:<br>
 <code>real UInt -&gt; Real</code><br>
 <code>real Int -&gt; Real</code><br>
 <code>real String -&gt; Real</code><br>
-<code>real String, Real -&gt; Real</code> -- tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.</dd>
-<dt><code>recut</code></dt>
-<dd>Splits a string using a regular expression. See also <code>cut</code> for splitting with a byte string.<br>
-<code>recut String, String -&gt; Arr[String]</code> -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
-<code>recut String, String, Integer -&gt; String</code> -- calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.</dd>
-<dt><code>replace</code></dt>
+<code>real String, Real -&gt; Real</code> &ndash; tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_recut">recut</dt>
+<dd>Splits a string using a regular expression. See also <a class="wikilink" href="#fn_cut">cut</a> for splitting with a byte string.<br>
+<code>recut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
+<code>recut String, String, Integer -&gt; String</code> &ndash; calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.</dd>
+<dt id="fn_replace">replace</dt>
 <dd>Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.<br>
 Usage:<br>
 <code>replace String, String, String -&gt; String</code></dd>
-<dt><code>reverse</code></dt>
+<dt id="fn_reverse">reverse</dt>
 <dd>Reverses the elements in an array.<br>
 Usage:<br>
 <code>reverse Arr[a] -&gt; Arr[a]</code></dd>
-<dt><code>round</code></dt>
+<dt id="fn_round">round</dt>
 <dd>Rounds a floating-point number to the nearest integer.<br>
 Usage:<br>
 <code>round Real -&gt; Real</code></dd>
-<dt><code>rsh</code></dt>
-<dd>Bit shift right; like the C <code>&gt;&gt;</code> operator. (See also <code>lsh</code>.)<br>
+<dt id="fn_rsh">rsh</dt>
+<dd>Bit shift right; like the C <code>&gt;&gt;</code> operator. (See also <a class="wikilink" href="#fn_lsh">lsh</a>.)<br>
 Usage:<br>
 <code>rsh Int, Integer -&gt; Int</code><br>
 <code>rsh UInt, Integer -&gt; UInt</code></dd>
-<dt><code>sample</code></dt>
-<dd>Sample from a sequence of atomic values, without replacement. (See also: <code>rand</code>, <code>normal</code>.)<br>
+<dt id="fn_sample">sample</dt>
+<dd>Sample from a sequence of atomic values, without replacement. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_normal">normal</a>.)<br>
 Usage:<br>
 <code>sample Integer, Seq[Int] -&gt; Arr[Int]</code><br>
 <code>sample Integer, Seq[UInt] -&gt; Arr[UInt]</code><br>
 <code>sample Integer, Seq[Real] -&gt; Arr[Real]</code><br>
-<code>sample Integer, Seq[String] -&gt; Arr[String]</code> -- the first argument is the sample size.</dd>
-<dt><code>seq</code></dt>
-<dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <code>tabulate</code>.)<br>
+<code>sample Integer, Seq[String] -&gt; Arr[String]</code> &ndash; the first argument is the sample size.</dd>
+<dt id="fn_seq">seq</dt>
+<dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <a class="wikilink" href="#fn_tabulate">tabulate</a>.)<br>
 Usage:<br>
 <code>seq (a,...),... -&gt; Seq[a]</code></dd>
-<dt><code>sin</code></dt>
+<dt id="fn_sin">sin</dt>
 <dd>The sine function.<br>
 Usage:<br>
 <code>sin Number -&gt; Real</code></dd>
-<dt><code>skip</code></dt>
-<dd>Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: <code>head</code>.<br>
+<dt id="fn_skip">skip</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: <a class="wikilink" href="#fn_head">head</a>.<br>
 Usage:<br>
 <code>skip Seq[a], Integer -&gt; Seq[a]</code><br>
 <code>skip Arr[a], Integer -&gt; Seq[a]</code></dd>
-<dt><code>sort</code></dt>
-<dd>Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also <code>array</code> a version of this function without sorting.<br>
+<dt id="fn_sort">sort</dt>
+<dd>Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also <a class="wikilink" href="#fn_array">array</a>, a version of this function without sorting.<br>
 Usage:<br>
 <code>sort Arr[a] -&gt; Arr[a]</code><br>
 <code>sort Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>sort Seq[a] -&gt; Arr[a]</code><br>
-<code>sort Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> -- <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. </dd>
-<dt><code>sqrt</code></dt>
+<code>sort Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> &ndash; <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. </dd>
+<dt id="fn_sqrt">sqrt</dt>
 <dd>The square root function.<br>
 Usage:<br>
 <code>sqrt Number -&gt; Real</code></dd>
-<dt><code>stddev</code></dt>
-<dd>Synonym for <code>stdev</code>.</dd>
-<dt><code>stdev</code></dt>
-<dd>Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to <code>var</code>, with the difference that the square root of the result is taken. See also: <code>mean</code>.<br>
+<dt id="fn_stddev">stddev</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_stdev">stdev</a>.</dd>
+<dt id="fn_stdev">stdev</dt>
+<dd>Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to <a class="wikilink" href="#fn_var">var</a>, with the difference that the square root of the result is taken. See also: <a class="wikilink" href="#fn_mean">mean</a>.<br>
 Usage:<br>
 <code>stdev Arr[Number] -&gt; Real</code><br>
 <code>stdev Seq[Number] -&gt; Real</code><br>
-<code>stdev Number -&gt; Real</code> -- <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
-<dt><code>string</code></dt>
+<code>stdev Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
+<dt id="fn_string">string</dt>
 <dd>Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.<br>
 Usage:<br>
 <code>string UInt -&gt; String</code><br>
 <code>string Int -&gt; String</code><br>
 <code>string Real -&gt; String</code><br>
-<code>string Arr[UInt] -&gt; String</code> -- <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
-<dt><code>sum</code></dt>
+<code>string Arr[UInt] -&gt; String</code> &ndash; <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
+<dt id="fn_sum">sum</dt>
 <dd>Computes a sum of the elements of a sequence or array.<br>
 Usage:<br>
 <code>sum Arr[Number] -&gt; Number</code><br>
 <code>sum Seq[Number] -&gt; Number</code><br>
-<code>sum Number -&gt; Number</code> -- <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
-<dt><code>tan</code></dt>
+<code>sum Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
+<dt id="fn_tan">tan</dt>
 <dd>The tangent function.<br>
 Usage:<br>
 <code>tan Number -&gt; Real</code></dd>
-<dt><code>tabulate</code></dt>
-<dd>A synonym for <code>seq</code>.</dd>
-<dt><code>time</code></dt>
+<dt id="fn_tabulate">tabulate</dt>
+<dd>A synonym for <a class="wikilink" href="#fn_seq">seq</a>.</dd>
+<dt id="fn_time">time</dt>
 <dd>Converts a UNIX timestamp to a textual representation of a UTC time.<br>
 Usage:<br>
-<code>time Int -&gt; String</code> -- returns a UTC time in the <code>"HH:MM:SS"</code> format.</dd>
-<dt><code>tolower</code></dt>
+<code>time Int -&gt; String</code> &ndash; returns a UTC time in the <code>"HH:MM:SS"</code> format.</dd>
+<dt id="fn_tolower">tolower</dt>
 <dd>Converts to bytes of a string to lowercase. <em>Note:</em> only works on ASCII data, Unicode is not supported.<br>
 Usage:<br>
 <code>tolower String -&gt; String</code></dd>
-<dt><code>toupper</code></dt>
+<dt id="fn_toupper">toupper</dt>
 <dd>Converts to bytes of a string to uppercase. <em>Note:</em> only works on ASCII data, Unicode is not supported.<br>
 Usage:<br>
 <code>toupper String -&gt; String</code></dd>
-<dt><code>tuple</code></dt>
+<dt id="fn_tuple">tuple</dt>
 <dd>Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.<br>
 Usage:<br>
 <code>tuple (a,b,...) -&gt; (a,b,...)</code></dd>
-<dt><code>uint</code></dt>
+<dt id="fn_uint">uint</dt>
 <dd>Converts a signed integer, floating-point number or string to an unsigned integer.<br>
 Usage:<br>
 <code>uint UInt -&gt; UInt</code><br>
 <code>uint Real -&gt; UInt</code><br>
 <code>uint String -&gt; UInt</code><br>
-<code>uint String, Integer -&gt; UInt</code> -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
-<dt><code>var</code></dt>
-<dd>Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: <code>mean</code> and <code>stdev</code>.<br>
+<code>uint String, Integer -&gt; UInt</code> &ndash; tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_var">var</dt>
+<dd>Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: <a class="wikilink" href="#fn_mean">mean</a> and <a class="wikilink" href="#fn_stdev">stdev</a>.<br>
 Usage:<br>
 <code>var Arr[Number] -&gt; Real</code><br>
 <code>var Seq[Number] -&gt; Real</code><br>
-<code>var Number -&gt; Real</code> -- <strong>Note:</strong> this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.</dd>
-<dt><code>variance</code></dt>
-<dd>Synonym for <code>var</code>.</dd>
-<dt><code>zip</code></dt>
+<code>var Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.</dd>
+<dt id="fn_variance">variance</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_var">var</a>.</dd>
+<dt id="fn_zip">zip</dt>
 <dd>Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.<br>
 Usage:<br>
 <code>zip Seq[a], Seq[b],... -&gt; Seq[(a,b,...)]</code><br>
 <code>zip Arr[a], Arr[b],... -&gt; Seq[(a,b,...)]</code></dd>
 </dl>
 <h3 id="aggregators">Aggregators</h3>
-<p>Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What's important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.</p>
+<p>Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What&rsquo;s important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.</p>
 <p>Aggregation is performed efficiently: no unnecessary temporary data structures are created and no unnecessary bookkeeping calculations are performed.</p>
 <p>Here is a list of aggregators and their effects, sorted alphabetically:</p>
 <dl>
-<dt><code>array</code></dt>
-<dd>Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: <code>sort</code>.</dd>
-<dt><code>avg</code></dt>
+<dt>array</dt>
+<dd>Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: <a class="wikilink" href="#fn_sort">sort</a>.</dd>
+<dt>avg</dt>
 <dd>Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.</dd>
-<dt><code>max</code></dt>
+<dt>max</dt>
 <dd>Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.</dd>
-<dt><code>mean</code></dt>
-<dd>Synonymous with <code>avg</code>.</dd>
-<dt><code>min</code></dt>
+<dt>mean</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_avg">avg</a>.</dd>
+<dt>min</dt>
 <dd>Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.</dd>
-<dt><code>sort</code></dt>
-<dd>Like <code>array</code>, except that the resulting elements will be sorted in ascending order.</dd>
-<dt><code>stddev</code></dt>
-<dd>Synonymous with <code>stddev</code>.</dd>
-<dt><code>stdev</code></dt>
-<dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: <code>var</code>.</dd>
-<dt><code>sum</code></dt>
+<dt>sort</dt>
+<dd>Like <a class="wikilink" href="#fn_array">array</a>, except that the resulting elements will be sorted in ascending order.</dd>
+<dt>stddev</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_stddev">stddev</a>.</dd>
+<dt>stdev</dt>
+<dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: <a class="wikilink" href="#fn_var">var</a>.</dd>
+<dt>sum</dt>
 <dd>Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.</dd>
-<dt><code>var</code></dt>
+<dt>var</dt>
 <dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.</dd>
-<dt><code>variance</code></dt>
-<dd>Synonymous with <code>var</code>.</dd>
-</dl></body></html>
+<dt>variance</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_var">var</a>.</dd>
+</dl>
+<h3 id="builtin-function-index">Builtin function index</h3>
+<h4 id="alphabetically-by-name">Alphabetically by name:</h4>
+<p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a>
+<a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a>
+<a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_head">head</a>
+<a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_index">index</a> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_log">log</a> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a>
+<a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a>
+<a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a>
+<a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_tan">tan</a> <a class="wikilink" href="#fn_tabulate">tabulate</a>
+<a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_tuple">tuple</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<h4 id="by-kind">By kind:</h4>
+<p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
+<p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a> <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_round">round</a>
+<a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
+<p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a>
+<a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
+<p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_join">join</a> 
+<a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a></p>
+<p><strong>Arrays:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_index">index</a> <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_reverse">reverse</a>
+<a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<p><strong>Maps:</strong> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a></p>
+<p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<p><strong>Tuples:</strong> <a class="wikilink" href="#fn_tuple">tuple</a></p>
+<p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
+<p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>
+<p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a></p>
+<p><strong>Files:</strong> <a class="wikilink" href="#fn_file">file</a></p>
+<p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
+<p><strong>Aggregators:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a>
+<a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p></body></html>
