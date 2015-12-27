@@ -1,32 +1,26 @@
 # Introduction #
 
-This is a tutorial and reference for `tab`, a modern text processing language that's similar to awk in spirit. (But not similar in design philosophy, implementation or syntax.)
-
-Highlights:
-
-* Designed for concise one-liner aggregation and manupulation of tabular text data.
-* Makes no compromises on performance; aims to be no slower than traditional old-school UNIX shell utilities whenever possible.
-* Feature-rich enough to support even very complex queries. (Also includes a good set of mathematical operations.)
-* Statically typed, type-inferred, declarative.
-* Portable: requires only a standards-compliant C++11 compiler and nothing else.
-
-(Also see ['Comparison'](#comparison) below.)
+This is a tutorial and reference for [tab](../index.html), a shell language for text/number manipulation.
 
 Skip to:
 
 * [Tutorial](#language-tutorial)
-* [Grammar reference](#grammar)
-* [Builtin functions reference](#builtin-functions)
-* [Aggregators reference](#aggregators)
+* [Comparison with other languages](#comparison)
+* Reference documentation:
+    * [Grammar](#grammar)
+    * [Builtin functions](#builtin-functions)
+    * [Aggregators](#aggregators)
 * [Function index](#builtin-function-index)
 
-## Compiling and installing ##
+# Compiling and installing #
 
 Type `make`. Requires a modern C++11 compiler. (Recent versions of g++ and clang++ will work.)
 
 Copy the resulting binary of `tab` somewhere in your path.
 
-## Usage ##
+The official git repository is found [here](http://bitbucket.org/tkatchev/tab).
+
+# Usage #
 
 The default is to read from standard input:
 
@@ -35,7 +29,7 @@ The default is to read from standard input:
 
 The result will be written to standard output.
 
-You can also use the `-i` flag to read from a named file:
+You can also use the `-i` flag to read from a file:
 
     :::bash
     $ tab -i mydata <expression>...
@@ -47,9 +41,9 @@ If your `<expression>` is too long, you can pass it in via a file, with the `-f`
 
 (In this case, the contents of `mycode` will be prepended to `<expression>`, separated with a comma.)
 
-## Language tutorial ##
+# Language tutorial #
 
-### Basic types ###
+## Basic types ##
 
 `tab` is a statically-typed language. However, you will not need to declare any types, the appropriate type information will be deduced automatically, and any errors will be reported before execution.
 
@@ -73,7 +67,7 @@ When outputing, each element of an array, map or sequence is printed on its own 
 
 (So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)
 
-### Control structures ###
+## Control structures ##
 
 `tab` has no loops or conditional "if" statements; the input expression is evaluated, and the resulting value is printed on standard output.
 
@@ -89,18 +83,18 @@ You can enable a verbose debug mode to output the precise derivations of types i
 * `-vv` will output the resulting type along the the generated virtual machine instruction codes and their types
 * `-vvv` will output the parse tree along with the generated code and resulting type.
 
-### Examples ###
+## Examples ##
 
 An introduction to `tab` in 10 easy steps.
 
-#### 1.
+### 1.
 
     :::bash
     $ ./tab '@'
 
 This command is equivalent to `cat`. `@` is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
 
-#### 2.
+### 2.
 
     :::bash
     $ ./tab 'sin(pi()/2)'
@@ -111,14 +105,14 @@ This command is equivalent to `cat`. `@` is a variable holding the top-level inp
 
 `tab` can also be used as a desktop calculator. [[pi]] is a function that returns the value of *pi*, [[cos]] and [[sin]] are the familiar trigonometric functions. The usual mathematical infix operators are supported; `**` is the exponentiation oprator.
 
-#### 3.
+### 3.
 
     :::bash
     $ ./tab 'count(@)'
 
 This command is equivalent to `wc -l`. [[count]] is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
-#### 4.
+### 4.
 
     :::bash
     $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
@@ -137,7 +131,7 @@ Thus: the expressions `@`, `[@]` and `[@ : @]` are all equivalent; they all retu
 
 The variables defined in `<element>` (on the left side of `:`) are *scoped*: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the `[ ... ]` brackets.
 
-#### 5.
+### 5.
 
     :::bash
     $ ./tab 'zip(count(), @)'
@@ -148,7 +142,7 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 [[count]] when called without arguments will return an infinite sequence of successive numbers, starting with `1`.
 
-#### 6.
+### 6.
 
     :::bash
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
@@ -163,7 +157,7 @@ Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matche
 
 **Note:** the unary prefix `:` operator is just straightforward syntactic sugar for the [[flatten]] builtin function.
 
-#### 7.
+### 7.
 
     :::bash
     $ ./tab '{ @ : :[ grep(@,"\\S+") ] }'
@@ -180,7 +174,7 @@ The result of this command will be a map where each word in stdin is mapped to a
 
 You can also wrap the expression in `count(...)` if you just want the number of unique words in stdin.
 
-#### 8.
+### 8.
 
     :::bash
     $ ./tab '?[ grepif(@,"this"), @ ]'
@@ -203,7 +197,7 @@ To write a tuple, simply list its elements separated by commas.
 
 **Note**: the `?[ grepif(@,b), @ : a ]` expression has a shortcut convenience function, written simply as `grepif(a, b)`. Thus, one could have simply run `./tab 'grepif(@,"this")'` instead.
                               
-#### 9.
+### 9.
 
     :::bash
     $ ./tab '{ @[0] % 2 -> sum(count(@[1])) : zip(count(), @) }'
@@ -220,7 +214,7 @@ This command will output the number of bytes on even lines versus the number of 
 
 (So, for example, using `sum(1)` on the right side of `->` in a map comprehension will count the number of occurences of whatever is on the left side of `->`.)
 
-#### 10.
+### 10.
 
     :::bash
     $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @~1, @~0 : z ])[-5,-1]'
@@ -252,7 +246,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
 **Note**: the `~` indexing operator is equivalent to `[...]`. It's syntactic sugar to make chained indexes more palatable: `a~0~1` is equivalent to `a[0][1]`. (The `~` will only work for single-element indexes, not splices.)
 
-#### Bonus track
+### Bonus track
 
     :::bash
     $ ./tab -i req.log '
@@ -301,7 +295,7 @@ Let's check the distribution visually, with a histogram: (The first column is a 
     2257.2  490
     2508    1792
 
-## Comparison ##
+# Comparison #
 
 A short, hands-on comparison of `tab` with equivalent shell and Python scripts.
 
@@ -361,9 +355,9 @@ Running time: around 0.9 seconds.
 
 Not only is `tab` faster in this case, it is also (in my opinion) more concise and idiomatic.
 
-## Reference ##
+# Reference #
 
-### Grammar ###
+## Grammar ##
 
 ```bash
 
@@ -447,7 +441,7 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ```
 
-### Builtin functions ###
+## Builtin functions ##
 
 Listed alphabetically.
 
@@ -831,7 +825,7 @@ Usage:
 `zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`  
 `zip Arr[a], Arr[b],... -> Seq[(a,b,...)]`
 
-### Aggregators ###
+## Aggregators ##
 
 Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What's important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.
 
@@ -872,9 +866,9 @@ var
 variance
 : Synonymous with [[var]].
 
-### Builtin function index ###
+## Builtin function index ##
 
-#### Alphabetically by name: 
+### Alphabetically by name: 
 
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
 [[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[flatten]]
@@ -885,7 +879,7 @@ variance
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]] [[tabulate]]
 [[time]] [[tolower]] [[toupper]] [[tuple]] [[uint]] [[var]] [[variance]] [[zip]]
 
-#### By kind:
+### By kind:
 
 **Core language:** [[filter]] [[flatten]] [[index]]
 

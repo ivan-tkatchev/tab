@@ -1,14 +1,19 @@
 # Introduction #
 
-This is a tutorial and reference for `tab`, a modern text processing language that's similar to awk in spirit. (But not similar in design philosophy, implementation or syntax.)
+This is a tutorial and reference for `tab`, a kind of programming language/shell calculator.
 
-Highlights:
+Why another programming language? Because `tab` is a special programming language unlike any other:
 
-* Designed for concise one-liner aggregation and manupulation of tabular text data.
-* Makes no compromises on performance; aims to be no slower than traditional old-school UNIX shell utilities whenever possible.
-* Feature-rich enough to support even very complex queries. (Also includes a good set of mathematical operations.)
-* Statically typed, type-inferred, declarative.
-* Portable: requires only a standards-compliant C++11 compiler and nothing else.
+* It's statically-typed and type-infered.
+* It also infers memory consumption and guarantees O(n) memory use.</li>
+* It is designed for concise one-liner computations right in the shell prompt.</li>
+* It features both a mathematics library and a set of data slicing and aggregation primitives.</li>
+* It is faster than all other interpreted languages with a similar scope. (Perl, Python, awk, ...)</li>
+* It is not Turing-complete. (But can compute virtually anything nonetheless.)</li>
+* It is self-contained: distributed as a single statically linked binary and nothing else.</li>
+* It has no platform dependencies.</li>
+
+You can think of `tab` as a kind of general-purpose query language for text files.
 
 (Also see ['Comparison'](#markdown-header-comparison) below.)
 
