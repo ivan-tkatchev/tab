@@ -65,11 +65,11 @@ void to_string(const obj::Object* in, obj::Object*& out) {
 }
 
 void pi(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = M_PI;
+    obj::get<obj::Real>(out).v = 3.141592653589793;
 }
 
 void e(const obj::Object* in, obj::Object*& out) {
-    obj::get<obj::Real>(out).v = M_E;
+    obj::get<obj::Real>(out).v = 2.718281828459045;
 }
 
 template <typename T>
