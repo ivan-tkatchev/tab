@@ -120,6 +120,12 @@ struct ArrayAtom : public Object {
             v.push_back(get< Atom<T> >(next).v);
         }
     }
+
+    void merge(const Object* v2) {
+        ArrayAtom<T>& t = get< ArrayAtom<T> >(v2);
+
+        v.insert(v.end(), t.v.begin(), t.v.end());
+    }
 };
 
 struct ArrayObject : public Object {
@@ -225,6 +231,14 @@ struct ArrayObject : public Object {
             v.push_back(next->clone());
         }
     }        
+
+    void merge(const Object* v2) {
+        ArrayObject& t = get<ArrayObject>(v2);
+
+        for (const Object* s : t.v) {
+            v.push_back(s->clone());
+        }
+    }
 };
 
 struct Tuple : public ArrayObject {

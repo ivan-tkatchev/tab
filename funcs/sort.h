@@ -2,7 +2,7 @@
 #define __TAB_FUNCS_SORT_H
 
 template <typename T>
-struct AtomSortAtom : public AtomArrayAtom<T> {
+struct AtomSortAtom : public obj::ArrayAtom<T> {
 
     obj::Object* clone() const {
         AtomSortAtom<T>* ret = new AtomSortAtom<T>;
@@ -15,7 +15,7 @@ struct AtomSortAtom : public AtomArrayAtom<T> {
     }
 };
 
-struct AtomSortObject : public AtomArrayObject {
+struct AtomSortObject : public obj::ArrayObject {
 
     obj::Object* clone() const {
         AtomSortObject* ret = new AtomSortObject;
@@ -145,16 +145,16 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
         switch (args.atom) {
         case Type::INT:
             obj = new AtomSortAtom<Int>;
-            return arratom_from_atom<Int>;
+            return array_from_atom<Int>;
         case Type::UINT:
             obj = new AtomSortAtom<UInt>;
-            return arratom_from_atom<UInt>;
+            return array_from_atom<UInt>;
         case Type::REAL:
             obj = new AtomSortAtom<Real>;
-            return arratom_from_atom<Real>;
+            return array_from_atom<Real>;
         case Type::STRING:
             obj = new AtomSortAtom<std::string>;
-            return arratom_from_atom<std::string>;
+            return array_from_atom<std::string>;
         }
 
         return nullptr;

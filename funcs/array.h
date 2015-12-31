@@ -1,6 +1,7 @@
 #ifndef __TAB_FUNCS_ARRAY_H
 #define __TAB_FUNCS_ARRAY_H
 
+/*
 template <typename T>
 struct AtomArrayAtom : public obj::ArrayAtom<T> {
 
@@ -36,9 +37,10 @@ struct AtomArrayObject : public obj::ArrayObject {
         }
     }
 };
+*/
 
 template <typename T>
-void arratom_from_atom(const obj::Object* in, obj::Object*& out) {
+void array_from_atom(const obj::Object* in, obj::Object*& out) {
     obj::Atom<T>& x = obj::get< obj::Atom<T> >(in);
     obj::ArrayAtom<T>& y = obj::get< obj::ArrayAtom<T> >(out);
     y.v.clear();
@@ -80,7 +82,7 @@ void array_from_seq(const obj::Object* in, obj::Object*& out) {
 }
 
 template <typename T>
-void arratom_from_seq(const obj::Object* in, obj::Object*& out) {
+void array_from_seq(const obj::Object* in, obj::Object*& out) {
 
     out->fill((obj::Object*)in);
 }
@@ -110,13 +112,13 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
             switch (t.atom) {
             case Type::INT:
-                return arratom_from_seq<Int>;
+                return array_from_seq<Int>;
             case Type::UINT:
-                return arratom_from_seq<UInt>;
+                return array_from_seq<UInt>;
             case Type::REAL:
-                return arratom_from_seq<Real>;
+                return array_from_seq<Real>;
             case Type::STRING:
-                return arratom_from_seq<std::string>;
+                return array_from_seq<std::string>;
             }
 
             return nullptr;
@@ -132,17 +134,13 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
         
         switch (args.atom) {
         case Type::INT:
-            obj = new AtomArrayAtom<Int>;
-            return arratom_from_atom<Int>;
+            return array_from_atom<Int>;
         case Type::UINT:
-            obj = new AtomArrayAtom<UInt>;
-            return arratom_from_atom<UInt>;
+            return array_from_atom<UInt>;
         case Type::REAL:
-            obj = new AtomArrayAtom<Real>;
-            return arratom_from_atom<Real>;
+            return array_from_atom<Real>;
         case Type::STRING:
-            obj = new AtomArrayAtom<std::string>;
-            return arratom_from_atom<std::string>;
+            return array_from_atom<std::string>;
         }
 
         return nullptr;
@@ -152,7 +150,6 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
         ret = Type(Type::ARR);
         ret.push(args);
         
-        obj = new AtomArrayObject;
         return array_from_tuple;
     }
         
