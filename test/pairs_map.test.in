@@ -1,0 +1,3 @@
+{ @~0 -> { @~1 -> sum.1 } : pairs(:[recut(@,"[^a-zA-Z]+")]) }~"the"~"following"
+===>
+2

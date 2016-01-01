@@ -38,20 +38,17 @@ void rand_n_n(const obj::Object* in, obj::Object*& out) {
     obj::get<obj::Real>(out).v = d(get_rand_generator());
 }
 
-template <typename N, typename TV>
+template <typename TV>
 void sample(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& arg = obj::get<obj::Tuple>(in);
-    auto _n = obj::get<N>(arg.v[0]).v;
+    UInt _n = obj::get< obj::Atom<UInt> >(arg.v[0]).v;
     obj::Object* seq = arg.v[1];
 
     std::vector<TV>& vvv = obj::get< obj::ArrayAtom<TV> >(out).v;
 
     size_t i = 0;
     std::mt19937_64& gen = get_rand_generator();
-
-    if (_n <= 0)
-        return;
 
     size_t n = _n;
     
@@ -84,29 +81,17 @@ void register_rand(Functions& funcs) {
 
     funcs.add("sample",
               Type(Type::TUP, { Type(Type::UINT), Type(Type::SEQ, { Type(Type::UINT) }) }),
-              Type(Type::ARR, { Type(Type::UINT) }), sample<obj::UInt, UInt>);
+              Type(Type::ARR, { Type(Type::UINT) }), sample<UInt>);
     funcs.add("sample",
               Type(Type::TUP, { Type(Type::UINT), Type(Type::SEQ, { Type(Type::INT) }) }),
-              Type(Type::ARR, { Type(Type::INT) }), sample<obj::UInt, Int>);
+              Type(Type::ARR, { Type(Type::INT) }), sample<Int>);
     funcs.add("sample",
               Type(Type::TUP, { Type(Type::UINT), Type(Type::SEQ, { Type(Type::REAL) }) }),
-              Type(Type::ARR, { Type(Type::REAL) }), sample<obj::UInt, Real>);
+              Type(Type::ARR, { Type(Type::REAL) }), sample<Real>);
     funcs.add("sample",
               Type(Type::TUP, { Type(Type::UINT), Type(Type::SEQ, { Type(Type::STRING) }) }),
-              Type(Type::ARR, { Type(Type::STRING) }), sample<obj::UInt, std::string>);
+              Type(Type::ARR, { Type(Type::STRING) }), sample<std::string>);
 
-    funcs.add("sample",
-              Type(Type::TUP, { Type(Type::INT), Type(Type::SEQ, { Type(Type::UINT) }) }),
-              Type(Type::ARR, { Type(Type::UINT) }), sample<obj::Int, UInt>);
-    funcs.add("sample",
-              Type(Type::TUP, { Type(Type::INT), Type(Type::SEQ, { Type(Type::INT) }) }),
-              Type(Type::ARR, { Type(Type::INT) }), sample<obj::Int, Int>);
-    funcs.add("sample",
-              Type(Type::TUP, { Type(Type::INT), Type(Type::SEQ, { Type(Type::REAL) }) }),
-              Type(Type::ARR, { Type(Type::REAL) }), sample<obj::Int, Real>);
-    funcs.add("sample",
-              Type(Type::TUP, { Type(Type::INT), Type(Type::SEQ, { Type(Type::STRING) }) }),
-              Type(Type::ARR, { Type(Type::STRING) }), sample<obj::Int, std::string>);
 }
 
 #endif

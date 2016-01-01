@@ -1,56 +1,20 @@
 #ifndef __TAB_FUNCS_ARRAY_H
 #define __TAB_FUNCS_ARRAY_H
 
-/*
-template <typename T>
-struct AtomArrayAtom : public obj::ArrayAtom<T> {
-
-    obj::Object* clone() const {
-        AtomArrayAtom<T>* ret = new AtomArrayAtom<T>;
-        ret->v = this->v;
-        return ret;
-    }
-
-    void merge(const obj::Object* o) {
-        obj::ArrayAtom<T>& other = obj::get< obj::ArrayAtom<T> >(o);
-        this->v.insert(this->v.end(), other.v.begin(), other.v.end());
-    }
-};
-
-struct AtomArrayObject : public obj::ArrayObject {
-
-    obj::Object* clone() const {
-        AtomArrayObject* ret = new AtomArrayObject;
-
-        for (const Object* s : v) {
-            ret->v.push_back(s->clone());
-        }
-
-        return ret;
-    }
-
-    void merge(const obj::Object* o) {
-        obj::ArrayObject& other = obj::get< obj::ArrayObject >(o);
-
-        for (const Object* s : other.v) {
-            v.push_back(s->clone());
-        }
-    }
-};
-*/
-
 template <typename T>
 void array_from_atom(const obj::Object* in, obj::Object*& out) {
     obj::Atom<T>& x = obj::get< obj::Atom<T> >(in);
     obj::ArrayAtom<T>& y = obj::get< obj::ArrayAtom<T> >(out);
+
     y.v.clear();
     y.v.push_back(x.v);
 }
 
 void array_from_tuple(const obj::Object* in, obj::Object*& out) {
-    obj::ArrayObject& y = obj::get< obj::ArrayObject >(out);
-    y.v.clear();
-    y.v.push_back((obj::Object*)in);
+    obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
+
+    o.v.clear();
+    o.v.push_back((obj::Object*)in);
 }
 
 void array_from_map(const obj::Object* in, obj::Object*& out) {

@@ -17,10 +17,12 @@ namespace funcs {
 #include "funcs/avg.h"
 #include "funcs/if.h"
 #include "funcs/array.h"
+#include "funcs/map.h"
 #include "funcs/sort.h"
 #include "funcs/reverse.h"
 #include "funcs/rand.h"
 #include "funcs/misc.h"
+#include "funcs/ngram.h"
 #include "funcs/time.h"
 #include "funcs/hist.h"
 
@@ -46,10 +48,12 @@ void register_functions() {
     funcs::register_avg(funs);
     funcs::register_if(funs);
     funcs::register_array(funs);
+    funcs::register_map(funs);
     funcs::register_sort(funs);
     funcs::register_reverse(funs);
     funcs::register_rand(funs);
     funcs::register_misc(funs);
+    funcs::register_ngram(funs);
     funcs::register_time(funs);
     funcs::register_hist(funs);
 }

@@ -1,16 +1,12 @@
 #ifndef __TAB_FUNCS_HIST_H
 #define __TAB_FUNCS_HIST_H
 
-template <typename T, typename T2>
+template <typename T>
 void hist(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& arg = obj::get<obj::Tuple>(in);
     obj::ArrayAtom<T>& a = obj::get< obj::ArrayAtom<T> >(arg.v[0]);
-    ssize_t _n = obj::get< obj::Atom<T2> >(arg.v[1]).v;
-
-    if (_n <= 0) {
-        throw std::runtime_error("Histogram bucket count cannot be zero or less.");
-    }
+    UInt _n = obj::get< obj::Atom<UInt> >(arg.v[1]).v;
 
     size_t n = _n;
 
@@ -71,32 +67,17 @@ void register_hist(Functions& funcs) {
     funcs.add("hist",
               Type(Type::TUP, { Type(Type::ARR, { Type(Type::UINT) }), Type(Type::UINT) }),
               Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<UInt,UInt>);
-
-    funcs.add("hist",
-              Type(Type::TUP, { Type(Type::ARR, { Type(Type::UINT) }), Type(Type::INT) }),
-              Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<UInt,Int>);
+              hist<UInt>);
 
     funcs.add("hist",
               Type(Type::TUP, { Type(Type::ARR, { Type(Type::INT) }), Type(Type::UINT) }),
               Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<Int,UInt>);
-
-    funcs.add("hist",
-              Type(Type::TUP, { Type(Type::ARR, { Type(Type::INT) }), Type(Type::INT) }),
-              Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<Int,Int>);
+              hist<Int>);
 
     funcs.add("hist",
               Type(Type::TUP, { Type(Type::ARR, { Type(Type::REAL) }), Type(Type::UINT) }),
               Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<Real,UInt>);
-
-    funcs.add("hist",
-              Type(Type::TUP, { Type(Type::ARR, { Type(Type::REAL) }), Type(Type::INT) }),
-              Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
-              hist<Real,Int>);
+              hist<Real>);
 }
 
 #endif

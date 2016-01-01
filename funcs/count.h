@@ -72,14 +72,10 @@ void count_null(const obj::Object* in, obj::Object*& out) {
     v.max = 0;
 }
 
-template <typename T>
 void count_nulln(const obj::Object* in, obj::Object*& out) {
 
     CountNull& v = obj::get<CountNull>(out);
-    auto max = obj::get<T>(in).v;
-
-    if (max < 0)
-        throw std::runtime_error("count() with a negative integer argument.");
+    UInt max = obj::get< obj::Atom<UInt> >(in).v;
     
     v.i->v = 0;
     v.max = max + 1;
@@ -142,13 +138,7 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) 
             ret = Type(Type::SEQ);
             ret.push(Type::UINT);
             obj = new CountNull;
-            return count_nulln<obj::UInt>;
-
-        case Type::INT:
-            ret = Type(Type::SEQ);
-            ret.push(Type::UINT);
-            obj = new CountNull;
-            return count_nulln<obj::Int>;
+            return count_nulln;
 
         default:
             return nullptr;

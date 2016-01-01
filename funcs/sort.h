@@ -2,10 +2,10 @@
 #define __TAB_FUNCS_SORT_H
 
 template <typename T>
-struct AtomSortAtom : public obj::ArrayAtom<T> {
+struct ArrayAtomSort : public obj::ArrayAtom<T> {
 
     obj::Object* clone() const {
-        AtomSortAtom<T>* ret = new AtomSortAtom<T>;
+        ArrayAtomSort<T>* ret = new ArrayAtomSort<T>;
         ret->v = this->v;
         return ret;
     }
@@ -15,10 +15,10 @@ struct AtomSortAtom : public obj::ArrayAtom<T> {
     }
 };
 
-struct AtomSortObject : public obj::ArrayObject {
+struct ArrayObjectSort : public obj::ArrayObject {
 
     obj::Object* clone() const {
-        AtomSortObject* ret = new AtomSortObject;
+        ArrayObjectSort* ret = new ArrayObjectSort;
 
         for (const Object* s : v) {
             ret->v.push_back(s->clone());
@@ -38,14 +38,18 @@ void sort_arratom(const obj::Object* in, obj::Object*& out) {
 
     obj::ArrayAtom<T>& x = obj::get< obj::ArrayAtom<T> >(in);
     std::sort(x.v.begin(), x.v.end());
-    out = (obj::Object*)in;
+
+    ArrayAtomSort<T>& o = obj::get< ArrayAtomSort<T> >(out);
+    o.v.swap(x.v);
 }
 
 void sort_arr(const obj::Object* in, obj::Object*& out) {
 
     obj::ArrayObject& x = obj::get<obj::ArrayObject>(in);
     std::sort(x.v.begin(), x.v.end(), obj::ObjectLess());
-    out = (obj::Object*)in;
+
+    ArrayObjectSort& o = obj::get<ArrayObjectSort>(out);
+    o.v.swap(x.v);
 }
 
 void sort_map(const obj::Object* in, obj::Object*& out) {
@@ -59,14 +63,18 @@ void sort_map(const obj::Object* in, obj::Object*& out) {
 void sort_seq_arr(const obj::Object* in, obj::Object*& out) {
 
     out->fill((obj::Object*)in);
-    sort_arr(out, out);
+
+    obj::ArrayObject& x = obj::get<obj::ArrayObject>(out);
+    std::sort(x.v.begin(), x.v.end(), obj::ObjectLess());
 }
 
 template <typename T>
-void sort_seq_arratom(const obj::Object* in, obj::Object*& out) {
+void sort_seq_arr(const obj::Object* in, obj::Object*& out) {
 
     out->fill((obj::Object*)in);
-    sort_arratom<T>(out, out);
+
+    obj::ArrayAtom<T>& x = obj::get< obj::ArrayAtom<T> >(out);
+    std::sort(x.v.begin(), x.v.end());
 }
 
     
@@ -75,7 +83,6 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
     if (args.type == Type::ARR) {
 
         ret = args;
-        obj = obj::nothing();
 
         const Type& t = args.tuple->at(0);
 
@@ -83,12 +90,16 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
             switch (t.atom) {
             case Type::INT:
+                obj = new ArrayAtomSort<Int>;
                 return sort_arratom<Int>;
             case Type::UINT:
+                obj = new ArrayAtomSort<UInt>;
                 return sort_arratom<UInt>;
             case Type::REAL:
+                obj = new ArrayAtomSort<Real>;
                 return sort_arratom<Real>;
             case Type::STRING:
+                obj = new ArrayAtomSort<std::string>;
                 return sort_arratom<std::string>;
             }
 
@@ -96,6 +107,7 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
         } else {
 
+            obj = new ArrayObjectSort;
             return sort_arr;
         }
 
@@ -109,6 +121,7 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
         ret.push(pair);
 
+        obj = new ArrayObjectSort;
         return sort_map;
 
     } else if (args.type == Type::SEQ) {
@@ -122,18 +135,24 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
             switch (t.atom) {
             case Type::INT:
-                return sort_seq_arratom<Int>;
+                obj = new ArrayAtomSort<Int>;
+                return sort_seq_arr<Int>;
             case Type::UINT:
-                return sort_seq_arratom<UInt>;
+                obj = new ArrayAtomSort<UInt>;
+                return sort_seq_arr<UInt>;
             case Type::REAL:
-                return sort_seq_arratom<Real>;
+                obj = new ArrayAtomSort<Real>;
+                return sort_seq_arr<Real>;
             case Type::STRING:
-                return sort_seq_arratom<std::string>;
+                obj = new ArrayAtomSort<std::string>;
+                return sort_seq_arr<std::string>;
             }
 
             return nullptr;
             
         } else {
+
+            obj = new ArrayObjectSort;
             return sort_seq_arr;
         }
 
@@ -144,16 +163,16 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
         switch (args.atom) {
         case Type::INT:
-            obj = new AtomSortAtom<Int>;
+            obj = new ArrayAtomSort<Int>;
             return array_from_atom<Int>;
         case Type::UINT:
-            obj = new AtomSortAtom<UInt>;
+            obj = new ArrayAtomSort<UInt>;
             return array_from_atom<UInt>;
         case Type::REAL:
-            obj = new AtomSortAtom<Real>;
+            obj = new ArrayAtomSort<Real>;
             return array_from_atom<Real>;
         case Type::STRING:
-            obj = new AtomSortAtom<std::string>;
+            obj = new ArrayAtomSort<std::string>;
             return array_from_atom<std::string>;
         }
 
@@ -164,7 +183,7 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
         ret = Type(Type::ARR);
         ret.push(args);
         
-        obj = new AtomSortObject;
+        obj = new ArrayObjectSort;
         return array_from_tuple;
     }
         

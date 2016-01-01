@@ -67,6 +67,14 @@ When outputing, each element of an array, map or sequence is printed on its own 
 
 (So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)
 
+## Atomic types ##
+
+The default number type in `tab` is the unsigned integer. A plain sequence of digits will be interpreted as a `UInt`. When you need an explicitly signed `Int`, put an `s`, `i` or `l` suffix onto the digits; for example, `1996l`. All three suffixes are equivalent, they are syntactic sugar.
+
+Floating-point number literals can be entered using a `.` or using scientific notation; for example, `3.` or `3e0`.
+
+String literals are delimited with single or double quotes. Both are equivalent. (Again, syntactic sugar.) A limited set of escape characters are supported within strings: `\t`, `\n`, `\r`, `\e`, `\\`, `\'`, `\"`.
+
 ## Control structures ##
 
 `tab` has no loops or conditional "if" statements; the input expression is evaluated, and the resulting value is printed on standard output.
@@ -410,7 +418,7 @@ e_idx := e |
 
 e := literal | funcall | var | array | map | seq | paren
 
-literal := int | uint | real | string
+literal := real | int | uint | string
 
 funcall := funcall_paren | funcall_dot
 
@@ -428,9 +436,10 @@ paren := "(" atomic ")"
 
 var := "@" | [a-zA-Z][a-zA-Z0-9_]*
 
-int := ("-")? [0-9]+
+int := "-" [0-9]+ |
+       [0-9]+ ("i" | "s" | "l")
 
-uint := [0-9]+ "u"
+uint := [0-9]+ ("u")?
 
 real := [-+]? [0-9]+ ("." [0-9]*)? ([eE] [-+]? [0-9]+)?
 
@@ -452,11 +461,12 @@ Usage:
 `abs Real -> Real`
 
 array {: #fn_array}
-: Stores a sequence or map into an array. See also [[sort]] for a version of this function with sorting.  
+: Stores a sequence or map or atomic value into an array. See also [[sort]] for a version of this function with sorting.  
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
-`array Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce an unsorted array of all such values, listed in order of insertion into the map. 
+`array Number|String|Tuple -> Arr[Number|String|Tuple]` -- returns an array with one element.  
+**Note:** when arrays are used as values in a map, they will concatenate. (See [aggregators](#aggregators) below for details.)
 
 avg {: #fn_avg}
 : Synonym for [[mean]].
@@ -491,7 +501,7 @@ count {: #fn_count}
 : Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
-`count Integer -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)  
+`count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)  
 `count String -> UInt` -- returns the number of bytes in the string.  
 `count Seq[a] -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
@@ -501,7 +511,7 @@ cut {: #fn_cut}
 : Splits a string using a delimiter. See also [[recut]] for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
-`cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
+`cut String, String, UInt -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
 
 date {: #fn_date}
 : Converts a UNIX timestamp to a textual representation of a UTC date.  
@@ -580,13 +590,13 @@ Usage:
 head {: #fn_head}
 : Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: [[skip]].  
 Usage:  
-`head Seq[a], Integer -> Seq[a]`  
-`head Arr[a], Integer -> Seq[a]`
+`head Seq[a], UInt -> Seq[a]`  
+`head Arr[a], UInt -> Seq[a]`
                                     
 hist {: #fn_hist}
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
 : Usage:  
-`hist Arr[Number], Integer -> Arr[(Real,UInt)]`  
+`hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
 if {: #fn_if}
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
@@ -601,7 +611,7 @@ Usage:
 `index Arr[a], Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
 `index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
 `index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see [[get]] for a version that returns a default value instead.  
-`index (a,b,...), Integer` -- returns an element from a tuple.  
+`index (a,b,...), UInt` -- returns an element from a tuple.  
 `index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of [[index]].  
 `index String, Integer, Integer -> String` -- returns a substring from a string, as with the array slicing above. _Note:_ string indexes refer to _bytes_, `tab` is not Unicode-aware.
 
@@ -632,6 +642,13 @@ Usage:
 `lsh Int, Integer -> Int`  
 `lsh UInt, Integer -> UInt`
 
+map {: #fn_map}
+: Stores a sequence of pairs or a single pair into a map.  
+Usage:  
+`map Seq[(a,b)] -> Map[a,b]`  
+`map (a,b) -> Map[a,b]` -- returns a map with one element.  
+**Note:** when maps are used as values in other maps, they will merge. (See [aggregators](#aggregators) below for details.)
+
 max {: #fn_max}
 : Finds the maximum element in a sequence or array. See also: [[min]].  
 Usage:  
@@ -653,6 +670,11 @@ Usage:
 `min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
+ngrams {: #fn_ngrams}
+: Similar to [[pairs]] and [[triplets]], except returns a sequence of arrays of length N instead of tuples.  
+Usage:  
+`ngrams Seq[a], UInt -> Seq[Array[a]]`
+
 normal {: #fn_normal}
 : Returns random numbers from the normal (gaussian) distribution. (See also: [[rand]], [[sample]].)  
 Usage:  
@@ -663,6 +685,11 @@ now {: #fn_now}
 : Returns the current UNIX timestamp.  
 Usage:  
 `now None -> Int`
+
+pairs {: #fn_pairs}
+: Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: [[triplets]] and [[ngrams]].)  
+Usage:  
+`pairs Seq[a] -> Seq[(a,a)]`
 
 pi {: #fn_pi}
 : Return the number *pi*.  
@@ -688,7 +715,7 @@ Usage:
 recut {: #fn_recut}
 : Splits a string using a regular expression. See also [[cut]] for splitting with a byte string.  
 `recut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.  
-`recut String, String, Integer -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.
+`recut String, String, UInt -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.
 
 replace {: #fn_replace}
 : Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
@@ -714,10 +741,10 @@ Usage:
 sample {: #fn_sample}
 : Sample from a sequence of atomic values, without replacement. (See also: [[rand]], [[normal]].)  
 Usage:  
-`sample Integer, Seq[Int] -> Arr[Int]`  
-`sample Integer, Seq[UInt] -> Arr[UInt]`  
-`sample Integer, Seq[Real] -> Arr[Real]`  
-`sample Integer, Seq[String] -> Arr[String]` -- the first argument is the sample size.
+`sample UInt, Seq[Int] -> Arr[Int]`  
+`sample UInt, Seq[UInt] -> Arr[UInt]`  
+`sample UInt, Seq[Real] -> Arr[Real]`  
+`sample UInt, Seq[String] -> Arr[String]` -- the first argument is the sample size.
 
 seq {: #fn_seq}
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for [[tabulate]].)  
@@ -732,8 +759,8 @@ Usage:
 skip {: #fn_skip}
 : Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: [[head]].  
 Usage:  
-`skip Seq[a], Integer -> Seq[a]`  
-`skip Arr[a], Integer -> Seq[a]`
+`skip Seq[a], UInt -> Seq[a]`  
+`skip Arr[a], UInt -> Seq[a]`
 
 sort {: #fn_sort}
 : Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also [[array]], a version of this function without sorting.  
@@ -796,6 +823,11 @@ toupper {: #fn_toupper}
 Usage:  
 `toupper String -> String`
 
+triplets {: #fn_triplets}
+: Similar to [[pairs]], except returns triplets of before-previous, previous and current elements. (See also: [[pairs]] and [[ngrams]].)  
+Usage:  
+`triplets Seq[a] -> Seq[(a,a,a)]`
+
 tuple {: #fn_tuple}
 : Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
 Usage:  
@@ -833,11 +865,14 @@ Aggregation is performed efficiently: no unnecessary temporary data structures a
 
 Here is a list of aggregators and their effects, sorted alphabetically:
 
-array
-: Accepts a value, returns an array of one element with that value. When combined together, these arrays will merge together, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: [[sort]].
+array, [. .]
+: Arrays are implicit aggregators. When combined together under one key of a map, arrays will concatenate, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: [[sort]].
 
 avg
 : Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
+
+map, \{ \}
+: Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)
 
 max
 : Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.
@@ -866,6 +901,19 @@ var
 variance
 : Synonymous with [[var]].
 
+An explanation of how arrays and maps are aggregated implicitly:
+
+    { @~0 -> { @~1 -> sum.1 } : pairs(@) }
+
+This program will produce the intuitively obvious result -- a map of maps where the leaf values are frequency counts.
+This works as expected because maps-inside-maps will automatically aggregate.
+
+Similarly for arrays:
+
+    { month(@) -> array(day_values(@)) : data }
+
+Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
+
 ## Builtin function index ##
 
 ### Alphabetically by name: 
@@ -873,11 +921,12 @@ variance
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
 [[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[flatten]]
 [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
-[[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[max]] [[mean]]
-[[min]] [[normal]] [[now]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]]
+[[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]] [[mean]]
+[[min]] [[ngrams]] [[normal]] [[now]] [[pairs]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]]
 [[reverse]] [[round]] [[rsh]] [[sample]] [[seq]] [[sin]] [[skip]] [[sort]]
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]] [[tabulate]]
-[[time]] [[tolower]] [[toupper]] [[tuple]] [[uint]] [[var]] [[variance]] [[zip]]
+[[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]] [[var]]
+[[variance]] [[zip]]
 
 ### By kind:
 
@@ -895,9 +944,10 @@ variance
 **Arrays:** [[array]] [[count]] [[filter]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
 [[skip]] [[sort]] [[zip]]
 
-**Maps:** [[has]] [[hash]] [[get]]
+**Maps:** [[has]] [[hash]] [[get]] [[map]]
 
-**Sequences:** [[count]] [[filter]] [[flatten]] [[head]] [[skip]] [[seq]] [[zip]]
+**Sequences:** [[count]] [[filter]] [[flatten]] [[head]] [[ngrams]] [[pairs]] [[skip]]
+[[seq]] [[triplets]] [[zip]]
 
 **Tuples:** [[tuple]]
 

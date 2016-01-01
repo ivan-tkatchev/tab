@@ -430,6 +430,21 @@ struct MapObject : public Object {
         return ret;
     }
 
+    void insert(Object* key, Object* val) {
+
+        auto i = v.find(key);
+            
+        if (i != v.end()) {
+            i->second->merge(val);
+
+        } else {
+            key = key->clone();
+            val = val->clone();
+            val->merge_start();
+            v[key] = val;
+        }
+    }
+
     void fill(Object* seq) {
 
         clear();
@@ -445,21 +460,22 @@ struct MapObject : public Object {
             Object* key = tup.v[0];
             Object* val = tup.v[1];
 
-            auto i = v.find(key);
-            
-            if (i != v.end()) {
-                i->second->merge(val);
-
-            } else {
-                key = key->clone();
-                val = val->clone();
-                val->merge_start();
-                v[key] = val;
-            }
+            insert(key, val);
         }
 
         for (auto& i : v) {
             i.second->merge_end();
+        }
+    }
+
+    void merge(const Object* v2) {
+        MapObject& t = get<MapObject>(v2);
+
+        for (const auto& i : t.v) {
+            Object* key = (Object*)i.first;
+            Object* val = (Object*)i.second;
+
+            insert(key, val);
         }
     }
 };

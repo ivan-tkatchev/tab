@@ -93,7 +93,7 @@ Functions::func_t head_skip_checker(const Type& args, Type& ret, obj::Object*& o
 
     const Type& a2 = args.tuple->at(1);
 
-    if (!check_integer(a2))
+    if (!check_unsigned(a2))
         return nullptr;
 
     const Type& a1 = args.tuple->at(0);

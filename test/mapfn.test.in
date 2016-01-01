@@ -1,0 +1,13 @@
+sort.{ @~0 -> map([ @, sum.1 : recut(@~1,"[^a-zA-Z]") ]) : zip(count(),@) }~6
+===>
+	2
+Software	1
+and	2
+derivative	1
+execute	1
+of	1
+prepare	1
+the	2
+to	1
+transmit	1
+works	1

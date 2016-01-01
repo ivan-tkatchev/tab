@@ -1,0 +1,8 @@
+{ @~0~1 -> @[1,-1] : ngrams(zip(count(), :[recut(@,"[^a-zA-Z]+")]),4) }~"copies"
+===>
+104	of
+105	the
+106	Software
+122	or
+123	derivative
+124	works

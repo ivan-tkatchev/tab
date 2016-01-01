@@ -168,14 +168,13 @@ void map_index_tup(const obj::Object* in, obj::Object*& out) {
     out = i->second;
 }
 
-template <typename Obj>
 void tup_index(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     obj::Tuple& tup = obj::get<obj::Tuple>(args.v[0]);
-    Obj& i = obj::get<Obj>(args.v[1]);
+    UInt i = obj::get< obj::Atom<UInt> >(args.v[1]).v;
 
-    out = tup.v[i.v];
+    out = tup.v[i];
 }
 
 template <typename T1,typename T2>
@@ -263,31 +262,18 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         
         const Type& arg = args.tuple->at(1);
 
-        if (!arg.literal || !check_integer(arg)) 
+        if (!arg.literal || !check_unsigned(arg)) 
             throw std::runtime_error("Indexing tuples is only possible with integer literals.");
 
-        size_t i = 0;
-        Functions::func_t fun;
-        
-        if (arg.atom == Type::UINT) {
+        size_t i = (size_t)arg.literal->uint;
 
-            i = (size_t)arg.literal->uint;
-            fun = tup_index<obj::UInt>;
-
-        } else if (arg.atom == Type::INT) {
-
-            i = (size_t)arg.literal->inte;
-            fun = tup_index<obj::Int>;
-        }
-
-        
         if (i >= ci.tuple->size())
             throw std::runtime_error("Tuple index out of range");
 
         obj = obj::nothing();
         ret = ci.tuple->at(i);
 
-        return fun;
+        return tup_index;
     }
     
     if (ci.type != Type::ARR || (args.tuple->size() != 2 && args.tuple->size() != 3))

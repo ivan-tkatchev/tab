@@ -362,11 +362,6 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::STRING),
               cutn);
 
-    funcs.add("cut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) }),
-              Type(Type::STRING),
-              cutn);
-
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
@@ -389,10 +384,6 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::STRING),
               recutn);
 
-    funcs.add("recut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) }),
-              Type(Type::STRING),
-              recutn);
 }
 
 #endif

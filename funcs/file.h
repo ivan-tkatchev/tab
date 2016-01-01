@@ -150,6 +150,7 @@ Functions::func_t file_checker(const Type& args, Type& ret, obj::Object*& obj) {
 void register_file(Functions& funcs) {
 
     funcs.add_poly("file", file_checker);
+    funcs.add_poly("open", file_checker);
 }
 
 #endif

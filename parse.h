@@ -132,19 +132,20 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
                 throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an integer.");
             }
         });
-    
-    auto x_int = (~axe::r_lit('-') & +axe::r_num())
+
+    auto x_int = ((axe::r_lit('-') & +axe::r_num() & ~axe::r_any("sli")) |
+                  (+axe::r_num() & axe::r_any("sli")))
         >> y_int;
 
     auto y_uint = axe::e_ref([&](I b, I e) {
             try {
                 stack.push(Command::VAL, std::stoul(std::string(b, e)));
             } catch (std::exception& ex) {
-                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an integer.");
+                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an unsigned integer.");
             }
         });
     
-    auto x_uint = (+axe::r_num() & axe::r_lit('u'))
+    auto x_uint = (+axe::r_num() & ~axe::r_lit('u'))
         >> y_uint;
 
     auto y_float = axe::e_ref([&](I b, I e) {
@@ -190,7 +191,7 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         (axe::r_lit('"')  >> y_string_start & axe::r_many(x_char1,0) & axe::r_lit('"')  >> y_string_end) |
         (axe::r_lit('\'') >> y_string_start & axe::r_many(x_char2,0) & axe::r_lit('\'') >> y_string_end);
 
-    auto x_literal = x_float | x_uint | x_int | x_string;
+    auto x_literal = x_float | x_int | x_uint | x_string;
 
     auto x_ident = (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
     auto x_var = axe::r_lit('@') | x_ident;
