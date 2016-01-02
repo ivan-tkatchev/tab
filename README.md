@@ -510,7 +510,8 @@ Usage:
 : Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
-`count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)  
+`count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument.  
+`count Number, Number, Number` -- returns a sequence of numbers from `a` to `b` with increment `c`. All three arguments must be the same numeric type.  
 `count String -> UInt` -- returns the number of bytes in the string.  
 `count Seq[a] -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
@@ -694,6 +695,9 @@ Usage:
 : Returns the current UNIX timestamp.  
 Usage:  
 `now None -> Int`
+
+`open`
+: Same as `file`.
 
 `pairs`
 : Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: `triplets` and `ngrams`.)  

@@ -75,7 +75,7 @@ struct ParseStack {
             std::cout << " " << std::string(level*2, ' ') << Command::print(i.cmd);
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
-                i.cmd == Command::TUP || i.cmd == Command::LAMD ||
+                i.cmd == Command::FUN0 || i.cmd == Command::TUP || i.cmd == Command::LAMD ||
                 (print_types && i.cmd == Command::GEN)) {
 
                 std::cout << " " << Atom::print(i.arg);

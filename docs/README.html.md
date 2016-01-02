@@ -501,7 +501,8 @@ count {: #fn_count}
 : Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
-`count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument. (Counting backwards is not supported.)  
+`count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument.  
+`count Number, Number, Number` -- returns a sequence of numbers from `a` to `b` with increment `c`. All three arguments must be the same numeric type.  
 `count String -> UInt` -- returns the number of bytes in the string.  
 `count Seq[a] -> UInt` -- returns the number of elements in the sequence. (*Warning*: counting the number of elements will consume the sequence!)  
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
@@ -685,6 +686,9 @@ now {: #fn_now}
 : Returns the current UNIX timestamp.  
 Usage:  
 `now None -> Int`
+
+open {: #fn_open}
+: Same as [[file]].
 
 pairs {: #fn_pairs}
 : Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: [[triplets]] and [[ngrams]].)  
@@ -922,11 +926,11 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 [[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[flatten]]
 [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
 [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]] [[mean]]
-[[min]] [[ngrams]] [[normal]] [[now]] [[pairs]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]]
-[[reverse]] [[round]] [[rsh]] [[sample]] [[seq]] [[sin]] [[skip]] [[sort]]
-[[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]] [[tabulate]]
-[[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]] [[var]]
-[[variance]] [[zip]]
+[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]] [[real]]
+[[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[seq]] [[sin]]
+[[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]]
+[[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]]
+[[var]] [[variance]] [[zip]]
 
 ### By kind:
 
@@ -957,7 +961,7 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 **Conditionals:** [[case]] [[filter]] [[grepif]] [[has]] [[if]]
 
-**Files:** [[file]]
+**Files:** [[file]] [[open]]
 
 **Type converstion:** [[int]] [[real]] [[string]] [[uint]] [[array]]
 
