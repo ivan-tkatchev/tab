@@ -47,6 +47,8 @@ void sample(const obj::Object* in, obj::Object*& out) {
 
     std::vector<TV>& vvv = obj::get< obj::ArrayAtom<TV> >(out).v;
 
+    vvv.clear();
+
     size_t i = 0;
     std::mt19937_64& gen = get_rand_generator();
 

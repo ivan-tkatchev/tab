@@ -596,7 +596,6 @@ struct SeqArrayObject : public SeqBase {
 
 struct SeqMapObject : public SeqBase {
 
-    MapObject* map;
     Tuple* holder;
     typename MapObject::map_t::const_iterator b;
     typename MapObject::map_t::const_iterator e;
@@ -607,7 +606,7 @@ struct SeqMapObject : public SeqBase {
     }
     
     void wrap(Object* a) {
-        map = (MapObject*)a;
+        MapObject* map = (MapObject*)a;
         b = map->v.begin();
         e = map->v.end();
     }

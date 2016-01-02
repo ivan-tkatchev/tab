@@ -544,6 +544,13 @@ filter {: #fn_filter}
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
+first {: #fn_first}
+: Return the first element in a pair, map or sequence or pairs. See also: [[second]].  
+Usage:  
+`first a,b -> a`  
+`first Map[a,b] -> Seq[a]`  
+`first Seq[(a,b)] -> Seq[a]`
+
 flatten {: #fn_flatten}
 : Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
@@ -551,6 +558,12 @@ Usage:
 `flatten Seq[ Arr[a] ] -> Seq[a]`  
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
+
+flip {: #fn_flip}
+: Given a sequence of pairs or a map, returns a sequence where the pair elements are swapped.  
+Usage:  
+`flip Seq[(a,b)] -> Seq[(b,a)]`  
+`flip Map[a,b] -> Seq[(b,a)]`
 
 floor {: #fn_floor}
 : Rounds a floating-point number to the greatest integer that is less than the input value.  
@@ -750,6 +763,13 @@ Usage:
 `sample UInt, Seq[Real] -> Arr[Real]`  
 `sample UInt, Seq[String] -> Arr[String]` -- the first argument is the sample size.
 
+second {: #fn_second}
+: Return the second element in a pair, map or sequence or pairs. See also: [[first]].  
+Usage:  
+`second a,b -> b`  
+`second Map[a,b] -> Seq[b]`  
+`second Seq[(a,b)] -> Seq[b]`
+
 seq {: #fn_seq}
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for [[tabulate]].)  
 Usage:  
@@ -923,11 +943,11 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 ### Alphabetically by name: 
 
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
-[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[flatten]]
-[[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
+[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[first]] [[flatten]]
+[[flip]] [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
 [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]] [[mean]]
 [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]] [[real]]
-[[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[seq]] [[sin]]
+[[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[second]] [[seq]] [[sin]]
 [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]]
 [[var]] [[variance]] [[zip]]
@@ -948,12 +968,12 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 **Arrays:** [[array]] [[count]] [[filter]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
 [[skip]] [[sort]] [[zip]]
 
-**Maps:** [[has]] [[hash]] [[get]] [[map]]
+**Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
-**Sequences:** [[count]] [[filter]] [[flatten]] [[head]] [[ngrams]] [[pairs]] [[skip]]
-[[seq]] [[triplets]] [[zip]]
+**Sequences:** [[count]] [[filter]] [[first]] [[flatten]] [[flip]] [[head]]
+[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[triplets]] [[zip]]
 
-**Tuples:** [[tuple]]
+**Tuples:** [[first]] [[second]] [[tuple]]
 
 **Bit manipulation:** [[lsh]] [[rsh]]
 

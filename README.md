@@ -553,6 +553,13 @@ Usage:
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
+`first`
+: Return the first element in a pair, map or sequence or pairs. See also: `second`.  
+Usage:  
+`first a,b -> a`  
+`first Map[a,b] -> Seq[a]`  
+`first Seq[(a,b)] -> Seq[a]`
+
 `flatten`
 : Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
@@ -560,6 +567,12 @@ Usage:
 `flatten Seq[ Arr[a] ] -> Seq[a]`  
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
+
+`flip`
+: Given a sequence of pairs or a map, returns a sequence where the pair elements are swapped.  
+Usage:  
+`flip Seq[(a,b)] -> Seq[(b,a)]`  
+`flip Map[a,b] -> Seq[(b,a)]`
 
 `floor`
 : Rounds a floating-point number to the greatest integer that is less than the input value.  
@@ -758,6 +771,13 @@ Usage:
 `sample UInt, Seq[UInt] -> Arr[UInt]`  
 `sample UInt, Seq[Real] -> Arr[Real]`  
 `sample UInt, Seq[String] -> Arr[String]` -- the first argument is the sample size.
+
+`second`
+: Return the second element in a pair, map or sequence or pairs. See also: `first`.  
+Usage:  
+`second a,b -> b`  
+`second Map[a,b] -> Seq[b]`  
+`second Seq[(a,b)] -> Seq[b]`
 
 `seq`
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
