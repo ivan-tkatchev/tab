@@ -232,11 +232,23 @@ struct ArrayObject : public Object {
         }
     }        
 
+    void merge_start() {
+        for (Object* o : v) {
+            o->merge_start();
+        }
+    }
+
     void merge(const Object* v2) {
         ArrayObject& t = get<ArrayObject>(v2);
 
         for (const Object* s : t.v) {
             v.push_back(s->clone());
+        }
+    }
+
+    void merge_end() {
+        for (Object* o : v) {
+            o->merge_end();
         }
     }
 };
@@ -468,6 +480,12 @@ struct MapObject : public Object {
         }
     }
 
+    void merge_start() {
+        for (auto& i : v) {
+            i.second->merge_start();
+        }
+    }
+
     void merge(const Object* v2) {
         MapObject& t = get<MapObject>(v2);
 
@@ -476,6 +494,12 @@ struct MapObject : public Object {
             Object* val = (Object*)i.second;
 
             insert(key, val);
+        }
+    }
+
+    void merge_end() {
+        for (auto& i : v) {
+            i.second->merge_end();
         }
     }
 };
