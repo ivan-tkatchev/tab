@@ -480,6 +480,11 @@ Usage:
 `avg`
 : Synonym for `mean`.
 
+`bucket`
+: Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: `hist`.  
+Usage:  
+`bucket Number, Number, Number, UInt -> Number` -- the first three arguments must be the same numeric type.
+
 `bytes`
 : Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
 Usage:  
@@ -617,7 +622,7 @@ Usage:
 `head Arr[a], UInt -> Seq[a]`
 
 `hist`
-: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
+: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: `bucket`.  
 : Usage:  
 `hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
@@ -936,7 +941,7 @@ Here is a list of aggregators and their effects, sorted alphabetically:
 
 An explanation of how arrays and maps are aggregated implicitly:
 
-    { @~0 -> { @~1 -> sum.1 } : pairs(@) }
+    { @~0 -> map(@~1, sum.1) : pairs(@) }
 
 This program will produce the intuitively obvious result -- a map of maps where the leaf values are frequency counts.
 This works as expected because maps-inside-maps will automatically aggregate.

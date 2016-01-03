@@ -471,6 +471,11 @@ Usage:
 avg {: #fn_avg}
 : Synonym for [[mean]].
 
+bucket {: #fn_bucket}
+: Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: [[hist]].  
+Usage:  
+`bucket Number, Number, Number, UInt -> Number` -- the first three arguments must be the same numeric type.
+
 bytes {: #fn_bytes}
 : Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
 Usage:  
@@ -608,7 +613,7 @@ Usage:
 `head Arr[a], UInt -> Seq[a]`
                                     
 hist {: #fn_hist}
-: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval upper bound, number of elements).  
+: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: [[bucket]].  
 : Usage:  
 `hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
@@ -927,7 +932,7 @@ variance
 
 An explanation of how arrays and maps are aggregated implicitly:
 
-    { @~0 -> { @~1 -> sum.1 } : pairs(@) }
+    { @~0 -> map(@~1, sum.1) : pairs(@) }
 
 This program will produce the intuitively obvious result -- a map of maps where the leaf values are frequency counts.
 This works as expected because maps-inside-maps will automatically aggregate.
@@ -956,11 +961,11 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 **Core language:** [[filter]] [[flatten]] [[index]]
 
-**Math:** [[abs]] [[ceil]] [[cos]] [[e]] [[exp]] [[floor]] [[log]] [[pi]] [[round]]
-[[sin]] [[sqrt]]
+**Math:** [[abs]] [[bucket]] [[ceil]] [[cos]] [[e]] [[exp]] [[floor]] [[log]]
+[[pi]] [[round]] [[sin]] [[sqrt]]
 
-**Sampling:** [[avg]] [[hist]] [[max]] [[mean]] [[min]] [[normal]] [[rand]] [[sample]]
-[[stddev]] [[stdev]] [[var]] [[variance]]
+**Sampling:** [[avg]] [[bucket]] [[hist]] [[max]] [[mean]] [[min]] [[normal]]
+[[rand]] [[sample]] [[stddev]] [[stdev]] [[var]] [[variance]]
 
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
 [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]

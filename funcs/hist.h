@@ -55,11 +55,33 @@ void hist(const obj::Object* in, obj::Object*& out) {
     for (size_t i = 0; i < buckets.size(); ++i) {
 
         obj::Tuple* x = new obj::Tuple;
-        x->v.push_back(new obj::Real((i + 1) * bucketsize + min));
+        x->v.push_back(new obj::Real(i * bucketsize + min));
         x->v.push_back(new obj::UInt(buckets[i]));
 
         o.v.push_back(x);
     }
+}
+
+template <typename T>
+void bucket(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& i = obj::get<obj::Tuple>(in);
+
+    T x   = obj::get< obj::Atom<T> >(i.v[0]).v;
+    T min = obj::get< obj::Atom<T> >(i.v[1]).v;
+    T max = obj::get< obj::Atom<T> >(i.v[2]).v;
+
+    UInt n = obj::get<obj::UInt>(i.v[3]).v;
+
+    T& o = obj::get< obj::Atom<T> >(out).v;
+
+    T bucketsize = (max - min) / n;
+    Int xn = (x - min) / bucketsize;
+
+    // HACK
+    if (x == max) --xn;
+
+    o = xn * bucketsize + min;
 }
 
 void register_hist(Functions& funcs) {
@@ -78,6 +100,21 @@ void register_hist(Functions& funcs) {
               Type(Type::TUP, { Type(Type::ARR, { Type(Type::REAL) }), Type(Type::UINT) }),
               Type(Type::ARR, { Type(Type::TUP, { Type(Type::REAL), Type(Type::UINT) }) }),
               hist<Real>);
+
+    funcs.add("bucket",
+              Type(Type::TUP, { Type(Type::UINT), Type(Type::UINT), Type(Type::UINT), Type(Type::UINT) }),
+              Type(Type::UINT),
+              bucket<UInt>);
+
+    funcs.add("bucket",
+              Type(Type::TUP, { Type(Type::INT), Type(Type::INT), Type(Type::INT), Type(Type::UINT) }),
+              Type(Type::INT),
+              bucket<Int>);
+
+    funcs.add("bucket",
+              Type(Type::TUP, { Type(Type::REAL), Type(Type::REAL), Type(Type::REAL), Type(Type::UINT) }),
+              Type(Type::REAL),
+              bucket<Real>);
 }
 
 #endif
