@@ -1,0 +1,22 @@
+?[ (tolower.first.@) == "the", second.@ : pairs( :[grep(@,"[A-Za-z0-9]+")] ) ]
+===>
+software
+Software
+Software
+Software
+Software
+following
+copyright
+Software
+above
+following
+Software
+Software
+form
+SOFTWARE
+WARRANTIES
+COPYRIGHT
+SOFTWARE
+SOFTWARE
+USE
+SOFTWARE

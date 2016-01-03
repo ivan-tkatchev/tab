@@ -1,6 +1,8 @@
 
 #include "tab.h"
 
+#include <time.h>
+
 std::istream& file_or_stdin(const std::string& file) {
 
     if (file.empty())
@@ -29,6 +31,7 @@ int main(int argc, char** argv) {
         std::string program;
         std::string infile;
         std::string programfile;
+        size_t seed = ::time(NULL);
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
@@ -41,6 +44,14 @@ int main(int argc, char** argv) {
 
             } else if (arg == "-vvv") {
                 debuglevel = 3;
+
+            } else if (arg == "-s") {
+
+                if (i == argc - 1)
+                    throw std::runtime_error("The '-s' command line argument expects a numeric argument.");
+
+                ++i;
+                seed = std::stoul(argv[i]);
 
             } else if (arg == "-f") {
 
@@ -60,7 +71,9 @@ int main(int argc, char** argv) {
 
             } else if (arg == "-h") {
 
-                std::cout << "Usage: tab [-i inputdata_file] [-f expression_file] [-v|-vv|-vvv] <expressions...>"
+                std::cout <<
+                    "Usage: tab [-i inputdata_file] [-f expression_file] [-s random seed] "
+                    "[-v|-vv|-vvv] <expressions...>"
                           << std::endl;
                 return 1;
                 
@@ -92,7 +105,7 @@ int main(int argc, char** argv) {
             }
         }        
 
-        register_functions();
+        register_functions(seed);
 
         std::vector<Command> commands;
         TypeRuntime typer;

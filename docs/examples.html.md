@@ -24,7 +24,7 @@ This is an example list of useful `tab` programs.
 
 #### The histogram of English word frequencies by word lengths:
     :::bash
-    freq.{ count.@ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, sort.freq
+    freq={ count.@ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, sort.freq
 
 #### Same histogram, but also with the words themselves:
     :::bash
@@ -63,7 +63,7 @@ For the next few examples let's use an input file that looks something like this
     1948	12	13	-74
     1948	12	14	-56
 
-The first three fields are the year, month and day. The fourth field is the daily max temperature in increments of 0.1 degrees Celcius.
+The first three fields are the year, month and day. The fourth field is the daily max temperature in units of 0.1 degrees Celcius.
 
 ----
 
@@ -87,7 +87,7 @@ The first three fields are the year, month and day. The fourth field is the dail
            :seq([ @, 1, 0 : temps ], [ normal(u,s), 0, 1 : count.count.temps ]) }
 
 #### Find temperature outliers (more than 3 standard deviations away from mean) and group them by year:
-    :::basj
+    :::bash
     temps=[. x=cut(@,"\t"), uint.x~0, real.x~3 .],
     sd=stddev.[@~1 : temps],
     { @~0 -> sum.1 : ?[@~1 > 3*sd, @ : temps] }
@@ -118,6 +118,4 @@ The first three fields are the year, month and day. The fourth field is the dail
     t=sort.map.?[ x=cut(@,"\t"), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ],
     def arr_to_seq [@:@],
     sort.{ @~(-1)~0 -> avg.second.arr_to_seq.@ : ngrams(arr_to_seq.t, 10) }
-
-
 

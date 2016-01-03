@@ -1,4 +1,4 @@
-axe/axe.h
+../axe/axe.h
 ===>
 x=:[ grep(@,"axe_[a-z_]*.h") ], sort({ @ -> count(?[@!="", @ : file(cat("../axe/",@))]) : x })
 ===>

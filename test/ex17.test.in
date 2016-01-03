@@ -1,0 +1,7 @@
+temps.tsv
+===>
+y_n={ uint.cut(@,"\t",0) -> sum.1 },
+u=mean.second.y_n, sd=stddev.second.y_n,
+?[ abs(@~1 - u) > sd, @~0 : sort.y_n ]
+===>
+1948

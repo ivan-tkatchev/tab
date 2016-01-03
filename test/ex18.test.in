@@ -1,0 +1,5 @@
+temps.tsv
+===>
+t={ x=cut(@,"\t"), uint.x~1 -> map(uint.x~0, sort.real.x~3) }~9~1998, mean.t, t~0.5
+===>
+151.3	142

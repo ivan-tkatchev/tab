@@ -1,0 +1,14 @@
+temps.tsv
+===>
+temps=[. real.cut(@,"\t",3) .],
+u=mean.temps, s=stddev.temps, a=min.temps, b=max.temps,
+sort.{ bucket(@~0, a, b, 5) -> sum.@~1, sum.@~2 :
+       :seq([ @, 1, 0 : temps ], [ normal(u,s), 0, 1 : count.count.temps ]) }
+===>
+-323	156	225
+-182	2937	2796
+-41	9216	9269
+100	8743	8988
+241	2710	2312
+382	0	164
+523	0	8

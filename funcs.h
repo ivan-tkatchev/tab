@@ -28,7 +28,9 @@ namespace funcs {
 
 }
 
-void register_functions() {
+void register_functions(size_t seed) {
+
+    funcs::get_rand_generator(seed);
 
     Functions& funs = functions_init();
 

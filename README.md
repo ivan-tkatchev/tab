@@ -298,7 +298,7 @@ You can use parentheses to delimit code blocks in function definitions. For exam
 
 **Note**: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.
 
-Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1254 and 1504.8 bytes.)
+Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)
 
     :::bash
     $ ./tab -i req.log 'hist([. uint.cut(@,"|",3) .], 10)'

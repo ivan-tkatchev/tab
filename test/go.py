@@ -14,19 +14,19 @@ def exec(*popenargs, **kwargs):
         retcode = process.poll()
     return retcode, output, err
 
-def run(filename, arg, expected, infile = "LICENSE.txt", errcode = 0):
+def run(filename, arg, expected, infile = "../LICENSE.txt", errcode = 0):
     print(">>>", arg.replace('\n',' '))
-    retcode, out, err = exec(["../tab", "-i", "../" + infile, arg])
+    retcode, out, err = exec(["../tab", "-s", "1234", "-i", infile, arg])
     if errcode != retcode:
-        raise Exception("Test failed for: " + filename + ", " + arg)
+        raise Exception("Test failed for: %s, '%s' -- return code %d" % (filename, arg, retcode))
     out = out.decode('ascii')
     err = err.decode('ascii')
     if errcode != 0:
         out, err = err, out
     if not expected.startswith(out):
-        raise Exception("Test failed for: " + filename + ", " + arg)
+        raise Exception("Test failed for: %s, '%s' -- output is '%s'" % (filename, arg, out))
     if not len(err) == 0:
-        raise Exception("Test failed for: " + filename + ", " + arg)
+        raise Exception("Test failed for: %s, '%s' -- stderr is '%s'" % (filename, arg, err))
 
 def go():
     wordsize = len(struct.pack("@L",0))

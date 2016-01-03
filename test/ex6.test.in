@@ -1,0 +1,19 @@
+freq={ count.@ -> sum.1, {tolower.@} : :[grep(@,"[A-Za-z0-9]+")] },
+def f first.@,
+def s second.@,
+sort.[ f.@, f.s.@, join(f.s.s.@, ",") : freq]
+===>
+1	5	a,0,1
+2	48	no,to,is,of,in,so,by,or,do,as,be
+3	43	use,and,are,the,but,all,any,not,for,out,non
+4	17	with,from,kind,code,copy,free,2003,whom,tort,such,this,form,17th,must,part
+5	13	shall,other,title,grant,boost,works,event,whole,third,above
+6	14	anyone,source,person,charge,hereby,august,permit,entire,copies,liable,unless,solely,object
+7	23	whether,purpose,fitness,limited,implied,express,without,granted,damages,version,parties,holders,covered,machine,display,execute,license,prepare,subject,arising,notices
+8	20	dealings,contract,provided,transmit,warranty,software,included,language
+9	14	otherwise,following,furnished,including,generated,copyright,liability,reproduce,statement,obtaining,processor
+10	10	connection,particular,executable,permission,distribute,warranties,disclaimer,derivative
+11	1	restriction
+12	4	distributing,infringement,accompanying,organization
+13	1	documentation
+15	1	merchantability
