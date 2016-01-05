@@ -1,0 +1,17 @@
+urls.txt
+===>
+sort.{ grep(@, "//([^/]*)/")~0 -> sum.1 }
+===>
+182.118.37.36	1
+forums.somethingawful.com	1
+image.baidu.com	23
+iqoption.com	34
+play.aichang.cn	1
+stricklandfamily.name	1
+www.bing.com	2
+www.gaofangji.net	1
+www.google.com	8
+www.google.com.my	1
+www.reddit.com	8
+www.search.ask.com	1
+yandex.ru	31

@@ -240,4 +240,36 @@ mean.flatten.second.t, <span class="o">(</span>sort.flatten.second.t<span class=
 <div class="codehilite"><pre><span class="nv">t</span><span class="o">=</span>sort.map.?<span class="o">[</span> <span class="nv">x</span><span class="o">=</span>cut<span class="o">(</span>@,<span class="s2">&quot;\t&quot;</span><span class="o">)</span>, <span class="o">(</span>uint.x~1<span class="o">)</span> <span class="o">==</span> 9, uint.x~0, avg.real.x~3 <span class="o">]</span>,
 def arr_to_seq <span class="o">[</span>@:@<span class="o">]</span>,
 sort.<span class="o">{</span> @~<span class="o">(</span>-1<span class="o">)</span>~0 -&gt; avg.second.arr_to_seq.@ : ngrams<span class="o">(</span>arr_to_seq.t, 10<span class="o">)</span> <span class="o">}</span>
+</pre></div>
+
+
+<h4 id="convert-mysql-output-to-a-machine-readable-one">Convert MySQL output to a machine-readable one:</h4>
+<div class="codehilite"><pre><span class="o">[</span> join<span class="o">(</span>recut<span class="o">(</span>@, <span class="s2">&quot; *\\| *&quot;</span><span class="o">)[</span>1,-2<span class="o">]</span>, <span class="s2">&quot;\t&quot;</span><span class="o">)</span> : skip<span class="o">(</span>grepif<span class="o">(</span>@, <span class="s2">&quot;^\\| &quot;</span><span class="o">)</span>, 1<span class="o">)</span> <span class="o">]</span>
+</pre></div>
+
+
+<h4 id="parse-a-log-file-where-every-line-is-a-json-object">Parse a log file where every line is a JSON object:</h4>
+<div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s1">&#39;&quot;([^&quot;]+)&quot; *: *([0-9.]+)|&quot;([^&quot;]+)&quot;&#39;</span>,
+def split ?<span class="o">[</span> count.@, @ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>,
+<span class="o">[</span> map<span class="o">(</span>stripe<span class="o">(</span>pairs.split.@, 2<span class="o">))</span>~<span class="s2">&quot;response&quot;</span> <span class="o">]</span>
+: You will need to add extra backslashes <span class="k">if</span> you want to enter that regex via a shell <span class="nb">command </span>line.
+</pre></div>
+
+
+<h4 id="given-a-list-of-urls-find-the-hostnames">Given a list of URLs, find the hostnames:</h4>
+<div class="codehilite"><pre><span class="o">{</span> grep<span class="o">(</span>@, <span class="s2">&quot;//([^/]*)/&quot;</span><span class="o">)</span>~0 -&gt; sum.1 <span class="o">}</span>
+</pre></div>
+
+
+<h4 id="parse-the-get-parameters-in-a-list-of-urls">Parse the GET parameters in a list of URLs:</h4>
+<div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="p">;</span>
+def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span>@ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>, 2<span class="o">)</span><span class="p">;</span>
+<span class="o">[</span> urlgetparams.@ <span class="o">]</span>
+</pre></div>
+
+
+<h4 id="same-as-above-but-find-the-most-popular-get-parameter">Same as above, but find the most popular GET parameter:</h4>
+<div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="p">;</span>
+def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span>@ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>, 2<span class="o">)</span><span class="p">;</span>
+<span class="o">(</span>sort.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</span> first.urlgetparams.@ <span class="o">]</span> <span class="o">})</span>~-1~1
 </pre></div></body></html>

@@ -9,7 +9,9 @@ struct SeqHeadSeq : public obj::SeqBase {
 
     SeqHeadSeq() : n(0), i(0) {}
 
-    void wrap(obj::Object* s) {
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
         seq = s;
     }
     
@@ -29,7 +31,9 @@ struct SeqHeadVal : public SeqHeadSeq {
         seq = obj::make_seq_from(t);
     }
     
-    void wrap(obj::Object* s) {
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
         seq->wrap(s);
     }
 };
@@ -42,7 +46,9 @@ struct SeqSkipSeq : public obj::SeqBase {
 
     SeqSkipSeq() : n(0), i(0) {}
 
-    void wrap(obj::Object* s) {
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
         seq = s;
     }
     
@@ -66,13 +72,57 @@ struct SeqSkipVal : public SeqSkipSeq {
         seq = obj::make_seq_from(t);
     }
     
-    void wrap(obj::Object* s) {
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
+        seq->wrap(s);
+    }
+};
+
+struct SeqStripeSeq : public obj::SeqBase {
+
+    obj::Object* seq;
+    UInt n;
+    UInt i;
+
+    SeqStripeSeq() : n(0), i(0) {}
+
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
+        seq = s;
+    }
+    
+    obj::Object* next() {
+
+        obj::Object* ret = seq->next();
+        ++i;
+
+        while (ret && ((i - 1) % n) != 0) {
+
+            ret = seq->next();
+            ++i;
+        }
+
+        return ret;
+    }
+};
+
+struct SeqStripeVal : public SeqStripeSeq {
+
+    SeqStripeVal(const Type& t) : SeqStripeSeq() {
+        seq = obj::make_seq_from(t);
+    }
+    
+    void wrap(obj::Object* s, UInt _n) {
+        n = _n;
+        i = 0;
         seq->wrap(s);
     }
 };
 
 template <typename T>
-void head_skip(const obj::Object* in, obj::Object*& out) {
+void head_skip_stripe(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& inp = obj::get<obj::Tuple>(in);
     obj::Object* arg = inp.v[0];
@@ -80,13 +130,11 @@ void head_skip(const obj::Object* in, obj::Object*& out) {
 
     T& seq = obj::get<T>(out);
 
-    seq.n = n;
-    seq.i = 0;
-    seq.wrap(arg);
+    seq.wrap(arg, n);
 }
 
 template <typename TS, typename TV>
-Functions::func_t head_skip_checker(const Type& args, Type& ret, obj::Object*& obj) {
+Functions::func_t head_skip_stripe_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
         return nullptr;
@@ -102,14 +150,14 @@ Functions::func_t head_skip_checker(const Type& args, Type& ret, obj::Object*& o
 
         obj = new TS;
         ret = a1;
-        return head_skip<TS>;
+        return head_skip_stripe<TS>;
 
     } else if (a1.type == Type::ARR) {
 
         obj = new TV(a1);
         ret = Type(Type::SEQ);
         ret.push(a1.tuple->at(0));
-        return head_skip<TV>;
+        return head_skip_stripe<TV>;
     }
     
     return nullptr;
@@ -117,8 +165,9 @@ Functions::func_t head_skip_checker(const Type& args, Type& ret, obj::Object*& o
 
 void register_head(Functions& funcs) {
 
-    funcs.add_poly("head", head_skip_checker<SeqHeadSeq,SeqHeadVal>);
-    funcs.add_poly("skip", head_skip_checker<SeqSkipSeq,SeqSkipVal>);
+    funcs.add_poly("head",   head_skip_stripe_checker<SeqHeadSeq,   SeqHeadVal>);
+    funcs.add_poly("skip",   head_skip_stripe_checker<SeqSkipSeq,   SeqSkipVal>);
+    funcs.add_poly("stripe", head_skip_stripe_checker<SeqStripeSeq, SeqStripeVal>);
 }
 
 #endif

@@ -1,0 +1,14 @@
+mysql> \T mysql.txt
+mysql> SELECT ID, CONCAT(NAME, ' FROM ', DEPT) AS NAME, SALARY FROM employee;
++-----+------------------------+--------+
+| id  | name                   | salary |
++-----+------------------------+--------+
+| 100 | Thomas from Sales      |   5000 |
+| 200 | Jason from Technology  |   5500 |
+| 300 | Sanjay from Technology |   7000 |
+| 400 | Nisha from Marketing   |   9500 |
+| 500 | Randy from Technology  |   6000 |
+| 501 | Ritu from Accounting   |   NULL |
++-----+------------------------+--------+
+6 rows in set (0.00 sec)
+mysql> \t

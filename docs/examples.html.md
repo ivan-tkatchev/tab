@@ -119,3 +119,30 @@ The first three fields are the year, month and day. The fourth field is the dail
     def arr_to_seq [@:@],
     sort.{ @~(-1)~0 -> avg.second.arr_to_seq.@ : ngrams(arr_to_seq.t, 10) }
 
+#### Convert MySQL output to a machine-readable one:
+    :::bash
+    [ join(recut(@, " *\\| *")[1,-2], "\t") : skip(grepif(@, "^\\| "), 1) ]
+
+#### Parse a log file where every line is a JSON object:
+    :::bash
+    regex = '"([^"]+)" *: *([0-9.]+)|"([^"]+)"',
+    def split ?[ count.@, @ : grep(@, regex) ],
+    [ map(stripe(pairs.split.@, 2))~"response" ]
+    : You will need to add extra backslashes if you want to enter that regex via a shell command line.
+
+#### Given a list of URLs, find the hostnames:
+    :::bash
+    { grep(@, "//([^/]*)/")~0 -> sum.1 }
+
+#### Parse the GET parameters in a list of URLs:
+    :::bash
+    regex = "[?&]([^&]+)=([^&]+)";
+    def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
+    [ urlgetparams.@ ]
+
+#### Same as above, but find the most popular GET parameter:
+    :::bash
+    regex = "[?&]([^&]+)=([^&]+)";
+    def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
+    (sort.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] })~-1~1
+

@@ -607,7 +607,7 @@ Usage:
 `hash String -> UInt`
 
 head {: #fn_head}
-: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: [[skip]].  
+: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: [[skip]], [[stripe]].  
 Usage:  
 `head Seq[a], UInt -> Seq[a]`  
 `head Arr[a], UInt -> Seq[a]`
@@ -786,7 +786,7 @@ Usage:
 `sin Number -> Real`
 
 skip {: #fn_skip}
-: Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: [[head]].  
+: Accepts a sequence or array and returns an equivalent sequence where the first N elements are ignored. See also: [[head]], [[stripe]].  
 Usage:  
 `skip Seq[a], UInt -> Seq[a]`  
 `skip Arr[a], UInt -> Seq[a]`
@@ -821,6 +821,12 @@ Usage:
 `string Int -> String`  
 `string Real -> String`  
 `string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.
+
+stripe {: #fn_stripe}
+: Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: [[head]], [[skip]].  
+Usage:  
+`stripe Seq[a], UInt -> Seq[a]`  
+`stripe Arr[a], UInt -> Seq[a]`
 
 sum {: #fn_sum}
 : Computes a sum of the elements of a sequence or array.  
@@ -971,12 +977,12 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
 
 **Arrays:** [[array]] [[count]] [[filter]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
-[[skip]] [[sort]] [[zip]]
+[[skip]] [[sort]] [[stripe]] [[zip]]
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
 **Sequences:** [[count]] [[filter]] [[first]] [[flatten]] [[flip]] [[head]]
-[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[triplets]] [[zip]]
+[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[triplets]] [[zip]]
 
 **Tuples:** [[first]] [[second]] [[tuple]]
 

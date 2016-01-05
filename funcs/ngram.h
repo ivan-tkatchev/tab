@@ -6,15 +6,25 @@ struct SeqNgramBoxed : public obj::SeqBase {
 
     H* holder;
     obj::Object* seq;
-    size_t n;
-    size_t m;
+    UInt n;
+    UInt m;
 
-    SeqNgramBoxed(size_t _n) : n(_n), m(0) {
+    SeqNgramBoxed(UInt _n) : n(_n), m(0) {
         holder = new H;
     }
 
     ~SeqNgramBoxed() {
         delete holder;
+    }
+
+    void wrap(obj::Object* s) {
+        seq = s;
+        m = 0;
+    }
+
+    void wrap(obj::Object* s, UInt _n) {
+        wrap(s);
+        n = _n;
     }
 
     obj::Object* next() {
@@ -50,8 +60,8 @@ struct SeqNgramUnboxed : public obj::SeqBase {
 
     obj::ArrayAtom<T>* holder;
     obj::Object* seq;
-    size_t n;
-    size_t m;
+    UInt n;
+    UInt m;
 
     SeqNgramUnboxed() : n(0), m(0) {
         holder = new obj::ArrayAtom<T>;
@@ -59,6 +69,12 @@ struct SeqNgramUnboxed : public obj::SeqBase {
 
     ~SeqNgramUnboxed() {
         delete holder;
+    }
+
+    void wrap(obj::Object* s, UInt _n) {
+        seq = s;
+        m = 0;
+        n = _n;
     }
 
     obj::Object* next() {
@@ -86,12 +102,11 @@ struct SeqNgramUnboxed : public obj::SeqBase {
 };
 
 
-
 void ngram_tup(const obj::Object* in, obj::Object*& out) {
 
     SeqNgramBoxed<obj::Tuple>& v = obj::get< SeqNgramBoxed<obj::Tuple> >(out);
 
-    v.seq = (obj::Object*)in;
+    v.wrap((obj::Object*)in);
 }
 
 template <typename T>
@@ -100,12 +115,12 @@ void ngram_array(const obj::Object* in, obj::Object*& out) {
     obj::Tuple& inp = obj::get<obj::Tuple>(in);
 
     T& v = obj::get<T>(out);
+    UInt n = obj::get<obj::UInt>(inp.v[1]).v;
 
-    v.seq = inp.v[0];
-    v.n = obj::get<obj::UInt>(inp.v[1]).v;
-
-    if (v.n <= 0)
+    if (n <= 0)
         throw std::runtime_error("Ngrams of 0 length are not allowed.");
+
+    v.wrap(inp.v[0], n);
 }
 
 template <size_t N>

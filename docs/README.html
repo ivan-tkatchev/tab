@@ -597,7 +597,7 @@ Usage:<br>
 Usage:<br>
 <code>hash String -&gt; UInt</code></dd>
 <dt id="fn_head">head</dt>
-<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <a class="wikilink" href="#fn_skip">skip</a>.<br>
+<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <a class="wikilink" href="#fn_skip">skip</a>, <a class="wikilink" href="#fn_stripe">stripe</a>.<br>
 Usage:<br>
 <code>head Seq[a], UInt -&gt; Seq[a]</code><br>
 <code>head Arr[a], UInt -&gt; Seq[a]</code></dd>
@@ -747,7 +747,7 @@ Usage:<br>
 Usage:<br>
 <code>sin Number -&gt; Real</code></dd>
 <dt id="fn_skip">skip</dt>
-<dd>Accepts a sequence or array and returns an equivalent sequence where the fist N elements are ignored. See also: <a class="wikilink" href="#fn_head">head</a>.<br>
+<dd>Accepts a sequence or array and returns an equivalent sequence where the first N elements are ignored. See also: <a class="wikilink" href="#fn_head">head</a>, <a class="wikilink" href="#fn_stripe">stripe</a>.<br>
 Usage:<br>
 <code>skip Seq[a], UInt -&gt; Seq[a]</code><br>
 <code>skip Arr[a], UInt -&gt; Seq[a]</code></dd>
@@ -777,6 +777,11 @@ Usage:<br>
 <code>string Int -&gt; String</code><br>
 <code>string Real -&gt; String</code><br>
 <code>string Arr[UInt] -&gt; String</code> &ndash; <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
+<dt id="fn_stripe">stripe</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: <a class="wikilink" href="#fn_head">head</a>, <a class="wikilink" href="#fn_skip">skip</a>.<br>
+Usage:<br>
+<code>stripe Seq[a], UInt -&gt; Seq[a]</code><br>
+<code>stripe Arr[a], UInt -&gt; Seq[a]</code></dd>
 <dt id="fn_sum">sum</dt>
 <dd>Computes a sum of the elements of a sequence or array.<br>
 Usage:<br>
@@ -893,10 +898,10 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 <p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_join">join</a> 
 <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a></p>
 <p><strong>Arrays:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_index">index</a> <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_reverse">reverse</a>
-<a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <p><strong>Maps:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_second">second</a></p>
 <p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_head">head</a>
-<a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <p><strong>Tuples:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_tuple">tuple</a></p>
 <p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
 <p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>

@@ -1,0 +1,10 @@
+mysql.txt
+===>
+[ join(recut(@, " *\\| *")[1,-2], "\t") : skip(grepif(@, "^\\| "), 1) ]
+===>
+100	Thomas from Sales	5000
+200	Jason from Technology	5500
+300	Sanjay from Technology	7000
+400	Nisha from Marketing	9500
+500	Randy from Technology	6000
+501	Ritu from Accounting	NULL
