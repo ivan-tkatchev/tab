@@ -1,8 +1,8 @@
-jsonline.txt
+jsonlines.txt
 ===>
 regex = '"([^"]+)" *: *([0-9.]+)|"([^"]+)"',
 def split ?[ count.@, @ : grep(@, regex) ],
-[ map.stripe(pairs.split.@, 2)~"response" ]
+[ map(stripe(pairs.split.@, 2))~"response" ]
 ===>
 401
 200
