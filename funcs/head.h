@@ -9,7 +9,7 @@ struct SeqHeadSeq : public obj::SeqBase {
 
     SeqHeadSeq() : n(0), i(0) {}
 
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq = s;
@@ -32,7 +32,7 @@ struct SeqHeadVal : public SeqHeadSeq {
         seq = obj::make_seq_from<SORTED>(t);
     }
     
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq->wrap(s);
@@ -47,7 +47,7 @@ struct SeqSkipSeq : public obj::SeqBase {
 
     SeqSkipSeq() : n(0), i(0) {}
 
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq = s;
@@ -73,8 +73,8 @@ struct SeqSkipVal : public SeqSkipSeq {
     SeqSkipVal(const Type& t) : SeqSkipSeq() {
         seq = obj::make_seq_from<SORTED>(t);
     }
-    
-    void wrap(obj::Object* s, UInt _n) {
+
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq->wrap(s);
@@ -89,7 +89,7 @@ struct SeqStripeSeq : public obj::SeqBase {
 
     SeqStripeSeq() : n(0), i(0) {}
 
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq = s;
@@ -117,7 +117,7 @@ struct SeqStripeVal : public SeqStripeSeq {
         seq = obj::make_seq_from<SORTED>(t);
     }
     
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         n = _n;
         i = 0;
         seq->wrap(s);
@@ -133,7 +133,7 @@ void head_skip_stripe(const obj::Object* in, obj::Object*& out) {
 
     T& seq = obj::get<T>(out);
 
-    seq.wrap(arg, n);
+    seq.wrapx(arg, n);
 }
 
 template <typename TS, typename TV>

@@ -252,10 +252,12 @@ sort.<span class="o">{</span> @~<span class="o">(</span>-1<span class="o">)</spa
 <div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s1">&#39;&quot;([^&quot;]+)&quot; *: *([0-9.]+)|&quot;([^&quot;]+)&quot;&#39;</span>,
 def split ?<span class="o">[</span> count.@, @ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>,
 <span class="o">[</span> map<span class="o">(</span>stripe<span class="o">(</span>pairs.split.@, 2<span class="o">))</span>~<span class="s2">&quot;response&quot;</span> <span class="o">]</span>
-: You will need to add extra backslashes <span class="k">if</span> you want to enter that regex via a shell <span class="nb">command </span>line.
 </pre></div>
 
 
+<dl>
+<dd>You will need to add extra backslashes if you want to enter that regex via a shell command line.</dd>
+</dl>
 <h4 id="given-a-list-of-urls-find-the-hostnames">Given a list of URLs, find the hostnames:</h4>
 <div class="codehilite"><pre><span class="o">{</span> grep<span class="o">(</span>@, <span class="s2">&quot;//([^/]*)/&quot;</span><span class="o">)</span>~0 -&gt; sum.1 <span class="o">}</span>
 </pre></div>

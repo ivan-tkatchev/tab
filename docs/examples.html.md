@@ -128,7 +128,7 @@ The first three fields are the year, month and day. The fourth field is the dail
     regex = '"([^"]+)" *: *([0-9.]+)|"([^"]+)"',
     def split ?[ count.@, @ : grep(@, regex) ],
     [ map(stripe(pairs.split.@, 2))~"response" ]
-    : You will need to add extra backslashes if you want to enter that regex via a shell command line.
+: You will need to add extra backslashes if you want to enter that regex via a shell command line.
 
 #### Given a list of URLs, find the hostnames:
     :::bash
