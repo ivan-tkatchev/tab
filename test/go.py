@@ -2,6 +2,7 @@
 import subprocess
 import glob
 import struct
+import time
 
 def exec(*popenargs, **kwargs):
     with subprocess.Popen(*popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs) as process:
@@ -14,9 +15,14 @@ def exec(*popenargs, **kwargs):
         retcode = process.poll()
     return retcode, output, err
 
-def run(filename, arg, expected, infile = "../LICENSE.txt", errcode = 0):
+def run(filename, arg, expected, log, infile = "../LICENSE.txt", errcode = 0):
     print(">>>", arg.replace('\n',' '))
+
+    proctime = time.time()
     retcode, out, err = exec(["../tab", "-s", "1234", "-i", infile, arg])
+    proctime = time.time() - proctime
+    log[filename] = proctime
+
     if errcode != retcode:
         raise Exception("Test failed for: %s, '%s' -- return code %d" % (filename, arg, retcode))
     out = out.decode('ascii')
@@ -31,19 +37,24 @@ def run(filename, arg, expected, infile = "../LICENSE.txt", errcode = 0):
 def go():
     wordsize = len(struct.pack("@L",0))
     l = glob.glob("*.test.in") + glob.glob("*.test64.in" if wordsize >= 8 else "*.test32.in")
+    log = {}
     for i in l:
         txt = open(i).read()
         txt = txt.split('===>\n')
 
         if len(txt) == 3:
-            run(i, txt[1], txt[2], infile=txt[0].replace('\n',''))
+            run(i, txt[1], txt[2], log, infile=txt[0].replace('\n',''))
         elif len(txt) == 2:
-            run(i, txt[0], txt[1])
+            run(i, txt[0], txt[1], log)
         elif len(txt) == 1:
             txt = txt[0].split('!!!\n')
-            run(i, txt[0], txt[1], errcode=1)
+            run(i, txt[0], txt[1], log, errcode=1)
         else:
             raise Exception("Malformed test case file: " + i)
+
+    log = list(reversed(sorted([ (y,x) for x,y in log.items() ])))[:10]
+    for t,n in log:
+        print('%g\t%s' % (t,n))
 
 go()
 
