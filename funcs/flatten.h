@@ -33,6 +33,7 @@ struct SeqFlattenSeq : public obj::SeqBase {
     }
 };
 
+template <bool SORTED>
 struct SeqFlattenVal : public obj::SeqBase {
 
     obj::Object* seq;
@@ -40,7 +41,7 @@ struct SeqFlattenVal : public obj::SeqBase {
     bool subseq_ok;
 
     SeqFlattenVal(const Type& t) {
-        subseq = obj::make_seq_from(t);
+        subseq = obj::make_seq_from<SORTED>(t);
 
         if (subseq == nullptr)
             throw std::runtime_error("Cannot flatten a sequence of " + Type::print(t));
@@ -78,6 +79,7 @@ void flatten(const obj::Object* in, obj::Object*& out) {
     out->wrap((obj::Object*)in);
 }
 
+template <bool SORTED>
 Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::SEQ)
@@ -91,16 +93,17 @@ Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj
         obj = new SeqFlattenSeq;
 
     } else {
-        obj = new SeqFlattenVal(t2);
+        obj = new SeqFlattenVal<SORTED>(t2);
     }
 
     return flatten;
 }
 
 
+template <bool SORTED>
 void register_flatten(Functions& funcs) {
 
-    funcs.add_poly("flatten", flatten_checker);
+    funcs.add_poly("flatten", flatten_checker<SORTED>);
 }
 
 #endif

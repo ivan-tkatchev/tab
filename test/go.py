@@ -19,7 +19,7 @@ def run(filename, arg, expected, log, infile = "../LICENSE.txt", errcode = 0):
     print(">>>", arg.replace('\n',' '))
 
     proctime = time.time()
-    retcode, out, err = exec(["../tab", "-s", "1234", "-i", infile, arg])
+    retcode, out, err = exec(["../tab", "-r", "1234", "-i", infile, arg])
     proctime = time.time() - proctime
     log[filename] = proctime
 
@@ -52,9 +52,11 @@ def go():
         else:
             raise Exception("Malformed test case file: " + i)
 
-    log = list(reversed(sorted([ (y,x) for x,y in log.items() ])))[:10]
-    for t,n in log:
+    l = list(reversed(sorted([ (y,x) for x,y in log.items() ])))[:10]
+    total = sum(( y for x,y in log.items() ))
+    for t,n in l:
         print('%g\t%s' % (t,n))
+    print('Total time: %g' % total)
 
 go()
 

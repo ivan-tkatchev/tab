@@ -1,9 +1,11 @@
 #ifndef __TAB_TAB_H
 #define __TAB_TAB_H
 
-#include <sys/time.h>
 #include <string>
 #include <iostream>
+
+/*
+#include <sys/time.h>
 
 struct bm_scope {
     double sum;
@@ -32,7 +34,7 @@ struct bm {
         _s += ((double)a-(double)q)/1e6;
     }
 };
-
+*/
 
 #include "deps.h"
 #include "atom.h"

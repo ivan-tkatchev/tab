@@ -328,9 +328,21 @@ struct ObjectLess {
     }
 };
 
+template <bool> struct _map_t;
+
+template <> struct _map_t<true> {
+    typedef std::map<Object*, Object*, ObjectLess> type_t;
+};
+
+template <> struct _map_t<false> {
+    typedef std::unordered_map<Object*, Object*, ObjectHash, ObjectEq> type_t;
+};
+
+
+template <bool SORTED>
 struct MapObject : public Object {
 
-    typedef std::unordered_map<Object*, Object*, ObjectHash, ObjectEq> map_t;
+    typedef typename _map_t<SORTED>::type_t map_t;
     map_t v;
 
     ~MapObject() {
@@ -358,7 +370,7 @@ struct MapObject : public Object {
 
     bool eq(Object* a) const {
 
-        const map_t& b = get<MapObject>(a).v;
+        const map_t& b = get< MapObject<SORTED> >(a).v;
 
         if (v.size() != b.size())
             return false;
@@ -383,7 +395,7 @@ struct MapObject : public Object {
     }
 
     bool less(Object* a) const {
-        const map_t& other = get<MapObject>(a).v;
+        const map_t& other = get< MapObject<SORTED> >(a).v;
 
         auto ai = v.begin();
         auto ae = v.end();
@@ -431,7 +443,7 @@ struct MapObject : public Object {
 
     Object* clone() const {
 
-        MapObject* ret = new MapObject;
+        MapObject<SORTED>* ret = new MapObject<SORTED>;
 
         for (const auto& x : v) {
             Object* k = x.first->clone();
@@ -487,7 +499,7 @@ struct MapObject : public Object {
     }
 
     void merge(const Object* v2) {
-        MapObject& t = get<MapObject>(v2);
+        MapObject<SORTED>& t = get< MapObject<SORTED> >(v2);
 
         for (const auto& i : t.v) {
             Object* key = (Object*)i.first;
@@ -618,11 +630,12 @@ struct SeqArrayObject : public SeqBase {
     }
 };
 
+template <bool SORTED>
 struct SeqMapObject : public SeqBase {
 
     Tuple* holder;
-    typename MapObject::map_t::const_iterator b;
-    typename MapObject::map_t::const_iterator e;
+    typename MapObject<SORTED>::map_t::const_iterator b;
+    typename MapObject<SORTED>::map_t::const_iterator e;
 
     SeqMapObject() {
         holder = new Tuple;
@@ -630,7 +643,7 @@ struct SeqMapObject : public SeqBase {
     }
     
     void wrap(Object* a) {
-        MapObject* map = (MapObject*)a;
+        MapObject<SORTED>* map = (MapObject<SORTED>*)a;
         b = map->v.begin();
         e = map->v.end();
     }
@@ -664,7 +677,7 @@ struct SeqGenerator : public SeqBase {
 };
 
 
-template <typename... U>
+template <bool SORTED, typename... U>
 Object* make(const Type& t, U&&... u) {
 
     if (t.type == Type::NONE)
@@ -691,7 +704,7 @@ Object* make(const Type& t, U&&... u) {
         Tuple* ret = new Tuple(std::forward<U>(u)...);
 
         for (const Type& st : (*t.tuple)) {
-            ret->v.push_back(make(st, std::forward<U>(u)...));
+            ret->v.push_back(make<SORTED>(st, std::forward<U>(u)...));
         }
 
         return ret;
@@ -718,7 +731,7 @@ Object* make(const Type& t, U&&... u) {
 
     } else if (t.type == Type::MAP) {
 
-        return new MapObject(std::forward<U>(u)...);
+        return new MapObject<SORTED>(std::forward<U>(u)...);
 
     } else if (t.type == Type::SEQ) {
 
@@ -729,6 +742,7 @@ Object* make(const Type& t, U&&... u) {
     throw std::runtime_error("Sanity error: cannot create object");
 }
 
+template <bool SORTED>
 Object* make_seq_from(const Type& s) {
 
     if (s.type == Type::ATOM || s.type == Type::TUP) {
@@ -737,7 +751,7 @@ Object* make_seq_from(const Type& s) {
 
     } else if (s.type == Type::MAP) {
 
-        return new SeqMapObject;
+        return new SeqMapObject<SORTED>;
 
     } else if (s.type == Type::ARR) {
 

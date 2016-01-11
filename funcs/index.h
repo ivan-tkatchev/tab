@@ -138,10 +138,11 @@ Functions::func_t index_checker_2(const Type& args, Type& ret, obj::Object*& obj
     }
 }
 
+template <bool SORTED>
 void map_index_one(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
-    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
     obj::Object* key = args.v[1];
 
     auto i = map.v.find(key);
@@ -152,11 +153,12 @@ void map_index_one(const obj::Object* in, obj::Object*& out) {
     out = i->second;
 }
 
+template <bool SORTED>
 void map_index_tup(const obj::Object* in, obj::Object*& out) {
 
     static obj::Tuple* key = new obj::Tuple;
     obj::Tuple& args = obj::get<obj::Tuple>(in);
-    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
 
     key->set(args.v.begin() + 1, args.v.end());
 
@@ -198,6 +200,7 @@ void index_substr(const obj::Object* in, obj::Object*& out) {
     o = v.substr(i1, i2-i1+1);
 }
 
+template <bool SORTED>
 Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() <= 1)
@@ -252,7 +255,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         obj = obj::nothing();
         ret = mval;
 
-        return (one ? map_index_one : map_index_tup);
+        return (one ? map_index_one<SORTED> : map_index_tup<SORTED>);
     }
 
     if (ci.type == Type::TUP) {
@@ -302,10 +305,11 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+template <bool SORTED>
 void map_get(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
-    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
     obj::Object* key = args.v[1];
     obj::Object* val = args.v[2];
 
@@ -318,6 +322,7 @@ void map_get(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+template <bool SORTED>
 Functions::func_t get_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 3)
@@ -340,13 +345,14 @@ Functions::func_t get_checker(const Type& args, Type& ret, obj::Object*& obj) {
     obj = obj::nothing();
     ret = mval;
 
-    return map_get;
+    return map_get<SORTED>;
 }
 
+template <bool SORTED>
 void register_index(Functions& funcs) {
 
-    funcs.add_poly("index", index_checker);
-    funcs.add_poly("get", get_checker);
+    funcs.add_poly("index", index_checker<SORTED>);
+    funcs.add_poly("get", get_checker<SORTED>);
 }
 
 #endif

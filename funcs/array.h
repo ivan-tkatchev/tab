@@ -17,13 +17,14 @@ void array_from_tuple(const obj::Object* in, obj::Object*& out) {
     o.v.push_back((obj::Object*)in);
 }
 
+template <bool SORTED>
 void array_from_map(const obj::Object* in, obj::Object*& out) {
 
-    obj::MapObject& a = obj::get<obj::MapObject>(in);
+    obj::MapObject<SORTED>& a = obj::get< obj::MapObject<SORTED> >(in);
     obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
     
-    typename obj::MapObject::map_t::const_iterator b = a.v.begin();
-    typename obj::MapObject::map_t::const_iterator e = a.v.end();
+    typename obj::MapObject<SORTED>::map_t::const_iterator b = a.v.begin();
+    typename obj::MapObject<SORTED>::map_t::const_iterator e = a.v.end();
 
     o.v.clear();
     
@@ -51,6 +52,7 @@ void array_from_seq(const obj::Object* in, obj::Object*& out) {
     out->fill((obj::Object*)in);
 }
 
+template <bool SORTED>
 Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type == Type::MAP) {
@@ -63,7 +65,7 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
         ret.push(pair);
 
-        return array_from_map;
+        return array_from_map<SORTED>;
 
     } else if (args.type == Type::SEQ) {
 
@@ -174,9 +176,10 @@ Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& ob
     return nullptr;
 }
 
+template <bool SORTED>
 void register_array(Functions& funcs) {
 
-    funcs.add_poly("array", array_checker);
+    funcs.add_poly("array", array_checker<SORTED>);
     funcs.add_poly("tabulate", tabulate_checker);
     funcs.add_poly("seq", tabulate_checker);
 }

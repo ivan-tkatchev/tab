@@ -51,6 +51,8 @@ void zip_val(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+
+template <bool SORTED>
 Functions::func_t zip_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple)
@@ -93,7 +95,7 @@ Functions::func_t zip_checker(const Type& args, Type& ret, obj::Object*& obj) {
         SeqZip& sz = obj::get<SeqZip>(obj);
 
         for (size_t i = 0; i < n; ++i) {
-            sz.seqs[i] = obj::make_seq_from(args.tuple->at(i));
+            sz.seqs[i] = obj::make_seq_from<SORTED>(args.tuple->at(i));
         }
 
         return zip_val;
@@ -103,10 +105,10 @@ Functions::func_t zip_checker(const Type& args, Type& ret, obj::Object*& obj) {
     }
 }
 
-
+template <bool SORTED>
 void register_zip(Functions& funcs) {
 
-    funcs.add_poly("zip", zip_checker);
+    funcs.add_poly("zip", zip_checker<SORTED>);
 }
 
 

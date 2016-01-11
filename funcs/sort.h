@@ -52,12 +52,15 @@ void sort_arr(const obj::Object* in, obj::Object*& out) {
     o.v.swap(x.v);
 }
 
+template <bool SORTED>
 void sort_map(const obj::Object* in, obj::Object*& out) {
 
-    array_from_map(in, out);
+    array_from_map<SORTED>(in, out);
 
-    obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
-    std::sort(o.v.begin(), o.v.end(), obj::ObjectLess());
+    if (!SORTED) {
+        obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
+        std::sort(o.v.begin(), o.v.end(), obj::ObjectLess());
+    }
 }
 
 void sort_seq_arr(const obj::Object* in, obj::Object*& out) {
@@ -77,7 +80,7 @@ void sort_seq_arr(const obj::Object* in, obj::Object*& out) {
     std::sort(x.v.begin(), x.v.end());
 }
 
-    
+template <bool SORTED>    
 Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type == Type::ARR) {
@@ -122,7 +125,7 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
         ret.push(pair);
 
         obj = new ArrayObjectSort;
-        return sort_map;
+        return sort_map<SORTED>;
 
     } else if (args.type == Type::SEQ) {
 
@@ -190,9 +193,10 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return nullptr;
 }
 
+template <bool SORTED>    
 void register_sort(Functions& funcs) {
 
-    funcs.add_poly("sort", sort_checker);
+    funcs.add_poly("sort", sort_checker<SORTED>);
 }
 
 #endif

@@ -33,9 +33,10 @@ void count_arr(const obj::Object* in, obj::Object*& out) {
     i = arr.v.size();
 }
 
+template <bool SORTED>
 void count_map(const obj::Object* in, obj::Object*& out) {
 
-    const auto& map = obj::get<obj::MapObject>(in);
+    const auto& map = obj::get< obj::MapObject<SORTED> >(in);
     UInt& i = obj::get<obj::UInt>(out).v;
 
     i = map.v.size();
@@ -133,7 +134,8 @@ void count_string(const obj::Object* in, obj::Object*& out) {
     obj::UInt& y = obj::get<obj::UInt>(out);
     y.v = x.v.size();
 }
-    
+
+template <bool SORTED>
 Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type == Type::NONE) {
@@ -184,7 +186,7 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) 
         return count_seq;
 
     case Type::MAP:
-        return count_map;
+        return count_map<SORTED>;
 
     case Type::ARR:
     {
@@ -230,9 +232,10 @@ Functions::func_t count_checker(const Type& args, Type& ret, obj::Object*& obj) 
 }
 
 
+template <bool SORTED>
 void register_count(Functions& funcs) {
 
-    funcs.add_poly("count", count_checker);
+    funcs.add_poly("count", count_checker<SORTED>);
 }
 
 #endif

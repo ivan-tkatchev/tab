@@ -25,10 +25,11 @@ struct SeqHeadSeq : public obj::SeqBase {
     }
 };
 
+template <bool SORTED>
 struct SeqHeadVal : public SeqHeadSeq {
 
     SeqHeadVal(const Type& t) : SeqHeadSeq() {
-        seq = obj::make_seq_from(t);
+        seq = obj::make_seq_from<SORTED>(t);
     }
     
     void wrap(obj::Object* s, UInt _n) {
@@ -66,10 +67,11 @@ struct SeqSkipSeq : public obj::SeqBase {
     }
 };
 
+template <bool SORTED>
 struct SeqSkipVal : public SeqSkipSeq {
 
     SeqSkipVal(const Type& t) : SeqSkipSeq() {
-        seq = obj::make_seq_from(t);
+        seq = obj::make_seq_from<SORTED>(t);
     }
     
     void wrap(obj::Object* s, UInt _n) {
@@ -108,10 +110,11 @@ struct SeqStripeSeq : public obj::SeqBase {
     }
 };
 
+template <bool SORTED>
 struct SeqStripeVal : public SeqStripeSeq {
 
     SeqStripeVal(const Type& t) : SeqStripeSeq() {
-        seq = obj::make_seq_from(t);
+        seq = obj::make_seq_from<SORTED>(t);
     }
     
     void wrap(obj::Object* s, UInt _n) {
@@ -163,11 +166,12 @@ Functions::func_t head_skip_stripe_checker(const Type& args, Type& ret, obj::Obj
     return nullptr;
 }
 
+template <bool SORTED>
 void register_head(Functions& funcs) {
 
-    funcs.add_poly("head",   head_skip_stripe_checker<SeqHeadSeq,   SeqHeadVal>);
-    funcs.add_poly("skip",   head_skip_stripe_checker<SeqSkipSeq,   SeqSkipVal>);
-    funcs.add_poly("stripe", head_skip_stripe_checker<SeqStripeSeq, SeqStripeVal>);
+    funcs.add_poly("head",   head_skip_stripe_checker<SeqHeadSeq,   SeqHeadVal<SORTED>   >);
+    funcs.add_poly("skip",   head_skip_stripe_checker<SeqSkipSeq,   SeqSkipVal<SORTED>   >);
+    funcs.add_poly("stripe", head_skip_stripe_checker<SeqStripeSeq, SeqStripeVal<SORTED> >);
 }
 
 #endif

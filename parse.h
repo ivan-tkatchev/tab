@@ -115,7 +115,7 @@ String make_string(const std::string& s) {
 }
 
 template <typename I>
-Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, unsigned int debuglevel = 0) {
+Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vector<Command>& commands, unsigned int debuglevel = 0) {
 
     ParseStack stack;
     std::string str_buff;
@@ -379,11 +379,8 @@ Type parse(I beg, I end, TypeRuntime& typer, std::vector<Command>& commands, uns
         stack.print(false);
         std::cout << std::endl;
     }
-    
-    Type toplevel(Type::SEQ);
-    toplevel.push(Type::STRING);
-    
-    Type ret = infer(stack.stack, toplevel, typer);
+
+    Type ret = infer(stack.stack, toplevel_type, typer);
 
     if (debuglevel >= 2) {
         std::cout << "[Program]" << std::endl;    

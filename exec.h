@@ -18,13 +18,13 @@ struct Runtime {
     }
 };
 
-
+template <bool SORTED>
 void execute_init(std::vector<Command>& commands) {
 
     for (auto& c : commands) {
 
         for (auto& clo : c.closure) {
-            execute_init(clo.code);
+            execute_init<SORTED>(clo.code);
         }
             
         switch (c.cmd) {
@@ -55,7 +55,7 @@ void execute_init(std::vector<Command>& commands) {
         case Command::FUN:
         case Command::FUN0:
             if (c.object == nullptr)
-                c.object = obj::make(c.type);
+                c.object = obj::make<SORTED>(c.type);
             break;
 
         case Command::GEN:
@@ -63,7 +63,7 @@ void execute_init(std::vector<Command>& commands) {
             break;
 
         default:
-            c.object = obj::make(c.type);
+            c.object = obj::make<SORTED>(c.type);
             break;
         }
     }
@@ -359,6 +359,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
     }
 }
 
+template <bool SORTED>
 void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std::istream& inputs) {
 
     Runtime rt(nvars);
@@ -366,7 +367,7 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
     obj::Object* toplevel = new funcs::SeqFile(inputs);
     rt.set_var(0, toplevel);
 
-    execute_init(commands);
+    execute_init<SORTED>(commands);
     execute_run(commands, rt);
 
     obj::Object* res;
@@ -380,5 +381,6 @@ void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std
     res->print();
     std::cout << std::endl;
 }
+
 
 #endif

@@ -13,10 +13,11 @@ void iffun(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+template <bool SORTED>
 void hasfun(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
-    obj::MapObject& map = obj::get<obj::MapObject>(args.v[0]);
+    obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
     obj::Object* key = args.v[1];
     obj::UInt& r = obj::get<obj::UInt>(out);
 
@@ -71,6 +72,7 @@ Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return iffun;
 }
 
+template <bool SORTED>
 Functions::func_t has_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
@@ -89,7 +91,7 @@ Functions::func_t has_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     ret = Type(Type::UINT);
 
-    return hasfun;
+    return hasfun<SORTED>;
 }
 
 Functions::func_t case_checker(const Type& args, Type& ret, obj::Object*& obj) {
@@ -120,10 +122,11 @@ Functions::func_t case_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return casefun;
 }
 
+template <bool SORTED>
 void register_if(Functions& funcs) {
 
     funcs.add_poly("if", if_checker);
-    funcs.add_poly("has", has_checker);
+    funcs.add_poly("has", has_checker<SORTED>);
     funcs.add_poly("case", case_checker);
 }
 

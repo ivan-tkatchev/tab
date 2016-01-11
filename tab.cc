@@ -18,6 +18,21 @@ std::istream& file_or_stdin(const std::string& file) {
     return ret;
 }        
 
+template <bool SORTED>
+void run(const std::string& program, const std::string& infile, unsigned int debuglevel) {
+
+    std::vector<Command> commands;
+    TypeRuntime typer;
+
+    Type toplevel(Type::SEQ);
+    toplevel.push(Type::STRING);
+
+    Type finaltype = parse(program.begin(), program.end(), toplevel, typer, commands, debuglevel);
+
+    execute<SORTED>(commands, finaltype, typer.num_vars(), file_or_stdin(infile));
+}
+
+
 int main(int argc, char** argv) {
 
     try {
@@ -28,6 +43,7 @@ int main(int argc, char** argv) {
         }
 
         unsigned int debuglevel = 0;
+        bool sorted = false;
         std::string program;
         std::string infile;
         std::string programfile;
@@ -45,13 +61,17 @@ int main(int argc, char** argv) {
             } else if (arg == "-vvv") {
                 debuglevel = 3;
 
-            } else if (arg == "-s") {
+            } else if (arg == "-r") {
 
                 if (i == argc - 1)
-                    throw std::runtime_error("The '-s' command line argument expects a numeric argument.");
+                    throw std::runtime_error("The '-r' command line argument expects a numeric argument.");
 
                 ++i;
                 seed = std::stoul(argv[i]);
+
+            } else if (arg == "-s") {
+
+                sorted = true;
 
             } else if (arg == "-f") {
 
@@ -72,8 +92,15 @@ int main(int argc, char** argv) {
             } else if (arg == "-h") {
 
                 std::cout <<
-                    "Usage: tab [-i inputdata_file] [-f expression_file] [-s random seed] "
-                    "[-v|-vv|-vvv] <expressions...>"
+                    "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] <expressions...>"
+                          << std::endl
+                          << "  -i:   read data from this file instead of stdin." << std::endl
+                          << "  -f:   prepend code from this file to <expressions...>" << std::endl
+                          << "  -r:   use a specific random seed." << std::endl
+                          << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
+                          << "  -v:   verbosity flag -- print type of the result." << std::endl
+                          << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
+                          << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." 
                           << std::endl;
                 return 1;
                 
@@ -103,16 +130,20 @@ int main(int argc, char** argv) {
             } else {
                 program = programfile + "," + program;
             }
-        }        
+        }
 
-        register_functions(seed);
+        // //
 
-        std::vector<Command> commands;
-        TypeRuntime typer;
+        if (sorted) {
 
-        Type finaltype = parse(program.begin(), program.end(), typer, commands, debuglevel);
+            register_functions<true>(seed);
+            run<true>(program, infile, debuglevel);
 
-        execute(commands, finaltype, typer.num_vars(), file_or_stdin(infile));
+        } else {
+
+            register_functions<false>(seed);
+            run<false>(program, infile, debuglevel);
+        }
         
     } catch (std::exception& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;

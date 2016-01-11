@@ -28,30 +28,31 @@ namespace funcs {
 
 }
 
+template <bool SORTED>
 void register_functions(size_t seed) {
 
     funcs::get_rand_generator(seed);
 
     Functions& funs = functions_init();
 
-    funs.add_seqmaker(obj::make_seq_from);
+    funs.add_seqmaker(obj::make_seq_from<SORTED>);
 
-    funcs::register_index(funs);
-    funcs::register_flatten(funs);
+    funcs::register_index<SORTED>(funs);
+    funcs::register_flatten<SORTED>(funs);
     funcs::register_filter(funs);
-    funcs::register_count(funs);
+    funcs::register_count<SORTED>(funs);
     funcs::register_math(funs);
-    funcs::register_head(funs);
+    funcs::register_head<SORTED>(funs);
     funcs::register_cutgrep(funs);
-    funcs::register_zip(funs);
+    funcs::register_zip<SORTED>(funs);
     funcs::register_file(funs);
     funcs::register_sum(funs);
     funcs::register_minmax(funs);
     funcs::register_avg(funs);
-    funcs::register_if(funs);
-    funcs::register_array(funs);
-    funcs::register_map(funs);
-    funcs::register_sort(funs);
+    funcs::register_if<SORTED>(funs);
+    funcs::register_array<SORTED>(funs);
+    funcs::register_map<SORTED>(funs);
+    funcs::register_sort<SORTED>(funs);
     funcs::register_reverse(funs);
     funcs::register_rand(funs);
     funcs::register_misc(funs);

@@ -2,7 +2,7 @@ temps.tsv
 ===>
 temps=[. x=cut(@,"\t"), uint.x~0, real.x~3 .],
 sd=stddev.[@~1 : temps],
-{ @~0 -> sum.1 : ?[@~1 > 3*sd, @ : temps] }
+sort.{ @~0 -> sum.1 : ?[@~1 > 3*sd, @ : temps] }
 ===>
-2010	13
 1996	1
+2010	13
