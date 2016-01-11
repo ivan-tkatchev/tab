@@ -51,6 +51,8 @@ If your `<expression>` is too long, you can pass it in via a file, with the `-f`
 
 (In this case, the contents of `mycode` will be prepended to `<expression>`, separated with a comma.)
 
+Run `tab -h` to see the rest of the supported command-line parameters.
+
 ## Language tutorial ##
 
 ### Basic types ###
@@ -76,6 +78,8 @@ Structures can be composed together in complex ways. So, for example, you cannot
 When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, `\t`.
 
 (So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)
+
+Maps, by default, store values in an unspecified order. Use the `-s` command-line parameter to force a strict ordering on map keys.
 
 ### Atomic types ###
 

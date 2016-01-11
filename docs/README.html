@@ -138,6 +138,7 @@ code {
 
 
 <p>(In this case, the contents of <code>mycode</code> will be prepended to <code>&lt;expression&gt;</code>, separated with a comma.)</p>
+<p>Run <code>tab -h</code> to see the rest of the supported command-line parameters.</p>
 <h1 id="language-tutorial">Language tutorial</h1>
 <h2 id="basic-types">Basic types</h2>
 <p><code>tab</code> is a statically-typed language. However, you will not need to declare any types, the appropriate type information will be deduced automatically, and any errors will be reported before execution.</p>
@@ -158,6 +159,7 @@ code {
 <p>Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)</p>
 <p>When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, <code>\t</code>.</p>
 <p>(So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)</p>
+<p>Maps, by default, store values in an unspecified order. Use the <code>-s</code> command-line parameter to force a strict ordering on map keys.</p>
 <h2 id="atomic-types">Atomic types</h2>
 <p>The default number type in <code>tab</code> is the unsigned integer. A plain sequence of digits will be interpreted as a <code>UInt</code>. When you need an explicitly signed <code>Int</code>, put an <code>s</code>, <code>i</code> or <code>l</code> suffix onto the digits; for example, <code>1996l</code>. All three suffixes are equivalent, they are syntactic sugar.</p>
 <p>Floating-point number literals can be entered using a <code>.</code> or using scientific notation; for example, <code>3.</code> or <code>3e0</code>.</p>
