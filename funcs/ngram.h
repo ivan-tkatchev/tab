@@ -22,7 +22,7 @@ struct SeqNgramBoxed : public obj::SeqBase {
         m = 0;
     }
 
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         wrap(s);
         n = _n;
     }
@@ -71,7 +71,7 @@ struct SeqNgramUnboxed : public obj::SeqBase {
         delete holder;
     }
 
-    void wrap(obj::Object* s, UInt _n) {
+    void wrapx(obj::Object* s, UInt _n) {
         seq = s;
         m = 0;
         n = _n;
@@ -120,7 +120,7 @@ void ngram_array(const obj::Object* in, obj::Object*& out) {
     if (n <= 0)
         throw std::runtime_error("Ngrams of 0 length are not allowed.");
 
-    v.wrap(inp.v[0], n);
+    v.wrapx(inp.v[0], n);
 }
 
 template <size_t N>
