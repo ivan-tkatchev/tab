@@ -5,8 +5,9 @@ struct Runtime {
     std::vector<obj::Object*> vars;
     std::vector<obj::Object*> stack;
 
-    Runtime(size_t nvars) {
+    void init(size_t nvars) {
         vars.resize(nvars);
+        stack.clear();
     }
     
     void set_var(UInt ix, obj::Object* o) {
@@ -360,26 +361,16 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 }
 
 template <bool SORTED>
-void execute(std::vector<Command>& commands, const Type& type, size_t nvars, std::istream& inputs) {
+obj::Object* execute(std::vector<Command>& commands, Runtime& rt, obj::Object* input) {
 
-    Runtime rt(nvars);
+    rt.set_var(0, input);
 
-    obj::Object* toplevel = new funcs::SeqFile(inputs);
-    rt.set_var(0, toplevel);
-
-    execute_init<SORTED>(commands);
     execute_run(commands, rt);
 
-    obj::Object* res;
-    
     if (rt.stack.size() != 1)
         throw std::runtime_error("Sanity error: did not produce result");
 
-    res = rt.stack.back();
-    rt.stack.pop_back();
-
-    res->print();
-    std::cout << std::endl;
+    return rt.stack.back();
 }
 
 

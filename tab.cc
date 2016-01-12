@@ -21,16 +21,20 @@ std::istream& file_or_stdin(const std::string& file) {
 template <bool SORTED>
 void run(size_t seed, const std::string& program, const std::string& infile, unsigned int debuglevel) {
 
-    TheRuntime<SORTED> rt;
+    API<SORTED> api;
 
-    rt.init(seed);
+    api.init(seed);
 
-    Type toplevel(Type::SEQ);
-    toplevel.push(Type::STRING);
+    static Type intype(Type::SEQ, { Type(Type::STRING) });
 
-    typename TheRuntime<SORTED>::compiled_t code;
-    rt.compile(program.begin(), program.end(), toplevel, code, debuglevel);
-    rt.run(code, file_or_stdin(infile));
+    typename API<SORTED>::compiled_t code;
+    api.compile(program.begin(), program.end(), intype, code, debuglevel);
+
+    obj::Object* input = new funcs::SeqFile(file_or_stdin(infile));
+    obj::Object* output = api.run(code, input);
+
+    output->print();
+    std::cout << std::endl;
 }
 
 

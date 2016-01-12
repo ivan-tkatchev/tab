@@ -2,7 +2,7 @@
 #define __TAB_API_H
 
 template <bool SORTED>
-struct TheRuntime {
+struct API {
 
     static void init(size_t seed) {
 
@@ -11,8 +11,8 @@ struct TheRuntime {
 
     struct compiled_t {
         std::vector<Command> commands;
-        size_t num_vars;
         Type result;
+        Runtime rt;
     };
 
     template <typename I>
@@ -20,12 +20,15 @@ struct TheRuntime {
 
         TypeRuntime typer;
         out.result = parse(beg, end, input, typer, out.commands, debuglevel);
-        out.num_vars = typer.num_vars();
+
+        out.rt.init(typer.num_vars());
+
+        execute_init<SORTED>(out.commands);
     }
 
-    static void run(compiled_t& code, std::istream& inputs) {
+    static obj::Object* run(compiled_t& code, obj::Object* input) {
 
-        execute<SORTED>(code.commands, code.result, code.num_vars, inputs);
+        return execute<SORTED>(code.commands, code.rt, input);
     }
 };
 

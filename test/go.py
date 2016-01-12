@@ -6,6 +6,7 @@ import struct
 import time
 
 def exec(*popenargs, **kwargs):
+    proctime = time.time()
     with subprocess.Popen(*popenargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs) as process:
         try:
             output, err = process.communicate()
@@ -14,14 +15,12 @@ def exec(*popenargs, **kwargs):
             process.wait()
             raise
         retcode = process.poll()
-    return retcode, output, err
+    return retcode, output, err, time.time() - proctime
 
 def run(filename, arg, expected, log, infile = "../LICENSE.txt", errcode = 0, sort=False):
     print(">>>", arg.replace('\n',' '))
 
-    proctime = time.time()
-    retcode, out, err = exec(["../tab", "-r", "1234", "-i", infile, arg] + (["-s"] if sort else []))
-    proctime = time.time() - proctime
+    retcode, out, err, proctime = exec(["../tab", "-r", "1234", "-i", infile, arg] + (["-s"] if sort else []))
     log[filename] = proctime
 
     if errcode != retcode:
