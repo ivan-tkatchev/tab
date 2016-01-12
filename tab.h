@@ -45,5 +45,6 @@ struct bm {
 #include "object.h"
 #include "funcs.h"
 #include "exec.h"
+#include "api.h"
 
 #endif

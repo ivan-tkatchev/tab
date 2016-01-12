@@ -19,17 +19,18 @@ std::istream& file_or_stdin(const std::string& file) {
 }        
 
 template <bool SORTED>
-void run(const std::string& program, const std::string& infile, unsigned int debuglevel) {
+void run(size_t seed, const std::string& program, const std::string& infile, unsigned int debuglevel) {
 
-    std::vector<Command> commands;
-    TypeRuntime typer;
+    TheRuntime<SORTED> rt;
+
+    rt.init(seed);
 
     Type toplevel(Type::SEQ);
     toplevel.push(Type::STRING);
 
-    Type finaltype = parse(program.begin(), program.end(), toplevel, typer, commands, debuglevel);
-
-    execute<SORTED>(commands, finaltype, typer.num_vars(), file_or_stdin(infile));
+    typename TheRuntime<SORTED>::compiled_t code;
+    rt.compile(program.begin(), program.end(), toplevel, code, debuglevel);
+    rt.run(code, file_or_stdin(infile));
 }
 
 
@@ -136,13 +137,11 @@ int main(int argc, char** argv) {
 
         if (sorted) {
 
-            register_functions<true>(seed);
-            run<true>(program, infile, debuglevel);
+            run<true>(seed, program, infile, debuglevel);
 
         } else {
 
-            register_functions<false>(seed);
-            run<false>(program, infile, debuglevel);
+            run<false>(seed, program, infile, debuglevel);
         }
         
     } catch (std::exception& e) {
