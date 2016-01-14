@@ -57,9 +57,11 @@ struct CountNull : public obj::SeqBase {
     }
 
     obj::Object* next() {
-        ++(i->v);
 
-        if (i->v == max)
+        if (i->v <= max)
+            ++(i->v);
+
+        if (i->v > max)
             return nullptr;
 
         return i;
@@ -84,16 +86,19 @@ struct CountLoop : public obj::SeqBase {
 
     void set(T s, T e, T inc) {
         i->v = (s - inc);
-        start = s;
+        start = std::min(s, e);
         end = e;
         increment = inc;
     }
 
     obj::Object* next() {
 
-        i->v += increment;
+        if ((increment > 0 && i->v <= end) ||
+            (increment < 0 && i->v >= end))
+            i->v += increment;
 
-        if (i->v < std::min(start,end) || i->v > std::max(start,end))
+        if ((increment > 0 && i->v > end) ||
+            (increment < 0 && i->v < end))
             return nullptr;
 
         return i;
@@ -104,7 +109,7 @@ void count_null(const obj::Object* in, obj::Object*& out) {
 
     CountNull& v = obj::get<CountNull>(out);
     v.i->v = 0;
-    v.max = 0;
+    v.max = (UInt)(-1);
 }
 
 void count_nulln(const obj::Object* in, obj::Object*& out) {
@@ -113,7 +118,7 @@ void count_nulln(const obj::Object* in, obj::Object*& out) {
     UInt max = obj::get< obj::Atom<UInt> >(in).v;
     
     v.i->v = 0;
-    v.max = max + 1;
+    v.max = max;
 }
 
 template <typename T>

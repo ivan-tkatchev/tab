@@ -82,10 +82,10 @@ void flatten(const obj::Object* in, obj::Object*& out) {
 template <bool SORTED>
 Functions::func_t flatten_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    if (args.type != Type::SEQ)
+    if (args.type != Type::SEQ || !args.tuple || args.tuple->size() != 1)
         return nullptr;
 
-    Type t2 = unwrap_seq(args);
+    Type t2 = args.tuple->at(0);
     ret = wrap_seq(t2);
 
     if (t2.type == Type::SEQ) {

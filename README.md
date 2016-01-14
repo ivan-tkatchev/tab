@@ -552,13 +552,18 @@ Usage:
 Usage:  
 `exp Number -> Real`
 
+`explode`
+: Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. (See the examples page for a clearer explanation.)  
+Usage:  
+`explode Seq[a] -> Seq[Seq[a]]`
+
 `file`
 : Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
 Usage:  
 `file String -> Seq[String]`
 
 `filter`
-: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
+: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence. See also: `while`.  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
@@ -898,6 +903,11 @@ Usage:
 
 `variance`
 : Synonym for `var`.
+
+`while`
+: Similar to `filter`, but stops the output sequence once the first filtered element is reached. See: `filter`.  
+Usage:  
+`while Seq[(Integer,a...) -> Seq[(a...)]`
 
 `zip`
 : Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  

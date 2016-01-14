@@ -6,6 +6,7 @@ namespace funcs {
 #include "funcs/index.h"
 #include "funcs/flatten.h"
 #include "funcs/filter.h"
+#include "funcs/explode.h"
 #include "funcs/count.h"
 #include "funcs/math.h"
 #include "funcs/head.h"
@@ -40,6 +41,7 @@ void register_functions(size_t seed) {
     funcs::register_index<SORTED>(funs);
     funcs::register_flatten<SORTED>(funs);
     funcs::register_filter(funs);
+    funcs::register_explode(funs);
     funcs::register_count<SORTED>(funs);
     funcs::register_math(funs);
     funcs::register_head<SORTED>(funs);

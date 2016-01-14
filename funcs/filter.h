@@ -1,7 +1,8 @@
 #ifndef __TAB_FUNCS_FILTER_H
 #define __TAB_FUNCS_FILTER_H
 
-struct SeqFilterOne : public obj::SeqBase {
+template <bool WHICH>
+struct SeqFilterWhileOne : public obj::SeqBase {
 
     obj::Object* seq;
     
@@ -19,25 +20,31 @@ struct SeqFilterOne : public obj::SeqBase {
             obj::Tuple& x = obj::get<obj::Tuple>(ret);
             obj::Int& y = obj::get<obj::Int>(x.v[0]);
 
-            if (y.v == 0)
-                continue;
+            if (y.v == 0) {
+                if (WHICH) {
+                    continue;
+                } else {
+                    return nullptr;
+                }
+            }
 
             return x.v[1];
         }
     }
 };
 
-struct SeqFilterMany : public obj::SeqBase {
+template <bool WHICH>
+struct SeqFilterWhileMany : public obj::SeqBase {
 
     obj::Object* seq;
     obj::Tuple* holder;
 
-    SeqFilterMany(const Type& t) {
+    SeqFilterWhileMany(const Type& t) {
         holder = new obj::Tuple;
         holder->v.resize(t.tuple->size());
     }
 
-    ~SeqFilterMany() {
+    ~SeqFilterWhileMany() {
         delete holder;
     }
     
@@ -55,8 +62,13 @@ struct SeqFilterMany : public obj::SeqBase {
             obj::Tuple& x = obj::get<obj::Tuple>(ret);
             obj::Int& y = obj::get<obj::Int>(x.v[0]);
 
-            if (y.v == 0)
-                continue;
+            if (y.v == 0) {
+                if (WHICH) {
+                    continue;
+                } else {
+                    return nullptr;
+                }
+            }
 
             for (size_t i = 0; i < holder->v.size(); ++i) {
                 holder->v[i] = x.v[i+1];
@@ -67,20 +79,22 @@ struct SeqFilterMany : public obj::SeqBase {
     }
 };
 
-void filter(const obj::Object* in, obj::Object*& out) {
+void filter_while(const obj::Object* in, obj::Object*& out) {
 
     out->wrap((obj::Object*)in);
 }
 
-Functions::func_t filter_checker(const Type& args, Type& ret, obj::Object*& obj) {
+template <bool WHICH>
+Functions::func_t filter_while_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    if (args.type != Type::SEQ)
+    if (args.type != Type::SEQ || !args.tuple || args.tuple->size() != 1)
         return nullptr;
 
-    Type t = unwrap_seq(args);
+    Type t = args.tuple->at(0);
     
     if (t.type != Type::TUP || !t.tuple || t.tuple->size() <= 1 || !check_integer(t.tuple->at(0))) {
-        throw std::runtime_error("'filter' accepts a sequence of tuples, where the first tuple element is an integer.");
+        throw std::runtime_error("'" + std::string(WHICH ? "filter" : "while") +
+                                 "' accepts a sequence of tuples, where the first tuple element is an integer.");
         //return nullptr;
     }
 
@@ -90,23 +104,23 @@ Functions::func_t filter_checker(const Type& args, Type& ret, obj::Object*& obj)
 
         t = t.tuple->at(0);
 
-        obj = new SeqFilterOne;
+        obj = new SeqFilterWhileOne<WHICH>;
 
     } else {
-    
-        obj = new SeqFilterMany(t);
+
+        obj = new SeqFilterWhileMany<WHICH>(t);
     }
 
     ret = Type(Type::SEQ);
     ret.push(t);
 
-    return filter;
+    return filter_while;
 }
-
 
 void register_filter(Functions& funcs) {
 
-    funcs.add_poly("filter", filter_checker);
+    funcs.add_poly("filter", filter_while_checker<true>);
+    funcs.add_poly("while", filter_while_checker<false>);
 }
 
 #endif

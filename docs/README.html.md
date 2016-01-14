@@ -543,13 +543,18 @@ exp {: #fn_exp}
 Usage:  
 `exp Number -> Real`
 
+explode {: #fn_explode}
+: Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. (See the examples page for a clearer explanation.)  
+Usage:  
+`explode Seq[a] -> Seq[Seq[a]]`
+
 file {: #fn_file}
 : Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
 Usage:  
 `file String -> Seq[String]`
 
 filter {: #fn_filter}
-: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence.  
+: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence. See also: [[while]].  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
@@ -890,6 +895,11 @@ Usage:
 variance {: #fn_variance}
 : Synonym for [[var]].
 
+while {: #fn_while}
+: Similar to [[filter]], but stops the output sequence once the first filtered element is reached. See: [[filter]].  
+Usage:  
+`while Seq[(Integer,a...) -> Seq[(a...)]`
+
 zip {: #fn_zip}
 : Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
@@ -958,14 +968,14 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 ### Alphabetically by name: 
 
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
-[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[file]] [[filter]] [[first]] [[flatten]]
-[[flip]] [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
-[[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]] [[mean]]
-[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]] [[real]]
+[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[explode]] [[file]] [[filter]] [[first]]
+[[flatten]] [[flip]] [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]]
+[[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]]
+[[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]] [[real]]
 [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[second]] [[seq]] [[sin]]
 [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]]
-[[var]] [[variance]] [[zip]]
+[[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -980,13 +990,13 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
 [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
 
-**Arrays:** [[array]] [[count]] [[filter]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
+**Arrays:** [[array]] [[count]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
 [[skip]] [[sort]] [[stripe]] [[zip]]
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
-**Sequences:** [[count]] [[filter]] [[first]] [[flatten]] [[flip]] [[head]]
-[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[triplets]] [[zip]]
+**Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[head]]
+[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[triplets]] [[while]] [[zip]]
 
 **Tuples:** [[first]] [[second]] [[tuple]]
 
@@ -994,7 +1004,7 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
-**Conditionals:** [[case]] [[filter]] [[grepif]] [[has]] [[if]]
+**Conditionals:** [[case]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
 
 **Files:** [[file]] [[open]]
 
