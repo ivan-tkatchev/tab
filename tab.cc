@@ -38,12 +38,26 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
 }
 
 
+void show_help() {
+    std::cout <<
+        "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] <expressions...>"
+              << std::endl
+              << "  -i:   read data from this file instead of stdin." << std::endl
+              << "  -f:   prepend code from this file to <expressions...>" << std::endl
+              << "  -r:   use a specific random seed." << std::endl
+              << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
+              << "  -v:   verbosity flag -- print type of the result." << std::endl
+              << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
+              << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." 
+              << std::endl;
+}
+
 int main(int argc, char** argv) {
 
     try {
 
         if (argc < 2) {
-            std::cerr << "Usage: " << argv[0] << " <expression>" << std::endl;
+            show_help();
             return 1;
         }
 
@@ -53,6 +67,7 @@ int main(int argc, char** argv) {
         std::string infile;
         std::string programfile;
         size_t seed = ::time(NULL);
+        bool help = false;
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
@@ -96,19 +111,8 @@ int main(int argc, char** argv) {
 
             } else if (arg == "-h") {
 
-                std::cout <<
-                    "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] <expressions...>"
-                          << std::endl
-                          << "  -i:   read data from this file instead of stdin." << std::endl
-                          << "  -f:   prepend code from this file to <expressions...>" << std::endl
-                          << "  -r:   use a specific random seed." << std::endl
-                          << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
-                          << "  -v:   verbosity flag -- print type of the result." << std::endl
-                          << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
-                          << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." 
-                          << std::endl;
-                return 1;
-                
+                help = true;
+
             } else {
 
                 if (program.size() > 0) {
@@ -135,6 +139,13 @@ int main(int argc, char** argv) {
             } else {
                 program = programfile + "," + program;
             }
+        }
+
+        // //
+
+        if (help || program.empty()) {
+            show_help();
+            return 1;
         }
 
         // //
