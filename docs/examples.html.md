@@ -2,6 +2,8 @@
 
 This is an example list of useful `tab` programs.
 
+## Working with lines and words:
+
 #### Count the number of lines in a file:
     :::bash
     count(@)
@@ -37,6 +39,8 @@ This is an example list of useful `tab` programs.
     :::bash
     ?[ (tolower.first.@) == "the", second.@ : pairs( :[grep(@,"[A-Za-z0-9]+")] ) ]
 
+## Sampling data randomly from files:
+
 #### Output four random lines from a file:
     :::bash
     sample(4, @)
@@ -50,11 +54,13 @@ This is an example list of useful `tab` programs.
     def empties sum([ count(@) == 0 : sample(4, @) ]),
     { empties.open."file.txt" -> sum.1 : count(100) }
 
+## Basic math and loops:
+
 #### A sine and cose table:
     :::bash
     [ sin.@, cos.@ : count(0.0, 2*pi(), pi()/8) ]
 
-----
+## Numeric data aggregation:
 
 For the next few examples let's use an input file that looks something like this:
 
@@ -64,8 +70,6 @@ For the next few examples let's use an input file that looks something like this
     1948	12	14	-56
 
 The first three fields are the year, month and day. The fourth field is the daily max temperature in units of 0.1 degrees Celcius.
-
-----
 
 #### The average (mean) of the temperature, aggregated by year:
     :::bash
@@ -119,6 +123,8 @@ The first three fields are the year, month and day. The fourth field is the dail
     def arr_to_seq [@:@],
     sort.{ @~(-1)~0 -> avg.second.arr_to_seq.@ : ngrams(arr_to_seq.t, 10) }
 
+## Working with ad-hoc text formats:
+
 #### Convert MySQL output to a machine-readable one:
     :::bash
     [ join(recut(@, " *\\| *")[1,-2], "\t") : skip(grepif(@, "^\\| "), 1) ]
@@ -130,11 +136,11 @@ The first three fields are the year, month and day. The fourth field is the dail
     [ map(stripe(pairs.split.@, 2))~"response" ]
 : You will need to add extra backslashes if you want to enter that regex via a shell command line.
 
-#### Given a list of URLs, find the hostnames:
+#### Given a file with a URL on each line, find the hostnames:
     :::bash
     { grep(@, "//([^/]*)/")~0 -> sum.1 }
 
-#### Parse the GET parameters in a list of URLs:
+#### Parse the GET parameters in a file of URLs:
     :::bash
     regex = "[?&]([^&]+)=([^&]+)";
     def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
@@ -146,3 +152,20 @@ The first three fields are the year, month and day. The fourth field is the dail
     def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
     (sort.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] })~-1~1
 
+## Working with multi-line data:
+
+#### Double-space a file:
+    ::bash
+    [ seq(@, "") ]
+
+#### Glue every pair of lines in a file together:
+    ::bash
+    [ join(head(@, 2), "\t") : explode.@ ]
+
+#### Count the number of lines in every paragraph in a file:
+    ::bash
+    [ count.while.[ @ != "", @ ] : explode.@ ]
+
+#### Remove duplicate lines, like the Unix tool `uniq`:
+    ::bash
+    x=pairs.@, head=take.x, x=glue(head, x), glue(first.head, ?[ @~0 != @~1, @~1 : x ])

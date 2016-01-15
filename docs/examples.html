@@ -104,6 +104,7 @@ code {
 </style></head><title>The tab programming language.</title><body>
 <h1 id="the-tab-cookbook">The tab cookbook</h1>
 <p>This is an example list of useful <code>tab</code> programs.</p>
+<h2 id="working-with-lines-and-words">Working with lines and words:</h2>
 <h4 id="count-the-number-of-lines-in-a-file">Count the number of lines in a file:</h4>
 <div class="codehilite"><pre>count<span class="o">(</span>@<span class="o">)</span>
 </pre></div>
@@ -147,6 +148,7 @@ sort.<span class="o">[</span> f.@, f.s.@, join<span class="o">(</span>f.s.s.@, <
 </pre></div>
 
 
+<h2 id="sampling-data-randomly-from-files">Sampling data randomly from files:</h2>
 <h4 id="output-four-random-lines-from-a-file">Output four random lines from a file:</h4>
 <div class="codehilite"><pre>sample<span class="o">(</span>4, @<span class="o">)</span>
 </pre></div>
@@ -163,12 +165,13 @@ sort.<span class="o">[</span> f.@, f.s.@, join<span class="o">(</span>f.s.s.@, <
 </pre></div>
 
 
+<h2 id="basic-math-and-loops">Basic math and loops:</h2>
 <h4 id="a-sine-and-cose-table">A sine and cose table:</h4>
 <div class="codehilite"><pre><span class="o">[</span> sin.@, cos.@ : count<span class="o">(</span>0.0, 2*pi<span class="o">()</span>, pi<span class="o">()</span>/8<span class="o">)</span> <span class="o">]</span>
 </pre></div>
 
 
-<hr>
+<h2 id="numeric-data-aggregation">Numeric data aggregation:</h2>
 <p>For the next few examples let&rsquo;s use an input file that looks something like this:</p>
 <div class="codehilite"><pre>1948    12  11  24
 1948    12  12  19
@@ -178,7 +181,6 @@ sort.<span class="o">[</span> f.@, f.s.@, join<span class="o">(</span>f.s.s.@, <
 
 
 <p>The first three fields are the year, month and day. The fourth field is the daily max temperature in units of 0.1 degrees Celcius.</p>
-<hr>
 <h4 id="the-average-mean-of-the-temperature-aggregated-by-year">The average (mean) of the temperature, aggregated by year:</h4>
 <div class="codehilite"><pre><span class="o">{</span> <span class="nv">x</span><span class="o">=</span>cut<span class="o">(</span>@,<span class="s2">&quot;\t&quot;</span><span class="o">)</span>, x~0 -&gt; avg.real.x~3 <span class="o">}</span>
 </pre></div>
@@ -243,6 +245,7 @@ sort.<span class="o">{</span> @~<span class="o">(</span>-1<span class="o">)</spa
 </pre></div>
 
 
+<h2 id="working-with-ad-hoc-text-formats">Working with ad-hoc text formats:</h2>
 <h4 id="convert-mysql-output-to-a-machine-readable-one">Convert MySQL output to a machine-readable one:</h4>
 <div class="codehilite"><pre><span class="o">[</span> join<span class="o">(</span>recut<span class="o">(</span>@, <span class="s2">&quot; *\\| *&quot;</span><span class="o">)[</span>1,-2<span class="o">]</span>, <span class="s2">&quot;\t&quot;</span><span class="o">)</span> : skip<span class="o">(</span>grepif<span class="o">(</span>@, <span class="s2">&quot;^\\| &quot;</span><span class="o">)</span>, 1<span class="o">)</span> <span class="o">]</span>
 </pre></div>
@@ -258,12 +261,12 @@ def split ?<span class="o">[</span> count.@, @ : grep<span class="o">(</span>@, 
 <dl>
 <dd>You will need to add extra backslashes if you want to enter that regex via a shell command line.</dd>
 </dl>
-<h4 id="given-a-list-of-urls-find-the-hostnames">Given a list of URLs, find the hostnames:</h4>
+<h4 id="given-a-file-with-a-url-on-each-line-find-the-hostnames">Given a file with a URL on each line, find the hostnames:</h4>
 <div class="codehilite"><pre><span class="o">{</span> grep<span class="o">(</span>@, <span class="s2">&quot;//([^/]*)/&quot;</span><span class="o">)</span>~0 -&gt; sum.1 <span class="o">}</span>
 </pre></div>
 
 
-<h4 id="parse-the-get-parameters-in-a-list-of-urls">Parse the GET parameters in a list of URLs:</h4>
+<h4 id="parse-the-get-parameters-in-a-file-of-urls">Parse the GET parameters in a file of URLs:</h4>
 <div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="p">;</span>
 def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span>@ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>, 2<span class="o">)</span><span class="p">;</span>
 <span class="o">[</span> urlgetparams.@ <span class="o">]</span>
@@ -274,4 +277,25 @@ def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span
 <div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="p">;</span>
 def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span>@ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>, 2<span class="o">)</span><span class="p">;</span>
 <span class="o">(</span>sort.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</span> first.urlgetparams.@ <span class="o">]</span> <span class="o">})</span>~-1~1
+</pre></div>
+
+
+<h2 id="working-with-multi-line-data">Working with multi-line data:</h2>
+<h4 id="double-space-a-file">Double-space a file:</h4>
+<div class="codehilite"><pre><span class="o">[</span> seq<span class="o">(</span>@, <span class="s2">&quot;&quot;</span><span class="o">)</span> <span class="o">]</span>
+</pre></div>
+
+
+<h4 id="glue-every-pair-of-lines-in-a-file-together">Glue every pair of lines in a file together:</h4>
+<div class="codehilite"><pre><span class="o">[</span> join<span class="o">(</span>head<span class="o">(</span>@, 2<span class="o">)</span>, <span class="s2">&quot;\t&quot;</span><span class="o">)</span> : explode.@ <span class="o">]</span>
+</pre></div>
+
+
+<h4 id="count-the-number-of-lines-in-every-paragraph-in-a-file">Count the number of lines in every paragraph in a file:</h4>
+<div class="codehilite"><pre><span class="o">[</span> count.while.<span class="o">[</span> @ !<span class="o">=</span> <span class="s2">&quot;&quot;</span>, @ <span class="o">]</span> : explode.@ <span class="o">]</span>
+</pre></div>
+
+
+<h4 id="remove-duplicate-lines-like-the-unix-tool-uniq">Remove duplicate lines, like the Unix tool <code>uniq</code>:</h4>
+<div class="codehilite"><pre><span class="nv">x</span><span class="o">=</span>pairs.@, <span class="nv">head</span><span class="o">=</span>take.x, <span class="nv">x</span><span class="o">=</span>glue<span class="o">(</span>head, x<span class="o">)</span>, glue<span class="o">(</span>first.head, ?<span class="o">[</span> @~0 !<span class="o">=</span> @~1, @~1 : x <span class="o">])</span>
 </pre></div></body></html>

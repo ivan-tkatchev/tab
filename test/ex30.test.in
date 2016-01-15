@@ -1,0 +1,11 @@
+repeats.txt
+===>
+x=pairs.@, head=take.x, x=glue(head, x), glue(first.head, ?[ @~0 != @~1, @~1 : x ])
+===>
+1
+2
+3
+4
+5
+0
+9

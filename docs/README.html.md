@@ -589,6 +589,11 @@ get {: #fn_get}
 Usage:  
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
 
+glue {: #fn_glue}
+: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: [[take]].  
+Usage:  
+`glue a, Seq[a] -> Seq[a]`
+
 gmtime {: #fn_gmtime}
 : Converts a UNIX timestamp to a UTC date and time.  
 Usage:  
@@ -844,6 +849,11 @@ Usage:
 `sum Seq[Number] -> Number`  
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
+take {: #fn_take}
+: Returns the first element in a sequence. It is an error to use [[take]] on an empty sequence. See also: [[glue]].  
+Usage:  
+`take Seq[a] -> a`
+
 tan {: #fn_tan}
 : The tangent function.  
 Usage:  
@@ -969,13 +979,13 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
 [[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[explode]] [[file]] [[filter]] [[first]]
-[[flatten]] [[flip]] [[floor]] [[get]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]]
-[[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]] [[max]]
-[[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]] [[real]]
-[[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[second]] [[seq]] [[sin]]
-[[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[tan]]
-[[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]] [[uint]]
-[[var]] [[variance]] [[while]] [[zip]]
+[[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]] [[has]]
+[[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]]
+[[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]]
+[[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[second]]
+[[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]]
+[[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
+[[uint]] [[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -995,8 +1005,9 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
-**Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[head]]
-[[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[triplets]] [[while]] [[zip]]
+**Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
+[[head]] [[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]] [[triplets]]
+[[while]] [[zip]]
 
 **Tuples:** [[first]] [[second]] [[tuple]]
 

@@ -598,6 +598,11 @@ Usage:
 Usage:  
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
 
+`glue`
+: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`.  
+Usage:  
+`glue a, Seq[a] -> Seq[a]`
+
 `gmtime`
 : Converts a UNIX timestamp to a UTC date and time.  
 Usage:  
@@ -852,6 +857,11 @@ Usage:
 `sum Arr[Number] -> Number`  
 `sum Seq[Number] -> Number`  
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
+
+`take`
+: Returns the first element in a sequence. It is an error to use `take` on an empty sequence. See also: `glue`.  
+Usage:  
+`take Seq[a] -> a`
 
 `tan`
 : The tangent function.  
