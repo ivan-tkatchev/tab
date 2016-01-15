@@ -553,7 +553,7 @@ Usage:
 `exp Number -> Real`
 
 `explode`
-: Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. (See the examples page for a clearer explanation.)  
+: Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. Equivalent to `x=@, [ glue(@, x) ]`.  
 Usage:  
 `explode Seq[a] -> Seq[Seq[a]]`
 
@@ -859,7 +859,7 @@ Usage:
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 `take`
-: Returns the first element in a sequence. It is an error to use `take` on an empty sequence. See also: `glue`.  
+: Returns the first element in a sequence. It is an error to use `take` on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: `glue`.  
 Usage:  
 `take Seq[a] -> a`
 
