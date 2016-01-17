@@ -16,7 +16,7 @@ This is an example list of useful `tab` programs.
     :::bash
     [ @~1 : sort([ count(@), @ ])[-3,-1] ]
 
-#### Output the most common English words in a file:
+#### Output the most common English word in a file:
     :::bash
     freq={ @ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, second.max.flip.freq
 
