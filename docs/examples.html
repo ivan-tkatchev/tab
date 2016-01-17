@@ -121,7 +121,7 @@ code {
 
 
 <h4 id="output-the-most-common-english-words-in-a-file">Output the most common English words in a file:</h4>
-<div class="codehilite"><pre><span class="nv">freq</span><span class="o">={</span> @ -&gt; sum.1 : :<span class="o">[</span>grep<span class="o">(</span>@,<span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">}</span>, <span class="o">(</span>sort.flip.freq<span class="o">)</span>~-1~1
+<div class="codehilite"><pre><span class="nv">freq</span><span class="o">={</span> @ -&gt; sum.1 : :<span class="o">[</span>grep<span class="o">(</span>@,<span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">}</span>, second.max.flip.freq
 </pre></div>
 
 
@@ -240,8 +240,8 @@ mean.flatten.second.t, <span class="o">(</span>sort.flatten.second.t<span class=
 </dl>
 <h4 id="moving-average-of-september-temperatures-over-10-previous-years">Moving average of September temperatures, over 10 previous years:</h4>
 <div class="codehilite"><pre><span class="nv">t</span><span class="o">=</span>sort.map.?<span class="o">[</span> <span class="nv">x</span><span class="o">=</span>cut<span class="o">(</span>@,<span class="s2">&quot;\t&quot;</span><span class="o">)</span>, <span class="o">(</span>uint.x~1<span class="o">)</span> <span class="o">==</span> 9, uint.x~0, avg.real.x~3 <span class="o">]</span>,
-def arr_to_seq <span class="o">[</span>@:@<span class="o">]</span>,
-sort.<span class="o">{</span> @~<span class="o">(</span>-1<span class="o">)</span>~0 -&gt; avg.second.arr_to_seq.@ : ngrams<span class="o">(</span>arr_to_seq.t, 10<span class="o">)</span> <span class="o">}</span>
+def to_seq <span class="o">[</span>@:@<span class="o">]</span>,
+sort.<span class="o">{</span> @~<span class="o">(</span>-1<span class="o">)</span>~0 -&gt; avg.second.to_seq.@ : ngrams<span class="o">(</span>to_seq.t, 10<span class="o">)</span> <span class="o">}</span>
 </pre></div>
 
 
@@ -276,7 +276,7 @@ def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span
 <h4 id="same-as-above-but-find-the-most-popular-get-parameter">Same as above, but find the most popular GET parameter:</h4>
 <div class="codehilite"><pre><span class="nv">regex</span> <span class="o">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="p">;</span>
 def urlgetparams map.stripe<span class="o">(</span>pairs.<span class="o">[</span>@ : grep<span class="o">(</span>@, regex<span class="o">)</span> <span class="o">]</span>, 2<span class="o">)</span><span class="p">;</span>
-<span class="o">(</span>sort.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</span> first.urlgetparams.@ <span class="o">]</span> <span class="o">})</span>~-1~1
+second.max.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</span> first.urlgetparams.@ <span class="o">]</span> <span class="o">}</span>
 </pre></div>
 
 

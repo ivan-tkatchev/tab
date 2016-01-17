@@ -2,6 +2,6 @@ urls.txt
 ===>
 regex = "[?&]([^&]+)=([^&]+)";
 def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
-(sort.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] })~-1~1
+second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 ===>
 etext

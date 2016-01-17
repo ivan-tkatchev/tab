@@ -544,7 +544,7 @@ Usage:<br>
 Usage:<br>
 <code>exp Number -&gt; Real</code></dd>
 <dt id="fn_explode">explode</dt>
-<dd>Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. (See the examples page for a clearer explanation.)<br>
+<dd>Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. Equivalent to <code>x=@, [ glue(@, x) ]</code>.<br>
 Usage:<br>
 <code>explode Seq[a] -&gt; Seq[Seq[a]]</code></dd>
 <dt id="fn_file">file</dt>
@@ -799,7 +799,7 @@ Usage:<br>
 <code>sum Seq[Number] -&gt; Number</code><br>
 <code>sum Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
 <dt id="fn_take">take</dt>
-<dd>Returns the first element in a sequence. It is an error to use <a class="wikilink" href="#fn_take">take</a> on an empty sequence. See also: <a class="wikilink" href="#fn_glue">glue</a>.<br>
+<dd>Returns the first element in a sequence. It is an error to use <a class="wikilink" href="#fn_take">take</a> on an empty sequence. Equivalent to <code>array(head(@, 1))[0]</code>. See also: <a class="wikilink" href="#fn_glue">glue</a>.<br>
 Usage:<br>
 <code>take Seq[a] -&gt; a</code></dd>
 <dt id="fn_tan">tan</dt>

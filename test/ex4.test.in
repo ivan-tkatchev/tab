@@ -1,3 +1,3 @@
-freq={ @ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, (sort.flip.freq)~-1~1
+freq={ @ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, second.max.flip.freq
 ===>
 the

@@ -18,7 +18,7 @@ This is an example list of useful `tab` programs.
 
 #### Output the most common English words in a file:
     :::bash
-    freq={ @ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, (sort.flip.freq)~-1~1
+    freq={ @ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, second.max.flip.freq
 
 #### Output the counts of top ten most common bytes in a file:
     :::bash
@@ -120,8 +120,8 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### Moving average of September temperatures, over 10 previous years:
     :::bash
     t=sort.map.?[ x=cut(@,"\t"), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ],
-    def arr_to_seq [@:@],
-    sort.{ @~(-1)~0 -> avg.second.arr_to_seq.@ : ngrams(arr_to_seq.t, 10) }
+    def to_seq [@:@],
+    sort.{ @~(-1)~0 -> avg.second.to_seq.@ : ngrams(to_seq.t, 10) }
 
 ## Working with ad-hoc text formats:
 
@@ -150,7 +150,7 @@ The first three fields are the year, month and day. The fourth field is the dail
     :::bash
     regex = "[?&]([^&]+)=([^&]+)";
     def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
-    (sort.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] })~-1~1
+    second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 
 ## Working with multi-line data:
 
