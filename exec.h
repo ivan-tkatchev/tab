@@ -7,7 +7,6 @@ struct Runtime {
 
     void init(size_t nvars) {
         vars.resize(nvars);
-        stack.clear();
     }
     
     void set_var(UInt ix, obj::Object* o) {
@@ -364,6 +363,7 @@ template <bool SORTED>
 obj::Object* execute(std::vector<Command>& commands, Runtime& rt, obj::Object* input) {
 
     rt.set_var(0, input);
+    rt.stack.clear();
 
     execute_run(commands, rt);
 

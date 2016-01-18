@@ -99,9 +99,14 @@ void minmax_seq(const obj::Object* in, obj::Object*& out) {
         }
     }
 
-    if (first)
-        throw std::runtime_error("min() of an empty sequence");
-}    
+    if (first) {
+        if (MIN) {
+            throw std::runtime_error("min() of an empty sequence");
+        } else {
+            throw std::runtime_error("max() of an empty sequence");
+        }
+    }
+}
 
 template <bool MIN>
 void minmax_seqobject(const obj::Object* in, obj::Object*& out) {
@@ -124,8 +129,13 @@ void minmax_seqobject(const obj::Object* in, obj::Object*& out) {
         }
     }
 
-    if (first)
-        throw std::runtime_error("min() of an empty sequence");
+    if (first) {
+        if (MIN) {
+            throw std::runtime_error("min() of an empty sequence");
+        } else {
+            throw std::runtime_error("max() of an empty sequence");
+        }
+    }
 }    
 
 template <bool MIN>
