@@ -8,15 +8,15 @@ FUNCS = \
 INCLUDE = \
   atom.h command.h deps.h exec.h funcs.h infer.h object.h parse.h tab.h type.h 
 
-SRC = tab.cc 
+SRC = tab.cc help.cc
 
 CXX ?= g++
 
 tab: $(SRC) $(INCLUDE) $(FUNCS)
-	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm tab.cc -o tab
+	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm $(SRC) -o tab
 
 dist: $(SRC) $(INCLUDE) $(FUNCS)
-	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm tab.cc -static -o tab-linux-x86_64
+	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm $(SRC) -static -o tab-linux-x86_64
 	strip tab-linux-x86_64
 
 install: tab

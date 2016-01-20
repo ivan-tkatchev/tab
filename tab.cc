@@ -3,6 +3,8 @@
 
 #include <time.h>
 
+extern const char* get_help(const char*);
+
 std::istream& file_or_stdin(const std::string& file) {
 
     if (file.empty())
@@ -38,9 +40,18 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
 }
 
 
-void show_help() {
+void show_help(const char* help_section) {
+
+    const char* help = get_help(help_section);
+
+    if (help) {
+        std::cout << help << std::endl;
+        return;
+    }
+
     std::cout <<
-        "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] <expressions...>"
+        "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] [-h section] "
+              << "<expressions...>"
               << std::endl
               << "  -i:   read data from this file instead of stdin." << std::endl
               << "  -f:   prepend code from this file to <expressions...>" << std::endl
@@ -48,8 +59,15 @@ void show_help() {
               << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
               << "  -v:   verbosity flag -- print type of the result." << std::endl
               << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
-              << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." 
-              << std::endl;
+              << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." << std::endl
+              << "  -h:   show help from given section." << std::endl
+              << std::endl
+              << "Help sections:" << std::endl
+              << "  'overview'      -- show an overview of types and concepts." << std::endl
+              << "  'syntax'        -- show a syntax reference." << std::endl
+              << "  'examples'      -- show some example tab programs." << std::endl
+              << "  'functions'     -- show a complete list of built-in functions." << std::endl
+              << "  <function name> -- explain the given built-in function." << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -57,7 +75,7 @@ int main(int argc, char** argv) {
     try {
 
         if (argc < 2) {
-            show_help();
+            show_help(nullptr);
             return 1;
         }
 
@@ -68,6 +86,7 @@ int main(int argc, char** argv) {
         std::string programfile;
         size_t seed = ::time(NULL);
         bool help = false;
+        const char* help_section = nullptr;
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
@@ -113,6 +132,11 @@ int main(int argc, char** argv) {
 
                 help = true;
 
+                if (i < argc - 1) {
+                    ++i;
+                    help_section = argv[i];
+                }
+
             } else {
 
                 if (program.size() > 0) {
@@ -144,7 +168,7 @@ int main(int argc, char** argv) {
         // //
 
         if (help || program.empty()) {
-            show_help();
+            show_help(help_section);
             return 1;
         }
 

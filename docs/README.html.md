@@ -616,7 +616,7 @@ Usage:
 `has Map[a,b], a -> UInt`
 
 hash {: #fn_hash}
-: Hashes a string to a 32-bit integer. The 32-bit FNV hash function is used.  
+: Hashes a string to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  
 Usage:  
 `hash String -> UInt`
 
