@@ -119,6 +119,8 @@ Functions::func_t case_checker(const Type& args, Type& ret, obj::Object*& obj) {
         i += 2;
     }
 
+    ret = tret;
+
     return casefun;
 }
 
