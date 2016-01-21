@@ -122,18 +122,18 @@ code {
 <p>The official git repository is found <a href="http://bitbucket.org/tkatchev/tab">here</a>.</p>
 <h1 id="usage">Usage</h1>
 <p>The default is to read from standard input:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat mydata <span class="p">|</span> tab &lt;expression&gt;...
+<div class="codehilite"><pre>$ cat mydata <span class="p">|</span> tab &lt;expression&gt;...
 </pre></div>
 
 
 <p>The result will be written to standard output.</p>
 <p>You can also use the <code>-i</code> flag to read from a file:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>tab -i mydata &lt;expression&gt;...
+<div class="codehilite"><pre>$ tab -i mydata &lt;expression&gt;...
 </pre></div>
 
 
 <p>If your <code>&lt;expression&gt;</code> is too long, you can pass it in via a file, with the <code>-f</code> flag:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>tab -f mycode &lt;expression&gt;...
+<div class="codehilite"><pre>$ tab -f mycode &lt;expression&gt;...
 </pre></div>
 
 
@@ -154,7 +154,7 @@ code {
 <li><strong>Tuple</strong>, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.</li>
 <li><strong>Array</strong>, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.</li>
 <li><strong>Map</strong>, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.</li>
-<li><strong>Sequence</strong>, a.k.a. &ldquo;lazy list&rdquo; or &ldquo;generator&rdquo;. A sequence doesn&rsquo;t store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.</li>
+<li><strong>Sequence</strong>, a.k.a. &ldquo;lazy list&rdquo; or &ldquo;generator&rdquo;. A sequence doesn&rsquo;t store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same type.</li>
 </ul>
 <p>Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)</p>
 <p>When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, <code>\t</code>.</p>
@@ -178,29 +178,29 @@ code {
 <h2 id="examples">Examples</h2>
 <p>An introduction to <code>tab</code> in 10 easy steps.</p>
 <h3 id="1">1.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;@&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;@&#39;</span>
 </pre></div>
 
 
 <p>This command is equivalent to <code>cat</code>. <code>@</code> is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.</p>
 <h3 id="2">2.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;sin(pi()/2)&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;sin(pi()/2)&#39;</span>
 1
 
-<span class="nv">$ </span>./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
+$ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 1
 </pre></div>
 
 
 <p><code>tab</code> can also be used as a desktop calculator. <a class="wikilink" href="#fn_pi">pi</a> is a function that returns the value of <em>pi</em>, <a class="wikilink" href="#fn_cos">cos</a> and <a class="wikilink" href="#fn_sin">sin</a> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
 <h3 id="3">3.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;count(@)&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;count(@)&#39;</span>
 </pre></div>
 
 
 <p>This command is equivalent to <code>wc -l</code>. <a class="wikilink" href="#fn_count">count</a> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
 <h3 id="4">4.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
 </pre></div>
 
 
@@ -212,7 +212,7 @@ code {
 <p>Thus: the expressions <code>@</code>, <code>[@]</code> and <code>[@ : @]</code> are all equivalent; they all return the input sequence of lines from stdin unchanged.</p>
 <p>The variables defined in <code>&lt;element&gt;</code> (on the left side of <code>:</code>) are <em>scoped</em>: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the <code>[ ... ]</code> brackets.</p>
 <h3 id="5">5.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;zip(count(), @)&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;zip(count(), @)&#39;</span>
 </pre></div>
 
 
@@ -220,7 +220,7 @@ code {
 <p><a class="wikilink" href="#fn_zip">zip</a> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
 <p><a class="wikilink" href="#fn_count">count</a> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
 <h3 id="6">6.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
 </pre></div>
 
 
@@ -230,7 +230,7 @@ code {
 <p>Thus, the result of <code>:[ grep(@,"\\S+") ]</code> is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of <code>\S+</code> in stdin.</p>
 <p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <a class="wikilink" href="#fn_flatten">flatten</a> builtin function.</p>
 <h3 id="7">7.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
 </pre></div>
 
 
@@ -241,7 +241,7 @@ code {
 <p>(Note: you can use whitespace creatively to make this command prettier, <code>{ @ :: [ grep(@,"\\S+") ] }</code></p>
 <p>You can also wrap the expression in <code>count(...)</code> if you just want the number of unique words in stdin.</p>
 <h3 id="8">8.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
 </pre></div>
 
 
@@ -255,7 +255,7 @@ code {
 <p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_filter">filter</a> function.</p>
 <p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
 <h3 id="9">9.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
 </pre></div>
 
 
@@ -266,7 +266,7 @@ code {
 <p><a class="wikilink" href="#fn_sum">sum</a> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <a class="wikilink" href="#fn_sum">sum</a> when groupped together as part of the map&rsquo;s value.</p>
 <p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
 <h3 id="10">10.</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
+<div class="codehilite"><pre>$ ./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
 </pre></div>
 
 
@@ -292,7 +292,7 @@ code {
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_index">index</a> function.</p>
 <p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It&rsquo;s syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h3 id="bonus-track">Bonus track</h3>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;</span>
+<div class="codehilite"><pre>$ ./tab -i req.log <span class="s1">&#39;</span>
 <span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
 <span class="s1"> def uniq { 1 -&gt; stats(@) }[1],</span>
 <span class="s1"> x=[ uint.cut(@,&quot;|&quot;,3)) ],</span>
@@ -322,7 +322,7 @@ square_of_square<span class="o">(</span>4<span class="o">)</span>
 
 <p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
 <p>Let&rsquo;s check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)</p>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
+<div class="codehilite"><pre>$ ./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
 250.8   23
 501.6   0
 752.4   1
@@ -340,7 +340,7 @@ square_of_square<span class="o">(</span>4<span class="o">)</span>
 <p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
 <p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
 <p>Here is a solution using standard shell utilities:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
+<div class="codehilite"><pre>$ cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
 </pre></div>
 
 
@@ -350,7 +350,7 @@ square_of_square<span class="o">(</span>4<span class="o">)</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">:</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
 <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
@@ -381,7 +381,7 @@ square_of_square<span class="o">(</span>4<span class="o">)</span>
 
 <p>Running time: around 2.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
-<div class="codehilite"><pre><span class="nv">$ </span>./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
+<div class="codehilite"><pre>$ ./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
 </pre></div>
 
 

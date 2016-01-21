@@ -61,7 +61,7 @@ There are also four structured types:
 * **Tuple**, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.
 * **Array**, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.
 * **Map**, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.
-* **Sequence**, a.k.a. "lazy list" or "generator". A sequence doesn't store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same time.
+* **Sequence**, a.k.a. "lazy list" or "generator". A sequence doesn't store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same type.
 
 Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)
 
