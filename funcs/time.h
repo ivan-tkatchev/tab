@@ -1,8 +1,6 @@
 #ifndef __TAB_FUNCS_TIME_H
 #define __TAB_FUNCS_TIME_H
 
-#include <time.h>
-
 void now(const obj::Object* in, obj::Object*& out) {
 
     Int& v = obj::get<obj::Int>(out).v;

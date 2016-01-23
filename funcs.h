@@ -1,6 +1,9 @@
 #ifndef __TAB_FUNCS_H
 #define __TAB_FUNCS_H
 
+#include <random>
+#include <time.h>
+
 namespace funcs {
 
 #include "funcs/index.h"
