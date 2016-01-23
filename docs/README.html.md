@@ -14,9 +14,13 @@ Skip to:
 
 # Compiling and installing #
 
-Type `make`. Requires a modern C++11 compiler. (Recent versions of g++ and clang++ will work.)
+Type `make`. Requires a modern C++11 compiler. Recent versions of gcc (4.9 and up) and clang will work.
 
 Copy the resulting binary of `tab` somewhere in your path.
+
+If you want to use a compiler other than gcc, e.g., clang, then type this:
+    :::bash
+    $ CXX=clang++ make
 
 The official git repository is found [here](http://bitbucket.org/tkatchev/tab).
 

@@ -26,9 +26,13 @@ Skip to:
 
 ## Compiling and installing ##
 
-Type `make`. Currently the `Makefile` requires a recent C++ compiler. (Tested with gcc 4.9; please send patches to the Makefile for supporting other compilers.)
+Type `make`. Requires a modern C++ compiler. Recent versions of gcc (4.9 and up) and clang will work.
 
 Copy the resulting binary of `tab` somewhere in your path.
+
+If you want to use a compiler other than gcc, e.g., clang, then type this:
+    :::bash
+    $ CXX=clang++ make
 
 ## Usage ##
 

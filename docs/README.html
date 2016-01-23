@@ -117,8 +117,11 @@ code {
 <li><a href="#builtin-function-index">Function index</a></li>
 </ul>
 <h1 id="compiling-and-installing">Compiling and installing</h1>
-<p>Type <code>make</code>. Requires a modern C++11 compiler. (Recent versions of g++ and clang++ will work.)</p>
+<p>Type <code>make</code>. Requires a modern C++11 compiler. Recent versions of gcc (4.9 and up) and clang will work.</p>
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
+<p>If you want to use a compiler other than gcc, e.g., clang, then type this:
+    :::bash
+    $ CXX=clang++ make</p>
 <p>The official git repository is found <a href="http://bitbucket.org/tkatchev/tab">here</a>.</p>
 <h1 id="usage">Usage</h1>
 <p>The default is to read from standard input:</p>
