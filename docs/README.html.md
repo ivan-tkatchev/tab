@@ -543,6 +543,11 @@ e {: #fn_e}
 Usage:  
 `e None -> Real`.
 
+eq {: #fn_eq}
+: Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  
+Usage:  
+`eq a,a,... -> UInt`
+
 exp {: #fn_exp}
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
 Usage:  
@@ -983,7 +988,7 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 ### Alphabetically by name: 
 
 [[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
-[[cut]] [[date]] [[datetime]] [[e]] [[exp]] [[explode]] [[file]] [[filter]] [[first]]
+[[cut]] [[date]] [[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]]
 [[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]] [[has]]
 [[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]]
 [[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]]
@@ -1020,7 +1025,7 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
-**Conditionals:** [[case]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
+**Conditionals:** [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
 
 **Files:** [[file]] [[open]]
 

@@ -552,6 +552,11 @@ Usage:
 Usage:  
 `e None -> Real`.
 
+`eq`
+: Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  
+Usage:  
+`eq a,a,... -> UInt`
+
 `exp`
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
 Usage:  

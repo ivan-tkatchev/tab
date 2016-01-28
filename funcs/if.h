@@ -52,6 +52,28 @@ void casefun(const obj::Object* in, obj::Object*& out) {
     out = def;
 }
 
+void eqfun(const obj::Object* in, obj::Object*& out) {
+
+    obj::UInt& r = obj::get<obj::UInt>(out);
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    auto i = args.v.begin();
+    auto e = args.v.end();
+    obj::Object* arg = *i;
+    ++i;
+
+    while (i != e) {
+        if (arg->eq(*i)) {
+            r = 1;
+            return;
+        }
+
+        ++i;
+    }
+
+    r = 0;
+}
+
 Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 3)
@@ -124,12 +146,31 @@ Functions::func_t case_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return casefun;
 }
 
+Functions::func_t eq_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() < 2)
+        return nullptr;
+
+    const std::vector<Type>& a = *(args.tuple);
+
+    const Type& targ = a.at(0);
+
+    for (size_t i = 1; i < a.size(); ++i) {
+        if (targ != a.at(i))
+            return nullptr;
+    }
+
+    ret = Type(Type::UINT);
+    return eqfun;
+}
+
 template <bool SORTED>
 void register_if(Functions& funcs) {
 
     funcs.add_poly("if", if_checker);
     funcs.add_poly("has", has_checker<SORTED>);
     funcs.add_poly("case", case_checker);
+    funcs.add_poly("eq", eq_checker);
 }
 
 #endif
