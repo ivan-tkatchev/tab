@@ -550,7 +550,7 @@ Usage:
 `e`
 : Returns the number *e*.  
 Usage:  
-`e None -> Real`.
+`e None -> Real`
 
 `eq`
 : Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  

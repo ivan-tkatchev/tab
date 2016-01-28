@@ -281,7 +281,16 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "e None -> Real.\n"
+     "e None -> Real\n"
+    },
+    {"eq",
+     "\n"
+     "Checks values for equality. If the first argument is equal to any of\n"
+     "the other arguments, returns 1. Otherwise returns 0.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "eq a,a,... -> UInt\n"
     },
     {"exp",
      "\n"
