@@ -1,6 +1,8 @@
 #ifndef __TAB_EXEC_H
 #define __TAB_EXEC_H
 
+namespace tab {
+
 struct Runtime {
     std::vector<obj::Object*> vars;
     std::vector<obj::Object*> stack;
@@ -373,5 +375,6 @@ obj::Object* execute(std::vector<Command>& commands, Runtime& rt, obj::Object* i
     return rt.stack.back();
 }
 
+} // namespace tab
 
 #endif

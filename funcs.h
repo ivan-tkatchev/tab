@@ -4,6 +4,8 @@
 #include <random>
 #include <time.h>
 
+namespace tab {
+
 namespace funcs {
 
 #include "funcs/index.h"
@@ -30,7 +32,7 @@ namespace funcs {
 #include "funcs/time.h"
 #include "funcs/hist.h"
 
-}
+} // namespace funcs
 
 template <bool SORTED>
 void register_functions(size_t seed) {
@@ -65,5 +67,7 @@ void register_functions(size_t seed) {
     funcs::register_time(funs);
     funcs::register_hist(funs);
 }
+
+} // namespace tab
 
 #endif

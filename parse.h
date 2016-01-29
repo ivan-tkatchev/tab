@@ -3,6 +3,8 @@
 
 #include "axe.h"
 
+namespace tab {
+
 struct ParseStack {
 
     std::vector<Command> stack;
@@ -397,5 +399,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     return ret;
 }
+
+} // namespace tab
 
 #endif

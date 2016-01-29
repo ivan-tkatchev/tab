@@ -1,5 +1,7 @@
 #ifndef __TAB_TYPE_H
 #define __TAB_TYPE_H
+
+namespace tab {
    
 struct Type {
 
@@ -134,15 +136,17 @@ struct Type {
     }
 };
 
+} // namespace tab
+
 namespace std {
 
 template <>
-struct hash<Type> {
-    size_t operator()(const Type& t) const {
+struct hash<tab::Type> {
+    size_t operator()(const tab::Type& t) const {
 
         size_t r = hash<size_t>()(t.type);
 
-        if (t.type == Type::ATOM) {
+        if (t.type == tab::Type::ATOM) {
             r += hash<size_t>()(t.atom);
 
         } else if (t.tuple) {
@@ -157,13 +161,13 @@ struct hash<Type> {
 };
 
 template <>
-struct hash< std::pair<String, Type> > {
-    size_t operator()(const std::pair<String, Type>& x) const {
+struct hash< std::pair<tab::String, tab::Type> > {
+    size_t operator()(const std::pair<tab::String, tab::Type>& x) const {
 
-        return hash<size_t>()(x.first.ix) + hash<Type>()(x.second);
+        return hash<size_t>()(x.first.ix) + hash<tab::Type>()(x.second);
     }
 };
 
-}
+} // namespace std
 
 #endif

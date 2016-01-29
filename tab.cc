@@ -23,17 +23,17 @@ std::istream& file_or_stdin(const std::string& file) {
 template <bool SORTED>
 void run(size_t seed, const std::string& program, const std::string& infile, unsigned int debuglevel) {
 
-    API<SORTED> api;
+    tab::API<SORTED> api;
 
     api.init(seed);
 
-    static Type intype(Type::SEQ, { Type(Type::STRING) });
+    static tab::Type intype(tab::Type::SEQ, { tab::Type(tab::Type::STRING) });
 
-    typename API<SORTED>::compiled_t code;
+    typename tab::API<SORTED>::compiled_t code;
     api.compile(program.begin(), program.end(), intype, code, debuglevel);
 
-    obj::Object* input = new funcs::SeqFile(file_or_stdin(infile));
-    obj::Object* output = api.run(code, input);
+    tab::obj::Object* input = new tab::funcs::SeqFile(file_or_stdin(infile));
+    tab::obj::Object* output = api.run(code, input);
 
     output->print();
     std::cout << std::endl;

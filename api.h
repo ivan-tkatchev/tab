@@ -1,6 +1,8 @@
 #ifndef __TAB_API_H
 #define __TAB_API_H
 
+namespace tab {
+
 template <bool SORTED>
 struct API {
 
@@ -32,5 +34,6 @@ struct API {
     }
 };
 
+} // namespace tab
 
 #endif

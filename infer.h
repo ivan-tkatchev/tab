@@ -1,6 +1,8 @@
 #ifndef __TAB_INFER_H
 #define __TAB_INFER_H
 
+namespace tab {
+
 struct Functions {
 
     typedef void (*func_t)(const obj::Object*, obj::Object*&);
@@ -745,5 +747,7 @@ Type infer(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& ty
     typer.add_var(strings().add("@"), toplevel);
     return infer_expr(commands, typer);
 }
+
+} // namespace tab
 
 #endif

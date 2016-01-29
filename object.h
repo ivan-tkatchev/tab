@@ -1,6 +1,8 @@
 #ifndef __TAB_OBJECT_H
 #define __TAB_OBJECT_H
 
+namespace tab {
+
 namespace obj {
 
 struct Object {
@@ -61,9 +63,9 @@ struct Atom : public Object {
     Object* clone() const { return new Atom<T>(v); }
 };
 
-typedef Atom<::Int> Int;
-typedef Atom<::UInt> UInt;
-typedef Atom<::Real> Real;
+typedef Atom<tab::Int> Int;
+typedef Atom<tab::UInt> UInt;
+typedef Atom<tab::Real> Real;
 typedef Atom<std::string> String;
 
 
@@ -717,11 +719,11 @@ Object* make(const Type& t, U&&... u) {
 
             switch (s.atom) {
             case Type::INT:
-                return new ArrayAtom<::Int>(std::forward<U>(u)...);
+                return new ArrayAtom<tab::Int>(std::forward<U>(u)...);
             case Type::UINT:
-                return new ArrayAtom<::UInt>(std::forward<U>(u)...);
+                return new ArrayAtom<tab::UInt>(std::forward<U>(u)...);
             case Type::REAL:
-                return new ArrayAtom<::Real>(std::forward<U>(u)...);
+                return new ArrayAtom<tab::Real>(std::forward<U>(u)...);
             case Type::STRING:
                 return new ArrayAtom<std::string>(std::forward<U>(u)...);
             }
@@ -761,11 +763,11 @@ Object* make_seq_from(const Type& s) {
 
             switch (s2.atom) {
             case Type::INT:
-                return new SeqArrayAtom<::Int>;
+                return new SeqArrayAtom<tab::Int>;
             case Type::UINT:
-                return new SeqArrayAtom<::UInt>;
+                return new SeqArrayAtom<tab::UInt>;
             case Type::REAL:
-                return new SeqArrayAtom<::Real>;
+                return new SeqArrayAtom<tab::Real>;
             case Type::STRING:
                 return new SeqArrayAtom<std::string>;
             }
@@ -783,6 +785,8 @@ Object* make_seq_from(const Type& s) {
     throw std::runtime_error("Cannot construct a sequence from a " + Type::print(s));
 }
 
-}
+} // namespace obj
+
+} // namespace tab
 
 #endif

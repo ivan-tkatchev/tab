@@ -1,6 +1,8 @@
 #ifndef __TAB_ATOM_H
 #define __TAB_ATOM_H
 
+namespace tab {
+
 typedef long Int;
 typedef unsigned long UInt;
 typedef double Real;
@@ -11,19 +13,23 @@ struct String {
     bool operator==(String b) const { return ix == b.ix; }
 };
 
+} // namespace tab
+
 namespace std {
 
-template <> struct hash<String> {
-    size_t operator()(String x) const { return hash<size_t>()(x.ix); }
+template <> struct hash<tab::String> {
+    size_t operator()(tab::String x) const { return hash<size_t>()(x.ix); }
 };
 
-template <> struct hash< std::pair<String,size_t> > {
-    size_t operator()(const std::pair<String,size_t>& x) const {
+template <> struct hash< std::pair<tab::String, size_t> > {
+    size_t operator()(const std::pair<tab::String, size_t>& x) const {
         return hash<size_t>()(x.first.ix) + hash<size_t>()(x.second);
     }
 };
 
-}
+} // namespace std
+
+namespace tab {
 
 struct Strings {
 
@@ -126,5 +132,7 @@ struct Atom {
         return ":~(";
     }
 };
+
+} // namespace tab
 
 #endif

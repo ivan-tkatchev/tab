@@ -1,11 +1,13 @@
 #ifndef __TAB_COMMAND_H
 #define __TAB_COMMAND_H
 
+namespace tab {
+
 namespace obj {
 
 struct Object;
 
-}
+} // namespace obj
 
 struct Command {
 
@@ -118,5 +120,7 @@ struct Command {
         return ":~(";
     }
 };
+
+} // namespace tab
 
 #endif
