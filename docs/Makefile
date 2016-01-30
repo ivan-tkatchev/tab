@@ -2,7 +2,7 @@
 MARKDOWN_OPTS = \
   -ohtml4 -x smarty -x codehilite -x def_list -x fenced_code -x headerid -x attr_list -x wikilinks -c opts.json
 
-all: README.html examples.html
+all: README.html examples.html api.html
 
 #.SUFFIXES: html.md .html
 

@@ -32,6 +32,15 @@ struct API {
 
         return execute<SORTED>(code.commands, code.rt, input);
     }
+
+    static obj::Object* make(const Type& t) {
+        obj::Object* ret = obj::make<SORTED>(t);
+
+        if (!ret)
+            throw std::runtime_error("Cannot make() a " + Type::print(t));
+
+        return ret;
+    }
 };
 
 } // namespace tab
