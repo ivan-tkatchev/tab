@@ -64,6 +64,11 @@ void execute_init(std::vector<Command>& commands) {
             c.object = new obj::SeqGenerator;
             break;
 
+        case Command::REC:
+            c.object = new obj::Tuple;
+            obj::get<obj::Tuple>(c.object).v.resize(2);
+            break;
+
         default:
             c.object = obj::make<SORTED>(c.type);
             break;
@@ -155,6 +160,38 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
             };
 
             r.stack.push_back(c.object);
+            break;
+        }
+        case Command::REC:
+        {
+            obj::Object* _in = r.stack.back();
+            r.stack.pop_back();
+
+            obj::Tuple& in = obj::get<obj::Tuple>(_in);
+            obj::Tuple& work = obj::get<obj::Tuple>(c.object);
+            UInt var = c.arg.uint;
+            r.set_var(var, &work);
+
+            Command::Closure& clo = c.closure[0];
+
+            work.v[0] = in.v[0]->clone();
+
+            while (1) {
+
+                obj::Object* next = in.v[1]->next();
+
+                if (!next) break;
+
+                work.v[1] = next;
+
+                execute_run(clo.code, r);
+
+                delete work.v[0];
+                work.v[0] = r.stack.back()->clone();
+                r.stack.pop_back();
+            }
+
+            r.stack.push_back(work.v[0]);
             break;
         }
         case Command::ARR:

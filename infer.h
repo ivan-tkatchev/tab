@@ -377,6 +377,40 @@ Type infer_gen_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
     return ret;
 }
 
+Type infer_rec_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
+
+    if (c.closure.size() != 2)
+        throw std::runtime_error("Sanity error, recursor is not a closure.");
+
+    typer.enter_scope();
+
+    Command::Closure& clo0 = c.closure[0];
+    Command::Closure& clo1 = c.closure[1];
+
+    Type toplevel = infer_expr(clo1.code, typer, false);
+
+    if (toplevel.type != Type::TUP || !toplevel.tuple || toplevel.tuple->size() != 2 ||
+        toplevel.tuple->at(1).type != Type::SEQ) {
+
+        throw std::runtime_error("The right-hand side of << ... >> must be a tuple of two elements, with the second element a sequence.");
+    }
+
+    const Type& first = toplevel.tuple->at(0);
+    const Type& second = toplevel.tuple->at(1);
+
+    Type workt(Type::TUP, { first, unwrap_seq(second) });
+    tlvar = typer.add_var(strings().add("@"), workt);
+
+    Type t = infer_expr(clo0.code, typer, false);
+
+    if (t != first)
+        throw std::runtime_error("Wrong type of left-hand side of << ... >>, expecting " + Type::print(first) + ", got " + Type::print(t));
+
+    typer.exit_scope();
+    
+    return t;
+}
+
 Type infer_arr_generator(const std::vector<Type>& stack) {
 
     const Type& t = stack.back();
@@ -595,9 +629,12 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         }
 
         case Command::GEN:
+        case Command::REC:
         {
             UInt tlvar;
-            Type t = infer_gen_generator(c, typer, tlvar);
+            Type t = (c.cmd == Command::GEN ?
+                      infer_gen_generator(c, typer, tlvar) :
+                      infer_rec_generator(c, typer, tlvar));
             c.arg.uint = tlvar;
             stack.emplace_back(t);
 

@@ -78,7 +78,7 @@ struct ParseStack {
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
                 i.cmd == Command::FUN0 || i.cmd == Command::TUP || i.cmd == Command::LAMD ||
-                (print_types && i.cmd == Command::GEN)) {
+                (print_types && (i.cmd == Command::GEN || i.cmd == Command::REC))) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -205,6 +205,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
     auto y_close_gen = axe::e_ref([&](I b, I e) { stack.close(Command::GEN); });
+    auto y_close_rec = axe::e_ref([&](I b, I e) { stack.close(Command::REC); });
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
 
@@ -231,6 +232,10 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
           (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
         x_from & axe::r_lit('}') >> y_map;
 
+    auto x_recursor =
+        (axe::r_lit("<<") >> y_mark) & (x_expr >> y_close_rec) &
+        (((axe::r_lit(':') >> y_mark) & x_expr) >> y_close_arg) & axe::r_lit(">>");
+
     auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
     auto x_funcall_b =
@@ -251,7 +256,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     auto x_expr_bottom =
         x_ws &
-        (x_literal | x_funcall | x_var_read | x_array | x_map | x_generator | 
+        (x_literal | x_funcall | x_var_read | x_array | x_map | x_generator | x_recursor |
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
