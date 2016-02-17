@@ -441,7 +441,7 @@ e_idx :<span class="o">=</span> e <span class="p">|</span>
          e <span class="o">(</span><span class="s2">&quot;[&quot;</span> expr <span class="s2">&quot;]&quot;</span><span class="o">)</span>*
          e <span class="o">(</span><span class="s2">&quot;~&quot;</span> e<span class="o">)</span>*
 
-e :<span class="o">=</span> literal <span class="p">|</span> funcall <span class="p">|</span> var <span class="p">|</span> array <span class="p">|</span> map <span class="p">|</span> seq <span class="p">|</span> paren
+e :<span class="o">=</span> literal <span class="p">|</span> funcall <span class="p">|</span> var <span class="p">|</span> array <span class="p">|</span> map <span class="p">|</span> seq <span class="p">|</span> recursor <span class="p">|</span> paren
 
 literal :<span class="o">=</span> real <span class="p">|</span> int <span class="p">|</span> uint <span class="p">|</span> string
 
@@ -456,6 +456,8 @@ array :<span class="o">=</span> <span class="s2">&quot;[.&quot;</span> expr <spa
 map :<span class="o">=</span> <span class="s2">&quot;{&quot;</span> expr <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> expr<span class="o">)</span>? <span class="o">(</span><span class="s2">&quot;:&quot;</span> expr<span class="o">)</span>? <span class="s2">&quot;}&quot;</span>
 
 seq :<span class="o">=</span> <span class="s2">&quot;[&quot;</span> expr <span class="o">(</span><span class="s2">&quot;:&quot;</span> expr<span class="o">)</span>? <span class="s2">&quot;]&quot;</span>
+
+recursor :<span class="o">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> expr <span class="s2">&quot;:&quot;</span> expr <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
 
 paren :<span class="o">=</span> <span class="s2">&quot;(&quot;</span> atomic <span class="s2">&quot;)&quot;</span>
 
@@ -759,8 +761,12 @@ Usage:<br>
 <code>second Seq[(a,b)] -&gt; Seq[b]</code></dd>
 <dt id="fn_seq">seq</dt>
 <dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <a class="wikilink" href="#fn_tabulate">tabulate</a>.)<br>
+If one argument is passed, then it is equivalent to <code>[@ : arg]</code>.<br>
 Usage:<br>
-<code>seq (a,...),... -&gt; Seq[a]</code></dd>
+<code>seq (a,...),... -&gt; Seq[a]</code><br>
+<code>seq Arr[a] -&gt; Seq[a]</code><br>
+<code>seq Map[a,b] -&gt; Seq[(a,b)]</code><br>
+<code>seq a -&gt; Seq[a]</code></dd>
 <dt id="fn_sin">sin</dt>
 <dd>The sine function.<br>
 Usage:<br>
@@ -905,6 +911,27 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 
 <p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
+<h2 id="recursion">Recursion</h2>
+<p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
+<p>Consider the example of computing the factorial: given a sequence of integers, compute its product.</p>
+<p>In <code>tab</code> the factorial function looks like this:</p>
+<div class="codehilite"><pre>def fac &lt;&lt; @~0 * @~1 : 1, count.@ &gt;&gt;
+</pre></div>
+
+
+<p>The <code>&lt;&lt; ... : ... &gt;&gt;</code> takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.</p>
+<p>An expression that looks like <code>&lt;&lt; f(@~0, @~1) : a, seq(b, c, d) &gt;&gt;</code> will be unrolled to be equivalent to this:</p>
+<div class="codehilite"><pre>f(f(f(a, b), c), d)
+</pre></div>
+
+
+<p>The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.</p>
+<p>For example: calling <code>fac.3</code> from the above example results in evaluating <code>(((1 * 1) * 1) * 2) * 3</code>.</p>
+<p>Note that the type of the result and the type of the sequence elements can be different. This will concatenate a sequence of numbers into a string:</p>
+<div class="codehilite"><pre>&lt;&lt; cat(@~0, &quot; &quot;, string.@~1) : &quot;&quot;, @ &gt;&gt;
+</pre></div>
+
+
 <h2 id="builtin-function-index">Builtin function index</h2>
 <h3 id="alphabetically-by-name">Alphabetically by name:</h3>
 <p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a>

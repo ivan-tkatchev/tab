@@ -72,7 +72,6 @@ template <typename T>
 struct CountLoop : public obj::SeqBase {
 
     obj::Atom<T>* i;
-    T start;
     T end;
     T increment;
 
@@ -85,17 +84,14 @@ struct CountLoop : public obj::SeqBase {
     }
 
     void set(T s, T e, T inc) {
-        i->v = (s - inc);
-        start = std::min(s, e);
+        i->v = s - inc;
         end = e;
         increment = inc;
     }
 
     obj::Object* next() {
 
-        if ((increment > 0 && i->v <= end) ||
-            (increment < 0 && i->v >= end))
-            i->v += increment;
+        i->v += increment;
 
         if ((increment > 0 && i->v > end) ||
             (increment < 0 && i->v < end))

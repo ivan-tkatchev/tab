@@ -172,9 +172,13 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 ## Recursive functions
 
-#### Compute the factorial
+#### Compute the factorial:
     :::bash
     def fac << @~0 * @~1 : 1, count.@ >>, fac.12
+
+#### A 32-bit number with only the odd bits flipped:
+    :::bash
+    << lsh(@~0, 2) | 1 : 0, count.32 >>
 
 #### Run the famous Rule 110 for 8 steps:
     :::bash

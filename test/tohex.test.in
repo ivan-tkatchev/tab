@@ -1,0 +1,3 @@
+digits = "0123456789ABCDEF", join(reverse.array.[ n = rsh(1234567, 4*@) & 15, digits[n,n] : count(0,7,1) ], "")
+===>
+0012D687
