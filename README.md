@@ -810,8 +810,12 @@ Usage:
 
 `seq`
 : Accepts two or more values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
+If one argument is passed, then it is equivalent to `[@ : arg]`.  
 Usage:  
-`seq (a,...),... -> Seq[a]`
+`seq (a,...),... -> Seq[a]`  
+`seq Arr[a] -> Seq[a]`  
+`seq Map[a,b] -> Seq[(a,b)]`  
+`seq a -> Seq[a]`
 
 `sin`
 : The sine function.  

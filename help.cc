@@ -794,17 +794,26 @@ static const char* _help[][2] = {
      "Usage:\n"
      "\n"
      "second a,b -> b\n"
+     "\n"
      "second Map[a,b] -> Seq[b]\n"
+     "\n"
      "second Seq[(a,b)] -> Seq[b]\n"
     },
     {"seq",
      "\n"
      "Accepts two or more values of the same type and returns a sequence of\n"
      "those values. (A synonym for 'tabulate'.)\n"
+     "If one argument is passed, then it is equivalent to [@ : arg].\n"
      "\n"
      "Usage:\n"
      "\n"
      "seq (a,...),... -> Seq[a]\n"
+     "\n"
+     "seq Arr[a] -> Seq[a]\n"
+     "\n"
+     "seq Map[a,b] -> Seq[(a,b)]\n"
+     "\n"
+     "seq a -> Seq[a]\n"
     },
     {"sin",
      "\n"

@@ -154,6 +154,12 @@ void tabulate(const obj::Object* in, obj::Object*& out) {
     seq.wrap((obj::Object*)in);
 }
 
+void seqfun(const obj::Object* in, obj::Object*& out) {
+
+    out->wrap((obj::Object*)in);
+}
+
+template <bool SORTED>
 Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type == Type::TUP && args.tuple && args.tuple->size() > 1) {
@@ -171,6 +177,16 @@ Functions::func_t tabulate_checker(const Type& args, Type& ret, obj::Object*& ob
         obj = new SeqTupleAsArrayObject;
         
         return tabulate;
+
+    } else {
+
+        obj = obj::make_seq_from<SORTED>(args);
+
+        if (!obj)
+            return nullptr;
+
+        ret = wrap_seq(args);
+        return seqfun;
     }
 
     return nullptr;
@@ -180,8 +196,8 @@ template <bool SORTED>
 void register_array(Functions& funcs) {
 
     funcs.add_poly("array", array_checker<SORTED>);
-    funcs.add_poly("tabulate", tabulate_checker);
-    funcs.add_poly("seq", tabulate_checker);
+    funcs.add_poly("tabulate", tabulate_checker<SORTED>);
+    funcs.add_poly("seq", tabulate_checker<SORTED>);
 }
 
 #endif
