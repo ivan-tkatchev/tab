@@ -10,6 +10,7 @@ Skip to:
     * [Grammar](#grammar)
     * [Builtin functions](#builtin-functions)
     * [Aggregators](#aggregators)
+    * [Recursion](#recursion)
 * [Function index](#builtin-function-index)
 
 # Compiling and installing #

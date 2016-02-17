@@ -302,8 +302,13 @@ second.max.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</spa
 
 
 <h2 id="recursive-functions">Recursive functions</h2>
-<h4 id="compute-the-factorial">Compute the factorial</h4>
+<h4 id="compute-the-factorial">Compute the factorial:</h4>
 <div class="codehilite"><pre>def fac &lt;&lt; @~0 * @~1 : 1, count.@ &gt;&gt;, fac.12
+</pre></div>
+
+
+<h4 id="a-32-bit-number-with-only-the-odd-bits-flipped">A 32-bit number with only the odd bits flipped:</h4>
+<div class="codehilite"><pre>&lt;&lt; lsh<span class="o">(</span>@~0, 2<span class="o">)</span> <span class="p">|</span> <span class="m">1</span> : 0, count.32 &gt;&gt;
 </pre></div>
 
 

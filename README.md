@@ -23,6 +23,7 @@ Skip to:
 * [Grammar reference](#markdown-header-grammar)
 * [Builtin functions reference](#markdown-header-builtin-functions)
 * [Aggregators reference](#markdown-header-aggregators)
+* [Recursion](#markdown-header-recursion)
 
 ## Compiling and installing ##
 
@@ -996,3 +997,26 @@ Similarly for arrays:
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
 
+### Recursion ##
+
+`tab` supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.
+
+Consider the example of computing the factorial: given a sequence of integers, compute its product.
+
+In `tab` the factorial function looks like this:
+
+    def fac << @~0 * @~1 : 1, count.@ >>
+
+The `<< ... : ... >>` takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.
+
+An expression that looks like `<< f(@~0, @~1) : a, seq(b, c, d) >>` will be unrolled to be equivalent to this:
+
+    f(f(f(a, b), c), d)
+    
+The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.
+
+For example: calling `fac.3` from the above example results in evaluating `(((1 * 1) * 1) * 2) * 3`.
+
+Note that the type of the result and the type of the sequence elements can be different. This will concatenate a sequence of numbers into a string:
+
+    << cat(@~0, " ", string.@~1) : "", @ >>
