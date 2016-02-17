@@ -25,6 +25,7 @@ struct SeqNgramBoxed : public obj::SeqBase {
     void wrapx(obj::Object* s, UInt _n) {
         wrap(s);
         n = _n;
+        holder->clear();
     }
 
     obj::Object* next() {
@@ -75,6 +76,7 @@ struct SeqNgramUnboxed : public obj::SeqBase {
         seq = s;
         m = 0;
         n = _n;
+        holder->v.clear();
     }
 
     obj::Object* next() {

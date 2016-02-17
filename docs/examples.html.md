@@ -169,3 +169,10 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### Remove duplicate lines, like the Unix tool `uniq`:
     ::bash
     x=pairs.@, head=take.x, x=glue(head, x), glue(first.head, ?[ @~0 != @~1, @~1 : x ])
+
+## Recursive functions
+
+#### Compute the factorial
+    :::bash
+    def fac << @~0 * @~1 : 1, count.@ >>, fac.12
+
