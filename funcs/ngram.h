@@ -20,6 +20,7 @@ struct SeqNgramBoxed : public obj::SeqBase {
     void wrap(obj::Object* s) {
         seq = s;
         m = 0;
+        holder->clear();
     }
 
     void wrapx(obj::Object* s, UInt _n) {
