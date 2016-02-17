@@ -176,3 +176,9 @@ The first three fields are the year, month and day. The fourth field is the dail
     :::bash
     def fac << @~0 * @~1 : 1, count.@ >>, fac.12
 
+#### Run the famous Rule 110 for 8 steps:
+    :::bash
+    def step [ t=string.@, case(t; 'XXX','.'; 'X..','.'; '...','.'; 'X') : ngrams(seq.bytes.@,3) ];
+    def rule110 << cat('.', join(@~0, ''), '.') : @~0, count.@~1 >>;
+    rule110('..........XX..........', 8)
+

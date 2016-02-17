@@ -4,4 +4,4 @@ regex = "[?&]([^&]+)=([^&]+)";
 def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
 second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 ===>
-etext
+afftrack
