@@ -1017,6 +1017,6 @@ The left-hand side will be evaluated repeatedly, with an argument that is a pair
 
 For example: calling `fac.3` from the above example results in evaluating `(((1 * 1) * 1) * 2) * 3`.
 
-Note that the type of the result and the type of the sequence elements can be different. This will concatenate a sequence of numbers into a string:
+Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:
 
-    << cat(@~0, " ", string.@~1) : "", @ >>
+    << a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 >>~1

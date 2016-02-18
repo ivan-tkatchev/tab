@@ -180,6 +180,10 @@ The first three fields are the year, month and day. The fourth field is the dail
     :::bash
     << lsh(@~0, 2) | 1 : 0, count.32 >>
 
+#### The 11th Fibonacci number:
+    :::bash
+    << a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 >>~1
+
 #### Run the famous Rule 110 for 8 steps:
     :::bash
     def step [ t=string.@, case(t; 'XXX','.'; 'X..','.'; '...','.'; 'X') : ngrams(seq.bytes.@,3) ];

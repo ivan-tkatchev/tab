@@ -928,8 +928,8 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 <p>The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.</p>
 <p>For example: calling <code>fac.3</code> from the above example results in evaluating <code>(((1 * 1) * 1) * 2) * 3</code>.</p>
-<p>Note that the type of the result and the type of the sequence elements can be different. This will concatenate a sequence of numbers into a string:</p>
-<div class="codehilite"><pre>&lt;&lt; cat(@~0, &quot; &quot;, string.@~1) : &quot;&quot;, @ &gt;&gt;
+<p>Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:</p>
+<div class="codehilite"><pre>&lt;&lt; a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 &gt;&gt;~1
 </pre></div>
 
 

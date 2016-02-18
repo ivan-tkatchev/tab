@@ -312,6 +312,11 @@ second.max.flip.<span class="o">{</span> @ -&gt; sum.1 : :<span class="o">[</spa
 </pre></div>
 
 
+<h4 id="the-11th-fibonacci-number">The 11th Fibonacci number:</h4>
+<div class="codehilite"><pre><span class="s">&lt;&lt; a=@~0~0, b=@~0~1, tuple(b, a</span> + b<span class="o">)</span> : tuple<span class="o">(</span>0, 1<span class="o">)</span>, count.10 &gt;&gt;~1
+</pre></div>
+
+
 <h4 id="run-the-famous-rule-110-for-8-steps">Run the famous Rule 110 for 8 steps:</h4>
 <div class="codehilite"><pre>def step <span class="o">[</span> <span class="nv">t</span><span class="o">=</span>string.@, <span class="k">case</span><span class="o">(</span>t<span class="p">;</span> <span class="s1">&#39;XXX&#39;</span>,<span class="s1">&#39;.&#39;</span><span class="p">;</span> <span class="s1">&#39;X..&#39;</span>,<span class="s1">&#39;.&#39;</span><span class="p">;</span> <span class="s1">&#39;...&#39;</span>,<span class="s1">&#39;.&#39;</span><span class="p">;</span> <span class="s1">&#39;X&#39;</span><span class="o">)</span> : ngrams<span class="o">(</span>seq.bytes.@,3<span class="o">)</span> <span class="o">]</span><span class="p">;</span>
 def rule110 <span class="s">&lt;&lt; cat(&#39;.&#39;, join(@~0, &#39;&#39;), &#39;.&#39;) : @~0, c</span>ount.@~1 &gt;&gt;<span class="p">;</span>
