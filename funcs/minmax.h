@@ -124,8 +124,9 @@ void minmax_seqobject(const obj::Object* in, obj::Object*& out) {
 
         } else if ((MIN && ret->less(out)) || (!MIN && out->less(ret))) {
 
+            ret = ret->clone();
             delete out;
-            out = ret->clone();
+            out = ret;
         }
     }
 

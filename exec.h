@@ -186,9 +186,10 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
 
                 execute_run(clo.code, r);
 
-                delete work.v[0];
-                work.v[0] = r.stack.back()->clone();
+                obj::Object* cloned = r.stack.back()->clone();
                 r.stack.pop_back();
+                delete work.v[0];
+                work.v[0] = cloned;
             }
 
             r.stack.push_back(work.v[0]);

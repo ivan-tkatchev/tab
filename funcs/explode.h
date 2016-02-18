@@ -48,14 +48,14 @@ void explode(const obj::Object* in, obj::Object*& out) {
 
 void take(const obj::Object* in, obj::Object*& out) {
 
-    delete out;
-
     obj::Object* x = ((obj::Object*)in)->next();
 
     if (!x)
         throw std::runtime_error("take() of an empty sequence.");
 
-    out = x->clone();
+    x = x->clone();
+    delete out;
+    out = x;
 }
 
 void glue(const obj::Object* in, obj::Object*& out) {
