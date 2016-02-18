@@ -21,7 +21,7 @@ Copy the resulting binary of `tab` somewhere in your path.
 
 If you want to use a compiler other than gcc, e.g., clang, then type this:
 
-    :::bash
+    :::tab
     $ CXX=clang++ make
 
 The official git repository is found [here](http://bitbucket.org/tkatchev/tab).
@@ -30,19 +30,19 @@ The official git repository is found [here](http://bitbucket.org/tkatchev/tab).
 
 The default is to read from standard input:
 
-    :::bash
+    :::tab
     $ cat mydata | tab <expression>...
 
 The result will be written to standard output.
 
 You can also use the `-i` flag to read from a file:
 
-    :::bash
+    :::tab
     $ tab -i mydata <expression>...
 
 If your `<expression>` is too long, you can pass it in via a file, with the `-f` flag:
 
-    :::bash
+    :::tab
     $ tab -f mycode <expression>...
 
 (In this case, the contents of `mycode` will be prepended to `<expression>`, separated with a comma.)
@@ -107,14 +107,14 @@ An introduction to `tab` in 10 easy steps.
 
 ### 1.
 
-    :::bash
+    :::tab
     $ ./tab '@'
 
 This command is equivalent to `cat`. `@` is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
 
 ### 2.
 
-    :::bash
+    :::tab
     $ ./tab 'sin(pi()/2)'
     1
     
@@ -125,14 +125,14 @@ This command is equivalent to `cat`. `@` is a variable holding the top-level inp
 
 ### 3.
 
-    :::bash
+    :::tab
     $ ./tab 'count(@)'
 
 This command is equivalent to `wc -l`. [[count]] is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
 ### 4.
 
-    :::bash
+    :::tab
     $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
 
 This command is equivalent to `egrep -o "[a-zA-Z]+"`. [[grep]] is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
@@ -151,7 +151,7 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 ### 5.
 
-    :::bash
+    :::tab
     $ ./tab 'zip(count(), @)'
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
@@ -162,7 +162,7 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 ### 6.
 
-    :::bash
+    :::tab
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
 
 This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.
@@ -177,7 +177,7 @@ Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matche
 
 ### 7.
 
-    :::bash
+    :::tab
     $ ./tab '{ @ : :[ grep(@,"\\S+") ] }'
 
 This command will output an unsorted list of unique words in stdin.
@@ -194,7 +194,7 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 ### 8.
 
-    :::bash
+    :::tab
     $ ./tab '?[ grepif(@,"this"), @ ]'
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
@@ -217,7 +217,7 @@ To write a tuple, simply list its elements separated by commas.
                               
 ### 9.
 
-    :::bash
+    :::tab
     $ ./tab '{ @[0] % 2 -> sum(count(@[1])) : zip(count(), @) }'
 
 This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.
@@ -234,7 +234,7 @@ This command will output the number of bytes on even lines versus the number of 
 
 ### 10.
 
-    :::bash
+    :::tab
     $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @~1, @~0 : z ])[-5,-1]'
 
 This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.
@@ -266,7 +266,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
 ### Bonus track
 
-    :::bash
+    :::tab
     $ ./tab -i req.log '
      def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),
      def uniq { 1 -> stats(@) }[1],
@@ -292,7 +292,7 @@ Here we run a crude test for the normal distribution in the response lengths (in
 
 You can use parentheses to delimit code blocks in function definitions. For example:
 
-    :::bash
+    :::tab
     def square_of_square ( def square @*@; square(@)*square(@) );
     square_of_square(4)
 
@@ -300,7 +300,7 @@ You can use parentheses to delimit code blocks in function definitions. For exam
 
 Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)
 
-    :::bash
+    :::tab
     $ ./tab -i req.log 'hist([. uint.cut(@,"|",7) .], 10)'
     250.8   23
     501.6   0
@@ -321,7 +321,7 @@ The input file is around 100000 lines of web server logs, and we want to find ou
 
 Here is a solution using standard shell utilities:
 
-    :::bash
+    :::tab
     $ cat req.log | cut -d' ' -f3 | cut -d'?' -f1 | sort | uniq -c
 
 Running time: around 2.7 seconds on my particular (slow) laptop.
@@ -366,7 +366,7 @@ Running time: around 2.1 seconds.
 
 Here is the solution using `tab`:
 
-    :::bash
+    :::tab
     $ ./tab -i req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
 
 Running time: around 0.9 seconds.
@@ -377,7 +377,7 @@ Not only is `tab` faster in this case, it is also (in my opinion) more concise a
 
 ## Grammar ##
 
-```bash
+```tab
 
 expr := atomic_or_assignment (("," | ";") atomic_or_assignment)*
 
