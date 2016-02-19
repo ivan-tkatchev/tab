@@ -534,7 +534,7 @@ struct SeqBase : public Object {
     }
 
     Object* clone() const {
-        throw std::runtime_error("Sequences cannot be stored in arrays and maps.");
+        throw std::runtime_error("Sequences cannot be stored in arrays and maps or remembered.");
     }
 
     void print() {

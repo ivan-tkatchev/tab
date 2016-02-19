@@ -67,6 +67,43 @@ void glue(const obj::Object* in, obj::Object*& out) {
     seq.prev = args.v[0];
 }
 
+struct SeqBox : public obj::SeqBase {
+
+    obj::Object* holder;
+    bool taken;
+
+    SeqBox() : holder(nullptr), taken(true) {}
+
+    obj::Object* next() {
+
+        if (taken) {
+            return nullptr;
+
+        } else {
+            taken = true;
+            return holder;
+        }
+    }
+};
+
+void box(const obj::Object* in, obj::Object*& out) {
+
+    const obj::Tuple& args = obj::get<obj::Tuple>(in);
+    SeqBox& seqbox = obj::get<SeqBox>(out);
+
+    seqbox.taken = false;
+
+    if (seqbox.holder == nullptr) {
+        seqbox.holder = args.v[1]->clone();
+
+    } else if (obj::get<obj::UInt>(args.v[0]).v != 0) {
+
+        obj::Object* x = args.v[1]->clone();
+        delete seqbox.holder;
+        seqbox.holder = x;
+    }
+}
+
 Functions::func_t explode_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::SEQ || !args.tuple || args.tuple->size() != 1)
@@ -109,11 +146,27 @@ Functions::func_t glue_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return glue;
 }
 
+Functions::func_t box_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
+        return nullptr;
+
+    if (!check_unsigned(args.tuple->at(0)))
+        return nullptr;
+
+    ret = Type(Type::SEQ, { args.tuple->at(1) });
+
+    obj = new SeqBox;
+
+    return box;
+}
+
 void register_explode(Functions& funcs) {
 
     funcs.add_poly("explode", explode_checker);
     funcs.add_poly("take", take_checker);
     funcs.add_poly("glue", glue_checker);
+    funcs.add_poly("box", box_checker);
 }
 
 #endif

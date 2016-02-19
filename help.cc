@@ -85,6 +85,8 @@ static const char* _help[][2] = {
       "\n"
       "'@' is the variable name denoting input to a function or left side of\n"
       "generator expression.\n"
+      "\n"
+      "Recursive calculations: << expr : start, seq >>\n"
     },
 
     { "examples",
@@ -111,6 +113,8 @@ static const char* _help[][2] = {
       "    freq={ count.@ -> sum.1 : :[ grep(@, \"\\\\S+\") ] }, sort.freq\n\n"
       "Glue every pair of lines in a file together:\n"
       "    [ join(head(@, 2), \"\\t\") : explode.@ ]\n"
+      "Calculate the factorial:\n"
+      "    << @~0 * @~1 : 1, count.@ >>\n"
     },
 
     { "functions",
@@ -152,6 +156,18 @@ static const char* _help[][2] = {
     {"avg",
      "\n"
      "Synonym for 'mean'.\n"
+    },
+    {"box",
+     "\n"
+     "Remembers a value. Returns a 'box', which is a special sequence of one\n"
+     "remembered value. Stores the second argument in the box if the box is\n"
+     "empty. If the box is not empty and the first argument is not zero,\n"
+     "then replaces the value in the box with the second argument. See also:\n"
+     "'take'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "box UInt, a -> Seq[a]\n"
     },
     {"bucket",
      "\n"

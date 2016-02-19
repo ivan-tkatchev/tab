@@ -483,6 +483,11 @@ Usage:
 avg {: #fn_avg}
 : Synonym for [[mean]].
 
+box {: #fn_box}
+: Remembers a value. Returns a 'box', which is a special sequence of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument. See also: [[take]].  
+Usage:  
+`box UInt, a -> Seq[a]`
+
 bucket {: #fn_bucket}
 : Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: [[hist]].  
 Usage:  
@@ -1018,15 +1023,15 @@ Note that the type of the result and the type of the sequence elements can be di
 
 ### Alphabetically by name: 
 
-[[abs]] [[array]] [[avg]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]] [[count]]
-[[cut]] [[date]] [[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]]
-[[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]] [[has]]
-[[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]] [[lsh]] [[map]]
-[[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[pi]] [[rand]]
-[[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]] [[second]]
-[[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]]
-[[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
-[[uint]] [[var]] [[variance]] [[while]] [[zip]]
+[[abs]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]]
+[[count]] [[cut]] [[date]] [[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]]
+[[filter]] [[first]] [[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]]
+[[grepif]] [[has]] [[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]]
+[[lsh]] [[map]] [[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]]
+[[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]]
+[[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]]
+[[sum]] [[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]]
+[[tuple]] [[uint]] [[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -1046,7 +1051,7 @@ Note that the type of the result and the type of the sequence elements can be di
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
-**Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
+**Sequences:** [[box]] [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
 [[head]] [[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]] [[triplets]]
 [[while]] [[zip]]
 
@@ -1056,7 +1061,7 @@ Note that the type of the result and the type of the sequence elements can be di
 
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
-**Conditionals:** [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
+**Conditionals:** [[box]] [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
 
 **Files:** [[file]] [[open]]
 
