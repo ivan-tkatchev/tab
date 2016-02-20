@@ -491,9 +491,9 @@ Usage:
 : Synonym for `mean`.
 
 `box`
-: Remembers a value. Returns a 'box', which is a special sequence of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument. See also: `take`.  
+: Remembers a value. Returns a 'box', which is a tuple of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument.  
 Usage:  
-`box UInt, a -> Seq[a]`
+`box UInt, a -> (a,)`
 
 `bucket`
 : Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: `hist`.  

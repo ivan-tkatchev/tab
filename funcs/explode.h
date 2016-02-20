@@ -67,40 +67,19 @@ void glue(const obj::Object* in, obj::Object*& out) {
     seq.prev = args.v[0];
 }
 
-struct SeqBox : public obj::SeqBase {
-
-    obj::Object* holder;
-    bool taken;
-
-    SeqBox() : holder(nullptr), taken(true) {}
-
-    obj::Object* next() {
-
-        if (taken) {
-            return nullptr;
-
-        } else {
-            taken = true;
-            return holder;
-        }
-    }
-};
-
 void box(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
-    SeqBox& seqbox = obj::get<SeqBox>(out);
+    obj::Tuple& boxtup = obj::get<obj::Tuple>(out);
 
-    seqbox.taken = false;
-
-    if (seqbox.holder == nullptr) {
-        seqbox.holder = args.v[1]->clone();
+    if (boxtup.v.empty()) {
+        boxtup.v.push_back(args.v[1]->clone());
 
     } else if (obj::get<obj::UInt>(args.v[0]).v != 0) {
 
         obj::Object* x = args.v[1]->clone();
-        delete seqbox.holder;
-        seqbox.holder = x;
+        delete boxtup.v[0];
+        boxtup.v[0] = x;
     }
 }
 
@@ -154,9 +133,9 @@ Functions::func_t box_checker(const Type& args, Type& ret, obj::Object*& obj) {
     if (!check_unsigned(args.tuple->at(0)))
         return nullptr;
 
-    ret = Type(Type::SEQ, { args.tuple->at(1) });
+    ret = Type(Type::TUP, { args.tuple->at(1) });
 
-    obj = new SeqBox;
+    obj = new obj::Tuple;
 
     return box;
 }

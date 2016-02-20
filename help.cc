@@ -159,15 +159,14 @@ static const char* _help[][2] = {
     },
     {"box",
      "\n"
-     "Remembers a value. Returns a 'box', which is a special sequence of one\n"
+     "Remembers a value. Returns a 'box', which is a tuple of one\n"
      "remembered value. Stores the second argument in the box if the box is\n"
      "empty. If the box is not empty and the first argument is not zero,\n"
-     "then replaces the value in the box with the second argument. See also:\n"
-     "'take'.\n"
+     "then replaces the value in the box with the second argument.\n"
      "\n"
      "Usage:\n"
      "\n"
-     "box UInt, a -> Seq[a]\n"
+     "box UInt, a -> (a,)\n"
     },
     {"bucket",
      "\n"
