@@ -1,0 +1,6 @@
+sort.?[count(@~1)>1, @~0, join(sort.first.@~1," ") : { fl=string.bytes(@)[0,0], box(fl==toupper.fl,@) -> {@} : ?[count.@,@ :: [recut(@,"[^A-Za-z]") ]]}]
+===>
+August	August th
+Permission	Permission a accompanying and any by charge copy covered documentation free granted hereby is license obtaining of or organization person software the this to
+Software	Software a above all and are be by code copies derivative disclaimer display distribute do entire executable execute following form furnished generated grant in included including is language license machine must object of or part parties permit prepare processor reproduce restriction so solely source statement subject such the third this to transmit unless use whole whom works
+The	The copyright in notices the
