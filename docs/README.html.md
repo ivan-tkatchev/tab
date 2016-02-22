@@ -608,7 +608,7 @@ Usage:
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
 
 glue {: #fn_glue}
-: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: [[take]].  
+: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: [[take]], [[peek]].  
 Usage:  
 `glue a, Seq[a] -> Seq[a]`
 
@@ -745,6 +745,11 @@ pairs {: #fn_pairs}
 Usage:  
 `pairs Seq[a] -> Seq[(a,a)]`
 
+peek {: #fn_peek}
+: Given a sequence, return a pair of its first element and the sequence itself with the first element reattached. Equivalent to `h=take.@, h, glue(h, @)`. See also: [[take]], [[glue]].  
+Usage:  
+`peek Seq[a] -> (a, Seq[a])`
+
 pi {: #fn_pi}
 : Return the number *pi*.  
 Usage:  
@@ -872,7 +877,7 @@ Usage:
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 take {: #fn_take}
-: Returns the first element in a sequence. It is an error to use [[take]] on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: [[glue]].  
+: Returns the first element in a sequence. It is an error to use [[take]] on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: [[peek]], [[glue]].  
 Usage:  
 `take Seq[a] -> a`
 
@@ -1028,10 +1033,10 @@ Note that the type of the result and the type of the sequence elements can be di
 [[filter]] [[first]] [[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]]
 [[grepif]] [[has]] [[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]]
 [[lsh]] [[map]] [[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]]
-[[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]] [[sample]]
-[[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]] [[string]]
-[[sum]] [[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]]
-[[tuple]] [[uint]] [[var]] [[variance]] [[while]] [[zip]]
+[[peek]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]]
+[[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]]
+[[string]] [[sum]] [[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]]
+[[triplets]] [[tuple]] [[uint]] [[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -1052,8 +1057,8 @@ Note that the type of the result and the type of the sequence elements can be di
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
 **Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
-[[head]] [[ngrams]] [[pairs]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]] [[triplets]]
-[[while]] [[zip]]
+[[head]] [[ngrams]] [[pairs]] [[peek]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]]
+[[triplets]] [[while]] [[zip]]
 
 **Tuples:** [[first]] [[second]] [[tuple]]
 

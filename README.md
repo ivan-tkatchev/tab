@@ -615,7 +615,7 @@ Usage:
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
 
 `glue`
-: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`.  
+: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`, `peek`.  
 Usage:  
 `glue a, Seq[a] -> Seq[a]`
 
@@ -752,6 +752,11 @@ Usage:
 Usage:  
 `pairs Seq[a] -> Seq[(a,a)]`
 
+`peek`
+: Given a sequence, return a pair of its first element and the sequence itself with the first element reattached. Equivalent to `h=take.@, h, glue(h, @)`. See also: `take`, `glue`.  
+Usage:  
+`peek Seq[a] -> (a, Seq[a])`
+
 `pi`
 : Return the number *pi*.  
 Usage:  
@@ -879,7 +884,7 @@ Usage:
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 `take`
-: Returns the first element in a sequence. It is an error to use `take` on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: `glue`.  
+: Returns the first element in a sequence. It is an error to use `take` on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: `peek`, `glue`.  
 Usage:  
 `take Seq[a] -> a`
 

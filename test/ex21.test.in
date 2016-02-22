@@ -1,8 +1,7 @@
 temps.tsv
 ===>
 t=sort.map.?[ x=cut(@,"\t"), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ],
-def to_seq [@:@],
-sort.{ @~(-1)~0 -> avg.second.to_seq.@ : ngrams(to_seq.t, 10) }
+sort.{ @~(-1)~0 -> avg.second.seq.@ : ngrams(seq.t, 10) }
 ===>
 1958	161.877
 1959	155.603

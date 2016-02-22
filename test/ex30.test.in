@@ -1,6 +1,6 @@
 repeats.txt
 ===>
-x=pairs.@, head=take.x, x=glue(head, x), glue(first.head, ?[ @~0 != @~1, @~1 : x ])
+x=peek.pairs.@, glue(first.first.x, ?[ @~0 != @~1, @~1 : second.x ])
 ===>
 1
 2

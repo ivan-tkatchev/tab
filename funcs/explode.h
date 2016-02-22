@@ -58,6 +58,25 @@ void take(const obj::Object* in, obj::Object*& out) {
     out = x;
 }
 
+void peek(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& ret = obj::get<obj::Tuple>(out);
+    obj::Object* x = ((obj::Object*)in)->next();
+
+    if (!x)
+        throw std::runtime_error("peek() of an empty sequence.");
+
+    obj::Object* x2 = x->clone();
+
+    if (ret.v[0] != nullptr)
+        delete ret.v[0];
+
+    ret.v[0] = x2;
+    SeqWithPrev& seq = obj::get<SeqWithPrev>(ret.v[1]);
+    seq.wrap((obj::Object*)in);
+    seq.prev = x;
+}
+
 void glue(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -140,12 +159,30 @@ Functions::func_t box_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return box;
 }
 
+Functions::func_t peek_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::SEQ || !args.tuple || args.tuple->size() != 1)
+        return nullptr;
+
+    ret = Type(Type::TUP, { args.tuple->at(0), args });
+
+    obj = new obj::Tuple;
+
+    obj::Tuple& t = obj::get<obj::Tuple>(obj);
+    t.v.resize(2);
+    t.v[0] = nullptr;
+    t.v[1] = new SeqWithPrev;
+
+    return peek;
+}
+
 void register_explode(Functions& funcs) {
 
     funcs.add_poly("explode", explode_checker);
     funcs.add_poly("take", take_checker);
     funcs.add_poly("glue", glue_checker);
     funcs.add_poly("box", box_checker);
+    funcs.add_poly("peek", peek_checker);
 }
 
 #endif

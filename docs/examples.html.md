@@ -120,8 +120,11 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### Moving average of September temperatures, over 10 previous years:
     :::tab
     t=sort.map.?[ x=cut(@,"\t"), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ],
-    def to_seq [@:@],
-    sort.{ @~(-1)~0 -> avg.second.to_seq.@ : ngrams(to_seq.t, 10) }
+    sort.{ @~(-1)~0 -> avg.second.seq.@ : ngrams(seq.t, 10) }
+
+#### Calculate the average difference between this day's temperature and the temperature on the first of the month:
+    :::tab
+    sort.{ x=cut(@,"\t"), t=(real.x~3)/10, uint.x~1 -> avg(t - box(x~2 == "1", t)~0) }
 
 ## Working with ad-hoc text formats:
 
@@ -168,7 +171,7 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### Remove duplicate lines, like the Unix tool `uniq`:
     :::tab
-    x=pairs.@, head=take.x, x=glue(head, x), glue(first.head, ?[ @~0 != @~1, @~1 : x ])
+    x=peek.pairs.@, glue(first.first.x, ?[ @~0 != @~1, @~1 : second.x ])
 
 ## Recursive functions
 
@@ -183,6 +186,10 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### The 11th Fibonacci number:
     :::tab
     << a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 >>~1
+
+#### Return the tail of a sequence, like the Unix tool `tail`:
+    :::tab
+    def tail << @~1 : peek.ngrams.@ >>, tail(@, 10)
 
 #### Run the famous Rule 110 for 8 steps:
     :::tab
