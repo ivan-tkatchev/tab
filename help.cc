@@ -954,13 +954,16 @@ static const char* _help[][2] = {
     },
     {"take",
      "\n"
-     "Returns the first element in a sequence. It is an error to use 'take'\n"
-     "on an empty sequence. Equivalent to array(head(@, 1))[0]. See also:\n"
-     "'peek', 'glue'.\n"
+     "Returns the first element in a sequence. Equivalent to array(head(@, 1))[0].\n"
+     "See also: 'peek', 'glue'.\n"
      "\n"
      "Usage:\n"
      "\n"
      "take Seq[a] -> a\n"
+     "    gives an error on empty sequence.\n"
+     "\n"
+     "take Seq[a], a -> a\n"
+     "    returns the second argument on empty sequence.\n"
     },
     {"tan",
      "\n"
@@ -1064,7 +1067,7 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "while Seq[(Integer,a...) -> Seq[(a...)]\n"
+     "while Seq[(Integer,a...)] -> Seq[(a...)]\n"
     },
     {"zip",
      "\n"

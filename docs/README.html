@@ -823,9 +823,10 @@ Usage:<br>
 <code>sum Seq[Number] -&gt; Number</code><br>
 <code>sum Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
 <dt id="fn_take">take</dt>
-<dd>Returns the first element in a sequence. It is an error to use <a class="wikilink" href="#fn_take">take</a> on an empty sequence. Equivalent to <code>array(head(@, 1))[0]</code>. See also: <a class="wikilink" href="#fn_peek">peek</a>, <a class="wikilink" href="#fn_glue">glue</a>.<br>
+<dd>Returns the first element in a sequence. Equivalent to <code>array(head(@, 1))[0]</code>. See also: <a class="wikilink" href="#fn_peek">peek</a>, <a class="wikilink" href="#fn_glue">glue</a>.<br>
 Usage:<br>
-<code>take Seq[a] -&gt; a</code></dd>
+<code>take Seq[a] -&gt; a</code> &ndash; gives an error on empty sequence.<br>
+<code>take Seq[a], a -&gt; a</code> &ndash; returns the second argument on empty sequence.</dd>
 <dt id="fn_tan">tan</dt>
 <dd>The tangent function.<br>
 Usage:<br>
@@ -870,7 +871,7 @@ Usage:<br>
 <dt id="fn_while">while</dt>
 <dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but stops the output sequence once the first filtered element is reached. See: <a class="wikilink" href="#fn_filter">filter</a>.<br>
 Usage:<br>
-<code>while Seq[(Integer,a...) -&gt; Seq[(a...)]</code></dd>
+<code>while Seq[(Integer,a...)] -&gt; Seq[(a...)]</code></dd>
 <dt id="fn_zip">zip</dt>
 <dd>Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.<br>
 Usage:<br>

@@ -155,6 +155,11 @@ The first three fields are the year, month and day. The fourth field is the dail
     def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
     second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 
+#### Another implementation of same as above:
+    :::tab
+    def urlgetparams map.[ def t take(@,""), t.@, t.@ : explode.seq.recut(@, "[?&=]")[1,-1] ];
+    second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
+
 ## Working with multi-line data:
 
 #### Double-space a file:

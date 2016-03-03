@@ -58,6 +58,25 @@ void take(const obj::Object* in, obj::Object*& out) {
     out = x;
 }
 
+void take2(const obj::Object* in, obj::Object*& out) {
+
+    const obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::Object* x = ((obj::Object*)args.v[0])->next();
+
+    if (!x) {
+        out = args.v[1];
+
+    } else {
+
+        x = x->clone();
+
+        if (out != args.v[1])
+            delete out;
+
+        out = x;
+    }
+}
+
 void peek(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& ret = obj::get<obj::Tuple>(out);
@@ -117,12 +136,26 @@ Functions::func_t explode_checker(const Type& args, Type& ret, obj::Object*& obj
 
 Functions::func_t take_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    if (args.type != Type::SEQ || !args.tuple || args.tuple->size() != 1)
-        return nullptr;
+    if (args.type == Type::SEQ && args.tuple && args.tuple->size() == 1) {
 
-    ret = args.tuple->at(0);
+        ret = args.tuple->at(0);
 
-    return take;
+        return take;
+    }
+
+    if (args.type == Type::TUP && args.tuple && args.tuple->size() == 2) {
+
+        const Type& a = args.tuple->at(0);
+
+        if (a.type != Type::SEQ || !a.tuple || a.tuple->size() != 1 || a.tuple->at(0) != args.tuple->at(1))
+            return nullptr;
+
+        ret = a.tuple->at(0);
+
+        return take2;
+    }
+
+    return nullptr;
 }
 
 Functions::func_t glue_checker(const Type& args, Type& ret, obj::Object*& obj) {

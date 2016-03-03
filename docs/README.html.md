@@ -877,9 +877,10 @@ Usage:
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 take {: #fn_take}
-: Returns the first element in a sequence. It is an error to use [[take]] on an empty sequence. Equivalent to `array(head(@, 1))[0]`. See also: [[peek]], [[glue]].  
+: Returns the first element in a sequence. Equivalent to `array(head(@, 1))[0]`. See also: [[peek]], [[glue]].  
 Usage:  
-`take Seq[a] -> a`
+`take Seq[a] -> a` -- gives an error on empty sequence.  
+`take Seq[a], a -> a` -- returns the second argument on empty sequence.
 
 tan {: #fn_tan}
 : The tangent function.  
@@ -935,7 +936,7 @@ variance {: #fn_variance}
 while {: #fn_while}
 : Similar to [[filter]], but stops the output sequence once the first filtered element is reached. See: [[filter]].  
 Usage:  
-`while Seq[(Integer,a...) -> Seq[(a...)]`
+`while Seq[(Integer,a...)] -> Seq[(a...)]`
 
 zip {: #fn_zip}
 : Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
