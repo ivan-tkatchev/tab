@@ -157,7 +157,7 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### Another implementation of same as above:
     :::tab
-    def urlgetparams map.[ def t take(@,""), t.@, t.@ : explode.seq.recut(@, "[?&=]")[1,-1] ];
+    def urlgetparams map.[ take.@, take(@,"") : explode.seq.recut(@, "[?&=]")[1,-1] ];
     second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 
 ## Working with multi-line data:
