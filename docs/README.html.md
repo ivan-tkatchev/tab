@@ -603,9 +603,10 @@ Usage:
 `floor Real -> Real`
 
 get {: #fn_get}
-: Accesses map elements (like [[index]]), but returns a default value if the key is not found in the map. (Unlike [[index]] which throws an exception.)  
+: Accesses map or array elements (like [[index]]), but returns a default value if the key is not found in the map or if the index is out of bounds. (Unlike [[index]] which throws an exception.)  
 Usage:  
-`get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.
+`get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.  
+`get Arr[a], UInt, a -> a` -- returns the element at the given index, or the third argument if the index is out of bounds.
 
 glue {: #fn_glue}
 : Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: [[take]], [[peek]].  
@@ -1052,7 +1053,7 @@ Note that the type of the result and the type of the sequence elements can be di
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
 [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
 
-**Arrays:** [[array]] [[count]] [[flatten]] [[head]] [[index]] [[join]] [[reverse]]
+**Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[index]] [[join]] [[reverse]]
 [[skip]] [[sort]] [[stripe]] [[zip]]
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]

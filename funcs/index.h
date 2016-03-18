@@ -322,6 +322,38 @@ void map_get(const obj::Object* in, obj::Object*& out) {
     }
 }
 
+void array_obj_get(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::ArrayObject& arr = obj::get<obj::ArrayObject>(args.v[0]);
+    UInt i = obj::get<obj::UInt>(args.v[1]).v;
+
+    if (i >= arr.v.size()) {
+
+        out = args.v[2];
+
+    } else {
+        out = arr.v[i];
+    }
+}
+
+template <typename T>
+void array_atom_get(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::ArrayAtom<T>& arr = obj::get< obj::ArrayAtom<T> >(args.v[0]);
+    UInt i = obj::get<obj::UInt>(args.v[1]).v;
+
+    if (i >= arr.v.size()) {
+
+        out = args.v[2];
+
+    } else {
+        obj::get< obj::Atom<T> >(out).v = arr.v[i];
+    }
+}
+
+
 template <bool SORTED>
 Functions::func_t get_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
@@ -330,22 +362,49 @@ Functions::func_t get_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     const Type& ci = args.tuple->at(0);
 
-    if (ci.type != Type::MAP)
-        return nullptr;
-
     Type key = args.tuple->at(1);
     Type val = args.tuple->at(2);
+
+    if (ci.type == Type::MAP) {
     
-    const Type& mkey = ci.tuple->at(0);
-    const Type& mval = ci.tuple->at(1);
+        const Type& mkey = ci.tuple->at(0);
+        const Type& mval = ci.tuple->at(1);
 
-    if (mkey != key || mval != val)
-        return nullptr;
+        if (mkey != key || mval != val)
+            return nullptr;
 
-    obj = obj::nothing();
-    ret = mval;
+        obj = obj::nothing();
+        ret = mval;
 
-    return map_get<SORTED>;
+        return map_get<SORTED>;
+
+    } else if (ci.type == Type::ARR && check_unsigned(key)) {
+
+        if (ci.tuple->at(0) != val)
+            return nullptr;
+
+        ret = val;
+
+        if (val.type == Type::ATOM) {
+            switch (val.atom) {
+            case Type::UINT:
+                return array_atom_get<UInt>;
+            case Type::INT:
+                return array_atom_get<Int>;
+            case Type::REAL:
+                return array_atom_get<Real>;
+            case Type::STRING:
+                return array_atom_get<std::string>;
+            }
+
+        } else {
+            
+            obj = obj::nothing();
+            return array_obj_get;
+        }
+    }
+
+    return nullptr;
 }
 
 template <bool SORTED>

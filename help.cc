@@ -397,15 +397,19 @@ static const char* _help[][2] = {
     },
     {"get",
      "\n"
-     "Accesses map elements (like 'index'), but returns a default value if\n"
-     "the key is not found in the map. (Unlike 'index' which throws an\n"
-     "exception.)\n"
+     "Accesses map or array elements (like 'index'), but returns a default\n"
+     "value if the key is not found in the map or if the index is out of\n"
+     "bounds. (Unlike 'index' which throws an exception.)\n"
      "\n"
      "Usage:\n"
      "\n"
      "get Map[a,b], a, b -> b\n"
      "    returns the element stored in the map with the given key, or the third\n"
      "    argument if the key is not found.\n"
+     "\n"
+     "get Arr[a], UInt, a -> a\n"
+     "    returns the element at the given index, or the third argument if the\n"
+     "    index is out of bounds.\n"
     },
     {"glue",
      "\n"
