@@ -202,6 +202,10 @@ void tuple(const obj::Object* in, obj::Object*& out) {
 }
 
 Functions::func_t tuple_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args == Type(Type::NONE))
+        return nullptr;
+
     ret = args;
     obj = obj::nothing();
     return tuple;
