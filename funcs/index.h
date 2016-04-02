@@ -156,7 +156,7 @@ void map_index_one(const obj::Object* in, obj::Object*& out) {
 template <bool SORTED>
 void map_index_tup(const obj::Object* in, obj::Object*& out) {
 
-    static obj::Tuple* key = new obj::Tuple;
+    static thread_local obj::Tuple* key = new obj::Tuple;
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
 

@@ -2,7 +2,7 @@
 #define __TUP_FUNCS_RAND_H
 
 std::mt19937_64& get_rand_generator(size_t seed = 0) {
-    static std::mt19937_64 ret(seed);
+    static thread_local std::mt19937_64 ret(seed);
     return ret;
 }
 

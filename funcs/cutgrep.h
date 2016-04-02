@@ -114,7 +114,7 @@ struct RegexCache {
 };
 
 const std::regex& regex_cache(const std::string& s) {
-    static RegexCache cache;
+    static thread_local RegexCache cache;
     return cache.get(s);
 }
 

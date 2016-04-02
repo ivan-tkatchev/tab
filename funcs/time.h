@@ -14,7 +14,7 @@ int is_leap(int year) {
 
 void calc_month_day(time_t& days, time_t& month, int leap) {
 
-    static int mon_days[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+    static int const mon_days[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
     month = 1;
 

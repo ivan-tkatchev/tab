@@ -51,7 +51,7 @@ void join_arr(const obj::Object* in, obj::Object*& out) {
     const std::string& sep = obj::get<obj::String>(args.v[1]).v;
     std::string& ret = obj::get<obj::String>(out).v;
 
-    static std::string empty;
+    static const std::string empty;
 
     join_arr_aux(ret, v, empty, sep, empty);
 }
@@ -100,7 +100,7 @@ void join_seq(const obj::Object* in, obj::Object*& out) {
     const std::string& sep = obj::get<obj::String>(args.v[1]).v;
     std::string& ret = obj::get<obj::String>(out).v;
 
-    static std::string empty;
+    static const std::string empty;
 
     join_seq_aux(ret, seq, empty, sep, empty);
 }
