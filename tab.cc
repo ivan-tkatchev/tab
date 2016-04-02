@@ -35,7 +35,8 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
     tab::obj::Object* input = new tab::funcs::SeqFile(file_or_stdin(infile));
     tab::obj::Object* output = api.run(code, input);
 
-    output->print();
+    tab::obj::Printer p;
+    output->print(p);
     std::cout << std::endl;
 }
 

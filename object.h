@@ -5,6 +5,20 @@ namespace tab {
 
 namespace obj {
 
+struct Printer {
+
+    virtual void val(tab::UInt v) { printf("%lu", v); }
+    virtual void val(tab::Int v)  { printf("%ld", v); }
+    virtual void val(tab::Real v) { printf("%g", v); }
+
+    virtual void val(const std::string& v) {
+        fwrite(v.data(), sizeof(char), v.size(), stdout);
+    }
+
+    virtual void rs() { printf("\t"); }
+    virtual void nl() { printf("\n"); }
+};
+
 struct Object {
 
     virtual ~Object() {}
@@ -21,7 +35,7 @@ struct Object {
         throw std::runtime_error("Object sorting not implemented");
     }
 
-    virtual void print() { }
+    virtual void print(Printer&) { }
 
     virtual Object* clone() const {
         throw std::runtime_error("Object cloning not implemented");
@@ -59,7 +73,7 @@ struct Atom : public Object {
     size_t hash() const { return std::hash<T>()(v); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
     bool less(Object* a) const { return v < get< Atom<T> >(a).v; }
-    void print() { std::cout << v; }
+    void print(Printer& p) { p.val(v); }
     Object* clone() const { return new Atom<T>(v); }
 };
 
@@ -89,17 +103,17 @@ struct ArrayAtom : public Object {
         return v < get< ArrayAtom<T> >(a).v;
     }
     
-    void print() {
+    void print(Printer& p) {
         bool first = true;
 
         for (const T& x : v) {
             if (first) {
                 first = false;
             } else {
-                std::cout << std::endl;
+                p.nl();
             }
 
-            std::cout << x;
+            p.val(x);
         }
     }
 
@@ -195,17 +209,17 @@ struct ArrayObject : public Object {
         return false;
     }
 
-    void print() {
+    void print(Printer& p) {
         bool first = true;
 
         for (Object* x : v) {
             if (first) {
                 first = false;
             } else {
-                std::cout << std::endl;
+                p.nl();
             }
 
-            x->print();
+            x->print(p);
         }
     }
 
@@ -257,17 +271,17 @@ struct ArrayObject : public Object {
 
 struct Tuple : public ArrayObject {
 
-    void print() {
+    void print(Printer& p) {
         bool first = true;
         for (Object* x : v) {
 
             if (first) {
                 first = false;
             } else {
-                std::cout << "\t";
+                p.rs();
             }
 
-            x->print();
+            x->print(p);
         }
     }
 
@@ -428,18 +442,18 @@ struct MapObject : public Object {
         return false;
     }
 
-    void print() {
+    void print(Printer& p) {
         bool first = true;
         for (const auto& x : v) {
             if (first) {
                 first = false;
             } else {
-                std::cout << std::endl;
+                p.nl();
             }
 
-            x.first->print();
-            std::cout << "\t";
-            x.second->print();
+            x.first->print(p);
+            p.rs();
+            x.second->print(p);
         }
     }
 
@@ -537,7 +551,7 @@ struct SeqBase : public Object {
         throw std::runtime_error("Sequences cannot be stored in arrays and maps or remembered.");
     }
 
-    void print() {
+    void print(Printer& p) {
 
         bool first = true;
         
@@ -550,10 +564,10 @@ struct SeqBase : public Object {
             if (first) {
                 first = false;
             } else {
-                std::cout << std::endl;
+                p.nl();
             }
-            
-            v->print();
+
+            v->print(p);
         }
     }
 };
