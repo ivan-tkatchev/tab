@@ -13,7 +13,7 @@ SRC = tab.cc help.cc
 CXX ?= g++
 
 tab: $(SRC) $(INCLUDE) $(FUNCS)
-	$(CXX) -std=c++11 -O3 -Wall -Iaxe -pthread -lm $(SRC) -o tab
+	$(CXX) -std=c++11 -ggdb -Wall -Iaxe -pthread -lm $(SRC) -o tab
 
 dist: $(SRC) $(INCLUDE) $(FUNCS)
 	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm $(SRC) -static -o tab-linux-x86_64

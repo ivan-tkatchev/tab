@@ -1,6 +1,7 @@
 
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 #include "tab.h"
 
@@ -30,7 +31,7 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
 
     api.init(seed);
 
-    static tab::Type intype(tab::Type::SEQ, { tab::Type(tab::Type::STRING) });
+    static const tab::Type intype(tab::Type::SEQ, { tab::Type(tab::Type::STRING) });
 
     typename tab::API<SORTED>::compiled_t code;
     api.compile(program.begin(), program.end(), intype, code, debuglevel);
@@ -43,19 +44,21 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
     p.nl();
 }
 
-struct ThreadedSeqFile : public tab::obj::SeqBase {
+namespace tab {
 
-    tab::obj::String* holder() {
-        static thread_local tab::obj::String ret;
+struct ThreadedSeqFile : public obj::SeqBase {
+
+    obj::String* holder() {
+        static thread_local obj::String ret;
         return &ret;
     }
 
     std::mutex mutex;
-    tab::funcs::Linereader reader;
+    funcs::Linereader reader;
     
     ThreadedSeqFile(std::istream& infile) : reader(infile) {}
 
-    tab::obj::Object* next() {
+    obj::Object* next() {
         std::lock_guard<std::mutex> l(mutex);
 
         bool ok = reader.getline(holder()->v);
@@ -66,68 +69,227 @@ struct ThreadedSeqFile : public tab::obj::SeqBase {
     }
 };
 
-struct ThreadedPrinter : public tab::obj::Printer {
+struct threadedprinter {
 
-    std::string& buff() {
-        static thread_local std::string ret;
-        return ret;
-    }
+    std::string r;
+    std::mutex mutex;
 
-    virtual void val(tab::UInt v) { buff() += std::to_string(v); }
-    virtual void val(tab::Int v)  { buff() += std::to_string(v); }
-    virtual void val(tab::Real v) { buff() += std::to_string(v); }
+    void p(int v) { std::unique_lock<std::mutex> l(mutex); r += std::to_string(v); }
+    void p(const std::string& s) { std::unique_lock<std::mutex> l(mutex); r += s; }
 
-    virtual void val(const std::string& v) { buff() += v; }
-
-    virtual void rs() { buff() += '\t'; }
-
-    virtual void nl() {
-        std::string& b = buff();
-        b += '\n';
-        fwrite(b.data(), sizeof(char), b.size(), stdout);
-        b.clear();
+    ~threadedprinter() {
+        std::unique_lock<std::mutex> l(mutex);
+        printf("%s\n", r.c_str());
     }
 };
 
+threadedprinter& tprinter() {
+    static threadedprinter ret;
+    return ret;
+}
+
+struct ThreadGroupSeq : public obj::SeqBase {
+
+    std::mutex mutex;
+    std::condition_variable can_consume;
+
+    struct syncvar_t {
+        bool produced;
+        bool finished;
+
+        size_t serial;
+        obj::Object* result;
+        std::unique_ptr<std::condition_variable> can_produce;
+        std::unique_ptr<std::mutex> mutex;
+
+        syncvar_t() : produced(false), finished(false), serial(0), result(nullptr),
+                      can_produce(new std::condition_variable), mutex(new std::mutex) {}
+    };
+
+    std::vector<syncvar_t> syncs;
+    std::vector<std::thread> threads;
+    size_t serial;
+
+    void threadfun(obj::Object* seq, size_t n) {
+
+        auto& sync = syncs[n];
+
+        while (1) {
+
+            std::unique_lock<std::mutex> l(*(sync.mutex));
+
+            size_t s = sync.serial;
+
+            while (sync.produced || s == sync.serial) {
+                sync.can_produce->wait(l);
+            }
+
+            obj::Object* next = seq->next();
+
+            if (next) {
+                tprinter().p("sent :: ");
+                tprinter().p((int)n);
+                tprinter().p(" ");
+                tprinter().p((int)sync.serial);
+                tprinter().p(" ");
+                tprinter().p((int)sync.produced);
+                tprinter().p(" {");
+                tprinter().p(obj::get<obj::String>(next).v);
+                tprinter().p("}\n");
+            }
+
+            sync.produced = true;
+            sync.result = next;
+
+            if (!next) {
+                sync.finished = true;
+            }
+
+            l.unlock();
+            can_consume.notify_one();
+
+            if (!next) break;
+        }
+    }
+
+    ThreadGroupSeq(std::vector<obj::Object*> seqs) : serial(0) {
+
+        size_t nthreads = seqs.size();
+        syncs.resize(nthreads);
+
+        for (size_t i = 0; i < nthreads; ++i) {
+            threads.emplace_back(&ThreadGroupSeq::threadfun, this, seqs[i], i);
+        }
+    }
+
+    ~ThreadGroupSeq() {
+        for (auto& t : threads) {
+            t.join();
+        }
+    }
+
+    obj::Object* next() {
+
+        ++serial;
+
+        while (1) {
+            bool all_done = true;
+
+            int n = -1;
+            for (auto& i : syncs) {
+                ++n;
+
+                std::unique_lock<std::mutex> l(*(i.mutex));
+
+                if (i.finished) continue;
+
+                all_done = false;
+
+                if (i.produced) {
+                    i.produced = false;
+                    i.serial = serial;
+
+                    if (i.result) {
+                        tprinter().p("got :: ");
+                        tprinter().p((int)n);
+                        tprinter().p(" ");
+                        tprinter().p((int)i.serial);
+                        tprinter().p(" ");
+                        tprinter().p((int)i.produced);
+                        tprinter().p(" {");
+                        tprinter().p(obj::get<obj::String>(i.result).v);
+                        tprinter().p("}\n");
+                    }
+
+                    return i.result;
+
+                } else if (i.serial < serial) {
+                    i.serial = serial;
+                    l.unlock();
+                    i.can_produce->notify_one();
+                }
+            }
+
+            if (all_done) return nullptr;
+
+            std::unique_lock<std::mutex> l(mutex);
+            can_consume.wait(l);
+        }
+    }
+};
+
+}
 
 template <bool SORTED>
-void run_threaded(size_t seed, const std::string& program, const std::string& infile, size_t nthreads, unsigned int debuglevel) {
+void run_threaded(size_t seed, const std::string& program, size_t nthreads, 
+                  const std::string& infile, unsigned int debuglevel) {
+
+    if (nthreads == 0)
+        nthreads = 1;
+
+    std::string scatter;
+    std::string gather;
+
+    {
+        size_t i = program.find("-->");
+
+        if (i == std::string::npos) {
+            scatter = program;
+            gather = "@";
+
+        } else {
+            scatter = program.substr(0, i);
+            gather = program.substr(i + 3);
+        }
+    }
 
     tab::API<SORTED> api;
 
     api.init(seed);
 
-    static tab::Type intype(tab::Type::SEQ, { tab::Type(tab::Type::STRING) });
+    static const tab::Type intype(tab::Type::SEQ, { tab::Type(tab::Type::STRING) });
 
     typedef typename tab::API<SORTED>::compiled_t compiled_t;
 
+    tab::obj::Object* input = new tab::ThreadedSeqFile(file_or_stdin(infile));
+
+    std::vector<tab::obj::Object*> scattered;
     std::vector<compiled_t> codes;
-    std::vector<std::thread> threads;
-
-    tab::obj::Object* input = new ThreadedSeqFile(file_or_stdin(infile));
-
-    ThreadedPrinter printer;
-
-    auto threadfun = [&](compiled_t& c) {
-
-        tab::obj::Object* output = api.run(c, input);
-        output->print(printer);
-        printer.nl();
-    };
-
-    codes.resize(nthreads);
 
     for (size_t nt = 0; nt < nthreads; ++nt) {
-        api.compile(program.begin(), program.end(), intype, codes[nt], debuglevel);
+
+        codes.emplace_back();
+        compiled_t& code = codes.back();
+
+        api.compile(scatter.begin(), scatter.end(), intype, code, debuglevel);
+
+        tab::obj::Object* r = api.run(code, input);
+
+        tab::obj::Object* s = (tab::functions().seqmaker)(code.result);
+
+        if (s == nullptr) {
+            s = r;
+
+        } else {
+            code.result = tab::wrap_seq(code.result);
+            s->wrap(r);
+        }
+
+        scattered.push_back(s);
     }
 
-    for (size_t nt = 0; nt < nthreads; ++nt) {
-        threads.emplace_back(threadfun, std::ref(codes[nt]));
-    }
+    tab::ThreadGroupSeq* tgs = new tab::ThreadGroupSeq(scattered);
 
-    for (auto& t : threads) {
-        t.join();
-    }
+    compiled_t gathered;
+    api.compile(gather.begin(), gather.end(), codes[0].result, gathered, debuglevel);
+
+    tab::obj::Object* output = api.run(gathered, tgs);
+
+    tab::obj::Printer p;
+    output->print(p);
+    p.nl();
+
+    delete tgs;
 }
 
 
@@ -149,6 +311,7 @@ void show_help(const char* help_section) {
               << "  -r:   use a specific random seed." << std::endl
               << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
               << "  -t N: use N parallel threads for evaluating the expression." << std::endl
+              << "        (use '-->' to separate scatter and gather subexpressions; see tab -h 'threads')" << std::endl
               << "  -v:   verbosity flag -- print type of the result." << std::endl
               << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
               << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." << std::endl
@@ -158,6 +321,7 @@ void show_help(const char* help_section) {
               << "  'overview'      -- show an overview of types and concepts." << std::endl
               << "  'syntax'        -- show a syntax reference." << std::endl
               << "  'examples'      -- show some example tab programs." << std::endl
+              << "  'threads'       -- show examples of multithreaded programs." << std::endl
               << "  'functions'     -- show a complete list of built-in functions." << std::endl
               << "  <function name> -- explain the given built-in function." << std::endl;
 }
@@ -278,7 +442,7 @@ int main(int argc, char** argv) {
         if (sorted) {
 
             if (nthreads > 0) {
-                run_threaded<true>(seed, program, infile, nthreads, debuglevel);
+                run_threaded<true>(seed, program, nthreads, infile, debuglevel);
             } else {
                 run<true>(seed, program, infile, debuglevel);
             }
@@ -286,7 +450,7 @@ int main(int argc, char** argv) {
         } else {
 
             if (nthreads > 0) {
-                run_threaded<false>(seed, program, infile, nthreads, debuglevel);
+                run_threaded<false>(seed, program, nthreads, infile, debuglevel);
             } else {
                 run<false>(seed, program, infile, debuglevel);
             }
