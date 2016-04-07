@@ -90,25 +90,23 @@ threadedprinter& tprinter() {
 
 struct ThreadGroupSeq : public obj::SeqBase {
 
-    std::mutex mutex;
-    std::condition_variable can_consume;
-
     struct syncvar_t {
-        bool produced;
-        bool finished;
-
-        size_t serial;
         obj::Object* result;
         std::unique_ptr<std::condition_variable> can_produce;
         std::unique_ptr<std::mutex> mutex;
 
-        syncvar_t() : produced(false), finished(false), serial(0), result(nullptr),
-                      can_produce(new std::condition_variable), mutex(new std::mutex) {}
+        syncvar_t() : result(nullptr), can_produce(new std::condition_variable), mutex(new std::mutex) {}
     };
 
     std::vector<syncvar_t> syncs;
     std::vector<std::thread> threads;
-    size_t serial;
+    size_t nthreads;
+    size_t last_used_thread;
+
+    std::mutex mutex;
+    size_t nidle;
+    size_t nfinished;
+    std::condition_variable can_consume;
 
     void threadfun(obj::Object* seq, size_t n) {
 
@@ -118,43 +116,39 @@ struct ThreadGroupSeq : public obj::SeqBase {
 
             std::unique_lock<std::mutex> l(*(sync.mutex));
 
-            size_t s = sync.serial;
-
-            while (sync.produced || s == sync.serial) {
+            while (sync.result) {
                 sync.can_produce->wait(l);
+            }
+
+            {
+                std::unique_lock<std::mutex> ll(mutex);
+               --nidle;
             }
 
             obj::Object* next = seq->next();
 
-            if (next) {
-                tprinter().p("sent :: ");
-                tprinter().p((int)n);
-                tprinter().p(" ");
-                tprinter().p((int)sync.serial);
-                tprinter().p(" ");
-                tprinter().p((int)sync.produced);
-                tprinter().p(" {");
-                tprinter().p(obj::get<obj::String>(next).v);
-                tprinter().p("}\n");
-            }
-
-            sync.produced = true;
             sync.result = next;
 
             if (!next) {
-                sync.finished = true;
+
+                std::unique_lock<std::mutex> ll(mutex);
+                ++nfinished;
+                ll.unlock();
+                can_consume.notify_one();
+                break;
+
+            } else {
+
+                std::unique_lock<std::mutex> ll(mutex);
+                ++nidle;
+                ll.unlock();
+                can_consume.notify_one();
             }
-
-            l.unlock();
-            can_consume.notify_one();
-
-            if (!next) break;
         }
     }
 
-    ThreadGroupSeq(std::vector<obj::Object*> seqs) : serial(0) {
+    ThreadGroupSeq(std::vector<obj::Object*> seqs) : nthreads(seqs.size()), last_used_thread(0), nidle(nthreads), nfinished(0) {
 
-        size_t nthreads = seqs.size();
         syncs.resize(nthreads);
 
         for (size_t i = 0; i < nthreads; ++i) {
@@ -170,50 +164,43 @@ struct ThreadGroupSeq : public obj::SeqBase {
 
     obj::Object* next() {
 
-        ++serial;
+        {
+            auto& luts = syncs[last_used_thread];
+
+            luts.result = nullptr;
+            luts.mutex->unlock();
+            luts.can_produce->notify_one();
+        }
 
         while (1) {
-            bool all_done = true;
 
             int n = -1;
             for (auto& i : syncs) {
                 ++n;
 
-                std::unique_lock<std::mutex> l(*(i.mutex));
+                auto& m = *(i.mutex);
 
-                if (i.finished) continue;
+                if (!m.try_lock())
+                    continue;
 
-                all_done = false;
-
-                if (i.produced) {
-                    i.produced = false;
-                    i.serial = serial;
-
-                    if (i.result) {
-                        tprinter().p("got :: ");
-                        tprinter().p((int)n);
-                        tprinter().p(" ");
-                        tprinter().p((int)i.serial);
-                        tprinter().p(" ");
-                        tprinter().p((int)i.produced);
-                        tprinter().p(" {");
-                        tprinter().p(obj::get<obj::String>(i.result).v);
-                        tprinter().p("}\n");
-                    }
-
-                    return i.result;
-
-                } else if (i.serial < serial) {
-                    i.serial = serial;
-                    l.unlock();
-                    i.can_produce->notify_one();
+                if (i.result == nullptr) {
+                    m.unlock();
+                    continue;
                 }
+
+                last_used_thread = n;
+                
+                return i.result;
             }
 
-            if (all_done) return nullptr;
-
             std::unique_lock<std::mutex> l(mutex);
-            can_consume.wait(l);
+
+            if (nfinished == nthreads) return nullptr;
+
+            if (nidle == 0) {
+                can_consume.wait(l);
+            }
+
         }
     }
 };
@@ -255,11 +242,11 @@ void run_threaded(size_t seed, const std::string& program, size_t nthreads,
 
     std::vector<tab::obj::Object*> scattered;
     std::vector<compiled_t> codes;
+    codes.resize(nthreads);
 
     for (size_t nt = 0; nt < nthreads; ++nt) {
 
-        codes.emplace_back();
-        compiled_t& code = codes.back();
+        compiled_t& code = codes[nt];
 
         api.compile(scatter.begin(), scatter.end(), intype, code, debuglevel);
 

@@ -148,7 +148,7 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
                 obj::Object* next = seq->next();
 
                 if (!next) return next;
-                
+
                 r.set_var(var, next);
 
                 execute_run(clo.code, r);
