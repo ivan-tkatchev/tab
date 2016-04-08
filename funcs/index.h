@@ -346,7 +346,7 @@ void array_atom_get(const obj::Object* in, obj::Object*& out) {
 
     if (i >= arr.v.size()) {
 
-        out = args.v[2];
+        obj::get< obj::Atom<T> >(out).v = obj::get< obj::Atom<T> >(args.v[2]).v;
 
     } else {
         obj::get< obj::Atom<T> >(out).v = arr.v[i];
