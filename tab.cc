@@ -101,14 +101,24 @@ struct ThreadGroupSeq : public obj::SeqBase {
     std::vector<syncvar_t> syncs;
     std::vector<std::thread> threads;
     size_t nthreads;
-    size_t last_used_thread;
+    ssize_t last_used_thread;
 
     std::mutex mutex;
     size_t nidle;
     size_t nfinished;
     std::condition_variable can_consume;
 
-    void threadfun(obj::Object* seq, size_t n) {
+    template <typename API, typename T>
+    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, size_t n) {
+
+        obj::Object* r = api.run(code, input);
+
+        if (seq == nullptr) {
+            seq = r;
+
+        } else {
+            seq->wrap(r);
+        }
 
         auto& sync = syncs[n];
 
@@ -147,12 +157,15 @@ struct ThreadGroupSeq : public obj::SeqBase {
         }
     }
 
-    ThreadGroupSeq(std::vector<obj::Object*> seqs) : nthreads(seqs.size()), last_used_thread(0), nidle(nthreads), nfinished(0) {
+    template <typename API, typename T>
+    ThreadGroupSeq(API& api, std::vector<T>& codes, std::vector<obj::Object*>& seqs, obj::Object* input) :
+        nthreads(codes.size()), last_used_thread(-1), nidle(nthreads), nfinished(0) {
 
         syncs.resize(nthreads);
 
         for (size_t i = 0; i < nthreads; ++i) {
-            threads.emplace_back(&ThreadGroupSeq::threadfun, this, seqs[i], i);
+            threads.emplace_back(&ThreadGroupSeq::threadfun<API, T>, this,
+                                 std::ref(api), std::ref(codes[i]), std::ref(seqs[i]), input, i);
         }
     }
 
@@ -164,7 +177,7 @@ struct ThreadGroupSeq : public obj::SeqBase {
 
     obj::Object* next() {
 
-        {
+        if (last_used_thread >= 0) {
             auto& luts = syncs[last_used_thread];
 
             luts.result = nullptr;
@@ -240,32 +253,26 @@ void run_threaded(size_t seed, const std::string& program, size_t nthreads,
 
     tab::obj::Object* input = new tab::ThreadedSeqFile(file_or_stdin(infile));
 
-    std::vector<tab::obj::Object*> scattered;
     std::vector<compiled_t> codes;
+    std::vector<tab::obj::Object*> seqs;
+
     codes.resize(nthreads);
+    seqs.resize(nthreads);
 
-    for (size_t nt = 0; nt < nthreads; ++nt) {
+    for (size_t n = 0; n < nthreads; ++n) {
 
-        compiled_t& code = codes[nt];
+        auto& code = codes[n];
 
         api.compile(scatter.begin(), scatter.end(), intype, code, debuglevel);
 
-        tab::obj::Object* r = api.run(code, input);
+        seqs[n] = (tab::functions().seqmaker)(code.result);
 
-        tab::obj::Object* s = (tab::functions().seqmaker)(code.result);
-
-        if (s == nullptr) {
-            s = r;
-
-        } else {
+        if (seqs[n]) {
             code.result = tab::wrap_seq(code.result);
-            s->wrap(r);
         }
-
-        scattered.push_back(s);
     }
 
-    tab::ThreadGroupSeq* tgs = new tab::ThreadGroupSeq(scattered);
+    tab::ThreadGroupSeq* tgs = new tab::ThreadGroupSeq(api, codes, seqs, input);
 
     compiled_t gathered;
     api.compile(gather.begin(), gather.end(), codes[0].result, gathered, debuglevel);
@@ -314,7 +321,6 @@ void show_help(const char* help_section) {
 }
 
 int main(int argc, char** argv) {
-
     try {
 
         if (argc < 2) {
