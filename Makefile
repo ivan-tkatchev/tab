@@ -16,7 +16,7 @@ tab: $(SRC) $(INCLUDE) $(FUNCS)
 	$(CXX) -std=c++11 -O3 -Wall -Iaxe -pthread -lm $(SRC) -o tab
 
 dist: $(SRC) $(INCLUDE) $(FUNCS)
-	$(CXX) -std=c++11 -O3 -Wall -Iaxe -lm $(SRC) -static -o tab-linux-x86_64
+	$(CXX) -std=c++11 -O3 -Wall -Iaxe -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lm -pthread $(SRC) -static -o tab-linux-x86_64
 	strip tab-linux-x86_64
 
 install: tab
