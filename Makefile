@@ -6,7 +6,7 @@ FUNCS = \
   funcs/hist.h funcs/reverse.h funcs/rand.h funcs/time.h funcs/ngram.h funcs/explode.h
 
 INCLUDE = \
-  atom.h command.h deps.h exec.h funcs.h infer.h object.h parse.h tab.h type.h 
+  atom.h command.h deps.h exec.h funcs.h infer.h object.h parse.h tab.h type.h threaded.h
 
 SRC = tab.cc help.cc
 

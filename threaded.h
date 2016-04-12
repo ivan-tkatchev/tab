@@ -212,10 +212,10 @@ void run_threaded(size_t seed, const std::string& program, size_t nthreads,
         }
     }
 
-    tab::ThreadGroupSeq* tgs = new tab::ThreadGroupSeq(api, codes, seqs, input);
-
     compiled_t gathered;
     api.compile(gather.begin(), gather.end(), codes[0].result, gathered, debuglevel);
+
+    tab::ThreadGroupSeq* tgs = new tab::ThreadGroupSeq(api, codes, seqs, input);
 
     tab::obj::Object* output = api.run(gathered, tgs);
 
