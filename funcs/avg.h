@@ -57,8 +57,10 @@ struct AtomVar : public obj::Real {
     }
 
     void merge_end() {
-        v = (sumv2 - (v * v)/n)/n;
-        //n = 1;
+        if (n > 1) {
+            v = (sumv2 - (v * v)/n)/n;
+            n = 1;
+        }
     }
 };
 

@@ -1,6 +1,58 @@
 #ifndef __TAB_FUNCS_ARRAY_H
 #define __TAB_FUNCS_ARRAY_H
 
+
+template <typename T>
+struct IArrayAtom : public obj::ArrayAtom<T> {
+
+    obj::Object* clone() const {
+        IArrayAtom<T>* ret = new IArrayAtom<T>;
+        ret->v = this->v;
+        return ret;
+    }
+
+    void print(obj::Printer& p) {
+        bool first = true;
+
+        for (const T& x : this->v) {
+            if (first) {
+                first = false;
+            } else {
+                p.alts();
+            }
+
+            p.val(x);
+        }
+    }
+};
+
+struct IArrayObject : public obj::ArrayObject {
+
+    obj::Object* clone() const {
+        IArrayObject* ret = new IArrayObject;
+
+        for (const Object* s : v) {
+            ret->v.push_back(s->clone());
+        }
+
+        return ret;
+    }
+
+    void print(obj::Printer& p) {
+        bool first = true;
+
+        for (Object* x : v) {
+            if (first) {
+                first = false;
+            } else {
+                p.alts();
+            }
+
+            x->print(p);
+        }
+    }
+};
+
 template <typename T>
 void array_from_atom(const obj::Object* in, obj::Object*& out) {
     obj::Atom<T>& x = obj::get< obj::Atom<T> >(in);
@@ -122,6 +174,47 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return nullptr;
 }
 
+template <bool SORTED>
+Functions::func_t iarray_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    Functions::func_t fn = array_checker<SORTED>(args, ret, obj);
+
+    if (!fn)
+        return fn;
+
+    if (ret.type != Type::ARR || ret.tuple->size() != 1)
+        return nullptr;
+
+    const Type& e = ret.tuple->at(0);
+
+    if (e.type == Type::ATOM) {
+
+        switch (e.atom) {
+        case Type::INT:
+            obj = new IArrayAtom<Int>;
+            break;
+
+        case Type::UINT:
+            obj = new IArrayAtom<UInt>;
+            break;
+
+        case Type::REAL:
+            obj = new IArrayAtom<Real>;
+            break;
+
+        case Type::STRING:
+            obj = new IArrayAtom<std::string>;
+            break;
+        }
+
+    } else {
+
+        obj = new IArrayObject;
+    }
+
+    return fn;
+}
+    
 struct SeqTupleAsArrayObject : public obj::SeqBase {
 
     obj::Tuple* tup;
@@ -198,6 +291,7 @@ void register_array(Functions& funcs) {
     funcs.add_poly("array", array_checker<SORTED>);
     funcs.add_poly("tabulate", tabulate_checker<SORTED>);
     funcs.add_poly("seq", tabulate_checker<SORTED>);
+    funcs.add_poly("iarray", iarray_checker<SORTED>);
 }
 
 #endif

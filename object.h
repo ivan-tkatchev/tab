@@ -17,6 +17,7 @@ struct Printer {
 
     virtual void rs() { printf("\t"); }
     virtual void nl() { printf("\n"); }
+    virtual void alts() { printf(";"); }
 };
 
 struct Object {
