@@ -49,7 +49,6 @@ struct Object {
     
     virtual Object* next() { throw std::runtime_error("Object 'next' operator not implemented"); }
 
-    virtual void merge_start() {}
     virtual void merge(const Object*) {}
     virtual void merge_end() {}
 };
@@ -248,23 +247,11 @@ struct ArrayObject : public Object {
         }
     }        
 
-    void merge_start() {
-        for (Object* o : v) {
-            o->merge_start();
-        }
-    }
-
     void merge(const Object* v2) {
         ArrayObject& t = get<ArrayObject>(v2);
 
         for (const Object* s : t.v) {
             v.push_back(s->clone());
-        }
-    }
-
-    void merge_end() {
-        for (Object* o : v) {
-            o->merge_end();
         }
     }
 };
@@ -303,12 +290,6 @@ struct Tuple : public ArrayObject {
 
     void fill(Object* s) {
         throw std::runtime_error("Cannot construct tuples");
-    }
-
-    virtual void merge_start() {
-        for (Object* o : v) {
-            o->merge_start();
-        }
     }
     
     virtual void merge(const Object* v2) {
@@ -480,7 +461,6 @@ struct MapObject : public Object {
         } else {
             key = key->clone();
             val = val->clone();
-            val->merge_start();
             v[key] = val;
         }
     }
@@ -505,12 +485,6 @@ struct MapObject : public Object {
 
         for (auto& i : v) {
             i.second->merge_end();
-        }
-    }
-
-    void merge_start() {
-        for (auto& i : v) {
-            i.second->merge_start();
         }
     }
 

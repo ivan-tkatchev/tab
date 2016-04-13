@@ -5,11 +5,12 @@ struct AtomAvg : public obj::Real {
 
     size_t n;
 
-    AtomAvg() : n(0) {}
+    AtomAvg() : n(1) {}
     
     obj::Object* clone() const {
         AtomAvg* ret = new AtomAvg;
         ret->v = v;
+        ret->n = n;
         return ret;
     }
     
@@ -19,8 +20,8 @@ struct AtomAvg : public obj::Real {
     }
 
     void merge_end() {
-        n++;
         v /= n;
+        n = 1;
     }
 };
 
@@ -30,20 +31,25 @@ struct AtomVar : public obj::Real {
     Real sumv2;
     size_t n;
 
-    AtomVar() : K(0), sumv2(0), n(0) {}
+    AtomVar() : K(0), sumv2(0), n(1) {}
     
     obj::Object* clone() const {
         AtomVar* ret = new AtomVar;
         ret->v = v;
+        ret->K = K;
+        ret->sumv2 = sumv2;
+        ret->n = n;
         return ret;
-    }
-
-    void merge_start() {
-        K = v;
-        v = 0;
     }
     
     void merge(const obj::Object* o) {
+
+        if (n == 1) {
+            K = v;
+            sumv2 = 0;
+            v = 0;
+        }
+
         Real x = obj::get<obj::Real>(o).v - K;
         v += x;
         sumv2 += (x * x);
@@ -51,8 +57,8 @@ struct AtomVar : public obj::Real {
     }
 
     void merge_end() {
-        n++;
         v = (sumv2 - (v * v)/n)/n;
+        //n = 1;
     }
 };
 
@@ -61,6 +67,9 @@ struct AtomStdev : public AtomVar {
     obj::Object* clone() const {
         AtomStdev* ret = new AtomStdev;
         ret->v = v;
+        ret->K = K;
+        ret->sumv2 = sumv2;
+        ret->n = n;
         return ret;
     }
 
@@ -177,7 +186,6 @@ void var_seq(const obj::Object* in, obj::Object*& out) {
     Real sum = 0;
     Real sum2 = 0;
     size_t n = 0;
-    bool first = true;
 
     while (1) {
         obj::Object* ret = ((obj::Object*)in)->next();
@@ -186,9 +194,8 @@ void var_seq(const obj::Object* in, obj::Object*& out) {
 
         T i = obj::get< obj::Atom<T> >(ret).v;
 
-        if (first) {
+        if (n == 0) {
             K = i;
-            first = false;
 
         } else {
 
