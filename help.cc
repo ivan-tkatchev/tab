@@ -118,13 +118,13 @@ static const char* _help[][2] = {
     },
 
     { "functions",
-      "\nabs array avg bytes case cat ceil cos count cut date datetime e exp\n"
-      "explode file filter first flatten flip floor get glue gmtime grep\n"
-      "grepif has hash head hist if index int join log lsh map max mean min\n"
-      "ngrams normal now open pairs pi rand real recut replace reverse round\n"
-      "rsh sample second seq sin skip sort sqrt stddev stdev string sum take\n"
-      "tan tabulate time tolower toupper triplets tuple uint var variance\n"
-      "while zip\n"
+      "\nabs array avg box bytes case cat ceil cos count cut date datetime e eq\n"
+      "exp explode file filter first flatten flip floor get glue gmtime grep\n"
+      "grepif has hash head hist if iarray index int join lines log lsh map max\n"
+      "mean merge min ngrams normal now open pairs peek pi rand real recut replace\n"
+      "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
+      "sum take tan tabulate time tolower toupper triplets tuple uint var\n"
+      "variance while zip\n"
     },
 
     {"abs",
@@ -140,7 +140,7 @@ static const char* _help[][2] = {
     {"array",
      "\n"
      "Stores a sequence or map or atomic value into an array. See also\n"
-     "'sort' for a version of this function with sorting.\n"
+     "'sort' for a version of this function with sorting. See also: 'iarray'.\n"
      "\n"
      "Usage:\n"
      "\n"
@@ -496,6 +496,19 @@ static const char* _help[][2] = {
      "\n"
      "hist Arr[Number], UInt -> Arr[(Real,UInt)]\n"
     },
+    {"iarray",
+     "\n"
+     "Exactly equivalent to 'array', except when printing the elements will\n"
+     "be separated with a ';' instead of a newline.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "iarray Map[a,b] -> Arr[(a,b)]\n"
+     "\n"
+     "iarray Seq[a] -> Arr[a]\n"
+     "\n"
+     "iarray Number|String|Tuple -> Arr[Number|String|Tuple]\n"
+    },
     {"if",
      "\n"
      "Choose between alternatives. If the first integer argument is not 0,\n"
@@ -576,6 +589,14 @@ static const char* _help[][2] = {
      "\n"
      "join String, Seq[String], String, String -> String\n"
     },
+    {"lines",
+     "\n"
+     "Returns its arguments as a tuple, except that each element will be printed\n"
+     "on its own line. See also: 'tuple'.\n"  
+     "\n"
+     "Usage:\n"
+     "\n"
+     "lines (a,b,...) -> (a,b,...)\n"
     {"log",
      "\n"
      "The natural logarithm function.\n"
@@ -637,6 +658,14 @@ static const char* _help[][2] = {
      "    calculate the mean when stored as a value into an existing key of a\n"
      "    map.\n"
     },
+    {"merge",
+     "\n",
+     "Aggregates a sequence of values. 'merge(x, a)' is equivalent to\n"
+     "'{ 1 -> @ : glue(x, a) }~1', except faster.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "merge a, Seq[a] -> a\n"
     {"min",
      "\n"
      "Finds the minimum element in a sequence or array. See also: 'max'.\n"
@@ -1020,7 +1049,7 @@ static const char* _help[][2] = {
     {"tuple",
      "\n"
      "Returns its arguments as a tuple. Meant for grouping when defining\n"
-     "tuples within tuples.\n"
+     "tuples within tuples. See also: 'lines'.\n"
      "\n"
      "Usage:\n"
      "\n"

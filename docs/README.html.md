@@ -473,7 +473,7 @@ Usage:
 `abs Real -> Real`
 
 array {: #fn_array}
-: Stores a sequence or map or atomic value into an array. See also [[sort]] for a version of this function with sorting.  
+: Stores a sequence or map or atomic value into an array. See also [[sort]] for a version of this function with sorting. See also: [[iarray]].  
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
@@ -650,6 +650,13 @@ hist {: #fn_hist}
 : Usage:  
 `hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
+iarray {: #fn_iarray}
+: Exactly equivalent to [[array]], except when printing the elements will be separated with a `;` instead of a newline.  
+Usage:  
+`iarray Map[a,b] -> Arr[(a,b)]`  
+`iarray Seq[a] -> Arr[a]`  
+`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`
+
 if {: #fn_if}
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
@@ -683,6 +690,11 @@ Usage:
 `join String, Arr[String], String, String -> String` -- adds a prefix and suffix as well. Equivalent to `cat(p, join(a, d), s)`.  
 `join String, Seq[String], String, String -> String`
                                     
+lines {: #fn_lines}
+: Returns its arguments as a tuple, except that each element will be printed on its own line. See also: [[tuple]].  
+Usage:  
+`lines (a,b,...) -> (a,b,...)`
+
 log {: #fn_log}
 : The natural logarithm function.  
 Usage:  
@@ -714,6 +726,11 @@ Usage:
 `mean Arr[Number] -> Real`  
 `mean Seq[Number] -> Real`  
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
+
+merge {: #fn_merge}
+: Aggregates a sequence of values. `merge(x, a)` is equivalent to `{ 1 -> @ : glue(x, a) }~1`, except faster. See also [aggregators](#aggregators).  
+Usage:  
+`merge a, Seq[a] -> a`
 
 min {: #fn_min}
 : Finds the minimum element in a sequence or array. See also: [[max]].  
@@ -912,7 +929,7 @@ Usage:
 `triplets Seq[a] -> Seq[(a,a,a)]`
 
 tuple {: #fn_tuple}
-: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
+: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples. See also: [[lines]].  
 Usage:  
 `tuple (a,b,...) -> (a,b,...)`
 
@@ -958,6 +975,9 @@ array, [. .]
 
 avg
 : Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
+
+iarray
+: Like [[array]] except all elements are printed on one line.
 
 map, \{ \}
 : Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)
@@ -1030,15 +1050,18 @@ Note that the type of the result and the type of the sequence elements can be di
 
 ### Alphabetically by name: 
 
-[[abs]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]] [[cat]] [[ceil]] [[cos]]
-[[count]] [[cut]] [[date]] [[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]]
-[[filter]] [[first]] [[flatten]] [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]]
-[[grepif]] [[has]] [[hash]] [[head]] [[hist]] [[if]] [[index]] [[int]] [[join]] [[log]]
-[[lsh]] [[map]] [[max]] [[mean]] [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]]
-[[peek]] [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]] [[rsh]]
-[[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sqrt]] [[stddev]] [[stdev]]
-[[string]] [[sum]] [[take]] [[tan]] [[tabulate]] [[time]] [[tolower]] [[toupper]]
-[[triplets]] [[tuple]] [[uint]] [[var]] [[variance]] [[while]] [[zip]]
+[[abs]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]]
+[[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]] [[datetime]] [[e]]
+[[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]] [[flatten]]
+[[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]]
+[[has]] [[hash]] [[head]] [[hist]] [[if]] [[iarray]] [[index]] [[int]]
+[[join]] [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]]
+[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[peek]]
+[[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]]
+[[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]]
+[[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
+[[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
+[[uint]] [[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -1053,8 +1076,8 @@ Note that the type of the result and the type of the sequence elements can be di
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
 [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
 
-**Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[index]] [[join]] [[reverse]]
-[[skip]] [[sort]] [[stripe]] [[zip]]
+**Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[iarray]] [[index]]
+[[join]] [[reverse]] [[skip]] [[sort]] [[stripe]] [[zip]]
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
@@ -1062,7 +1085,7 @@ Note that the type of the result and the type of the sequence elements can be di
 [[head]] [[ngrams]] [[pairs]] [[peek]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]]
 [[triplets]] [[while]] [[zip]]
 
-**Tuples:** [[first]] [[second]] [[tuple]]
+**Tuples:** [[first]] [[lines]] [[second]] [[tuple]]
 
 **Bit manipulation:** [[lsh]] [[rsh]]
 
@@ -1074,5 +1097,7 @@ Note that the type of the result and the type of the sequence elements can be di
 
 **Type converstion:** [[int]] [[real]] [[string]] [[uint]] [[array]]
 
-**Aggregators:** [[array]] [[avg]] [[max]] [[mean]] [[min]] [[sort]] [[stddev]]
-[[stdev]] [[sum]] [[var]] [[variance]]
+**Printing:** [[iarray]] [[lines]]
+
+**Aggregators:** [[array]] [[avg]] [[iarray]] [[max]] [[mean]] [[merge]] [[min]]
+[[sort]] [[stddev]] [[stdev]] [[sum]] [[var]] [[variance]]

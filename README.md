@@ -480,7 +480,7 @@ Usage:
 `abs Real -> Real`
 
 `array`
-: Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting.  
+: Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting. See also: `iarray`.  
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
@@ -657,6 +657,13 @@ Usage:
 : Usage:  
 `hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
+`iarray`
+: Exactly equivalent to `array`, except when printing the elements will be separated with a `;` instead of a newline.  
+Usage:  
+`iarray Map[a,b] -> Arr[(a,b)]`  
+`iarray Seq[a] -> Arr[a]`  
+`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`
+
 `if`
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
@@ -689,6 +696,11 @@ Usage:
 `join Seq[String], String -> String`  
 `join String, Arr[String], String, String -> String` -- adds a prefix and suffix as well. Equivalent to `cat(p, join(a, d), s)`.  
 `join String, Seq[String], String, String -> String`
+
+`lines`
+: Returns its arguments as a tuple, except that each element will be printed on its own line. See also: `tuple`.  
+Usage:  
+`lines (a,b,...) -> (a,b,...)`
 
 `log`
 : The natural logarithm function.  
@@ -723,7 +735,7 @@ Usage:
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
 `merge`
-: Aggregates a sequence of values. `merge(x, a)` is equivalent to `{ 1 -> x.@ : a }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
+: Aggregates a sequence of values. `merge(x, a)` is equivalent to `{ 1 -> @ : glue(x, a) }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
 Usage:  
 `merge a, Seq[a] -> a`
 
@@ -924,7 +936,7 @@ Usage:
 `triplets Seq[a] -> Seq[(a,a,a)]`
 
 `tuple`
-: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples.  
+: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples. See also: `lines`.  
 Usage:  
 `tuple (a,b,...) -> (a,b,...)`
 
@@ -970,6 +982,9 @@ Here is a list of aggregators and their effects, sorted alphabetically:
 
 `avg`
 : Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
+
+`iarray`
+: Like `array` except all elements are printed on one line.
 
 `map`, `{ }`
 : Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)

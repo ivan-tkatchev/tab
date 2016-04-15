@@ -75,6 +75,16 @@ void bucket(const obj::Object* in, obj::Object*& out) {
 
     T& o = obj::get< obj::Atom<T> >(out).v;
 
+    if (x > max) {
+        o = max;
+        return;
+    }
+
+    if (x < min) {
+        o = min;
+        return;
+    }
+
     T bucketsize = (max - min) / n;
     Int xn = (x - min) / bucketsize;
 

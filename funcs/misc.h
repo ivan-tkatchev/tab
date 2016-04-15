@@ -1,6 +1,24 @@
 #ifndef __TAB_FUNCS_MISC_H
 #define __TAB_FUNCS_MISC_H
 
+
+struct LTuple : public obj::Tuple {
+
+    void print(obj::Printer& p) {
+        bool first = true;
+        for (Object* x : v) {
+
+            if (first) {
+                first = false;
+            } else {
+                p.nl();
+            }
+
+            x->print(p);
+        }
+    }
+};
+
 void tolower(const obj::Object* in, obj::Object*& out) {
 
     const std::string& a = obj::get<obj::String>(in).v;
@@ -211,6 +229,20 @@ Functions::func_t tuple_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return tuple;
 }
 
+void lines(const obj::Object* in, obj::Object*& out) {
+    obj::get<LTuple>(out).v = obj::get<obj::Tuple>((obj::Object*)in).v;
+}
+
+Functions::func_t lines_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP)
+        return nullptr;
+
+    ret = args;
+    obj = new LTuple;
+    return lines;
+}
+
 void merge(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -295,6 +327,7 @@ void register_misc(Functions& funcs) {
     
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);
+    funcs.add_poly("lines", lines_checker);
 
     funcs.add_poly("merge", merge_checker);
 }
