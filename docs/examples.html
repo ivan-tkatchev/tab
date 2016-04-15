@@ -106,68 +106,68 @@ code {
 <p>This is an example list of useful <code>tab</code> programs.</p>
 <h2 id="working-with-lines-and-words">Working with lines and words:</h2>
 <h4 id="count-the-number-of-lines-in-a-file">Count the number of lines in a file:</h4>
-<div class="codehilite"><pre><span></span>count(@)
+<div class="codehilite"><pre><span></span><span class="nx">count</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span>
 </pre></div>
 
 
 <h4 id="output-the-longest-line-in-a-file">Output the longest line in a file:</h4>
-<div class="codehilite"><pre><span></span>max([ count(@), @ ])~1
+<div class="codehilite"><pre><span></span><span class="nx">max</span><span class="o">([</span> <span class="nx">count</span><span class="o">(</span><span class="nv">@</span><span class="o">),</span> <span class="nv">@</span> <span class="o">])~</span><span class="mi">1</span>
 </pre></div>
 
 
 <h4 id="output-the-three-longest-lines-in-a-file">Output the three longest lines in a file:</h4>
-<div class="codehilite"><pre><span></span>[ @~1 : sort([ count(@), @ ])[-3,-1] ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="nx">sort</span><span class="o">([</span> <span class="nx">count</span><span class="o">(</span><span class="nv">@</span><span class="o">),</span> <span class="nv">@</span> <span class="o">])[-</span><span class="mi">3</span><span class="o">,-</span><span class="mi">1</span><span class="o">]</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="output-the-most-common-english-word-in-a-file">Output the most common English word in a file:</h4>
-<div class="codehilite"><pre><span></span>freq={ @ -&gt; sum.1 : :[grep(@,&quot;[A-Za-z0-9]+&quot;)] }, second.max.flip.freq
+<div class="codehilite"><pre><span></span><span class="nx">freq</span><span class="nv">=</span><span class="o">{</span> <span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">:[</span><span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">},</span> <span class="nx">second</span><span class="o">.</span><span class="nx">max</span><span class="o">.</span><span class="nx">flip</span><span class="o">.</span><span class="nx">freq</span>
 </pre></div>
 
 
 <h4 id="output-the-counts-of-top-ten-most-common-bytes-in-a-file">Output the counts of top ten most common bytes in a file:</h4>
-<div class="codehilite"><pre><span></span>freq={ @ -&gt; sum.1 : :[bytes.@] }, [ string.array.@~1, @~0 : (sort.flip.freq)[-10,-1] ]
+<div class="codehilite"><pre><span></span><span class="nx">freq</span><span class="nv">=</span><span class="o">{</span> <span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">:[</span><span class="nx">bytes</span><span class="o">.</span><span class="nv">@</span><span class="o">]</span> <span class="o">},</span> <span class="o">[</span> <span class="nx">string</span><span class="o">.</span><span class="nx">array</span><span class="o">.</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">:</span> <span class="o">(</span><span class="nx">sort</span><span class="o">.</span><span class="nx">flip</span><span class="o">.</span><span class="nx">freq</span><span class="o">)[-</span><span class="mi">10</span><span class="o">,-</span><span class="mi">1</span><span class="o">]</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="the-histogram-of-english-word-frequencies-by-word-lengths">The histogram of English word frequencies by word lengths:</h4>
-<div class="codehilite"><pre><span></span>freq={ count.@ -&gt; sum.1 : :[grep(@,&quot;[A-Za-z0-9]+&quot;)] }, sort.freq
+<div class="codehilite"><pre><span></span><span class="nx">freq</span><span class="nv">=</span><span class="o">{</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">:[</span><span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">},</span> <span class="nx">sort</span><span class="o">.</span><span class="nx">freq</span>
 </pre></div>
 
 
 <h4 id="same-histogram-but-also-with-the-words-themselves">Same histogram, but also with the words themselves:</h4>
-<div class="codehilite"><pre><span></span>freq={ count.@ -&gt; sum.1, {tolower.@} : :[grep(@,&quot;[A-Za-z0-9]+&quot;)] },
-def f first.@,
-def s second.@,
-sort.[ f.@, f.s.@, join(f.s.s.@, &quot;,&quot;) : freq]
+<div class="codehilite"><pre><span></span><span class="nx">freq</span><span class="nv">=</span><span class="o">{</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span><span class="o">,</span> <span class="o">{</span><span class="nx">tolower</span><span class="o">.</span><span class="nv">@</span><span class="o">}</span> <span class="o">:</span> <span class="o">:[</span><span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">},</span>
+<span class="nv">def</span> <span class="nx">f</span> <span class="nx">first</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span>
+<span class="nv">def</span> <span class="nx">s</span> <span class="nx">second</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span>
+<span class="nx">sort</span><span class="o">.[</span> <span class="nx">f</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">f</span><span class="o">.</span><span class="nx">s</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">join</span><span class="o">(</span><span class="nx">f</span><span class="o">.</span><span class="nx">s</span><span class="o">.</span><span class="nx">s</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;,&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="nx">freq</span><span class="o">]</span>
 </pre></div>
 
 
 <h4 id="all-english-words-following-the-word-the">All English words following the word &lsquo;the&rsquo;:</h4>
-<div class="codehilite"><pre><span></span>?[ (tolower.first.@) == &quot;the&quot;, second.@ : pairs( :[grep(@,&quot;[A-Za-z0-9]+&quot;)] ) ]
+<div class="codehilite"><pre><span></span><span class="o">?[</span> <span class="o">(</span><span class="nx">tolower</span><span class="o">.</span><span class="nx">first</span><span class="o">.</span><span class="nv">@</span><span class="o">)</span> <span class="o">==</span> <span class="s2">&quot;the&quot;</span><span class="o">,</span> <span class="nx">second</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">pairs</span><span class="o">(</span> <span class="o">:[</span><span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;[A-Za-z0-9]+&quot;</span><span class="o">)]</span> <span class="o">)</span> <span class="o">]</span>
 </pre></div>
 
 
 <h2 id="sampling-data-randomly-from-files">Sampling data randomly from files:</h2>
 <h4 id="output-four-random-lines-from-a-file">Output four random lines from a file:</h4>
-<div class="codehilite"><pre><span></span>sample(4, @)
+<div class="codehilite"><pre><span></span><span class="nx">sample</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span>
 </pre></div>
 
 
 <h4 id="check-if-there-is-an-empty-line-among-four-random-lines-from-a-file">Check if there is an empty line among four random lines from a file:</h4>
-<div class="codehilite"><pre><span></span>sum([ count(@) == 0 : sample(4, @) ]) &gt; 0
+<div class="codehilite"><pre><span></span><span class="nx">sum</span><span class="o">([</span> <span class="nx">count</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">:</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span> <span class="o">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
 </pre></div>
 
 
 <h4 id="sample-four-lines-from-filetxt-one-hundred-times-and-output-the-histogram-of-number-of-empty-lines">Sample four lines from <code>file.txt</code> one hundred times and output the histogram of number of empty lines:</h4>
-<div class="codehilite"><pre><span></span>def empties sum([ count(@) == 0 : sample(4, @) ]),
-{ empties.open.&quot;file.txt&quot; -&gt; sum.1 : count(100) }
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">empties</span> <span class="nx">sum</span><span class="o">([</span> <span class="nx">count</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">:</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">4</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span> <span class="o">]),</span>
+<span class="o">{</span> <span class="nx">empties</span><span class="o">.</span><span class="nx">open</span><span class="o">.</span><span class="s2">&quot;file.txt&quot;</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="nx">count</span><span class="o">(</span><span class="mi">100</span><span class="o">)</span> <span class="o">}</span>
 </pre></div>
 
 
 <h2 id="basic-math-and-loops">Basic math and loops:</h2>
 <h4 id="a-sine-and-cose-table">A sine and cose table:</h4>
-<div class="codehilite"><pre><span></span>[ sin.@, cos.@ : count(0.0, 2*pi(), pi()/8) ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">sin</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">cos</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">count</span><span class="o">(</span><span class="mf">0.0</span><span class="o">,</span> <span class="mi">2</span><span class="o">*</span><span class="nx">pi</span><span class="o">(),</span> <span class="nx">pi</span><span class="o">()/</span><span class="mi">8</span><span class="o">)</span> <span class="o">]</span>
 </pre></div>
 
 
@@ -182,56 +182,56 @@ sort.[ f.@, f.s.@, join(f.s.s.@, &quot;,&quot;) : freq]
 
 <p>The first three fields are the year, month and day. The fourth field is the daily max temperature in units of 0.1 degrees Celcius.</p>
 <h4 id="the-average-mean-of-the-temperature-aggregated-by-year">The average (mean) of the temperature, aggregated by year:</h4>
-<div class="codehilite"><pre><span></span>{ x=cut(@,&quot;\t&quot;), x~0 -&gt; avg.real.x~3 }
+<div class="codehilite"><pre><span></span><span class="o">{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">x</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">avg</span><span class="o">.</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="as-above-except-also-with-the-median">As above, except also with the median:</h4>
-<div class="codehilite"><pre><span></span>data={ x=cut(@,&quot;\t&quot;), v=real.x~3, x~0 -&gt; avg.v, sort.v }, [ @~0, @~1~0, @~1~1~0.5 : data ]
+<div class="codehilite"><pre><span></span><span class="nx">data</span><span class="nv">=</span><span class="o">{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">v</span><span class="nv">=</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span><span class="o">,</span> <span class="nx">x</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">avg</span><span class="o">.</span><span class="nx">v</span><span class="o">,</span> <span class="nx">sort</span><span class="o">.</span><span class="nx">v</span> <span class="o">},</span> <span class="o">[</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">~</span><span class="mi">1</span><span class="o">~</span><span class="mf">0.5</span> <span class="o">:</span> <span class="nx">data</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="a-histogram-of-the-temperature-grouped-by-buckets-of-ten-degrees">A histogram of the temperature, grouped by buckets of ten degrees:</h4>
-<div class="codehilite"><pre><span></span>sort.{ x=cut(@,&quot;\t&quot;), 100*int(real(x~3)/100) -&gt; sum.1 }
+<div class="codehilite"><pre><span></span><span class="nx">sort</span><span class="o">.{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">100</span><span class="o">*</span><span class="nx">int</span><span class="o">(</span><span class="nx">real</span><span class="o">(</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span><span class="o">)/</span><span class="mi">100</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="check-if-the-distribution-of-temperature-matches-a-sampled-normal-distribution">Check if the distribution of temperature matches a (sampled) normal distribution:</h4>
-<div class="codehilite"><pre><span></span>temps=[. real.cut(@,&quot;\t&quot;,3) .],
-u=mean.temps, s=stddev.temps, a=min.temps, b=max.temps,
-sort.{ bucket(@~0, a, b, 5) -&gt; sum.@~1, sum.@~2 :
-       :seq([ @, 1, 0 : temps ], [ normal(u,s), 0, 1 : count.count.temps ]) }
+<div class="codehilite"><pre><span></span><span class="nx">temps</span><span class="nv">=</span><span class="o">[.</span> <span class="nx">real</span><span class="o">.</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">,</span><span class="mi">3</span><span class="o">)</span> <span class="o">.],</span>
+<span class="nx">u</span><span class="nv">=</span><span class="nx">mean</span><span class="o">.</span><span class="nx">temps</span><span class="o">,</span> <span class="nx">s</span><span class="nv">=</span><span class="nx">stddev</span><span class="o">.</span><span class="nx">temps</span><span class="o">,</span> <span class="nx">a</span><span class="nv">=</span><span class="nx">min</span><span class="o">.</span><span class="nx">temps</span><span class="o">,</span> <span class="nx">b</span><span class="nv">=</span><span class="nx">max</span><span class="o">.</span><span class="nx">temps</span><span class="o">,</span>
+<span class="nx">sort</span><span class="o">.{</span> <span class="nx">bucket</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span><span class="o">,</span> <span class="nx">b</span><span class="o">,</span> <span class="mi">5</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span><span class="o">~</span><span class="mi">2</span> <span class="o">:</span>
+       <span class="o">:</span><span class="nx">seq</span><span class="o">([</span> <span class="nv">@</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">0</span> <span class="o">:</span> <span class="nx">temps</span> <span class="o">],</span> <span class="o">[</span> <span class="nx">normal</span><span class="o">(</span><span class="nx">u</span><span class="o">,</span><span class="nx">s</span><span class="o">),</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">1</span> <span class="o">:</span> <span class="nx">count</span><span class="o">.</span><span class="nx">count</span><span class="o">.</span><span class="nx">temps</span> <span class="o">])</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="find-temperature-outliers-more-than-3-standard-deviations-away-from-mean-and-group-them-by-year">Find temperature outliers (more than 3 standard deviations away from mean) and group them by year:</h4>
-<div class="codehilite"><pre><span></span>temps=[. x=cut(@,&quot;\t&quot;), uint.x~0, real.x~3 .],
-sd=stddev.[@~1 : temps],
-{ @~0 -&gt; sum.1 : ?[@~1 &gt; 3*sd, @ : temps] }
+<div class="codehilite"><pre><span></span><span class="nx">temps</span><span class="nv">=</span><span class="o">[.</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span> <span class="o">.],</span>
+<span class="nx">sd</span><span class="nv">=</span><span class="nx">stddev</span><span class="o">.[</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="nx">temps</span><span class="o">],</span>
+<span class="o">{</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">?[</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="o">*</span><span class="nx">sd</span><span class="o">,</span> <span class="nv">@</span> <span class="o">:</span> <span class="nx">temps</span><span class="o">]</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="find-years-with-spotty-temperature-records-where-the-number-of-measurements-taken-is-more-than-one-standard-deviation-away-from-the-average-year">Find years with spotty temperature records &ndash; where the number of measurements taken is more than one standard deviation away from the average year:</h4>
-<div class="codehilite"><pre><span></span>y_n={ uint.cut(@,&quot;\t&quot;,0) -&gt; sum.1 },
-u=mean.second.y_n, sd=stddev.second.y_n,
-?[ abs(@~1 - u) &gt; sd, @~0 : y_n ]
+<div class="codehilite"><pre><span></span><span class="nx">y_n</span><span class="nv">=</span><span class="o">{</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">,</span><span class="mi">0</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">},</span>
+<span class="nx">u</span><span class="nv">=</span><span class="nx">mean</span><span class="o">.</span><span class="nx">second</span><span class="o">.</span><span class="nx">y_n</span><span class="o">,</span> <span class="nx">sd</span><span class="nv">=</span><span class="nx">stddev</span><span class="o">.</span><span class="nx">second</span><span class="o">.</span><span class="nx">y_n</span><span class="o">,</span>
+<span class="o">?[</span> <span class="nx">abs</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">-</span> <span class="nx">u</span><span class="o">)</span> <span class="o">&gt;</span> <span class="nx">sd</span><span class="o">,</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">:</span> <span class="nx">y_n</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="group-temperatures-by-year-and-month-and-find-the-mean-and-median-for-september-1998">Group temperatures by year and month, and find the mean and median for September 1998:</h4>
-<div class="codehilite"><pre><span></span>t={ x=cut(@,&quot;\t&quot;), uint.x~1 -&gt; map(uint.x~0, sort.real.x~3) }~9~1998, mean.t, t~0.5
+<div class="codehilite"><pre><span></span><span class="nx">t</span><span class="nv">=</span><span class="o">{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">1</span> <span class="o">-&gt;</span> <span class="nx">map</span><span class="o">(</span><span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">sort</span><span class="o">.</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span><span class="o">)</span> <span class="o">}~</span><span class="mi">9</span><span class="o">~</span><span class="mi">1998</span><span class="o">,</span> <span class="nx">mean</span><span class="o">.</span><span class="nx">t</span><span class="o">,</span> <span class="nx">t</span><span class="o">~</span><span class="mf">0.5</span>
 </pre></div>
 
 
 <h4 id="same-as-above-but-compare-it-to-the-mean-and-median-across-all-septembers">Same as above, but compare it to the mean and median across all Septembers:</h4>
-<div class="codehilite"><pre><span></span>t={ x=cut(@,&quot;\t&quot;), uint.x~1 -&gt; map(uint.x~0, sort.real.x~3) }~9,
-mean.t~1998, t~1998~0.5,
-mean.flatten.second.t, (sort.flatten.second.t)~0.5
+<div class="codehilite"><pre><span></span><span class="nx">t</span><span class="nv">=</span><span class="o">{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">1</span> <span class="o">-&gt;</span> <span class="nx">map</span><span class="o">(</span><span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">sort</span><span class="o">.</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span><span class="o">)</span> <span class="o">}~</span><span class="mi">9</span><span class="o">,</span>
+<span class="nx">mean</span><span class="o">.</span><span class="nx">t</span><span class="o">~</span><span class="mi">1998</span><span class="o">,</span> <span class="nx">t</span><span class="o">~</span><span class="mi">1998</span><span class="o">~</span><span class="mf">0.5</span><span class="o">,</span>
+<span class="nx">mean</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.</span><span class="nx">second</span><span class="o">.</span><span class="nx">t</span><span class="o">,</span> <span class="o">(</span><span class="nx">sort</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.</span><span class="nx">second</span><span class="o">.</span><span class="nx">t</span><span class="o">)~</span><span class="mf">0.5</span>
 </pre></div>
 
 
 <h4 id="average-september-temperatures-by-year">Average September temperatures by year:</h4>
-<div class="codehilite"><pre><span></span>sort.map.?[ x=cut(@,&quot;\t&quot;), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ]
+<div class="codehilite"><pre><span></span><span class="nx">sort</span><span class="o">.</span><span class="nx">map</span><span class="o">.?[</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="o">(</span><span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="mi">9</span><span class="o">,</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">avg</span><span class="o">.</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span> <span class="o">]</span>
 </pre></div>
 
 
@@ -239,26 +239,26 @@ mean.flatten.second.t, (sort.flatten.second.t)~0.5
 <dd>pipe the output to <code>gnuplot -p -e "plot '-' with lines"</code> to see a graph</dd>
 </dl>
 <h4 id="moving-average-of-september-temperatures-over-10-previous-years">Moving average of September temperatures, over 10 previous years:</h4>
-<div class="codehilite"><pre><span></span>t=sort.map.?[ x=cut(@,&quot;\t&quot;), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ],
-sort.{ @~(-1)~0 -&gt; avg.second.seq.@ : ngrams(seq.t, 10) }
+<div class="codehilite"><pre><span></span><span class="nx">t</span><span class="nv">=</span><span class="nx">sort</span><span class="o">.</span><span class="nx">map</span><span class="o">.?[</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="o">(</span><span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">1</span><span class="o">)</span> <span class="o">==</span> <span class="mi">9</span><span class="o">,</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">avg</span><span class="o">.</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span> <span class="o">],</span>
+<span class="nx">sort</span><span class="o">.{</span> <span class="nv">@</span><span class="o">~(-</span><span class="mi">1</span><span class="o">)~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">avg</span><span class="o">.</span><span class="nx">second</span><span class="o">.</span><span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">ngrams</span><span class="o">(</span><span class="nx">seq</span><span class="o">.</span><span class="nx">t</span><span class="o">,</span> <span class="mi">10</span><span class="o">)</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="calculate-the-average-difference-between-this-days-temperature-and-the-temperature-on-the-first-of-the-month">Calculate the average difference between this day&rsquo;s temperature and the temperature on the first of the month:</h4>
-<div class="codehilite"><pre><span></span>sort.{ x=cut(@,&quot;\t&quot;), t=(real.x~3)/10, uint.x~1 -&gt; avg(t - box(x~2 == &quot;1&quot;, t)~0) }
+<div class="codehilite"><pre><span></span><span class="nx">sort</span><span class="o">.{</span> <span class="nx">x</span><span class="nv">=</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="nx">t</span><span class="nv">=</span><span class="o">(</span><span class="nx">real</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">3</span><span class="o">)/</span><span class="mi">10</span><span class="o">,</span> <span class="nx">uint</span><span class="o">.</span><span class="nx">x</span><span class="o">~</span><span class="mi">1</span> <span class="o">-&gt;</span> <span class="nx">avg</span><span class="o">(</span><span class="nx">t</span> <span class="o">-</span> <span class="nx">box</span><span class="o">(</span><span class="nx">x</span><span class="o">~</span><span class="mi">2</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="o">,</span> <span class="nx">t</span><span class="o">)~</span><span class="mi">0</span><span class="o">)</span> <span class="o">}</span>
 </pre></div>
 
 
 <h2 id="working-with-ad-hoc-text-formats">Working with ad-hoc text formats:</h2>
 <h4 id="convert-mysql-output-to-a-machine-readable-one">Convert MySQL output to a machine-readable one:</h4>
-<div class="codehilite"><pre><span></span>[ join(recut(@, &quot; *\\| *&quot;)[1,-2], &quot;\t&quot;) : skip(grepif(@, &quot;^\\| &quot;), 1) ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">join</span><span class="o">(</span><span class="nx">recut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot; *\\| *&quot;</span><span class="o">)[</span><span class="mi">1</span><span class="o">,-</span><span class="mi">2</span><span class="o">],</span> <span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="nx">skip</span><span class="o">(</span><span class="nx">grepif</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;^\\| &quot;</span><span class="o">),</span> <span class="mi">1</span><span class="o">)</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="parse-a-log-file-where-every-line-is-a-json-object">Parse a log file where every line is a JSON object:</h4>
-<div class="codehilite"><pre><span></span>regex = &#39;&quot;([^&quot;]+)&quot; *: *([0-9.]+)|&quot;([^&quot;]+)&quot;&#39;,
-def split ?[ count.@, @ : grep(@, regex) ],
-[ map(stripe(pairs.split.@, 2))~&quot;response&quot; ]
+<div class="codehilite"><pre><span></span><span class="nx">regex</span> <span class="nv">=</span> <span class="s1">&#39;&quot;([^&quot;]+)&quot; *: *([0-9.]+)|&quot;([^&quot;]+)&quot;&#39;</span><span class="o">,</span>
+<span class="nv">def</span> <span class="nx">split</span> <span class="o">?[</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nv">@</span> <span class="o">:</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="nx">regex</span><span class="o">)</span> <span class="o">],</span>
+<span class="o">[</span> <span class="nx">map</span><span class="o">(</span><span class="nx">stripe</span><span class="o">(</span><span class="nx">pairs</span><span class="o">.</span><span class="nx">split</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="mi">2</span><span class="o">))~</span><span class="s2">&quot;response&quot;</span> <span class="o">]</span>
 </pre></div>
 
 
@@ -266,74 +266,74 @@ def split ?[ count.@, @ : grep(@, regex) ],
 <dd>You will need to add extra backslashes if you want to enter that regex via a shell command line.</dd>
 </dl>
 <h4 id="given-a-file-with-a-url-on-each-line-find-the-hostnames">Given a file with a URL on each line, find the hostnames:</h4>
-<div class="codehilite"><pre><span></span>{ grep(@, &quot;//([^/]*)/&quot;)~0 -&gt; sum.1 }
+<div class="codehilite"><pre><span></span><span class="o">{</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;//([^/]*)/&quot;</span><span class="o">)~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="parse-the-get-parameters-in-a-file-of-urls">Parse the GET parameters in a file of URLs:</h4>
-<div class="codehilite"><pre><span></span>regex = &quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;;
-def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
-[ urlgetparams.@ ]
+<div class="codehilite"><pre><span></span><span class="nx">regex</span> <span class="nv">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="o">;</span>
+<span class="nv">def</span> <span class="nx">urlgetparams</span> <span class="nx">map</span><span class="o">.</span><span class="nx">stripe</span><span class="o">(</span><span class="nx">pairs</span><span class="o">.[</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="nx">regex</span><span class="o">)</span> <span class="o">],</span> <span class="mi">2</span><span class="o">);</span>
+<span class="o">[</span> <span class="nx">urlgetparams</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="same-as-above-but-find-the-most-popular-get-parameter">Same as above, but find the most popular GET parameter:</h4>
-<div class="codehilite"><pre><span></span>regex = &quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;;
-def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
-second.max.flip.{ @ -&gt; sum.1 : :[ first.urlgetparams.@ ] }
+<div class="codehilite"><pre><span></span><span class="nx">regex</span> <span class="nv">=</span> <span class="s2">&quot;[?&amp;]([^&amp;]+)=([^&amp;]+)&quot;</span><span class="o">;</span>
+<span class="nv">def</span> <span class="nx">urlgetparams</span> <span class="nx">map</span><span class="o">.</span><span class="nx">stripe</span><span class="o">(</span><span class="nx">pairs</span><span class="o">.[</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="nx">regex</span><span class="o">)</span> <span class="o">],</span> <span class="mi">2</span><span class="o">);</span>
+<span class="nx">second</span><span class="o">.</span><span class="nx">max</span><span class="o">.</span><span class="nx">flip</span><span class="o">.{</span> <span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">:[</span> <span class="nx">first</span><span class="o">.</span><span class="nx">urlgetparams</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">}</span>
 </pre></div>
 
 
 <h4 id="another-implementation-of-same-as-above">Another implementation of same as above:</h4>
-<div class="codehilite"><pre><span></span>def urlgetparams map.[ take.@, take(@,&quot;&quot;) : explode.seq.recut(@, &quot;[?&amp;=]&quot;)[1,-1] ];
-second.max.flip.{ @ -&gt; sum.1 : :[ first.urlgetparams.@ ] }
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">urlgetparams</span> <span class="nx">map</span><span class="o">.[</span> <span class="nx">take</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">take</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="nx">explode</span><span class="o">.</span><span class="nx">seq</span><span class="o">.</span><span class="nx">recut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;[?&amp;=]&quot;</span><span class="o">)[</span><span class="mi">1</span><span class="o">,-</span><span class="mi">1</span><span class="o">]</span> <span class="o">];</span>
+<span class="nx">second</span><span class="o">.</span><span class="nx">max</span><span class="o">.</span><span class="nx">flip</span><span class="o">.{</span> <span class="nv">@</span> <span class="o">-&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span> <span class="o">:</span> <span class="o">:[</span> <span class="nx">first</span><span class="o">.</span><span class="nx">urlgetparams</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">}</span>
 </pre></div>
 
 
 <h2 id="working-with-multi-line-data">Working with multi-line data:</h2>
 <h4 id="double-space-a-file">Double-space a file:</h4>
-<div class="codehilite"><pre><span></span>[ seq(@, &quot;&quot;) ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">seq</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;&quot;</span><span class="o">)</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="glue-every-pair-of-lines-in-a-file-together">Glue every pair of lines in a file together:</h4>
-<div class="codehilite"><pre><span></span>[ join(head(@, 2), &quot;\t&quot;) : explode.@ ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">join</span><span class="o">(</span><span class="nx">head</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">2</span><span class="o">),</span> <span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="nx">explode</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="count-the-number-of-lines-in-every-paragraph-in-a-file">Count the number of lines in every paragraph in a file:</h4>
-<div class="codehilite"><pre><span></span>[ count.while.[ @ != &quot;&quot;, @ ] : explode.@ ]
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">count</span><span class="o">.</span><span class="nx">while</span><span class="o">.[</span> <span class="nv">@</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="o">,</span> <span class="nv">@</span> <span class="o">]</span> <span class="o">:</span> <span class="nx">explode</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
 </pre></div>
 
 
 <h4 id="remove-duplicate-lines-like-the-unix-tool-uniq">Remove duplicate lines, like the Unix tool <code>uniq</code>:</h4>
-<div class="codehilite"><pre><span></span>x=peek.pairs.@, glue(first.first.x, ?[ @~0 != @~1, @~1 : second.x ])
+<div class="codehilite"><pre><span></span><span class="nx">x</span><span class="nv">=</span><span class="nx">peek</span><span class="o">.</span><span class="nx">pairs</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">glue</span><span class="o">(</span><span class="nx">first</span><span class="o">.</span><span class="nx">first</span><span class="o">.</span><span class="nx">x</span><span class="o">,</span> <span class="o">?[</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">!=</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="nx">second</span><span class="o">.</span><span class="nx">x</span> <span class="o">])</span>
 </pre></div>
 
 
 <h2 id="recursive-functions">Recursive functions</h2>
 <h4 id="compute-the-factorial">Compute the factorial:</h4>
-<div class="codehilite"><pre><span></span>def fac &lt;&lt; @~0 * @~1 : 1, count.@ &gt;&gt;, fac.12
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">fac</span> <span class="o">&lt;&lt;</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">*</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">&gt;&gt;,</span> <span class="nx">fac</span><span class="o">.</span><span class="mi">12</span>
 </pre></div>
 
 
 <h4 id="a-32-bit-number-with-only-the-odd-bits-flipped">A 32-bit number with only the odd bits flipped:</h4>
-<div class="codehilite"><pre><span></span>&lt;&lt; lsh(@~0, 2) | 1 : 0, count.32 &gt;&gt;
+<div class="codehilite"><pre><span></span><span class="o">&lt;&lt;</span> <span class="nx">lsh</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">|</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="mi">32</span> <span class="o">&gt;&gt;</span>
 </pre></div>
 
 
 <h4 id="the-11th-fibonacci-number">The 11th Fibonacci number:</h4>
-<div class="codehilite"><pre><span></span>&lt;&lt; a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 &gt;&gt;~1
+<div class="codehilite"><pre><span></span><span class="o">&lt;&lt;</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">b</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">tuple</span><span class="o">(</span><span class="nx">b</span><span class="o">,</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="o">)</span> <span class="o">:</span> <span class="nx">tuple</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">),</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">&gt;&gt;~</span><span class="mi">1</span>
 </pre></div>
 
 
 <h4 id="return-the-tail-of-a-sequence-like-the-unix-tool-tail">Return the tail of a sequence, like the Unix tool <code>tail</code>:</h4>
-<div class="codehilite"><pre><span></span>def tail &lt;&lt; @~1 : peek.ngrams.@ &gt;&gt;, tail(@, 10)
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">tail</span> <span class="o">&lt;&lt;</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="nx">peek</span><span class="o">.</span><span class="nx">ngrams</span><span class="o">.</span><span class="nv">@</span> <span class="o">&gt;&gt;,</span> <span class="nx">tail</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">10</span><span class="o">)</span>
 </pre></div>
 
 
 <h4 id="run-the-famous-rule-110-for-8-steps">Run the famous Rule 110 for 8 steps:</h4>
-<div class="codehilite"><pre><span></span>def step [ t=string.@, case(t; &#39;XXX&#39;,&#39;.&#39;; &#39;X..&#39;,&#39;.&#39;; &#39;...&#39;,&#39;.&#39;; &#39;X&#39;) : ngrams(seq.bytes.@,3) ];
-def rule110 &lt;&lt; cat(&#39;.&#39;, join(@~0, &#39;&#39;), &#39;.&#39;) : @~0, count.@~1 &gt;&gt;;
-rule110(&#39;..........XX..........&#39;, 8)
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">step</span> <span class="o">[</span> <span class="nx">t</span><span class="nv">=</span><span class="nx">string</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span> <span class="nx">case</span><span class="o">(</span><span class="nx">t</span><span class="o">;</span> <span class="s1">&#39;XXX&#39;</span><span class="o">,</span><span class="s1">&#39;.&#39;</span><span class="o">;</span> <span class="s1">&#39;X..&#39;</span><span class="o">,</span><span class="s1">&#39;.&#39;</span><span class="o">;</span> <span class="s1">&#39;...&#39;</span><span class="o">,</span><span class="s1">&#39;.&#39;</span><span class="o">;</span> <span class="s1">&#39;X&#39;</span><span class="o">)</span> <span class="o">:</span> <span class="nx">ngrams</span><span class="o">(</span><span class="nx">seq</span><span class="o">.</span><span class="nx">bytes</span><span class="o">.</span><span class="nv">@</span><span class="o">,</span><span class="mi">3</span><span class="o">)</span> <span class="o">];</span>
+<span class="nv">def</span> <span class="nx">rule110</span> <span class="o">&lt;&lt;</span> <span class="nx">cat</span><span class="o">(</span><span class="s1">&#39;.&#39;</span><span class="o">,</span> <span class="nx">join</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="s1">&#39;&#39;</span><span class="o">),</span> <span class="s1">&#39;.&#39;</span><span class="o">)</span> <span class="o">:</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">&gt;&gt;;</span>
+<span class="nx">rule110</span><span class="o">(</span><span class="s1">&#39;..........XX..........&#39;</span><span class="o">,</span> <span class="mi">8</span><span class="o">)</span>
 </pre></div></body></html>

@@ -121,25 +121,25 @@ code {
 <p>Type <code>make</code>. Requires a modern C++11 compiler. Recent versions of gcc (4.9 and up) and clang will work.</p>
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
 <p>If you want to use a compiler other than gcc, e.g., clang, then type this:</p>
-<div class="codehilite"><pre><span></span>$ <span class="nv">CXX</span><span class="o">=</span>clang++ make
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">CXX</span><span class="nv">=</span><span class="nx">clang</span><span class="o">++</span> <span class="nx">make</span>
 </pre></div>
 
 
 <p>The official git repository is found <a href="http://bitbucket.org/tkatchev/tab">here</a>.</p>
 <h1 id="usage">Usage</h1>
 <p>The default is to read from standard input:</p>
-<div class="codehilite"><pre><span></span>$ cat mydata <span class="p">|</span> tab &lt;expression&gt;...
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">cat</span> <span class="nx">mydata</span> <span class="o">|</span> <span class="nx">tab</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
 </pre></div>
 
 
 <p>The result will be written to standard output.</p>
 <p>You can also use the <code>-i</code> flag to read from a file:</p>
-<div class="codehilite"><pre><span></span>$ tab -i mydata &lt;expression&gt;...
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">mydata</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
 </pre></div>
 
 
 <p>If your <code>&lt;expression&gt;</code> is too long, you can pass it in via a file, with the <code>-f</code> flag:</p>
-<div class="codehilite"><pre><span></span>$ tab -f mycode &lt;expression&gt;...
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">f</span> <span class="nx">mycode</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
 </pre></div>
 
 
@@ -184,29 +184,29 @@ code {
 <h2 id="examples">Examples</h2>
 <p>An introduction to <code>tab</code> in 10 easy steps.</p>
 <h3 id="1">1.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;@&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;@&#39;</span>
 </pre></div>
 
 
 <p>This command is equivalent to <code>cat</code>. <code>@</code> is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.</p>
 <h3 id="2">2.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;sin(pi()/2)&#39;</span>
-1
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;sin(pi()/2)&#39;</span>
+<span class="mi">1</span>
 
-$ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
-1
+<span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
+<span class="mi">1</span>
 </pre></div>
 
 
 <p><code>tab</code> can also be used as a desktop calculator. <a class="wikilink" href="#fn_pi">pi</a> is a function that returns the value of <em>pi</em>, <a class="wikilink" href="#fn_cos">cos</a> and <a class="wikilink" href="#fn_sin">sin</a> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
 <h3 id="3">3.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;count(@)&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(@)&#39;</span>
 </pre></div>
 
 
 <p>This command is equivalent to <code>wc -l</code>. <a class="wikilink" href="#fn_count">count</a> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
 <h3 id="4">4.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
 </pre></div>
 
 
@@ -218,7 +218,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p>Thus: the expressions <code>@</code>, <code>[@]</code> and <code>[@ : @]</code> are all equivalent; they all return the input sequence of lines from stdin unchanged.</p>
 <p>The variables defined in <code>&lt;element&gt;</code> (on the left side of <code>:</code>) are <em>scoped</em>: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the <code>[ ... ]</code> brackets.</p>
 <h3 id="5">5.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;zip(count(), @)&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;zip(count(), @)&#39;</span>
 </pre></div>
 
 
@@ -226,7 +226,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p><a class="wikilink" href="#fn_zip">zip</a> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
 <p><a class="wikilink" href="#fn_count">count</a> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
 <h3 id="6">6.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
 </pre></div>
 
 
@@ -236,7 +236,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p>Thus, the result of <code>:[ grep(@,"\\S+") ]</code> is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of <code>\S+</code> in stdin.</p>
 <p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <a class="wikilink" href="#fn_flatten">flatten</a> builtin function.</p>
 <h3 id="7">7.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
 </pre></div>
 
 
@@ -247,7 +247,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p>(Note: you can use whitespace creatively to make this command prettier, <code>{ @ :: [ grep(@,"\\S+") ] }</code></p>
 <p>You can also wrap the expression in <code>count(...)</code> if you just want the number of unique words in stdin.</p>
 <h3 id="8">8.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
 </pre></div>
 
 
@@ -261,7 +261,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_filter">filter</a> function.</p>
 <p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
 <h3 id="9">9.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
 </pre></div>
 
 
@@ -272,7 +272,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p><a class="wikilink" href="#fn_sum">sum</a> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <a class="wikilink" href="#fn_sum">sum</a> when groupped together as part of the map&rsquo;s value.</p>
 <p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
 <h3 id="10">10.</h3>
-<div class="codehilite"><pre><span></span>$ ./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
 </pre></div>
 
 
@@ -298,7 +298,7 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_index">index</a> function.</p>
 <p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It&rsquo;s syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h3 id="bonus-track">Bonus track</h3>
-<div class="codehilite"><pre><span></span>$ ./tab -i req.log <span class="s1">&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;</span>
 <span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
 <span class="s1"> def uniq { 1 -&gt; stats(@) }[1],</span>
 <span class="s1"> x=[ uint.cut(@,&quot;|&quot;,3)) ],</span>
@@ -309,11 +309,11 @@ $ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
 <span class="s1">          tuple(&quot;95-percentile&quot;, avg + 2*stdev, q[0.95]),</span>
 <span class="s1">          tuple(&quot;99-percentile&quot;, avg + 3*stdev, q[0.99]),</span>
 <span class="s1">          tuple(&quot;min and max&quot;, real(min), max))&#39;</span>
-mean/median     1764.54 1728
-68-percentile   1933.15 1840
-95-percentile   2101.75 1992
-99-percentile   2270.35 2419
-min and max     <span class="m">0</span>       2508
+<span class="nx">mean</span><span class="o">/</span><span class="nx">median</span>     <span class="mf">1764.54</span> <span class="mi">1728</span>
+<span class="mi">68</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">1933.15</span> <span class="mi">1840</span>
+<span class="mi">95</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2101.75</span> <span class="mi">1992</span>
+<span class="mi">99</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2270.35</span> <span class="mi">2419</span>
+<span class="nx">min</span> <span class="nx">and</span> <span class="nx">max</span>     <span class="mi">0</span>       <span class="mi">2508</span>
 </pre></div>
 
 
@@ -321,24 +321,24 @@ min and max     <span class="m">0</span>       2508
 <p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
 <p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
 <p>You can use parentheses to delimit code blocks in function definitions. For example:</p>
-<div class="codehilite"><pre><span></span>def square_of_square ( def square @*@; square(@)*square(@) );
-square_of_square(4)
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">square_of_square</span> <span class="o">(</span> <span class="nv">def</span> <span class="nx">square</span> <span class="nv">@</span><span class="o">*</span><span class="nv">@</span><span class="o">;</span> <span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)*</span><span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">);</span>
+<span class="nx">square_of_square</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span>
 </pre></div>
 
 
 <p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
 <p>Let&rsquo;s check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)</p>
-<div class="codehilite"><pre><span></span>$ ./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
-250.8   23
-501.6   0
-752.4   1
-1003.2  0
-<span class="m">1254</span>    0
-1504.8  227
-1755.6  28027
-2006.4  19986
-2257.2  490
-<span class="m">2508</span>    1792
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
+<span class="mf">250.8</span>   <span class="mi">23</span>
+<span class="mf">501.6</span>   <span class="mi">0</span>
+<span class="mf">752.4</span>   <span class="mi">1</span>
+<span class="mf">1003.2</span>  <span class="mi">0</span>
+<span class="mi">1254</span>    <span class="mi">0</span>
+<span class="mf">1504.8</span>  <span class="mi">227</span>
+<span class="mf">1755.6</span>  <span class="mi">28027</span>
+<span class="mf">2006.4</span>  <span class="mi">19986</span>
+<span class="mf">2257.2</span>  <span class="mi">490</span>
+<span class="mi">2508</span>    <span class="mi">1792</span>
 </pre></div>
 
 
@@ -346,7 +346,7 @@ square_of_square(4)
 <p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
 <p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
 <p>Here is a solution using standard shell utilities:</p>
-<div class="codehilite"><pre><span></span>$ cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">cat</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39; &#39;</span> <span class="o">-</span><span class="nx">f3</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39;?&#39;</span> <span class="o">-</span><span class="nx">f1</span> <span class="o">|</span> <span class="nx">sort</span> <span class="o">|</span> <span class="nx">uniq</span> <span class="o">-</span><span class="nx">c</span>
 </pre></div>
 
 
@@ -387,7 +387,7 @@ square_of_square(4)
 
 <p>Running time: around 2.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
-<div class="codehilite"><pre><span></span>$ ./tab -i req.log <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
 </pre></div>
 
 
@@ -395,86 +395,86 @@ square_of_square(4)
 <p>Not only is <code>tab</code> faster in this case, it is also (in my opinion) more concise and idiomatic.</p>
 <h1 id="reference">Reference</h1>
 <h2 id="grammar">Grammar</h2>
-<div class="codehilite"><pre><span></span><span class="nl">expr</span> <span class="p">:</span><span class="o">=</span> <span class="n">atomic_or_assignment</span> <span class="p">((</span><span class="s">&quot;,&quot;</span> <span class="o">|</span> <span class="s">&quot;;&quot;</span><span class="p">)</span> <span class="n">atomic_or_assignment</span><span class="p">)</span><span class="o">*</span>
+<div class="codehilite"><pre><span></span><span class="nx">expr</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">atomic_or_assignment</span> <span class="o">((</span><span class="s2">&quot;,&quot;</span> <span class="o">|</span> <span class="s2">&quot;;&quot;</span><span class="o">)</span> <span class="nx">atomic_or_assignment</span><span class="o">)*</span>
 
-<span class="nl">atomic_or_assignment</span> <span class="p">:</span><span class="o">=</span> <span class="n">assignment</span> <span class="o">|</span> <span class="n">define</span> <span class="o">|</span> <span class="k">atomic</span>
+<span class="nx">atomic_or_assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">assignment</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">ine</span> <span class="o">|</span> <span class="nx">atomic</span>
 
-<span class="nl">assignment</span> <span class="p">:</span><span class="o">=</span> <span class="n">var</span> <span class="s">&quot;=&quot;</span> <span class="k">atomic</span>
+<span class="nx">assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;=&quot;</span> <span class="nx">atomic</span>
 
-<span class="nl">define</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;def&quot;</span> <span class="n">var</span> <span class="p">(</span><span class="k">atomic</span> <span class="o">|</span> <span class="s">&quot;(&quot;</span> <span class="n">expr</span> <span class="s">&quot;)&quot;</span><span class="p">)</span>
+<span class="nv">def</span><span class="nx">ine</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="nx">var</span> <span class="o">(</span><span class="nx">atomic</span> <span class="o">|</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span><span class="o">)</span>
 
-<span class="k">atomic</span> <span class="o">:=</span> <span class="n">e_eq</span>
+<span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_eq</span>
 
-<span class="nl">e_eq</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;==&quot;</span> <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;!=&quot;</span> <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;&lt;&quot;</span>  <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;&gt;&quot;</span>  <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;&lt;=&quot;</span> <span class="n">e_bit</span> <span class="o">|</span>
-        <span class="n">e_bit</span> <span class="s">&quot;&gt;=&quot;</span> <span class="n">e_bit</span>
+<span class="nx">e_eq</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;==&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;!=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;=&quot;</span> <span class="nx">e_bit</span>
 
-<span class="nl">e_bit</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_add</span> <span class="o">|</span>
-         <span class="n">e_add</span> <span class="s">&quot;&amp;&quot;</span> <span class="n">e_add</span> <span class="o">|</span>
-         <span class="n">e_add</span> <span class="s">&quot;|&quot;</span> <span class="n">e_add</span> <span class="o">|</span>
-         <span class="n">e_add</span> <span class="s">&quot;^&quot;</span> <span class="n">e_add</span>
+<span class="nx">e_bit</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;&amp;&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;|&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;^&quot;</span> <span class="nx">e_add</span>
 
-<span class="nl">e_add</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_mul</span> <span class="o">|</span>
-         <span class="n">e_mul</span> <span class="s">&quot;+&quot;</span> <span class="n">e_mul</span> <span class="o">|</span>
-         <span class="n">e_mul</span> <span class="s">&quot;-&quot;</span> <span class="n">e_mul</span>
+<span class="nx">e_add</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_mul</span> <span class="o">|</span>
+         <span class="nx">e_mul</span> <span class="s2">&quot;+&quot;</span> <span class="nx">e_mul</span> <span class="o">|</span>
+         <span class="nx">e_mul</span> <span class="s2">&quot;-&quot;</span> <span class="nx">e_mul</span>
 
-<span class="nl">e_mul</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_exp</span> <span class="o">|</span>
-         <span class="n">e_exp</span> <span class="s">&quot;*&quot;</span> <span class="n">e_exp</span> <span class="o">|</span>
-         <span class="n">e_exp</span> <span class="s">&quot;/&quot;</span> <span class="n">e_exp</span> <span class="o">|</span>
-         <span class="n">e_exp</span> <span class="s">&quot;%&quot;</span> <span class="n">e_exp</span>
+<span class="nx">e_mul</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;*&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;/&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;%&quot;</span> <span class="nx">e_exp</span>
 
-<span class="nl">e_exp</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_not</span> <span class="o">|</span>
-         <span class="n">e_not</span> <span class="s">&quot;**&quot;</span> <span class="n">e_not</span>
+<span class="nx">e_exp</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_not</span> <span class="o">|</span>
+         <span class="nx">e_not</span> <span class="s2">&quot;**&quot;</span> <span class="nx">e_not</span>
 
 
-<span class="nl">e_not</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_flat</span> <span class="o">|</span>
-         <span class="s">&quot;!&quot;</span> <span class="n">e_not</span>
+<span class="nx">e_not</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_flat</span> <span class="o">|</span>
+         <span class="s2">&quot;!&quot;</span> <span class="nx">e_not</span>
 
-<span class="nl">e_flat</span> <span class="p">:</span><span class="o">=</span> <span class="n">e_idx</span> <span class="o">|</span>
-          <span class="s">&quot;:&quot;</span> <span class="n">e_flat</span> <span class="o">|</span>
-          <span class="s">&quot;?&quot;</span> <span class="n">e_flat</span>
+<span class="nx">e_flat</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_idx</span> <span class="o">|</span>
+          <span class="s2">&quot;:&quot;</span> <span class="nx">e_flat</span> <span class="o">|</span>
+          <span class="s2">&quot;?&quot;</span> <span class="nx">e_flat</span>
 
-<span class="nl">e_idx</span> <span class="p">:</span><span class="o">=</span> <span class="n">e</span> <span class="o">|</span>
-         <span class="n">e</span> <span class="p">(</span><span class="s">&quot;[&quot;</span> <span class="n">expr</span> <span class="s">&quot;]&quot;</span><span class="p">)</span><span class="o">*</span>
-         <span class="n">e</span> <span class="p">(</span><span class="s">&quot;~&quot;</span> <span class="n">e</span><span class="p">)</span><span class="o">*</span>
+<span class="nx">e_idx</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e</span> <span class="o">|</span>
+         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;[&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;]&quot;</span><span class="o">)*</span>
+         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;~&quot;</span> <span class="nx">e</span><span class="o">)*</span>
 
-<span class="nl">e</span> <span class="p">:</span><span class="o">=</span> <span class="n">literal</span> <span class="o">|</span> <span class="n">funcall</span> <span class="o">|</span> <span class="n">var</span> <span class="o">|</span> <span class="n">array</span> <span class="o">|</span> <span class="n">map</span> <span class="o">|</span> <span class="n">seq</span> <span class="o">|</span> <span class="n">recursor</span> <span class="o">|</span> <span class="n">paren</span>
+<span class="nx">e</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">literal</span> <span class="o">|</span> <span class="nx">funcall</span> <span class="o">|</span> <span class="nx">var</span> <span class="o">|</span> <span class="nx">array</span> <span class="o">|</span> <span class="nx">map</span> <span class="o">|</span> <span class="nx">seq</span> <span class="o">|</span> <span class="nx">recursor</span> <span class="o">|</span> <span class="nx">paren</span>
 
-<span class="nl">literal</span> <span class="p">:</span><span class="o">=</span> <span class="n">real</span> <span class="o">|</span> <span class="kt">int</span> <span class="o">|</span> <span class="n">uint</span> <span class="o">|</span> <span class="n">string</span>
+<span class="nx">literal</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">real</span> <span class="o">|</span> <span class="nx">int</span> <span class="o">|</span> <span class="nx">uint</span> <span class="o">|</span> <span class="nx">string</span>
 
-<span class="nl">funcall</span> <span class="p">:</span><span class="o">=</span> <span class="n">funcall_paren</span> <span class="o">|</span> <span class="n">funcall_dot</span>
+<span class="nx">funcall</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">funcall_paren</span> <span class="o">|</span> <span class="nx">funcall_dot</span>
 
-<span class="nl">funcall_paren</span> <span class="p">:</span><span class="o">=</span> <span class="n">var</span> <span class="s">&quot;(&quot;</span> <span class="n">expr</span> <span class="s">&quot;)&quot;</span>
+<span class="nx">funcall_paren</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
 
-<span class="nl">funcall_dot</span> <span class="p">:</span><span class="o">=</span> <span class="n">var</span> <span class="s">&quot;.&quot;</span> <span class="k">atomic</span>
+<span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">atomic</span>
 
-<span class="nl">array</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;[.&quot;</span> <span class="n">expr</span> <span class="p">(</span><span class="s">&quot;:&quot;</span> <span class="n">expr</span><span class="p">)</span><span class="o">?</span> <span class="s">&quot;.]&quot;</span>
+<span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
 
-<span class="nl">map</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;{&quot;</span> <span class="n">expr</span> <span class="p">(</span><span class="s">&quot;-&gt;&quot;</span> <span class="n">expr</span><span class="p">)</span><span class="o">?</span> <span class="p">(</span><span class="s">&quot;:&quot;</span> <span class="n">expr</span><span class="p">)</span><span class="o">?</span> <span class="s">&quot;}&quot;</span>
+<span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
 
-<span class="nl">seq</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;[&quot;</span> <span class="n">expr</span> <span class="p">(</span><span class="s">&quot;:&quot;</span> <span class="n">expr</span><span class="p">)</span><span class="o">?</span> <span class="s">&quot;]&quot;</span>
+<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
 
-<span class="nl">recursor</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;&lt;&lt;&quot;</span> <span class="n">expr</span> <span class="s">&quot;:&quot;</span> <span class="n">expr</span> <span class="s">&quot;&gt;&gt;&quot;</span>                                    
+<span class="nx">recursor</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;:&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
 
-<span class="nl">paren</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="k">atomic</span> <span class="s">&quot;)&quot;</span>
+<span class="nx">paren</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;(&quot;</span> <span class="nx">atomic</span> <span class="s2">&quot;)&quot;</span>
 
-<span class="nl">var</span> <span class="p">:</span><span class="o">=</span> <span class="s">&quot;@&quot;</span> <span class="o">|</span> <span class="p">[</span><span class="n">a</span><span class="o">-</span><span class="n">zA</span><span class="o">-</span><span class="n">Z</span><span class="p">][</span><span class="n">a</span><span class="o">-</span><span class="n">zA</span><span class="o">-</span><span class="n">Z0</span><span class="o">-</span><span class="mi">9</span><span class="n">_</span><span class="p">]</span><span class="o">*</span>
+<span class="nx">var</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;@&quot;</span> <span class="o">|</span> <span class="o">[</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z</span><span class="o">][</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z0</span><span class="o">-</span><span class="mi">9</span><span class="nx">_</span><span class="o">]*</span>
 
-<span class="kt">int</span> <span class="o">:=</span> <span class="s">&quot;-&quot;</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">+</span> <span class="o">|</span>
-       <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">+</span> <span class="p">(</span><span class="s">&quot;i&quot;</span> <span class="o">|</span> <span class="s">&quot;s&quot;</span> <span class="o">|</span> <span class="s">&quot;l&quot;</span><span class="p">)</span>
+<span class="nx">int</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span> <span class="o">|</span>
+       <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span> <span class="o">(</span><span class="s2">&quot;i&quot;</span> <span class="o">|</span> <span class="s2">&quot;s&quot;</span> <span class="o">|</span> <span class="s2">&quot;l&quot;</span><span class="o">)</span>
 
-<span class="nl">uint</span> <span class="p">:</span><span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">+</span> <span class="p">(</span><span class="s">&quot;u&quot;</span><span class="p">)</span><span class="o">?</span>
+<span class="nx">uint</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span> <span class="o">(</span><span class="s2">&quot;u&quot;</span><span class="o">)?</span>
 
-<span class="nl">real</span> <span class="p">:</span><span class="o">=</span> <span class="p">[</span><span class="o">-+</span><span class="p">]</span><span class="o">?</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">+</span> <span class="p">(</span><span class="s">&quot;.&quot;</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">*</span><span class="p">)</span><span class="o">?</span> <span class="p">([</span><span class="n">eE</span><span class="p">]</span> <span class="p">[</span><span class="o">-+</span><span class="p">]</span><span class="o">?</span> <span class="p">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="p">]</span><span class="o">+</span><span class="p">)</span><span class="o">?</span>
+<span class="nx">real</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[-+]?</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span> <span class="o">(</span><span class="s2">&quot;.&quot;</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]*)?</span> <span class="o">([</span><span class="nx">eE</span><span class="o">]</span> <span class="o">[-+]?</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+)?</span>
 
-<span class="nl">string</span> <span class="p">:</span><span class="o">=</span> <span class="sc">&#39;&quot;&#39;</span> <span class="n">chars</span> <span class="sc">&#39;&quot;&#39;</span> <span class="o">|</span>
-          <span class="s">&quot;&#39;&quot;</span> <span class="n">chars</span> <span class="s">&quot;&#39;&quot;</span>
+<span class="nx">string</span> <span class="o">:</span><span class="nv">=</span> <span class="s1">&#39;&quot;&#39;</span> <span class="nx">chars</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">|</span>
+          <span class="s2">&quot;&#39;&quot;</span> <span class="nx">chars</span> <span class="s2">&quot;&#39;&quot;</span>
 
-<span class="nl">chars</span> <span class="p">:</span><span class="o">=</span> <span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span> <span class="o">|</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">|</span> <span class="s">&quot;</span><span class="se">\r</span><span class="s">&quot;</span> <span class="o">|</span> <span class="s">&quot;\e&quot;</span> <span class="o">|</span> <span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span> <span class="o">|</span> <span class="n">any</span><span class="p">)</span><span class="o">*</span>
+<span class="nx">chars</span> <span class="o">:</span><span class="nv">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> <span class="o">|</span> <span class="s2">&quot;\n&quot;</span> <span class="o">|</span> <span class="s2">&quot;\r&quot;</span> <span class="o">|</span> <span class="s2">&quot;\e&quot;</span> <span class="o">|</span> <span class="s2">&quot;\\&quot;</span> <span class="o">|</span> <span class="nx">any</span><span class="o">)*</span>
 </pre></div>
 
 
