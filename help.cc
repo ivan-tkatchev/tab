@@ -597,6 +597,7 @@ static const char* _help[][2] = {
      "Usage:\n"
      "\n"
      "lines (a,b,...) -> (a,b,...)\n"
+    },
     {"log",
      "\n"
      "The natural logarithm function.\n"
@@ -659,13 +660,14 @@ static const char* _help[][2] = {
      "    map.\n"
     },
     {"merge",
-     "\n",
+     "\n"
      "Aggregates a sequence of values. 'merge(x, a)' is equivalent to\n"
      "'{ 1 -> @ : glue(x, a) }~1', except faster.\n"
      "\n"
      "Usage:\n"
      "\n"
      "merge a, Seq[a] -> a\n"
+    },
     {"min",
      "\n"
      "Finds the minimum element in a sequence or array. See also: 'max'.\n"
