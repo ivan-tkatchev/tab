@@ -1,5 +1,5 @@
 
-#include <string.h>
+#include <string>
 
 static const char* _help[][2] = {
 
@@ -115,6 +115,29 @@ static const char* _help[][2] = {
       "    [ join(head(@, 2), \"\\t\") : explode.@ ]\n"
       "Calculate the factorial:\n"
       "    << @~0 * @~1 : 1, count.@ >>\n"
+    },
+
+    {"threads",
+     "\n"
+
+     "Use the '-t' command-line option to run your program using multiple\n"
+     "threads. If you have a multicore machine, then you will see a\n"
+     "significant speedup. Parallel execution is done map/reduce style: N\n"
+     "threads will run a CPU-intensive program, while one dedicated thread\n"
+     "will collect the results of all other threads, aggregate them, and\n"
+     "output the final answer. Separate the 'scatter' CPU-intensive program\n"
+     "from the 'gather' aggregation program with a special '-->' token. If a\n"
+     "'gather' program is not specified, then a default \"@\" will be\n"
+     "automatically assumed.\n"
+     "\n"
+     "Examples:\n"
+     "\n"
+     "Output all four-digit numbers, multithreaded-style:\n"
+     "    :[grep(@,'[0-9]{4}')]\n\n"
+     "Count the total number of four-digit numbers:\n"
+     "    count.:[grep(@,'[0-9]{4}')] --> sum.@\n\n"
+     "Find the most popular four-digit number:\n"
+     "    { @ -> sum.1 ::[grep(@,'[0-9]{4}')] } --> (sort.flip.map.@)[-1]\n"
     },
 
     { "functions",
@@ -1121,14 +1144,14 @@ static const char* _help[][2] = {
 };
 
 
-const char* get_help(const char* key) {
+const char* get_help(const std::string& key) {
 
-    if (!key)
+    if (key.empty())
         return nullptr;
 
     for (unsigned int i = 0; _help[i][0] != nullptr; ++i) {
 
-        if (::strcmp(_help[i][0], key) == 0)
+        if (key == _help[i][0])
             return _help[i][1];
     }
 

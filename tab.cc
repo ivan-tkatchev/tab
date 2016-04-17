@@ -4,8 +4,6 @@
 #include "tab.h"
 
 
-extern const char* get_help(const char*);
-
 std::istream& file_or_stdin(const std::string& file) {
 
     if (file.empty())
@@ -46,7 +44,9 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
     p.nl();
 }
 
-void show_help(const char* help_section) {
+extern const char* get_help(const std::string&);
+
+void show_help(const std::string& help_section) {
 
     const char* help = get_help(help_section);
 
@@ -56,7 +56,7 @@ void show_help(const char* help_section) {
     }
 
     std::cout <<
-        "Usage: tab [-i inputdata_file] [-f expression_file] [-r random seed] [-s] [-v|-vv|-vvv] [-h section] "
+        "Usage: tab [-i inputdata_file] [-f expression_file] [-t N] [-r random seed] [-s] [-v|-vv|-vvv] [-h section] "
               << "<expressions...>"
               << std::endl
               << "  -i:   read data from this file instead of stdin." << std::endl
@@ -64,7 +64,7 @@ void show_help(const char* help_section) {
               << "  -r:   use a specific random seed." << std::endl
               << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
 #ifdef _REENTRANT
-              << "  -t N: use N parallel threads for evaluating the expression." << std::endl
+              << "  -t:   use N parallel threads for evaluating the expression." << std::endl
 #endif
               << "        (use '-->' to separate scatter and gather subexpressions; see tab -h 'threads')" << std::endl
               << "  -v:   verbosity flag -- print type of the result." << std::endl
@@ -79,6 +79,33 @@ void show_help(const char* help_section) {
               << "  'threads'       -- show examples of multithreaded programs." << std::endl
               << "  'functions'     -- show a complete list of built-in functions." << std::endl
               << "  <function name> -- explain the given built-in function." << std::endl;
+}
+
+bool getopt(unsigned char opt, int argc, char** argv, int& i, std::string& out, bool required = true) {
+
+    if (argv[i][0] == '-' && argv[i][1] == opt) {
+
+        if (argv[i][2] == '\0') {
+
+            if (i == argc - 1 || argv[i + 1][0] == '-') {
+
+                if (!required) return true;
+
+                std::runtime_error("The '-" + std::string(opt, 1) +"' command line argument expects an argument.");
+            }
+
+            ++i;
+            out = argv[i];
+
+        } else {
+
+            out = argv[i] + 2;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 int main(int argc, char** argv) {
@@ -96,68 +123,45 @@ int main(int argc, char** argv) {
         std::string programfile;
         size_t seed = ::time(NULL);
         bool help = false;
-        const char* help_section = nullptr;
+        std::string help_section;
 
         size_t nthreads = 0;
 
         for (int i = 1; i < argc; ++i) {
             std::string arg(argv[i]);
+            std::string out;
 
-            if (arg == "-v") {
-                debuglevel = 1;
+            if (getopt('v', argc, argv, i, out)) {
 
-            } else if (arg == "-vv") {
-                debuglevel = 2;
+                if (out == "vv") {
+                    debuglevel = 3;
+                } else if (out == "v") {
+                    debuglevel = 2;
+                } else {
+                    debuglevel = 1;
+                }
 
-            } else if (arg == "-vvv") {
-                debuglevel = 3;
+            } else if (getopt('r', argc, argv, i, out)) {
 
-            } else if (arg == "-r") {
-
-                if (i == argc - 1)
-                    throw std::runtime_error("The '-r' command line argument expects a numeric argument.");
-
-                ++i;
-                seed = std::stoul(argv[i]);
+                seed = std::stoul(out);
 
             } else if (arg == "-s") {
 
                 sorted = true;
 
-            } else if (arg == "-f") {
+            } else if (getopt('f', argc, argv, i, programfile)) {
+                //
 
-                if (i == argc - 1)
-                    throw std::runtime_error("The '-f' command line argument expects a filename argument.");
+            } else if (getopt('i', argc, argv, i, infile)) {
+                //
 
-                ++i;
-                programfile = argv[i];
-
-            } else if (arg == "-i") {
-
-                if (i == argc - 1)
-                    throw std::runtime_error("The '-i' command line argument expects a filename argument.");
-
-                ++i;
-                infile = argv[i];
-
-            } else if (arg == "-h") {
-
-                help = true;
-
-                if (i < argc - 1) {
-                    ++i;
-                    help_section = argv[i];
-                }
+            } else if (getopt('h', argc, argv, i, help_section, false)) {
 
 #ifdef _REENTRANT
-            } else if (arg == "-t") {
+            } else if (getopt('t', argc, argv, i, out)) {
 
-                if (i < argc - 1) {
-                    ++i;
-                    nthreads = std::stoul(argv[i]);
-                }
+                nthreads = std::stoul(out);
 #endif
-
             } else {
 
                 if (program.size() > 0) {
