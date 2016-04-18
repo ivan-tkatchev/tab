@@ -2,6 +2,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <memory>
 
 namespace tab {
 
@@ -32,80 +33,72 @@ struct ThreadGroupSeq : public obj::SeqBase {
 
     struct syncvar_t {
         obj::Object* result;
-        std::unique_ptr<std::condition_variable> can_produce;
-        std::unique_ptr<std::mutex> mutex;
+        std::condition_variable can_produce;
+        std::condition_variable can_consume;
+        std::mutex mutex;
+        bool finished;
 
-        syncvar_t() : result(nullptr), can_produce(new std::condition_variable), mutex(new std::mutex) {}
+        syncvar_t() : result(nullptr), finished(false) {}
     };
 
-    std::vector<syncvar_t> syncs;
+    std::vector< std::shared_ptr<syncvar_t> > syncs;
     std::vector<std::thread> threads;
     size_t nthreads;
     ssize_t last_used_thread;
 
-    std::mutex mutex;
-    size_t nidle;
-    size_t nfinished;
-    std::condition_variable can_consume;
-
     template <typename API, typename T>
-    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, size_t n) {
+    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, std::shared_ptr<syncvar_t> sync) {
 
-        obj::Object* r = api.run(code, input);
+        {
+            std::unique_lock<std::mutex> l(sync->mutex);
 
-        if (seq == nullptr) {
-            seq = r;
+            obj::Object* r = api.run(code, input);
 
-        } else {
-            seq->wrap(r);
+            if (seq == nullptr) {
+                seq = r;
+
+            } else {
+                seq->wrap(r);
+            }
         }
 
-        auto& sync = syncs[n];
-
         while (1) {
+            std::unique_lock<std::mutex> l(sync->mutex);
 
-            std::unique_lock<std::mutex> l(*(sync.mutex));
-
-            while (sync.result) {
-                sync.can_produce->wait(l);
-            }
-
-            {
-                std::unique_lock<std::mutex> ll(mutex);
-               --nidle;
+            while (sync->result) {
+                sync->can_produce.wait(l);
             }
 
             obj::Object* next = seq->next();
 
-            sync.result = next;
+            sync->result = next;
 
             if (!next) {
 
-                std::unique_lock<std::mutex> ll(mutex);
-                ++nfinished;
-                ll.unlock();
-                can_consume.notify_one();
+                sync->finished = true;
+                l.unlock();
+                sync->can_consume.notify_one();
                 break;
 
             } else {
 
-                std::unique_lock<std::mutex> ll(mutex);
-                ++nidle;
-                ll.unlock();
-                can_consume.notify_one();
+                l.unlock();
+                sync->can_consume.notify_one();
             }
         }
     }
 
     template <typename API, typename T>
     ThreadGroupSeq(API& api, std::vector<T>& codes, std::vector<obj::Object*>& seqs, obj::Object* input) :
-        nthreads(codes.size()), last_used_thread(-1), nidle(nthreads), nfinished(0) {
+        nthreads(codes.size()), last_used_thread(-1) {
 
-        syncs.resize(nthreads);
+        for (size_t i = 0; i < nthreads; ++i) {
+            syncs.emplace_back(new syncvar_t);
+        }
 
         for (size_t i = 0; i < nthreads; ++i) {
             threads.emplace_back(&ThreadGroupSeq::threadfun<API, T>, this,
-                                 std::ref(api), std::ref(codes[i]), std::ref(seqs[i]), input, i);
+                                 std::ref(api), std::ref(codes[i]), std::ref(seqs[i]), input, syncs[i]);
         }
     }
 
@@ -118,44 +111,43 @@ struct ThreadGroupSeq : public obj::SeqBase {
     obj::Object* next() {
 
         if (last_used_thread >= 0) {
-            auto& luts = syncs[last_used_thread];
+            std::shared_ptr<syncvar_t> luts = syncs[last_used_thread];
 
-            luts.result = nullptr;
-            luts.mutex->unlock();
-            luts.can_produce->notify_one();
+            std::unique_lock<std::mutex> l(luts->mutex);
+            luts->result = nullptr;
+            l.unlock();
+
+            luts->can_produce.notify_one();
         }
 
-        while (1) {
+        size_t n = (last_used_thread + 1) % nthreads;
 
-            int n = -1;
-            for (auto& i : syncs) {
-                ++n;
+        std::shared_ptr<syncvar_t> sync = syncs[n];
 
-                auto& m = *(i.mutex);
+        std::unique_lock<std::mutex> l(sync->mutex);
 
-                if (!m.try_lock())
-                    continue;
+        while (!sync->finished && !sync->result) {
+            sync->can_consume.wait(l);
+        }
 
-                if (i.result == nullptr) {
-                    m.unlock();
-                    continue;
-                }
+        if (sync->finished) {
+            l.unlock();
+            last_used_thread = -1;
+            --nthreads;
 
-                last_used_thread = n;
+            syncs.erase(syncs.begin() + n);
+
+            if (syncs.empty())
+                return nullptr;
+
+            return next();
+        }
+
+        last_used_thread = n;
                 
-                return i.result;
-            }
-
-            std::unique_lock<std::mutex> l(mutex);
-
-            if (nfinished == nthreads) return nullptr;
-
-            if (nidle == 0) {
-                can_consume.wait(l);
-            }
-
-        }
+        return sync->result;
     }
+
 };
 
 }
