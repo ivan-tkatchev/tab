@@ -34,20 +34,20 @@ struct ThreadGroupSeq : public obj::SeqBase {
     struct syncvar_t {
         obj::Object* result;
         std::condition_variable can_produce;
-        std::condition_variable can_consume;
         std::mutex mutex;
         bool finished;
 
         syncvar_t() : result(nullptr), finished(false) {}
     };
 
-    std::vector< std::shared_ptr<syncvar_t> > syncs;
+    std::vector< std::unique_ptr<syncvar_t> > syncs;
+    std::vector<syncvar_t*> queued;
     std::vector<std::thread> threads;
     size_t nthreads;
     ssize_t last_used_thread;
 
     template <typename API, typename T>
-    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, std::shared_ptr<syncvar_t> sync) {
+    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, syncvar_t* sync) {
 
         {
             std::unique_lock<std::mutex> l(sync->mutex);
@@ -63,27 +63,20 @@ struct ThreadGroupSeq : public obj::SeqBase {
         }
 
         while (1) {
+            obj::Object* next = seq->next();
+
             std::unique_lock<std::mutex> l(sync->mutex);
 
             while (sync->result) {
                 sync->can_produce.wait(l);
             }
 
-            obj::Object* next = seq->next();
-
             sync->result = next;
 
             if (!next) {
 
                 sync->finished = true;
-                l.unlock();
-                sync->can_consume.notify_one();
                 break;
-
-            } else {
-
-                l.unlock();
-                sync->can_consume.notify_one();
             }
         }
     }
@@ -92,13 +85,17 @@ struct ThreadGroupSeq : public obj::SeqBase {
     ThreadGroupSeq(API& api, std::vector<T>& codes, std::vector<obj::Object*>& seqs, obj::Object* input) :
         nthreads(codes.size()), last_used_thread(-1) {
 
+        syncs.resize(nthreads);
+        queued.resize(nthreads);
+
         for (size_t i = 0; i < nthreads; ++i) {
-            syncs.emplace_back(new syncvar_t);
+            syncs[i].reset(new syncvar_t);
+            queued[i] = syncs[i].get();
         }
 
         for (size_t i = 0; i < nthreads; ++i) {
             threads.emplace_back(&ThreadGroupSeq::threadfun<API, T>, this,
-                                 std::ref(api), std::ref(codes[i]), std::ref(seqs[i]), input, syncs[i]);
+                                 std::ref(api), std::ref(codes[i]), std::ref(seqs[i]), input, queued[i]);
         }
     }
 
@@ -111,41 +108,45 @@ struct ThreadGroupSeq : public obj::SeqBase {
     obj::Object* next() {
 
         if (last_used_thread >= 0) {
-            std::shared_ptr<syncvar_t> luts = syncs[last_used_thread];
+            syncvar_t* luts = queued[last_used_thread];
 
-            std::unique_lock<std::mutex> l(luts->mutex);
             luts->result = nullptr;
-            l.unlock();
-
+            luts->mutex.unlock();
             luts->can_produce.notify_one();
         }
 
-        size_t n = (last_used_thread + 1) % nthreads;
+        size_t n = last_used_thread;
 
-        std::shared_ptr<syncvar_t> sync = syncs[n];
+        while (1) {
+            ++n;
+            n = n % nthreads;
 
-        std::unique_lock<std::mutex> l(sync->mutex);
+            syncvar_t* sync = queued[n];
 
-        while (!sync->finished && !sync->result) {
-            sync->can_consume.wait(l);
-        }
+            sync->mutex.lock();
 
-        if (sync->finished) {
-            l.unlock();
-            last_used_thread = -1;
-            --nthreads;
+            if (!sync->finished && !sync->result) {
+                sync->mutex.unlock();
+                continue;
+            }
 
-            syncs.erase(syncs.begin() + n);
+            if (sync->finished) {
+                sync->mutex.unlock();
+                last_used_thread = -1;
+                --nthreads;
 
-            if (syncs.empty())
-                return nullptr;
+                queued.erase(queued.begin() + n);
 
-            return next();
-        }
+                if (queued.empty())
+                    return nullptr;
 
-        last_used_thread = n;
+                return next();
+            }
+
+            last_used_thread = n;
                 
-        return sync->result;
+            return sync->result;
+        }
     }
 
 };
