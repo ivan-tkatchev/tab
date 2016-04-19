@@ -121,7 +121,8 @@ struct ThreadGroupSeq : public obj::SeqBase {
 
             syncvar_t* sync = queued[n];
 
-            sync->mutex.lock();
+            if (!sync->mutex.try_lock())
+                continue;
 
             if (!sync->finished && !sync->result) {
                 sync->mutex.unlock();
