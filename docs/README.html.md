@@ -45,7 +45,7 @@ If your `<expression>` is too long, you can pass it in via a file, with the `-f`
     :::tab
     $ tab -f mycode <expression>...
 
-(In this case, the contents of `mycode` will be prepended to `<expression>`, separated with a comma.)
+(In this case, the contents of `mycode` will be appended to `<expression>`, separated with a comma.)
 
 Run `tab -h` to see the rest of the supported command-line parameters.
 
