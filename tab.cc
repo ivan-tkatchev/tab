@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
             if (program.empty()) {
                 program = programfile;
             } else {
-                program = programfile + "," + program;
+                program = program + "," + programfile;
             }
         }
 
