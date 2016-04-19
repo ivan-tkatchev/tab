@@ -1,0 +1,5 @@
+temps.tsv
+===>
+[ x=int.cut(@,"\t",3), min.x, max.x ] --> merge.@
+===>
+1	-323	382

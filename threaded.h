@@ -1,4 +1,5 @@
 
+#include <cstdlib>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -47,7 +48,7 @@ struct ThreadGroupSeq : public obj::SeqBase {
     ssize_t last_used_thread;
 
     template <typename API, typename T>
-    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, syncvar_t* sync) {
+    void threadfun(API& api, T& code, obj::Object*& seq, obj::Object* input, syncvar_t* sync) try {
 
         {
             std::unique_lock<std::mutex> l(sync->mutex);
@@ -77,6 +78,14 @@ struct ThreadGroupSeq : public obj::SeqBase {
                 break;
             }
         }
+
+    } catch (std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        std::exit(1);
+
+    } catch (...) {
+        std::cerr << "UNKNOWN ERROR." << std::endl;
+        std::exit(1);
     }
 
     template <typename API, typename T>
