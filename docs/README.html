@@ -699,9 +699,9 @@ Usage:<br>
 <code>mean Seq[Number] -&gt; Real</code><br>
 <code>mean Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.</dd>
 <dt id="fn_merge">merge</dt>
-<dd>Aggregates a sequence of values. <code>merge(x, a)</code> is equivalent to <code>{ 1 -&gt; @ : glue(x, a) }~1</code>, except faster. See also <a href="#aggregators">aggregators</a>.<br>
+<dd>Aggregates a sequence of values. <code>merge(a)</code> is equivalent to <code>{ 1 -&gt; @ : a }~1</code>, except faster. See also <a href="#aggregators">aggregators</a>.<br>
 Usage:<br>
-<code>merge a, Seq[a] -&gt; a</code></dd>
+<code>merge Seq[a] -&gt; a</code></dd>
 <dt id="fn_min">min</dt>
 <dd>Finds the minimum element in a sequence or array. See also: <a class="wikilink" href="#fn_max">max</a>.<br>
 Usage:<br>

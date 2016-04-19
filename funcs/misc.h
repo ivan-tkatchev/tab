@@ -243,42 +243,6 @@ Functions::func_t lines_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return lines;
 }
 
-void merge(const obj::Object* in, obj::Object*& out) {
-
-    const obj::Tuple& args = obj::get<obj::Tuple>(in);
-    obj::Object* sink = (obj::Object*)args.v[0];
-    obj::Object* source = (obj::Object*)args.v[1];
-
-    while (1) {
-        obj::Object* next = source->next();
-
-        if (!next) break;
-
-        sink->merge(next);
-    }
-
-    sink->merge_end();
-
-    out = sink;
-}
-
-Functions::func_t merge_checker(const Type& args, Type& ret, obj::Object*& obj) {
-
-    if (args.type != Type::TUP || args.tuple->size() != 2)
-        return nullptr;
-
-    const Type& sink = args.tuple->at(0);
-    const Type& source = args.tuple->at(1);
-
-    if (source.type != Type::SEQ || source.tuple->size() != 1 || source.tuple->at(0) != sink)
-        return nullptr;
-
-    ret = sink;
-    obj = obj::nothing();
-    return merge;
-}
-
-
 void register_misc(Functions& funcs) {
 
     funcs.add("tolower",
@@ -328,8 +292,6 @@ void register_misc(Functions& funcs) {
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);
     funcs.add_poly("lines", lines_checker);
-
-    funcs.add_poly("merge", merge_checker);
 }
 
 

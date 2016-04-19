@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
             std::string arg(argv[i]);
             std::string out;
 
-            if (getopt('v', argc, argv, i, out)) {
+            if (getopt('v', argc, argv, i, out, false)) {
 
                 if (out == "vv") {
                     debuglevel = 3;

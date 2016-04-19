@@ -209,6 +209,38 @@ Functions::func_t peek_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return peek;
 }
 
+void merge(const obj::Object* in, obj::Object*& out) {
+
+    obj::Object* source = (obj::Object*)in;
+    obj::Object* sink = source->next();
+
+    if (!sink)
+        throw std::runtime_error("merge() of an empty sequence.");
+
+    sink = sink->clone();
+    delete out;
+    out = sink;
+
+    while (1) {
+        obj::Object* next = source->next();
+
+        if (!next) break;
+
+        sink->merge(next);
+    }
+
+    sink->merge_end();
+}
+
+Functions::func_t merge_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::SEQ || args.tuple->size() != 1)
+        return nullptr;
+
+    ret = args.tuple->at(0);
+    return merge;
+}
+
 void register_explode(Functions& funcs) {
 
     funcs.add_poly("explode", explode_checker);
@@ -216,6 +248,7 @@ void register_explode(Functions& funcs) {
     funcs.add_poly("glue", glue_checker);
     funcs.add_poly("box", box_checker);
     funcs.add_poly("peek", peek_checker);
+    funcs.add_poly("merge", merge_checker);
 }
 
 #endif

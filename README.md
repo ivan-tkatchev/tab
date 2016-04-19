@@ -735,9 +735,9 @@ Usage:
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
 `merge`
-: Aggregates a sequence of values. `merge(x, a)` is equivalent to `{ 1 -> @ : glue(x, a) }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
+: Aggregates a sequence of values. `merge(a)` is equivalent to `{ 1 -> @ : a }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
 Usage:  
-`merge a, Seq[a] -> a`
+`merge Seq[a] -> a`
 
 `min`
 : Finds the minimum element in a sequence or array. See also: `max`.  

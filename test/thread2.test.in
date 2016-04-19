@@ -1,0 +1,5 @@
+temps.tsv
+===>
+{ x=int.cut(@,"\t",3), 1 -> min.x, max.x } --> map.@
+===>
+1	-323	382
