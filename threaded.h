@@ -63,17 +63,15 @@ struct ThreadGroupSeq : public obj::SeqBase {
         }
 
         while (1) {
-            obj::Object* next = seq->next();
-
             std::unique_lock<std::mutex> l(sync->mutex);
 
             while (sync->result) {
                 sync->can_produce.wait(l);
             }
 
-            sync->result = next;
+            sync->result = seq->next();
 
-            if (!next) {
+            if (!sync->result) {
 
                 sync->finished = true;
                 break;

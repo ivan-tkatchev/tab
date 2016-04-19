@@ -20,7 +20,11 @@ def exec(*popenargs, **kwargs):
 def run(filename, arg, expected, log, infile = "../LICENSE.txt", errcode = 0, sort=False):
     print(">>>", arg.replace('\n',' '))
 
-    retcode, out, err, proctime = exec(["../tab", "-r", "1234", "-i", infile, arg] + (["-s"] if sort else []))
+    threads = (arg.find("-->") >= 0)
+
+    retcode, out, err, proctime = exec(["../tab", "-r", "1234", "-i", infile, arg] +
+                                       (["-s"] if sort else []) +
+                                       (["-t99"] if threads else []))
     log[filename] = proctime
 
     if errcode != retcode:
