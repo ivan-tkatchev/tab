@@ -24,6 +24,7 @@ Skip to:
 * [Builtin functions reference](#markdown-header-builtin-functions)
 * [Aggregators reference](#markdown-header-aggregators)
 * [Recursion](#markdown-header-recursion)
+* [Multi-core](#markdown-header-multi-core)
 
 ## Compiling and installing ##
 
@@ -1029,7 +1030,7 @@ Similarly for arrays:
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
 
-### Recursion ##
+### Recursion ###
 
 `tab` supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.
 
@@ -1052,3 +1053,52 @@ For example: calling `fac.3` from the above example results in evaluating `(((1 
 Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:
 
     << a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 >>~1
+
+### Multi-core ###
+
+`tab` can take advantage of multi-core systems by evaluating expressions using multiple threads.
+
+Use the `-t` command-line option to enable multithreaded evaluation.
+
+Parallel evaluation is not quite automatic: `tab` uses a simple scatter/gather evaluation model. N parallel threads will evaluate a 'scatter' expression, generating N independent sequences. A separate 'gather' thread will then read sequentially from all N sequences and aggregate them into a single result stream.
+
+The syntax for parallel evaluation looks like this:
+
+    :::bash
+    $ tab -tN scatter --> gather
+
+The `-->` is a special token that separates 'scatter' and 'gather' expressions. 
+
+Examples:
+
+###### 1.
+
+    :[ grep(@, '[0-9]{4}') ]
+
+A simple expression that will search for all four-digit numbers. 
+
+**Note:** if there is no `-->` token in the epxression, then a default `--> @` will be automatically appended.
+
+In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.
+
+###### 2.
+
+    count.flatten.[ grep(@, '[0-9]{4}') ] --> sum.@
+
+Same as the previous example, except that we want to count the numbers we found, instead of outputting them.
+The aggregating 'gather' expression will compute the sum of the counts found by all of the 'scatter' counting threads.
+
+**Note:** the 'scatter' threads will read from the input stream atomically; there is no danger of an input line being read twice.
+
+(A reminder that the `:` operator is equivalent to the `flatten()` function.)
+
+###### 3.
+
+    { @ ::[ grep(@, '[0-9]{4}') ] } --> count.map.@
+
+Here we count the unique numbers found. The 'scatter' threads will aggregate a subset of the input into a map with a four-digit number as the key.
+The 'gather' thread will aggregate each of the 'scattered' maps into one final map, and output the count of its keys.
+
+**Note:** the output of each 'scatter' thread will be a _sequence_. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of `seq()`. (Same as with the left-hand side expression in a `[ ... : ... ]` or `{ ... : ... }` generator.)
+
+The input type of the 'gather' thread is `Seq[(String, Int)]`.

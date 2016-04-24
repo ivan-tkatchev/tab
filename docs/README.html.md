@@ -11,6 +11,7 @@ Skip to:
     * [Builtin functions](#builtin-functions)
     * [Aggregators](#aggregators)
     * [Recursion](#recursion)
+    * [Multi-core](#multi-core)
 * [Function index](#builtin-function-index)
 
 # Compiling and installing #
@@ -1011,6 +1012,7 @@ variance
 
 An explanation of how arrays and maps are aggregated implicitly:
 
+    :::tab
     { @~0 -> map(@~1, sum.1) : pairs(@) }
 
 This program will produce the intuitively obvious result -- a map of maps where the leaf values are frequency counts.
@@ -1018,6 +1020,7 @@ This works as expected because maps-inside-maps will automatically aggregate.
 
 Similarly for arrays:
 
+    :::tab
     { month(@) -> array(day_values(@)) : data }
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
@@ -1030,12 +1033,14 @@ Consider the example of computing the factorial: given a sequence of integers, c
 
 In `tab` the factorial function looks like this:
 
+    :::tab
     def fac << @~0 * @~1 : 1, count.@ >>
 
 The `<< ... : ... >>` takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.
 
 An expression that looks like `<< f(@~0, @~1) : a, seq(b, c, d) >>` will be unrolled to be equivalent to this:
 
+    :::tab
     f(f(f(a, b), c), d)
     
 The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.
@@ -1044,7 +1049,60 @@ For example: calling `fac.3` from the above example results in evaluating `(((1 
 
 Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:
 
+    :::tab
     << a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 >>~1
+
+
+## Multi-core ##
+
+`tab` can take advantage of multi-core systems by evaluating expressions using multiple threads.
+
+Use the `-t` command-line option to enable multithreaded evaluation.
+
+Parallel evaluation is not quite automatic: `tab` uses a simple scatter/gather evaluation model. N parallel threads will evaluate a 'scatter' expression, generating N independent sequences. A separate 'gather' thread will then read sequentially from all N sequences and aggregate them into a single result stream.
+
+The syntax for parallel evaluation looks like this:
+
+    :::tab
+    $ tab -tN scatter --> gather
+
+The `-->` is a special token that separates 'scatter' and 'gather' expressions. 
+
+Examples:
+
+### 1.
+
+    :::tab
+    :[ grep(@, '[0-9]{4}') ]
+
+A simple expression that will search for all four-digit numbers. 
+
+**Note:** if there is no `-->` token in the epxression, then a default `--> @` will be automatically appended.
+
+In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.
+
+### 2.
+
+    :::tab
+    count.flatten.[ grep(@, '[0-9]{4}') ] --> sum.@
+
+Same as the previous example, except that we want to count the numbers we found, instead of outputting them.
+The aggregating 'gather' expression will compute the sum of the counts found by all of the 'scatter' counting threads.
+
+**Note:** the 'scatter' threads will read from the input stream atomically; there is no danger of an input line being read twice.
+
+(A reminder that the `:` operator is equivalent to the [[flatten]] function.)
+
+### 3.
+
+    { @ ::[ grep(@, '[0-9]{4}') ] } --> count.map.@
+
+Here we count the unique numbers found. The 'scatter' threads will aggregate a subset of the input into a map with a four-digit number as the key.
+The 'gather' thread will aggregate each of the 'scattered' maps into one final map, and output the count of its keys.
+
+**Note:** the output of each 'scatter' thread will be a _sequence_. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of [[seq]]. (Same as with the left-hand side expression in a `[ ... : ... ]` or `{ ... : ... }` generator.)
+
+The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 ## Builtin function index ##
 

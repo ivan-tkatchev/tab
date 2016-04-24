@@ -113,6 +113,7 @@ code {
 <li><a href="#builtin-functions">Builtin functions</a></li>
 <li><a href="#aggregators">Aggregators</a></li>
 <li><a href="#recursion">Recursion</a></li>
+<li><a href="#multi-core">Multi-core</a></li>
 </ul>
 </li>
 <li><a href="#builtin-function-index">Function index</a></li>
@@ -926,14 +927,14 @@ Usage:<br>
 <dd>Synonymous with <a class="wikilink" href="#fn_var">var</a>.</dd>
 </dl>
 <p>An explanation of how arrays and maps are aggregated implicitly:</p>
-<div class="codehilite"><pre><span></span>{ @~0 -&gt; map(@~1, sum.1) : pairs(@) }
+<div class="codehilite"><pre><span></span><span class="o">{</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">map</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span><span class="o">)</span> <span class="o">:</span> <span class="nx">pairs</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">}</span>
 </pre></div>
 
 
 <p>This program will produce the intuitively obvious result &ndash; a map of maps where the leaf values are frequency counts.
 This works as expected because maps-inside-maps will automatically aggregate.</p>
 <p>Similarly for arrays:</p>
-<div class="codehilite"><pre><span></span>{ month(@) -&gt; array(day_values(@)) : data }
+<div class="codehilite"><pre><span></span><span class="o">{</span> <span class="nx">month</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">array</span><span class="o">(</span><span class="nx">day_values</span><span class="o">(</span><span class="nv">@</span><span class="o">))</span> <span class="o">:</span> <span class="nx">data</span> <span class="o">}</span>
 </pre></div>
 
 
@@ -942,23 +943,60 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 <p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
 <p>Consider the example of computing the factorial: given a sequence of integers, compute its product.</p>
 <p>In <code>tab</code> the factorial function looks like this:</p>
-<div class="codehilite"><pre><span></span>def fac &lt;&lt; @~0 * @~1 : 1, count.@ &gt;&gt;
+<div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nx">fac</span> <span class="o">&lt;&lt;</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">*</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">&gt;&gt;</span>
 </pre></div>
 
 
 <p>The <code>&lt;&lt; ... : ... &gt;&gt;</code> takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.</p>
 <p>An expression that looks like <code>&lt;&lt; f(@~0, @~1) : a, seq(b, c, d) &gt;&gt;</code> will be unrolled to be equivalent to this:</p>
-<div class="codehilite"><pre><span></span>f(f(f(a, b), c), d)
+<div class="codehilite"><pre><span></span><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">a</span><span class="o">,</span> <span class="nx">b</span><span class="o">),</span> <span class="nx">c</span><span class="o">),</span> <span class="nx">d</span><span class="o">)</span>
 </pre></div>
 
 
 <p>The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.</p>
 <p>For example: calling <code>fac.3</code> from the above example results in evaluating <code>(((1 * 1) * 1) * 2) * 3</code>.</p>
 <p>Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:</p>
-<div class="codehilite"><pre><span></span>&lt;&lt; a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 &gt;&gt;~1
+<div class="codehilite"><pre><span></span><span class="o">&lt;&lt;</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">b</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">tuple</span><span class="o">(</span><span class="nx">b</span><span class="o">,</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="o">)</span> <span class="o">:</span> <span class="nx">tuple</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">),</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">&gt;&gt;~</span><span class="mi">1</span>
 </pre></div>
 
 
+<h2 id="multi-core">Multi-core</h2>
+<p><code>tab</code> can take advantage of multi-core systems by evaluating expressions using multiple threads.</p>
+<p>Use the <code>-t</code> command-line option to enable multithreaded evaluation.</p>
+<p>Parallel evaluation is not quite automatic: <code>tab</code> uses a simple scatter/gather evaluation model. N parallel threads will evaluate a &lsquo;scatter&rsquo; expression, generating N independent sequences. A separate &lsquo;gather&rsquo; thread will then read sequentially from all N sequences and aggregate them into a single result stream.</p>
+<p>The syntax for parallel evaluation looks like this:</p>
+<div class="codehilite"><pre><span></span><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">tN</span> <span class="nx">scatter</span> <span class="o">--&gt;</span> <span class="nx">gather</span>
+</pre></div>
+
+
+<p>The <code>--&gt;</code> is a special token that separates &lsquo;scatter&rsquo; and &lsquo;gather&rsquo; expressions. </p>
+<p>Examples:</p>
+<h3 id="1_1">1.</h3>
+<div class="codehilite"><pre><span></span><span class="o">:[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span>
+</pre></div>
+
+
+<p>A simple expression that will search for all four-digit numbers. </p>
+<p><strong>Note:</strong> if there is no <code>--&gt;</code> token in the epxression, then a default <code>--&gt; @</code> will be automatically appended.</p>
+<p>In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.</p>
+<h3 id="2_1">2.</h3>
+<div class="codehilite"><pre><span></span><span class="nx">count</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">--&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span>
+</pre></div>
+
+
+<p>Same as the previous example, except that we want to count the numbers we found, instead of outputting them.
+The aggregating &lsquo;gather&rsquo; expression will compute the sum of the counts found by all of the &lsquo;scatter&rsquo; counting threads.</p>
+<p><strong>Note:</strong> the &lsquo;scatter&rsquo; threads will read from the input stream atomically; there is no danger of an input line being read twice.</p>
+<p>(A reminder that the <code>:</code> operator is equivalent to the <a class="wikilink" href="#fn_flatten">flatten</a> function.)</p>
+<h3 id="3_1">3.</h3>
+<div class="codehilite"><pre><span></span>{ @ ::[ grep(@, &#39;[0-9]{4}&#39;) ] } --&gt; count.map.@
+</pre></div>
+
+
+<p>Here we count the unique numbers found. The &lsquo;scatter&rsquo; threads will aggregate a subset of the input into a map with a four-digit number as the key.
+The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsquo; maps into one final map, and output the count of its keys.</p>
+<p><strong>Note:</strong> the output of each &lsquo;scatter&rsquo; thread will be a <em>sequence</em>. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of <a class="wikilink" href="#fn_seq">seq</a>. (Same as with the left-hand side expression in a <code>[ ... : ... ]</code> or <code>{ ... : ... }</code> generator.)</p>
+<p>The input type of the &lsquo;gather&rsquo; thread is <code>Seq[(String, Int)]</code>.</p>
 <h2 id="builtin-function-index">Builtin function index</h2>
 <h3 id="alphabetically-by-name">Alphabetically by name:</h3>
 <p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_case">case</a>
