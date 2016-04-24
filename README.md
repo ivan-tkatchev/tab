@@ -1099,6 +1099,6 @@ The aggregating 'gather' expression will compute the sum of the counts found by 
 Here we count the unique numbers found. The 'scatter' threads will aggregate a subset of the input into a map with a four-digit number as the key.
 The 'gather' thread will aggregate each of the 'scattered' maps into one final map, and output the count of its keys.
 
-**Note:** the output of each 'scatter' thread will be a _sequence_. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of `seq()`. (Same as with the left-hand side expression in a `[ ... : ... ]` or `{ ... : ... }` generator.)
+**Note:** the output of each 'scatter' thread will be a _sequence_. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of `seq()`. (Same as with the right-hand side expression in a `[ ... : ... ]` or `{ ... : ... }` generator.)
 
 The input type of the 'gather' thread is `Seq[(String, Int)]`.

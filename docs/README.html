@@ -989,13 +989,13 @@ The aggregating &lsquo;gather&rsquo; expression will compute the sum of the coun
 <p><strong>Note:</strong> the &lsquo;scatter&rsquo; threads will read from the input stream atomically; there is no danger of an input line being read twice.</p>
 <p>(A reminder that the <code>:</code> operator is equivalent to the <a class="wikilink" href="#fn_flatten">flatten</a> function.)</p>
 <h3 id="3_1">3.</h3>
-<div class="codehilite"><pre><span></span>{ @ ::[ grep(@, &#39;[0-9]{4}&#39;) ] } --&gt; count.map.@
+<div class="codehilite"><pre><span></span><span class="o">{</span> <span class="nv">@</span> <span class="o">::[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">}</span> <span class="o">--&gt;</span> <span class="nx">count</span><span class="o">.</span><span class="nx">map</span><span class="o">.</span><span class="nv">@</span>
 </pre></div>
 
 
 <p>Here we count the unique numbers found. The &lsquo;scatter&rsquo; threads will aggregate a subset of the input into a map with a four-digit number as the key.
 The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsquo; maps into one final map, and output the count of its keys.</p>
-<p><strong>Note:</strong> the output of each &lsquo;scatter&rsquo; thread will be a <em>sequence</em>. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of <a class="wikilink" href="#fn_seq">seq</a>. (Same as with the left-hand side expression in a <code>[ ... : ... ]</code> or <code>{ ... : ... }</code> generator.)</p>
+<p><strong>Note:</strong> the output of each &lsquo;scatter&rsquo; thread will be a <em>sequence</em>. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of <a class="wikilink" href="#fn_seq">seq</a>. (Same as with the right-hand side expression in a <code>[ ... : ... ]</code> or <code>{ ... : ... }</code> generator.)</p>
 <p>The input type of the &lsquo;gather&rsquo; thread is <code>Seq[(String, Int)]</code>.</p>
 <h2 id="builtin-function-index">Builtin function index</h2>
 <h3 id="alphabetically-by-name">Alphabetically by name:</h3>
