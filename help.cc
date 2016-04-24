@@ -684,7 +684,7 @@ static const char* _help[][2] = {
     {"merge",
      "\n"
      "Aggregates a sequence of values. 'merge(a)' is equivalent to\n"
-     "'{ 1 -> @ : glue(a) }~1', except faster.\n"
+     "'{ 1 -> @ : a }~1', except faster.\n"
      "\n"
      "Usage:\n"
      "\n"
