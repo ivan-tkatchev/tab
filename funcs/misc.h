@@ -19,6 +19,13 @@ struct LTuple : public obj::Tuple {
     }
 };
 
+struct HexUInt : public obj::UInt {
+
+    void print(obj::Printer& p) {
+        printf("0x%lX", v);
+    }
+};
+
 void tolower(const obj::Object* in, obj::Object*& out) {
 
     const std::string& a = obj::get<obj::String>(in).v;
@@ -243,6 +250,21 @@ Functions::func_t lines_checker(const Type& args, Type& ret, obj::Object*& obj) 
     return lines;
 }
 
+void hex(const obj::Object* in, obj::Object*& out) {
+
+    obj::get<HexUInt>(out).v = obj::get<obj::UInt>(in).v;
+}
+
+Functions::func_t hex_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args != Type(Type::UINT))
+        return nullptr;
+
+    ret = args;
+    obj = new HexUInt;
+    return hex;
+}
+
 void register_misc(Functions& funcs) {
 
     funcs.add("tolower",
@@ -288,10 +310,11 @@ void register_misc(Functions& funcs) {
               bytes_to_string);
 
     funcs.add("hash", Type(Type::STRING), Type(Type::UINT), string_hash);
-    
+
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);
     funcs.add_poly("lines", lines_checker);
+    funcs.add_poly("hex", hex_checker);
 }
 
 

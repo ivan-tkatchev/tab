@@ -52,7 +52,7 @@ static const char* _help[][2] = {
 
     { "syntax",
       "\nLiteral values:\n"
-      " UInt:     1234 or 1234u\n"
+      " UInt:     1234 or 1234u or 0x4D2\n"
       " Int:      -1234 or 1234i or 1234s or 1234l\n"
       " Real:     +10.50 or 1. or 4.4e-10\n"
       " String:   'chars' or \"chars\"\n"
@@ -142,7 +142,7 @@ static const char* _help[][2] = {
     { "functions",
       "\nabs array avg box bytes case cat ceil cos count cut date datetime e eq\n"
       "exp explode file filter first flatten flip floor get glue gmtime grep\n"
-      "grepif has hash head hist if iarray index int join lines log lsh map max\n"
+      "grepif has hash head hex hist if iarray index int join lines log lsh map max\n"
       "mean merge min ngrams normal now open pairs peek pi rand real recut replace\n"
       "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
       "sum take tan tabulate time tolower toupper triplets tuple uint var\n"
@@ -504,6 +504,14 @@ static const char* _help[][2] = {
      "head Seq[a], UInt -> Seq[a]\n"
      "\n"
      "head Arr[a], UInt -> Seq[a]\n"
+    },
+    {"hex",
+     "\n"
+     "Marks the given unsigned integer such that it is output in hexadecimal.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "hex UInt -> UInt\n"
     },
     {"hist",
      "\n"

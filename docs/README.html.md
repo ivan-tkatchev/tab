@@ -449,12 +449,13 @@ paren := "(" atomic ")"
 
 var := "@" | [a-zA-Z][a-zA-Z0-9_]*
 
-int := "-" [0-9]+ |
-       [0-9]+ ("i" | "s" | "l")
+digits := [0-9]+
 
-uint := [0-9]+ ("u")?
+int := "-" digits | digits ("i" | "s" | "l")
 
-real := [-+]? [0-9]+ ("." [0-9]*)? ([eE] [-+]? [0-9]+)?
+uint := digits ("u")? | ("0x" | "0X") [0-9a-fA-F]+
+
+real := [-+]? digits ("." [0-9]*)? ([eE] [-+]? digits)?
 
 string := '"' chars '"' |
           "'" chars "'"
@@ -645,6 +646,11 @@ head {: #fn_head}
 Usage:  
 `head Seq[a], UInt -> Seq[a]`  
 `head Arr[a], UInt -> Seq[a]`
+
+hex {: #fn_hex}
+: Marks the given unsigned integer such that it is output in hexadecimal.  
+Usage:  
+`hex UInt -> UInt`
                                     
 hist {: #fn_hist}
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: [[bucket]].  
@@ -1113,7 +1119,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]] [[datetime]] [[e]]
 [[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]] [[flatten]]
 [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]]
-[[has]] [[hash]] [[head]] [[hist]] [[if]] [[iarray]] [[index]] [[int]]
+[[has]] [[hash]] [[head]] [[hex]] [[hist]] [[if]] [[iarray]] [[index]] [[int]]
 [[join]] [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]]
 [[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[peek]]
 [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]]
@@ -1156,7 +1162,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 **Type converstion:** [[int]] [[real]] [[string]] [[uint]] [[array]]
 
-**Printing:** [[iarray]] [[lines]]
+**Printing:** [[hex]] [[iarray]] [[lines]]
 
 **Aggregators:** [[array]] [[avg]] [[iarray]] [[max]] [[mean]] [[merge]] [[min]]
 [[sort]] [[stddev]] [[stdev]] [[sum]] [[var]] [[variance]]

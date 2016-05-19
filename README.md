@@ -456,12 +456,13 @@ paren := "(" atomic ")"
 
 var := "@" | [a-zA-Z][a-zA-Z0-9_]*
 
-int := "-" [0-9]+ |
-       [0-9]+ ("i" | "s" | "l")
+digits := [0-9]+
 
-uint := [0-9]+ ("u")?
+int := "-" digits+ | digits ("i" | "s" | "l")
 
-real := [-+]? [0-9]+ ("." [0-9]*)? ([eE] [-+]? [0-9]+)?
+uint := digits ("u")? | ("0x" | "0X") [0-9a-fA-F]+
+
+real := [-+]? digits ("." [0-9]*)? ([eE] [-+]? digits)?
 
 string := '"' chars '"' |
           "'" chars "'"
@@ -652,6 +653,11 @@ Usage:
 Usage:  
 `head Seq[a], UInt -> Seq[a]`  
 `head Arr[a], UInt -> Seq[a]`
+
+`hex`
+: Marks the given unsigned integer such that it is output in hexadecimal.  
+Usage:  
+`hex UInt -> UInt`
 
 `hist`
 : Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: `bucket`.  
