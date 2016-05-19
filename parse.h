@@ -141,13 +141,16 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     auto y_uint = axe::e_ref([&](I b, I e) {
             try {
-                stack.push(Command::VAL, std::stoul(std::string(b, e)));
+                stack.push(Command::VAL, std::stoul(std::string(b, e), nullptr, 0));
             } catch (std::exception& ex) {
                 throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an unsigned integer.");
             }
         });
     
     auto x_uint = (+axe::r_num() & ~axe::r_lit('u'))
+        >> y_uint;
+
+    auto x_hex = ((axe::r_lit("0x") | axe::r_lit("0X")) & +axe::r_hex())
         >> y_uint;
 
     auto y_float = axe::e_ref([&](I b, I e) {
@@ -193,7 +196,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         (axe::r_lit('"')  >> y_string_start & axe::r_many(x_char1,0) & axe::r_lit('"')  >> y_string_end) |
         (axe::r_lit('\'') >> y_string_start & axe::r_many(x_char2,0) & axe::r_lit('\'') >> y_string_end);
 
-    auto x_literal = x_float | x_int | x_uint | x_string;
+    auto x_literal = x_hex | x_float | x_int | x_uint | x_string;
 
     auto x_ident = (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
     auto x_var = axe::r_lit('@') | x_ident;
