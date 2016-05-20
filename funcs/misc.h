@@ -170,29 +170,17 @@ void bytes_to_string(const obj::Object* in, obj::Object*& out) {
     }
 }
 
-void string_hash_p(const obj::Object* in, obj::Object*& out, UInt init, UInt mul) {
-
-    const std::string& str = obj::get<obj::String>(in).v;
-    UInt& hash = obj::get<obj::UInt>(out).v;
-
-    hash = init;
-
-    for (unsigned char c : str) {
-        hash ^= (UInt)(c);
-        hash *= (UInt)mul;
-    }
+void obj_hash(const obj::Object* in, obj::Object*& out) {
+    obj::get<obj::UInt>(out).v = in->hash();
 }
 
-constexpr UInt fnv_basis() {
-    return (sizeof(UInt) >= 8 ? 0xcbf29ce484222325 : 0x811c9dc5);
-}
+Functions::func_t hash_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-constexpr UInt fnv_prime() {
-    return (sizeof(UInt) >= 8 ? 0x100000001b3 : 0x01000193);
-}
+    if (args.type == Type::SEQ || args.type == Type::NONE)
+        return nullptr;
 
-void string_hash(const obj::Object* in, obj::Object*& out) {
-    string_hash_p(in, out, fnv_basis(), fnv_prime());
+    ret = Type(Type::UINT);
+    return obj_hash;
 }
 
 void cat(const obj::Object* in, obj::Object*& out) {
@@ -309,8 +297,7 @@ void register_misc(Functions& funcs) {
               Type(Type::STRING),
               bytes_to_string);
 
-    funcs.add("hash", Type(Type::STRING), Type(Type::UINT), string_hash);
-
+    funcs.add_poly("hash", hash_checker);
     funcs.add_poly("cat", cat_checker);
     funcs.add_poly("tuple", tuple_checker);
     funcs.add_poly("lines", lines_checker);

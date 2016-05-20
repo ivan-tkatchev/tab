@@ -487,12 +487,12 @@ static const char* _help[][2] = {
     },
     {"hash",
      "\n"
-     "Hashes a string to an unsigned integer. The FNV hash function (32 or\n"
+     "Hashes a value to an unsigned integer. The FNV hash function (32 or\n"
      "64 bit depending on CPU architecture) is used.\n"
      "\n"
      "Usage:\n"
      "\n"
-     "hash String -> UInt\n"
+     "hash a -> UInt\n"
     },
     {"head",
      "\n"

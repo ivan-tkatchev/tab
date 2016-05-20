@@ -42,6 +42,7 @@ struct bm {
 #include "command.h"
 #include "infer.h"
 #include "parse.h"
+#include "hash.h"
 #include "object.h"
 #include "funcs.h"
 #include "exec.h"

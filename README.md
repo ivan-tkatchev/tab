@@ -644,9 +644,9 @@ Usage:
 `has Map[a,b], a -> UInt`
 
 `hash`
-: Hashes a string to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  
+: Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  
 Usage:  
-`hash String -> UInt`
+`hash a -> UInt`
 
 `head`
 : Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`, `stripe`.  

@@ -24,7 +24,7 @@ struct Object {
 
     virtual ~Object() {}
 
-    virtual size_t hash() const {
+    virtual hash_t hash() const {
         throw std::runtime_error("Object hash not implemented");
     }
 
@@ -70,7 +70,7 @@ struct Atom : public Object {
 
     Atom(const T& i = T()) : v(i) {}
 
-    size_t hash() const { return std::hash<T>()(v); }
+    hash_t hash() const { return do_hash(v, fnv_basis()); }
     bool eq(Object* a) const { return v == get< Atom<T> >(a).v; }
     bool less(Object* a) const { return v < get< Atom<T> >(a).v; }
     void print(Printer& p) { p.val(v); }
@@ -87,10 +87,10 @@ template <typename T>
 struct ArrayAtom : public Object {
     std::vector<T> v;
 
-    size_t hash() const {
-        size_t ret = 0;
+    hash_t hash() const {
+        hash_t ret = fnv_basis();
         for (const T& t : v) {
-            ret += std::hash<T>()(t);
+            do_hash(t, ret);
         }
         return ret;
     }
@@ -160,10 +160,10 @@ struct ArrayObject : public Object {
         v.clear();
     }
     
-    size_t hash() const {
-        size_t ret = 0;
+    hash_t hash() const {
+        hash_t ret = fnv_basis();
         for (Object* t : v) {
-            ret += t->hash();
+            do_hash(t->hash(), ret);
         }
         return ret;
     }
@@ -309,7 +309,7 @@ struct Tuple : public ArrayObject {
 };
 
 struct ObjectHash {
-    size_t operator()(Object* o) const {
+    hash_t operator()(Object* o) const {
         return o->hash();
     }
 };
@@ -357,11 +357,11 @@ struct MapObject : public Object {
         v.clear();
     }
     
-    size_t hash() const {
-        size_t ret = 0;
+    hash_t hash() const {
+        hash_t ret = fnv_basis();
         for (const auto& t : v) {
-            ret += t.first->hash();
-            ret += t.second->hash();
+            do_hash(t.first->hash(), ret);
+            do_hash(t.second->hash(), ret);
         }
         return ret;
     }
@@ -510,7 +510,7 @@ struct MapObject : public Object {
 
 struct SeqBase : public Object {
 
-    size_t hash() const {
+    hash_t hash() const {
         throw std::runtime_error("Sequences cannot be stored in maps.");
     }
 
