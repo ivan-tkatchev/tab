@@ -111,8 +111,10 @@ static const char* _help[][2] = {
       "    { @ -> sum.1 : :[ grep(@, \"\\\\S+\") ] }\n\n"
       "A histogram of word count by word length:\n"
       "    freq={ count.@ -> sum.1 : :[ grep(@, \"\\\\S+\") ] }, sort.freq\n\n"
+      "Count the number of unique lines:\n"
+      "     merge.[ uniques.@ ]\n\n"
       "Glue every pair of lines in a file together:\n"
-      "    [ join(head(@, 2), \"\\t\") : explode.@ ]\n"
+      "    [ join(head(@, 2), \"\\t\") : explode.@ ]\n\n"
       "Calculate the factorial:\n"
       "    << @~0 * @~1 : 1, count.@ >>\n"
     },
@@ -145,8 +147,8 @@ static const char* _help[][2] = {
       "grepif has hash head hex hist if iarray index int join lines log lsh map max\n"
       "mean merge min ngrams normal now open pairs peek pi rand real recut replace\n"
       "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
-      "sum take tan tabulate time tolower toupper triplets tuple uint var\n"
-      "variance while zip\n"
+      "sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
+      "uniques_estimator var variance while zip\n"
     },
 
     {"abs",
@@ -1103,6 +1105,28 @@ static const char* _help[][2] = {
      "uint String, Integer -> UInt\n"
      "    tries to convert the string to an unsigned integer; if the conversion\n"
      "    fails, returns the second argument instead.\n"
+    },
+    {"uniques",
+     "\n"
+     "Returns an aggregator for counting the number of unique values. Hashes\n"
+     "of all values are stored, so the result is exact as long as there are\n"
+     "no hash collisions. Memory usage is proportional to the count of\n"
+     "unique items. See also 'uniques_estimator'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "uniques a -> UInt\n"
+    },
+    {"uniques_estimator",
+     "\n"
+     "Returns an aggregator for estimating the number of unique values. A\n"
+     "statistical estimator (HyperLogLog) is used instead of exact counts;\n"
+     "memory usage is constant. Note: the estimator works better with larger\n"
+     "counts of unique values. See also 'uniques'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "uniques_estimator a -> UInt\n"
     },
     {"var",
      "\n"

@@ -955,6 +955,16 @@ Usage:
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
+`uniques`
+: Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also `uniques_estimator`.  
+Usage:  
+`uniques a -> UInt`
+
+`uniques_estimator`
+: Returns an aggregator for estimating the number of unique values. A [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also `uniques`.  
+Usage:  
+`uniques_estimator a -> UInt`
+
 `var`
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
@@ -1016,6 +1026,12 @@ Here is a list of aggregators and their effects, sorted alphabetically:
 
 `sum`
 : Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.
+
+`uniques`
+: Accepts any value and returns a `UInt`-valued aggregator that counts the number of unique values when combined. *Note:* hashes of values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique values.
+
+`uniques_estimator`
+: Like `uniques`, except that a [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead. The result is not exact but the estimator uses constant memory. *Note:* the estimator works better with larger counts of unique values.
 
 `var`
 : Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.
