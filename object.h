@@ -90,7 +90,7 @@ struct ArrayAtom : public Object {
     hash_t hash() const {
         hash_t ret = fnv_basis();
         for (const T& t : v) {
-            do_hash(t, ret);
+            ret = do_hash(t, ret);
         }
         return ret;
     }
@@ -163,7 +163,7 @@ struct ArrayObject : public Object {
     hash_t hash() const {
         hash_t ret = fnv_basis();
         for (Object* t : v) {
-            do_hash(t->hash(), ret);
+            ret = do_hash(t->hash(), ret);
         }
         return ret;
     }
@@ -243,10 +243,10 @@ struct ArrayObject : public Object {
             Object* next = seq->next();
 
             if (!next) break;
-            
+
             v.push_back(next->clone());
         }
-    }        
+    }
 
     void merge(const Object* v2) {
         ArrayObject& t = get<ArrayObject>(v2);
@@ -360,8 +360,8 @@ struct MapObject : public Object {
     hash_t hash() const {
         hash_t ret = fnv_basis();
         for (const auto& t : v) {
-            do_hash(t.first->hash(), ret);
-            do_hash(t.second->hash(), ret);
+            ret = do_hash(t.first->hash(), ret);
+            ret = do_hash(t.second->hash(), ret);
         }
         return ret;
     }

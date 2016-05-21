@@ -31,6 +31,7 @@ namespace funcs {
 #include "funcs/ngram.h"
 #include "funcs/time.h"
 #include "funcs/hist.h"
+#include "funcs/uniques.h"
 
 } // namespace funcs
 
@@ -66,6 +67,7 @@ void register_functions(size_t seed) {
     funcs::register_ngram(funs);
     funcs::register_time(funs);
     funcs::register_hist(funs);
+    funcs::register_uniques(funs);
 }
 
 } // namespace tab
