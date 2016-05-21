@@ -16,6 +16,7 @@ struct AtomUniques : public obj::UInt {
     }
 
     void insert(const obj::Object* o) {
+        v = 1;
         count.clear();
         count.insert(o->hash());
     }
@@ -38,7 +39,7 @@ struct AtomUniques : public obj::UInt {
 template <size_t NumBucketBits = 12>
 struct AtomUniquesEstimate : public obj::UInt {
 
-    std::array<uint8_t, (1 << NumBucketBits)> bits;
+    std::unordered_map<UInt,uint8_t> bits;
 
     AtomUniquesEstimate() : obj::UInt(0), bits() {}
 
@@ -65,7 +66,8 @@ struct AtomUniquesEstimate : public obj::UInt {
     }
 
     void insert(const obj::Object* o) {
-        bits = {};
+        v = 1;
+        bits.clear();
 
         const UInt h = o->hash();
         const UInt h0 = h & ((1 << NumBucketBits) - 1);
@@ -77,16 +79,16 @@ struct AtomUniquesEstimate : public obj::UInt {
     void merge(const obj::Object* o) {
         AtomUniquesEstimate<NumBucketBits>& x = obj::get< AtomUniquesEstimate<NumBucketBits> >(o);
 
-        for (size_t i = 0; i < bits.size(); ++i) {
-            bits[i] = std::max(bits[i], x.bits[i]);
+        for (const auto& i : x.bits) {
+            bits[i.first] = std::max(bits[i.first], i.second);
         }
     }
 
     void merge_end() {
 
         Real x = 0;
-        for (uint8_t i : bits) {
-            x += (int)i;
+        for (const auto& i : bits) {
+            x += i.second;
         }
 
         v = ::round(0.39701 * bits.size() * pow(2, x / bits.size()));

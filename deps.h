@@ -2,6 +2,7 @@
 #define __TAB_DEPS_H
 
 #include <math.h>
+#include <time.h>
 
 #include <memory>
 #include <stdexcept>
@@ -14,6 +15,7 @@
 #include <initializer_list>
 #include <utility>
 #include <algorithm>
+#include <random>
 
 #include <regex>
 
