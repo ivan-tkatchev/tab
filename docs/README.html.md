@@ -48,7 +48,7 @@ If your `<expression>` is too long, you can pass it in via a file, with the `-f`
 
 (In this case, the contents of `mycode` will be appended to `<expression>`, separated with a comma.)
 
-Run `tab -h` to see the rest of the supported command-line parameters.
+Run `tab -h` to see the rest of the supported command-line parameters. The binary comes with built-in documentation; use `-h` to read a complete language reference right in your shell prompt.
 
 # Language tutorial #
 
