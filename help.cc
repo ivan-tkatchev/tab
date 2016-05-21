@@ -763,7 +763,7 @@ static const char* _help[][2] = {
     {"peek",
      "\n"
      "Given a sequence, return a pair of its first element and the sequence\n"
-     "itself with the first element reattached. Equivalent to 'h=take.@, h glue(h, @)'.\n"
+     "itself with the first element reattached. Equivalent to 'h=take.@, h, glue(h, @)'.\n"
      "See also: 'take', 'glue'.\n"
      "\n"
      "Usage:\n"

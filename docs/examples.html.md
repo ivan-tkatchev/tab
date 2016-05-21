@@ -39,6 +39,10 @@ This is an example list of useful `tab` programs.
     :::tab
     ?[ (tolower.first.@) == "the", second.@ : pairs( :[grep(@,"[A-Za-z0-9]+")] ) ]
 
+#### Count the number of unique English words in a file:
+    :::tab
+    merge.flatten.[ [ uniques.tolower.@ : grep(@, "[A-Za-z0-9]+") ] ]
+
 ## Sampling data randomly from files:
 
 #### Output four random lines from a file:
@@ -51,7 +55,7 @@ This is an example list of useful `tab` programs.
 
 #### Sample four lines from `file.txt` one hundred times and output the histogram of number of empty lines:
     :::tab
-    def empties sum([ count(@) == 0 : sample(4, @) ]),
+    def empties sum.[ count(@) == 0 : sample(4, @) ],
     { empties.open."file.txt" -> sum.1 : count(100) }
 
 ## Basic math and loops:
@@ -199,6 +203,6 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### Run the famous Rule 110 for 8 steps:
     :::tab
     def step [ t=string.@, case(t; 'XXX','.'; 'X..','.'; '...','.'; 'X') : ngrams(seq.bytes.@,3) ];
-    def rule110 << cat('.', join(@~0, ''), '.') : @~0, count.@~1 >>;
+    def rule110 << cat('.', join(step.@~0, ''), '.') : @~0, count.@~1 >>;
     rule110('..........XX..........', 8)
 

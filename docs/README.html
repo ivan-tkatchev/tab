@@ -882,13 +882,13 @@ Usage:<br>
 <code>uint String -&gt; UInt</code><br>
 <code>uint String, Integer -&gt; UInt</code> &ndash; tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
 <dt id="fn_uniques">uniques</dt>
-<dd>Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also <a class="wikilink" href="#fn_uniques_estimator">uniques_estimator</a>.<br>
+<dd>Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>.<br>
 Usage:<br>
 <code>uniques a -&gt; UInt</code></dd>
-<dt id="fn_uniques_estimator">uniques_estimator</dt>
+<dt id="fn_uniques_estimate">uniques_estimate</dt>
 <dd>Returns an aggregator for estimating the number of unique values. A <a href="http://en.wikipedia.org/wiki/HyperLogLog">statistical estimator</a> is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also <a class="wikilink" href="#fn_uniques">uniques</a>.<br>
 Usage:<br>
-<code>uniques_estimator a -&gt; UInt</code></dd>
+<code>uniques_estimate a -&gt; UInt</code></dd>
 <dt id="fn_var">var</dt>
 <dd>Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: <a class="wikilink" href="#fn_mean">mean</a> and <a class="wikilink" href="#fn_stdev">stdev</a>.<br>
 Usage:<br>
@@ -936,7 +936,7 @@ Usage:<br>
 <dd>Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.</dd>
 <dt>uniques</dt>
 <dd>Accepts any value and returns a <code>UInt</code>-valued aggregator that counts the number of unique values when combined. <em>Note:</em> hashes of values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique values.</dd>
-<dt>uniques_estimator</dt>
+<dt>uniques_estimate</dt>
 <dd>Like <a class="wikilink" href="#fn_uniques">uniques</a>, except that a <a href="http://en.wikipedia.org/wiki/HyperLogLog">statistical estimator</a> is used instead. The result is not exact but the estimator uses constant memory. <em>Note:</em> the estimator works better with larger counts of unique values.</dd>
 <dt>var</dt>
 <dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.</dd>
@@ -1027,14 +1027,14 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a>
 <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
 <a class="wikilink" href="#fn_tabulate">tabulate</a> <a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_tuple">tuple</a>
-<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimator">uniques_estimator</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a>
+<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a>
 <a class="wikilink" href="#fn_zip">zip</a></p>
 <h3 id="by-kind">By kind:</h3>
 <p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
 <p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
 <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
 <p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_normal">normal</a>
-<a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimator">uniques_estimator</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
+<a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
 <p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_join">join</a> 
 <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a></p>
 <p><strong>Arrays:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_index">index</a>
@@ -1051,5 +1051,5 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
 <p><strong>Aggregators:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
-<a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimator">uniques_estimator</a> <a class="wikilink" href="#fn_var">var</a>
+<a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a>
 <a class="wikilink" href="#fn_variance">variance</a></p></body></html>
