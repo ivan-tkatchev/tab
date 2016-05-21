@@ -148,7 +148,7 @@ static const char* _help[][2] = {
       "mean merge min ngrams normal now open pairs peek pi rand real recut replace\n"
       "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
       "sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
-      "uniques_estimator var variance while zip\n"
+      "uniques_estimate var variance while zip\n"
     },
 
     {"abs",
@@ -1111,13 +1111,13 @@ static const char* _help[][2] = {
      "Returns an aggregator for counting the number of unique values. Hashes\n"
      "of all values are stored, so the result is exact as long as there are\n"
      "no hash collisions. Memory usage is proportional to the count of\n"
-     "unique items. See also 'uniques_estimator'.\n"
+     "unique items. See also 'uniques_estimate'.\n"
      "\n"
      "Usage:\n"
      "\n"
      "uniques a -> UInt\n"
     },
-    {"uniques_estimator",
+    {"uniques_estimate",
      "\n"
      "Returns an aggregator for estimating the number of unique values. A\n"
      "statistical estimator (HyperLogLog) is used instead of exact counts;\n"
@@ -1126,7 +1126,7 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "uniques_estimator a -> UInt\n"
+     "uniques_estimate a -> UInt\n"
     },
     {"var",
      "\n"
