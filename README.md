@@ -950,7 +950,7 @@ Usage:
 `uint`
 : Converts a signed integer, floating-point number or string to an unsigned integer.  
 Usage:  
-`uint UInt -> UInt`  
+`uint Int -> UInt`  
 `uint Real -> UInt`  
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.

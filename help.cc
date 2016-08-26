@@ -1096,7 +1096,7 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "uint UInt -> UInt\n"
+     "uint Int -> UInt\n"
      "\n"
      "uint Real -> UInt\n"
      "\n"
