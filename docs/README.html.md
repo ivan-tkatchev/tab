@@ -474,6 +474,11 @@ Usage:
 `abs Int -> Int`  
 `abs Real -> Real`
 
+and {: #fn_and}
+: Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to `a & b & c ...`.  See also [[or]].  
+Usage:  
+`and (Integer, Integer...) -> UInt`
+
 array {: #fn_array}
 : Stores a sequence or map or atomic value into an array. See also [[sort]] for a version of this function with sorting. See also: [[iarray]].  
 Usage:  
@@ -764,6 +769,11 @@ Usage:
 
 open {: #fn_open}
 : Same as [[file]].
+
+or {: #fn_or}
+: Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to `a | b | c ...`.  See also [[and]].  
+Usage:  
+`or (Integer, Integer...) -> UInt`
 
 pairs {: #fn_pairs}
 : Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: [[triplets]] and [[ngrams]].)  
@@ -1131,13 +1141,13 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 ### Alphabetically by name: 
 
-[[abs]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]]
+[[abs]] [[and]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]]
 [[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]] [[datetime]] [[e]]
 [[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]] [[flatten]]
 [[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]]
 [[has]] [[hash]] [[head]] [[hex]] [[hist]] [[if]] [[iarray]] [[index]] [[int]]
 [[join]] [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]]
-[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[pairs]] [[peek]]
+[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[or]] [[pairs]] [[peek]]
 [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]]
 [[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]]
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
@@ -1173,7 +1183,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
-**Conditionals:** [[box]] [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[while]]
+**Conditionals:** [[and]] [[box]] [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[or]] [[while]]
 
 **Files:** [[file]] [[open]]
 

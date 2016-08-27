@@ -64,14 +64,32 @@ void eqfun(const obj::Object* in, obj::Object*& out) {
 
     while (i != e) {
         if (arg->eq(*i)) {
-            r = 1;
+            r.v = 1;
             return;
         }
 
         ++i;
     }
 
-    r = 0;
+    r.v = 0;
+}
+
+template <bool AND>
+void andorfun(const obj::Object* in, obj::Object*& out) {
+
+    obj::UInt& r = obj::get<obj::UInt>(out);
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    r.v = (AND ? 1 : 0);
+
+    for (obj::Object* arg : args.v) {
+        UInt x = (obj::get<obj::UInt>(arg).v ? 1 : 0);
+
+        if (x != r.v) {
+            r.v = (AND ? 0 : 1);
+            return;
+        }
+    }
 }
 
 Functions::func_t if_checker(const Type& args, Type& ret, obj::Object*& obj) {
@@ -164,6 +182,23 @@ Functions::func_t eq_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return eqfun;
 }
 
+template <bool AND>
+Functions::func_t and_or_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() < 2)
+        return nullptr;
+
+    for (const auto& t : *(args.tuple)) {
+
+        if (!check_integer(t)) 
+            return nullptr;
+    }
+
+    ret = Type(Type::UINT);
+    
+    return andorfun<AND>;
+}
+
 template <bool SORTED>
 void register_if(Functions& funcs) {
 
@@ -171,6 +206,8 @@ void register_if(Functions& funcs) {
     funcs.add_poly("has", has_checker<SORTED>);
     funcs.add_poly("case", case_checker);
     funcs.add_poly("eq", eq_checker);
+    funcs.add_poly("and", and_or_checker<true>);
+    funcs.add_poly("or", and_or_checker<false>);
 }
 
 #endif

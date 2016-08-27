@@ -142,10 +142,10 @@ static const char* _help[][2] = {
     },
 
     { "functions",
-      "\nabs array avg box bytes case cat ceil cos count cut date datetime e eq\n"
+      "\nabs and array avg box bytes case cat ceil cos count cut date datetime e eq\n"
       "exp explode file filter first flatten flip floor get glue gmtime grep\n"
       "grepif has hash head hex hist if iarray index int join lines log lsh map max\n"
-      "mean merge min ngrams normal now open pairs peek pi rand real recut replace\n"
+      "mean merge min ngrams normal now open or pairs peek pi rand real recut replace\n"
       "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
       "sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
       "uniques_estimate var variance while zip\n"
@@ -160,6 +160,14 @@ static const char* _help[][2] = {
      "abs Int -> Int\n"
      "\n"
      "abs Real -> Real\n"
+    },
+    {"and",
+     "Returns 1 if all the arguments are not 0, returns 0 otherwise.\n"
+     "Equivalent to 'a & b & c ...'.  See also 'or'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "and (Integer, Integer...) -> UInt\n"
     },
     {"array",
      "\n"
@@ -748,6 +756,15 @@ static const char* _help[][2] = {
     {"open",
      "\n"
      "Same as 'file'.\n"
+    },
+    {"or",
+     "\n"
+     "Returns 0 if all the arguments are 0, returns 1 otherwise.\n"
+     "Equivalent to 'a | b | c ...'.  See also 'and'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "or (Integer, Integer...) -> UInt\n"
     },
     {"pairs",
      "\n"

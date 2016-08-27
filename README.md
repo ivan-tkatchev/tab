@@ -481,6 +481,11 @@ Usage:
 `abs Int -> Int`  
 `abs Real -> Real`
 
+`and`
+: Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to `a & b & c ...`.  See also `or`.  
+Usage:  
+`and (Integer, Integer...) -> UInt`
+
 `array`
 : Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting. See also: `iarray`.  
 Usage:  
@@ -771,6 +776,11 @@ Usage:
 
 `open`
 : Same as `file`.
+
+`or`
+: Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to `a | b | c ...`.  See also `and`.  
+Usage:  
+`or (Integer, Integer...) -> UInt`
 
 `pairs`
 : Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: `triplets` and `ngrams`.)  

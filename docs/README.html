@@ -488,6 +488,10 @@ code {
 Usage:<br>
 <code>abs Int -&gt; Int</code><br>
 <code>abs Real -&gt; Real</code></dd>
+<dt id="fn_and">and</dt>
+<dd>Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to <code>a &amp; b &amp; c ...</code>.  See also <a class="wikilink" href="#fn_or">or</a>.<br>
+Usage:<br>
+<code>and (Integer, Integer...) -&gt; UInt</code></dd>
 <dt id="fn_array">array</dt>
 <dd>Stores a sequence or map or atomic value into an array. See also <a class="wikilink" href="#fn_sort">sort</a> for a version of this function with sorting. See also: <a class="wikilink" href="#fn_iarray">iarray</a>.<br>
 Usage:<br>
@@ -729,6 +733,10 @@ Usage:<br>
 <code>now None -&gt; Int</code></dd>
 <dt id="fn_open">open</dt>
 <dd>Same as <a class="wikilink" href="#fn_file">file</a>.</dd>
+<dt id="fn_or">or</dt>
+<dd>Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to <code>a | b | c ...</code>.  See also <a class="wikilink" href="#fn_and">and</a>.<br>
+Usage:<br>
+<code>or (Integer, Integer...) -&gt; UInt</code></dd>
 <dt id="fn_pairs">pairs</dt>
 <dd>Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given <code>[ 1, 2, 3, 4 ]</code> will return <code>[ (1, 2), (2, 3), (3, 4) ]</code>. (See also: <a class="wikilink" href="#fn_triplets">triplets</a> and <a class="wikilink" href="#fn_ngrams">ngrams</a>.)<br>
 Usage:<br>
@@ -1016,13 +1024,13 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p>The input type of the &lsquo;gather&rsquo; thread is <code>Seq[(String, Int)]</code>.</p>
 <h2 id="builtin-function-index">Builtin function index</h2>
 <h3 id="alphabetically-by-name">Alphabetically by name:</h3>
-<p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_case">case</a>
+<p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_case">case</a>
 <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_e">e</a>
 <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a>
 <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_glue">glue</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a>
 <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_index">index</a> <a class="wikilink" href="#fn_int">int</a>
 <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_log">log</a> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a>
-<a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_open">open</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a>
+<a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_open">open</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a>
 <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_round">round</a>
 <a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a>
 <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
@@ -1046,7 +1054,7 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Tuples:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_tuple">tuple</a></p>
 <p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
 <p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>
-<p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_while">while</a></p>
+<p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_while">while</a></p>
 <p><strong>Files:</strong> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_open">open</a></p>
 <p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
