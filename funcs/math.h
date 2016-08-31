@@ -16,7 +16,7 @@ void string_to_real(const obj::Object* in, obj::Object*& out) {
 
 void string_to_int(const obj::Object* in, obj::Object*& out) {
     try {
-        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(in).v);
+        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(in).v, 0, 0);
     } catch (std::exception& e) {
         throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an integer.");
     }
@@ -24,7 +24,7 @@ void string_to_int(const obj::Object* in, obj::Object*& out) {
 
 void string_to_uint(const obj::Object* in, obj::Object*& out) {
     try {
-        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v);
+        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(in).v, 0, 0);
     } catch (std::exception& e) {
         throw std::runtime_error("Could not convert '" + obj::get<obj::String>(in).v + "' to an unsigned integer.");
     }
@@ -43,7 +43,7 @@ template <typename T>
 void string_to_int_def(const obj::Object* in, obj::Object*& out) {
     obj::Tuple& arg = obj::get<obj::Tuple>(in);
     try {
-        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(arg.v[0]).v);
+        obj::get<obj::Int>(out).v = std::stol(obj::get<obj::String>(arg.v[0]).v, 0, 0);
     } catch (std::exception& e) {
         obj::get<obj::Int>(out).v = obj::get<T>(arg.v[1]).v;
     }
@@ -53,7 +53,7 @@ template <typename T>
 void string_to_uint_def(const obj::Object* in, obj::Object*& out) {
     obj::Tuple& arg = obj::get<obj::Tuple>(in);
     try {
-        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(arg.v[0]).v);
+        obj::get<obj::UInt>(out).v = std::stoul(obj::get<obj::String>(arg.v[0]).v, 0, 0);
     } catch (std::exception& e) {
         obj::get<obj::UInt>(out).v = obj::get<T>(arg.v[1]).v;
     }
