@@ -1,0 +1,22 @@
+[ try join([. try tolower.@[0,0] : recut(@, "[^a-zA-Z]+") .][0,-1],"") ]
+===>
+bslvat
+pihgfoctapoo
+oacotsaadcb
+tltsturdd
+eattsatpdwot
+satptptwtsift
+dsasttf
+tcnitsatesi
+talgtratfd
+mbiiacotsiwoipa
+adwotsuscod
+wasitfomeocgb
+aslp
+tsipaiwwoakeo
+iibnlttwom
+ffapptaniine
+stchoadtsbl
+fadoolwictoo
+afoooicwtsotuoo
+dits

@@ -10,8 +10,10 @@ Skip to:
     * [Grammar](#grammar)
     * [Builtin functions](#builtin-functions)
     * [Aggregators](#aggregators)
-    * [Recursion](#recursion)
-    * [Multi-core](#multi-core)
+    * Advanced features:
+        * [Error handling](#error-handling)
+        * [Recursion](#recursion)
+        * [Multi-core](#multi-core)
 * [Function index](#builtin-function-index)
 
 # Compiling and installing #
@@ -437,11 +439,11 @@ funcall_paren := var "(" expr ")"
 
 funcall_dot := var "." atomic
 
-array := "[." expr (":" expr)? ".]"
+array := "[." "try"? expr (":" expr)? ".]"
 
-map := "{" expr ("->" expr)? (":" expr)? "}"
+map := "{" "try"? expr ("->" expr)? (":" expr)? "}"
 
-seq := "[" expr (":" expr)? "]"
+seq := "[" "try"? expr (":" expr)? "]"
 
 recursor := "<<" expr ":" expr ">>"                                    
 
@@ -1057,6 +1059,24 @@ Similarly for arrays:
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
 
+### Error handling ###
+
+Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating expressions.
+
+Simply put the special token `try` after the `[`, `{` or `[.` opening parenthesis to silently ignore errors instead of aborting evaluation.
+
+For example:
+
+   :::tab
+   [ try uint.@ ]
+
+will ignore any lines on the standard input that can't be parsed as a number.
+
+   :::tab
+   first.{ try cut(@, " ", 1) }
+
+will output the second word from each line, and ignore all lines that don't contain a space character.
+
 ## Recursion ##
 
 `tab` supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.
@@ -1111,7 +1131,7 @@ A simple expression that will search for all four-digit numbers.
 
 **Note:** if there is no `-->` token in the epxression, then a default `--> @` will be automatically appended.
 
-In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.
+In this case no result aggregation is done, all parallel threads will simply print what they found to standard output.
 
 ### 2.
 

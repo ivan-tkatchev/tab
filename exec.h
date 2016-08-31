@@ -61,6 +61,7 @@ void execute_init(std::vector<Command>& commands) {
             break;
 
         case Command::GEN:
+        case Command::GEN_TRY:
             c.object = new obj::SeqGenerator;
             break;
 
@@ -157,6 +158,44 @@ void execute_run(std::vector<Command>& commands, Runtime& r) {
                 r.stack.pop_back();
 
                 return val;
+            };
+
+            r.stack.push_back(c.object);
+            break;
+        }
+        case Command::GEN_TRY:
+        {
+            obj::Object* seq = r.stack.back();
+            r.stack.pop_back();
+
+            Command::Closure& clo = c.closure[0];
+            UInt var = c.arg.uint;
+
+            obj::SeqGenerator& gen = obj::get<obj::SeqGenerator>(c.object);
+
+            gen.v = [seq,&clo,var,&r]() mutable {
+
+                while (1) {
+
+                    obj::Object* next = seq->next();
+
+                    if (!next) return next;
+
+                    r.set_var(var, next);
+
+                    size_t oldsize = r.stack.size();
+
+                    try {
+                        execute_run(clo.code, r);
+
+                        obj::Object* val = r.stack.back();
+                        r.stack.pop_back();
+                        return val;
+
+                    } catch (...) {
+                        r.stack.resize(oldsize);
+                    }
+                }
             };
 
             r.stack.push_back(c.object);

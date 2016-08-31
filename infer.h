@@ -629,10 +629,11 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
         }
 
         case Command::GEN:
+        case Command::GEN_TRY:
         case Command::REC:
         {
             UInt tlvar;
-            Type t = (c.cmd == Command::GEN ?
+            Type t = (c.cmd != Command::REC ?
                       infer_gen_generator(c, typer, tlvar) :
                       infer_rec_generator(c, typer, tlvar));
             c.arg.uint = tlvar;

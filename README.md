@@ -23,8 +23,10 @@ Skip to:
 * [Grammar reference](#markdown-header-grammar)
 * [Builtin functions reference](#markdown-header-builtin-functions)
 * [Aggregators reference](#markdown-header-aggregators)
-* [Recursion](#markdown-header-recursion)
-* [Multi-core](#markdown-header-multi-core)
+* Advanced features:
+    * [Error handling](#markdown-header-error-handling)
+    * [Recursion](#markdown-header-recursion)
+    * [Multi-core](#markdown-header-multi-core)
 
 ## Compiling and installing ##
 
@@ -446,11 +448,11 @@ funcall_paren := var "(" expr ")"
 
 funcall_dot := var "." atomic
 
-array := "[." expr (":" expr)? ".]"
+array := "[." "try"? expr (":" expr)? ".]"
 
-map := "{" expr ("->" expr)? (":" expr)? "}"
+map := "{" "try"? expr ("->" expr)? (":" expr)? "}"
 
-seq := "[" expr (":" expr)? "]"
+seq := "[" "try"? expr (":" expr)? "]"
 
 paren := "(" atomic ")"
 
@@ -460,7 +462,7 @@ digits := [0-9]+
 
 int := "-" digits+ | digits ("i" | "s" | "l")
 
-uint := digits ("u")? | ("0x" | "0X") [0-9a-fA-F]+
+uint := digits "u"? | ("0x" | "0X") [0-9a-fA-F]+
 
 real := [-+]? digits ("." [0-9]*)? ([eE] [-+]? digits)?
 
@@ -1062,6 +1064,22 @@ Similarly for arrays:
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
 
+### Error handling ###
+
+Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating expressions.
+
+Simply put the special token `try` after the `[`, `{` or `[.` opening parenthesis to silently ignore errors instead of aborting evaluation.
+
+For example:
+
+   [ try uint.@ ]
+
+will ignore any lines on the standard input that can't be parsed as a number.
+
+   first.{ try cut(@, " ", 1) }
+
+will output the second word from each line, and ignore all lines that don't contain a space character.
+
 ### Recursion ###
 
 `tab` supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.
@@ -1111,7 +1129,7 @@ A simple expression that will search for all four-digit numbers.
 
 **Note:** if there is no `-->` token in the epxression, then a default `--> @` will be automatically appended.
 
-In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.
+In this case no result aggregation is done, all parallel threads will simply print what they found to standard output.
 
 ###### 2.
 

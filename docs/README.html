@@ -112,8 +112,12 @@ code {
 <li><a href="#grammar">Grammar</a></li>
 <li><a href="#builtin-functions">Builtin functions</a></li>
 <li><a href="#aggregators">Aggregators</a></li>
+<li>Advanced features:<ul>
+<li><a href="#error-handling">Error handling</a></li>
 <li><a href="#recursion">Recursion</a></li>
 <li><a href="#multi-core">Multi-core</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#builtin-function-index">Function index</a></li>
@@ -453,11 +457,11 @@ code {
 
 <span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">atomic</span>
 
-<span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
+<span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
 
-<span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
+<span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
 
-<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
+<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
 
 <span class="nx">recursor</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;:&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
 
@@ -964,6 +968,16 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 
 <p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
+<h3 id="error-handling">Error handling</h3>
+<p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating expressions.</p>
+<p>Simply put the special token <code>try</code> after the <code>[</code>, <code>{</code> or <code>[.</code> opening parenthesis to silently ignore errors instead of aborting evaluation.</p>
+<p>For example:</p>
+<p>:::tab
+   [ try uint.@ ]</p>
+<p>will ignore any lines on the standard input that can&rsquo;t be parsed as a number.</p>
+<p>:::tab
+   first.{ try cut(@, &rdquo; &ldquo;, 1) }</p>
+<p>will output the second word from each line, and ignore all lines that don&rsquo;t contain a space character.</p>
 <h2 id="recursion">Recursion</h2>
 <p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
 <p>Consider the example of computing the factorial: given a sequence of integers, compute its product.</p>
@@ -1003,7 +1017,7 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 <p>A simple expression that will search for all four-digit numbers. </p>
 <p><strong>Note:</strong> if there is no <code>--&gt;</code> token in the epxression, then a default <code>--&gt; @</code> will be automatically appended.</p>
-<p>In this case no result aggregation is done, all parallel threads will simply output what they found to standard output.</p>
+<p>In this case no result aggregation is done, all parallel threads will simply print what they found to standard output.</p>
 <h3 id="2_1">2.</h3>
 <div class="codehilite"><pre><span></span><span class="nx">count</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">--&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span>
 </pre></div>

@@ -14,47 +14,53 @@ struct ParseStack {
     template <typename T>
     void push(Command::cmd_t c, const T& t) { stack.emplace_back(c, t); }
 
-    std::vector< std::pair<size_t,String> > _mark;
-    std::vector< String> names;
-    
-    void mark() {
-        _mark.emplace_back(stack.size(), String{0});
-    }
+    struct mark_val_t {
+        size_t top;
+        bool try_catch;
+        String name;
 
-    void mark(String n) {
-        _mark.emplace_back(stack.size(), n);
+        mark_val_t(size_t t = 0, bool tc = false, String n = String{0}) :
+            top(t), try_catch(tc), name(n) {}
+    };
+
+    std::vector<mark_val_t> _mark;
+    std::vector<String> names;
+    
+    void mark(bool tc = false, String n = String{0}) {
+        _mark.emplace_back(stack.size(), tc, n);
     }
 
     void unmark() {
         _mark.pop_back();
     }
 
-    String close_to(std::vector<Command>& otherstack, bool do_pop = true) {
+    mark_val_t close_to(std::vector<Command>& otherstack, bool do_pop = true) {
 
         push(Command::TUP);
 
-        auto m = _mark.back();
-        String ret = m.second;
+        auto ret = _mark.back();
 
         if (do_pop)
             _mark.pop_back();
 
-        otherstack.assign(stack.begin() + m.first, stack.end());
-        stack.erase(stack.begin() + m.first, stack.end());
+        otherstack.assign(stack.begin() + ret.top, stack.end());
+        stack.erase(stack.begin() + ret.top, stack.end());
 
         return ret;
     }
 
-    void close(Command::cmd_t cmd, bool do_pop = true) {
+    void close(Command::cmd_t cmd, bool do_pop = true, Command::cmd_t altcmd = Command::cmd_t{}) {
 
         Command::Closure c;
 
-        String name = close_to(c.code, do_pop);
+        auto mark_val = close_to(c.code, do_pop);
 
-        if (name.ix == 0) {
+        cmd = (mark_val.try_catch ? altcmd : cmd);
+
+        if (mark_val.name.ix == 0) {
             stack.emplace_back(cmd);
         } else {
-            stack.emplace_back(cmd, name);
+            stack.emplace_back(cmd, mark_val.name);
         }
         
         stack.back().closure.resize(1);
@@ -78,7 +84,7 @@ struct ParseStack {
 
             if (i.cmd == Command::VAL || i.cmd == Command::VAR || i.cmd == Command::VAW || i.cmd == Command::FUN ||
                 i.cmd == Command::FUN0 || i.cmd == Command::TUP || i.cmd == Command::LAMD ||
-                (print_types && (i.cmd == Command::GEN || i.cmd == Command::REC))) {
+                (print_types && (i.cmd == Command::GEN || i.cmd == Command::GEN_TRY || i.cmd == Command::REC))) {
 
                 std::cout << " " << Atom::print(i.arg);
             }
@@ -202,12 +208,13 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto x_var = axe::r_lit('@') | x_ident;
 
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
-    auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(make_string(b, e)); });
+    auto y_mark_try = axe::e_ref([&](I b, I e) { stack.mark(true); });
+    auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(false, make_string(b, e)); });
     auto y_unmark = axe::e_ref([&](I b, I e) { stack.unmark(); });
 
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
-    auto y_close_gen = axe::e_ref([&](I b, I e) { stack.close(Command::GEN); });
+    auto y_close_gen = axe::e_ref([&](I b, I e) { stack.close(Command::GEN, true, Command::GEN_TRY); });
     auto y_close_rec = axe::e_ref([&](I b, I e) { stack.close(Command::REC); });
     
     auto y_true = axe::e_ref([&](I b, I e) { stack.push(Command::VAL, (Int)1); });
@@ -218,8 +225,10 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         (((axe::r_lit(':') >> y_mark) & x_expr) |
          (axe::r_empty() >> y_mark >> y_default_from)) >> y_close_seq >> y_close_arg;
 
+    auto x_opt_try_mark = ((x_ws & axe::r_lit("try") >> y_mark_try) | (axe::r_empty() >> y_mark));
+
     auto x_generator =
-        (axe::r_lit('[') >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']');
+        (axe::r_lit('[') & x_opt_try_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']');
 
     auto y_array = axe::e_ref([&](I b, I e) { stack.push(Command::ARR); });
     auto y_map = axe::e_ref([&](I b, I e) { stack.push(Command::MAP); });
@@ -227,10 +236,10 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_close_tup1 = axe::e_ref([&](I b, I e) { stack.push(Command::TUP, UInt(1)); });
 
     auto x_array =
-        (axe::r_lit("[.") >> y_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(".]") >> y_array;
+        (axe::r_lit("[.") & x_opt_try_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(".]") >> y_array;
 
     auto x_map =
-        (axe::r_lit('{')  >> y_mark) & (x_expr >> y_close_tup) &
+        (axe::r_lit('{') & x_opt_try_mark) & (x_expr >> y_close_tup) &
         (((axe::r_lit("->") & (x_expr >> y_close_tup1)) |
           (axe::r_empty() >> y_true)) >> y_close_tup >> y_close_gen) &
         x_from & axe::r_lit('}') >> y_map;
@@ -263,7 +272,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
         x_ws;
 
-    auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(make_string("index")); });
+    auto y_mark_idx = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("index")); });
     auto y_close_idx = axe::e_ref([&](I b, I e) { stack.close(Command::FUN, false); });
 
     auto x_index_brac = axe::r_lit('[') & x_expr & axe::r_lit(']') & x_ws >> y_close_idx;
@@ -275,8 +284,8 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         ((x_expr_bottom & (x_index >> y_unmark)) |
          r_fail(y_unmark));
 
-    auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(make_string("flatten")); });
-    auto y_mark_filter = axe::e_ref([&](I b, I e) { stack.mark(make_string("filter")); });
+    auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("flatten")); });
+    auto y_mark_filter = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("filter")); });
     
     axe::r_rule<I> x_expr_flat;
     x_expr_flat =

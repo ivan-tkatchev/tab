@@ -50,6 +50,7 @@ struct Command {
         SEQ,
         TUP,
         GEN,
+        GEN_TRY,
         REC,
         LAMD
     };
@@ -116,6 +117,7 @@ struct Command {
         case SEQ: return "SEQ";
         case TUP: return "TUP";
         case GEN: return "GEN";
+        case GEN_TRY: return "GEN_TRY";
         case REC: return "REC";
         case LAMD: return "LAMD";
         }
