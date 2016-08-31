@@ -1061,19 +1061,19 @@ Arrays under a map key will concatenate, and such a program will produce the exp
 
 ### Error handling ###
 
-Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating expressions.
+Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.
 
 Simply put the special token `try` after the `[`, `{` or `[.` opening parenthesis to silently ignore errors instead of aborting evaluation.
 
 For example:
 
-   :::tab
-   [ try uint.@ ]
+    :::tab
+    [ try uint.@ ]
 
 will ignore any lines on the standard input that can't be parsed as a number.
 
-   :::tab
-   first.{ try cut(@, " ", 1) }
+    :::tab
+    first.{ try cut(@, " ", 1) }
 
 will output the second word from each line, and ignore all lines that don't contain a space character.
 

@@ -969,14 +969,18 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 <p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
 <h3 id="error-handling">Error handling</h3>
-<p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating expressions.</p>
+<p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.</p>
 <p>Simply put the special token <code>try</code> after the <code>[</code>, <code>{</code> or <code>[.</code> opening parenthesis to silently ignore errors instead of aborting evaluation.</p>
 <p>For example:</p>
-<p>:::tab
-   [ try uint.@ ]</p>
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">try</span> <span class="nx">uint</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
+</pre></div>
+
+
 <p>will ignore any lines on the standard input that can&rsquo;t be parsed as a number.</p>
-<p>:::tab
-   first.{ try cut(@, &rdquo; &ldquo;, 1) }</p>
+<div class="codehilite"><pre><span></span><span class="nx">first</span><span class="o">.{</span> <span class="nx">try</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot; &quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">}</span>
+</pre></div>
+
+
 <p>will output the second word from each line, and ignore all lines that don&rsquo;t contain a space character.</p>
 <h2 id="recursion">Recursion</h2>
 <p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
