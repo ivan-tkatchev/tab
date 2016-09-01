@@ -303,6 +303,9 @@ static const char* _help[][2] = {
      "\n"
      "cut String, String, UInt -> String\n"
      "    calling cut(a,b,n) is equivalent to cut(a,b)[n], except much faster.\n"
+     "\n"
+     "cut Seq[String], String -> Seq[Arr[String]]\n"
+     "    equivalent to [ cut(@,delim) : seq ].\n"
     },
     {"date",
      "\n"
@@ -731,7 +734,7 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "ngrams Seq[a], UInt -> Seq[Array[a]]\n"
+     "ngrams Seq[a], UInt -> Seq[Arr[a]]\n"
     },
     {"normal",
      "\n"
@@ -842,6 +845,9 @@ static const char* _help[][2] = {
      "\n"
      "recut String, String, UInt -> String\n"
      "    calling recut(a,b,n) is equivalent to recut(a,b)[n], except faster.\n"
+     "\n"
+     "recut Seq[String], String -> Seq[Arr[String]]\n"
+     "    equivalent to [ recut(@,delim) : seq ].\n"
     },
     {"replace",
      "\n"

@@ -548,7 +548,8 @@ Usage:<br>
 <dd>Splits a string using a delimiter. See also <a class="wikilink" href="#fn_recut">recut</a> for splitting with a regular expression.<br>
 Usage:<br>
 <code>cut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
-<code>cut String, String, UInt -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.</dd>
+<code>cut String, String, UInt -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.<br>
+<code>cut Seq[String], String -&gt; Seq[Arr[String]]</code> &ndash; equivalent to <code>[ cut(@,delim) : seq ]</code>.</dd>
 <dt id="fn_date">date</dt>
 <dd>Converts a UNIX timestamp to a textual representation of a UTC date.<br>
 Usage:<br>
@@ -725,7 +726,7 @@ Usage:<br>
 <dt id="fn_ngrams">ngrams</dt>
 <dd>Similar to <a class="wikilink" href="#fn_pairs">pairs</a> and <a class="wikilink" href="#fn_triplets">triplets</a>, except returns a sequence of arrays of length N instead of tuples.<br>
 Usage:<br>
-<code>ngrams Seq[a], UInt -&gt; Seq[Array[a]]</code></dd>
+<code>ngrams Seq[a], UInt -&gt; Seq[Arr[a]]</code></dd>
 <dt id="fn_normal">normal</dt>
 <dd>Returns random numbers from the normal (gaussian) distribution. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
 Usage:<br>
@@ -770,7 +771,8 @@ Usage:<br>
 <dt id="fn_recut">recut</dt>
 <dd>Splits a string using a regular expression. See also <a class="wikilink" href="#fn_cut">cut</a> for splitting with a byte string.<br>
 <code>recut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
-<code>recut String, String, UInt -&gt; String</code> &ndash; calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.</dd>
+<code>recut String, String, UInt -&gt; String</code> &ndash; calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.<br>
+<code>recut Seq[String], String -&gt; Seq[Arr[String]]</code> &ndash; equivalent to <code>[ recut(@,delim) : seq ]</code>.</dd>
 <dt id="fn_replace">replace</dt>
 <dd>Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.<br>
 Usage:<br>

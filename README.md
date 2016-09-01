@@ -550,7 +550,8 @@ Usage:
 : Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
-`cut String, String, UInt -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.
+`cut String, String, UInt -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.  
+`cut Seq[String], String -> Seq[Arr[String]]` -- equivalent to `[ cut(@,delim) : seq ]`.
 
 `date`
 : Converts a UNIX timestamp to a textual representation of a UTC date.  
@@ -763,7 +764,7 @@ Usage:
 `ngrams`
 : Similar to `pairs` and `triplets`, except returns a sequence of arrays of length N instead of tuples.  
 Usage:  
-`ngrams Seq[a], UInt -> Seq[Array[a]]`
+`ngrams Seq[a], UInt -> Seq[Arr[a]]`
 
 `normal`
 : Returns random numbers from the normal (gaussian) distribution. (See also: `rand`, `sample`.)  
@@ -818,7 +819,8 @@ Usage:
 `recut`
 : Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
 `recut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.  
-`recut String, String, UInt -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.
+`recut String, String, UInt -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.  
+`recut Seq[String], String -> Seq[Arr[String]]` -- equivalent to `[ recut(@,delim) : seq ]`.
 
 `replace`
 : Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  

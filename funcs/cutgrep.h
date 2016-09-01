@@ -96,6 +96,65 @@ void cutn(const obj::Object* in, obj::Object*& out) {
     throw std::runtime_error("Substring not found in 'cut'");
 }
 
+template <void CUTTER(const obj::Object*, obj::Object*&)>
+struct SeqCut : public obj::SeqBase {
+
+    obj::Object* seq;
+    obj::Object* ret;
+    obj::Tuple* inp;
+
+    SeqCut() : ret(new obj::ArrayAtom<std::string>) {}
+
+    void wrap(obj::Tuple* i) {
+        inp = i;
+        seq = inp->v[0];
+    }
+
+    obj::Object* next() {
+
+        while (1) {
+            obj::Object* n = seq->next();
+
+            if (!n)
+                return n;
+
+            inp->v[0] = n;
+            CUTTER(inp, ret);
+            return ret;
+        }
+    }
+};
+
+void cut_seq(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    SeqCut<cut>& ret = obj::get< SeqCut<cut> >(out);
+
+    ret.wrap(&args);
+}
+
+Functions::func_t cut_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) })) {
+        ret = Type(Type::ARR, { Type::STRING });
+        return cut;
+    }
+
+    if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) })) {
+        ret = Type(Type::STRING);
+        return cutn;
+    }
+
+    if (args == Type(Type::TUP, { Type(Type::SEQ, { Type(Type::STRING) }), Type(Type::STRING) })) {
+        ret = Type(Type::SEQ, { Type(Type::ARR, { Type::STRING }) });
+
+        obj = new SeqCut<cut>;
+        return cut_seq;
+    }
+
+    return nullptr;
+}
 
 struct RegexCache {
 
@@ -214,6 +273,38 @@ void grepif_seq(const obj::Object* in, obj::Object*& out) {
     sgrep.wrap(sseq);
 }
 
+Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
+        return nullptr;
+
+    const Type& t1 = args.tuple->at(0);
+    const Type& t2 = args.tuple->at(1);
+
+    if (!check_string(t2))
+        return nullptr;
+
+    if (check_string(t1)) {
+
+        ret = Type(Type::UINT);
+        return grepif;
+    }
+
+    if (t1.type == Type::SEQ && t1.tuple && t1.tuple->size() == 1) {
+
+        const Type& t3 = t1.tuple->at(0);
+
+        if (!check_string(t3))
+            return nullptr;
+
+        ret = Type(Type::SEQ);
+        ret.push(Type(Type::STRING));
+        obj = new SeqGrepIf;
+        return grepif_seq;
+    }
+
+    return nullptr;
+}
 
 void replace(const obj::Object* in, obj::Object*& out) {
 
@@ -316,51 +407,40 @@ void recutn(const obj::Object* in, obj::Object*& out) {
     throw std::runtime_error("Substring not found in 'recut'");
 }
 
-Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj) {
+void recut_seq(const obj::Object* in, obj::Object*& out) {
 
-    if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
-        return nullptr;
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
 
-    const Type& t1 = args.tuple->at(0);
-    const Type& t2 = args.tuple->at(1);
+    SeqCut<recut>& ret = obj::get< SeqCut<recut> >(out);
 
-    if (!check_string(t2))
-        return nullptr;
+    ret.wrap(&args);
+}
 
-    if (check_string(t1)) {
+Functions::func_t recut_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-        ret = Type(Type::UINT);
-        return grepif;
+    if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) })) {
+        ret = Type(Type::ARR, { Type::STRING });
+        return recut;
     }
 
-    if (t1.type == Type::SEQ && t1.tuple && t1.tuple->size() == 1) {
-
-        const Type& t3 = t1.tuple->at(0);
-
-        if (!check_string(t3))
-            return nullptr;
-
-        ret = Type(Type::SEQ);
-        ret.push(Type(Type::STRING));
-        obj = new SeqGrepIf;
-        return grepif_seq;
+    if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) })) {
+        ret = Type(Type::STRING);
+        return recutn;
     }
 
+    if (args == Type(Type::TUP, { Type(Type::SEQ, { Type(Type::STRING) }), Type(Type::STRING) })) {
+        ret = Type(Type::SEQ, { Type(Type::ARR, { Type::STRING }) });
+
+        obj = new SeqCut<recut>;
+        return recut_seq;
+    }
+   
     return nullptr;
 }
 
-
 void register_cutgrep(Functions& funcs) {
 
-    funcs.add("cut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
-              Type(Type::ARR, { Type::STRING }),
-              cut);
-    
-    funcs.add("cut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) }),
-              Type(Type::STRING),
-              cutn);
+    funcs.add_poly("cut", cut_checker);
 
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
@@ -374,15 +454,7 @@ void register_cutgrep(Functions& funcs) {
               Type(Type::STRING),
               replace);
 
-    funcs.add("recut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
-              Type(Type::ARR, { Type::STRING }),
-              recut);
-
-    funcs.add("recut",
-              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) }),
-              Type(Type::STRING),
-              recutn);
+    funcs.add_poly("recut", recut_checker);
 
 }
 
