@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-sort.{ x=cut(@,"\t"), t=(real.x~3)/10, uint.x~1 -> avg(t - box(x~2=="1", t)~0) }
+sort.{ t=(real.@~3)/10, uint.@~1 -> avg(t - box(@~2 == "1", t)~0) : cut(@,"\t") }
 ===>
 1	-0.561191
 2	1.69864

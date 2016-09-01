@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-temps=[. x=cut(@,"\t"), uint.x~0, real.x~3 .],
+temps=[. uint.@~0, real.@~3 : cut(@,"\t") .],
 sd=stddev.[@~1 : temps],
 sort.{ @~0 -> sum.1 : ?[@~1 > 3*sd, @ : temps] }
 ===>

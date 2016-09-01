@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-data={ x=cut(@,"\t"), v=real.x~3, x~0 -> avg.v, sort.v }, [ @~0, @~1~0, @~1~1~0.5 : sort.data ]
+data={ v=real.@~3, @~0 -> avg.v, sort.v : cut(@,"\t") }, [ @~0, @~1~0, @~1~1~0.5 : sort.data ]
 ===>
 1948	-39	-37
 1949	100.732	93

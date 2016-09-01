@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-sort.map.?[ x=cut(@,"\t"), (uint.x~1) == 9, uint.x~0, avg.real.x~3 ]
+sort.map.?[ (uint.@~1) == 9, uint.@~0, avg.real.@~3 : cut(@,"\t") ]
 ===>
 1949	182.3
 1950	162.167

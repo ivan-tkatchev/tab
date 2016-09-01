@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-sort.{ x=cut(@,"\t"), 100*int(real(x~3)/100) -> sum.1 }
+sort.{ 100*int.(real.cut(@,"\t",3))/100 -> sum.1 }
 ===>
 -300	2
 -200	84
