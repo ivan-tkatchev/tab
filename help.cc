@@ -552,6 +552,8 @@ static const char* _help[][2] = {
      "iarray Seq[a] -> Arr[a]\n"
      "\n"
      "iarray Number|String|Tuple -> Arr[Number|String|Tuple]\n"
+     "\n"
+     "iarray Arr[a] -> Arr[a]\n"
     },
     {"if",
      "\n"

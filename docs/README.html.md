@@ -670,7 +670,8 @@ iarray {: #fn_iarray}
 Usage:  
 `iarray Map[a,b] -> Arr[(a,b)]`  
 `iarray Seq[a] -> Arr[a]`  
-`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`
+`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`  
+`iarray Arr[a] -> Arr[a]`
 
 if {: #fn_if}
 : Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.

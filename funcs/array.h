@@ -104,6 +104,54 @@ void array_from_seq(const obj::Object* in, obj::Object*& out) {
     out->fill((obj::Object*)in);
 }
 
+template <typename T>
+void iarray_from_array_atom(const obj::Object* in, obj::Object*& out) {
+    obj::ArrayAtom<T>& o = obj::get< obj::ArrayAtom<T> >(out);
+    obj::ArrayAtom<T>& i = obj::get< obj::ArrayAtom<T> >(in);
+
+    o.v.swap(i.v);
+}
+
+void iarray_from_array_object(const obj::Object* in, obj::Object*& out) {
+    obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
+    obj::ArrayObject& i = obj::get<obj::ArrayObject>(in);
+
+    o.v.swap(i.v);
+}
+
+Functions::func_t iarray_from_array_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type != Type::ARR) {
+        return nullptr;
+    }
+
+    const Type& t = args.tuple->at(0);
+
+    ret = Type(Type::ARR);
+    ret.push(t);
+
+    if (t.type == Type::ATOM) {
+
+        switch (t.atom) {
+        case Type::INT:
+            return iarray_from_array_atom<Int>;
+        case Type::UINT:
+            return iarray_from_array_atom<UInt>;
+        case Type::REAL:
+            return iarray_from_array_atom<Real>;
+        case Type::STRING:
+            return iarray_from_array_atom<std::string>;
+        }
+
+        return nullptr;
+
+    } else {
+        return iarray_from_array_object;
+    }
+        
+    return nullptr;
+}
+
 template <bool SORTED>
 Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
@@ -177,10 +225,19 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
 template <bool SORTED>
 Functions::func_t iarray_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    Functions::func_t fn = array_checker<SORTED>(args, ret, obj);
+    Functions::func_t fn;
+
+    if (args.type == Type::ARR) {
+
+        fn = iarray_from_array_checker(args, ret, obj);
+
+    } else {
+    
+        fn = array_checker<SORTED>(args, ret, obj);
+    }
 
     if (!fn)
-        return fn;
+            return fn;
 
     if (ret.type != Type::ARR || ret.tuple->size() != 1)
         return nullptr;

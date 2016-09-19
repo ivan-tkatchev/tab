@@ -652,7 +652,8 @@ Usage:<br>
 Usage:<br>
 <code>iarray Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>iarray Seq[a] -&gt; Arr[a]</code><br>
-<code>iarray Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code></dd>
+<code>iarray Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code><br>
+<code>iarray Arr[a] -&gt; Arr[a]</code></dd>
 <dt id="fn_if">if</dt>
 <dd>Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 <em>Note</em>: this is not a true conditional control structure, since all three arguments are always evaluated.<br>
