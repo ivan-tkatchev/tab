@@ -9,11 +9,6 @@ struct ParseStack {
 
     std::vector<Command> stack;
 
-    void push(Command::cmd_t c) { stack.emplace_back(c); }
-
-    template <typename T>
-    void push(Command::cmd_t c, const T& t) { stack.emplace_back(c, t); }
-
     struct mark_val_t {
         size_t top;
         bool try_catch;
@@ -25,7 +20,16 @@ struct ParseStack {
 
     std::vector<mark_val_t> _mark;
     std::vector<String> names;
-    
+
+    UInt counter;
+
+    ParseStack() : counter(0) {}
+
+    void push(Command::cmd_t c) { stack.emplace_back(c); }
+
+    template <typename T>
+    void push(Command::cmd_t c, const T& t) { stack.emplace_back(c, t); }
+
     void mark(bool tc = false, String n = String{0}) {
         _mark.emplace_back(stack.size(), tc, n);
     }
@@ -355,7 +359,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_no_assign = axe::e_ref([&](I b, I e) { stack.names.pop_back(); });
 
     auto y_expr_define = axe::e_ref([&](I b, I e) { stack.close(Command::LAMD); });
-    
+
     auto x_expr_assign = 
         x_ws &
         (x_var >> y_expr_assign_var) &
@@ -366,12 +370,34 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         (axe::r_lit('(') & x_expr & axe::r_lit(')')) |
         (x_expr_atom);
 
-    auto x_expr_define =
-        x_ws &
-        axe::r_lit("def") & x_ws &
+    auto x_expr_defname = 
         (x_ident >> y_mark_name) &
         x_ws &
         (x_expr_defbody >> y_expr_define);
+
+    auto y_reset_nth = axe::e_ref([&](I b, I e) { stack.counter = 0; });
+
+    auto y_index_nth = axe::e_ref([&](I b, I e) {
+            stack.push(Command::VAL, stack.counter);
+            stack.counter++;
+            stack.close(Command::FUN);
+            stack.push(Command::VAW, strings().add("@"));
+        });
+
+    auto y_undo = axe::e_ref([&](I b, I e) { stack.stack.pop_back(); });
+
+    auto x_expr_defnth =
+        (x_ws & (x_ident >> y_mark_name >> y_mark_idx >> y_default_from >> y_index_nth) &
+         x_ws & (x_expr_atom | (axe::r_empty() >> y_undo)) >> y_expr_define);
+
+    auto x_expr_defstruct =
+        (axe::r_lit('[') >> y_reset_nth) &
+        x_expr_defnth & +(axe::r_lit(',') & x_expr_defnth) &
+        axe::r_lit(']');
+
+    auto x_expr_define =
+        x_ws &
+        axe::r_lit("def") & x_ws & (x_expr_defname | x_expr_defstruct);
 
     auto x_topexpr =
         x_expr_define |

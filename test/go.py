@@ -38,9 +38,12 @@ def run(filename, arg, expected, log, infile = "../LICENSE.txt", errcode = 0, so
     if not len(err) == 0:
         raise Exception("Test failed for: %s, '%s' -- stderr is '%s'" % (filename, arg, err))
 
-def go(sort=False):
+def go(sort=False, tests=False):
     wordsize = len(struct.pack("@L",0))
-    l = glob.glob("*.test.in") + glob.glob("*.test64.in" if wordsize >= 8 else "*.test32.in")
+    if tests:
+        l = tests
+    else:
+        l = glob.glob("*.test.in") + glob.glob("*.test64.in" if wordsize >= 8 else "*.test32.in")
     log = {}
     for i in l:
         txt = open(i).read()
@@ -62,6 +65,6 @@ def go(sort=False):
         print('%g\t%s' % (t,n))
     print('Total time: %g' % total)
 
-go(sort=("-s" in sys.argv))
+go(sort=("-s" in sys.argv), tests=sys.argv[1:])
 
     
