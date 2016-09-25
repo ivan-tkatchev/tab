@@ -481,7 +481,7 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ### Semantics ###
 
-###### Expressions
+##### Expressions
 
 A value is a sequence of expressions separated by `,` or `;`, which are equivalent. An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.
 
@@ -490,7 +490,7 @@ This produces the tuple `(0, 1)`:
     :::tab
     0, a = 1, def b @, b(a)
 
-###### Variables
+##### Variables
 
 Variables are single-assignment: you cannot change the value of an existing variable.
 
@@ -506,7 +506,7 @@ This is also a legal expression, and will return a sequence of ten numbers `2`:
     :::tab
     a = 1, [ a = a + 1, a : count.10 ]
 
-###### Defining functions
+##### Defining functions
 
 Functions can be defined with the `def` keyword. All function calls are always inlined, and recursive function calls are impossible.
 
@@ -518,13 +518,13 @@ There are three forms for `def`:
 
 User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
 
-###### Calling functions.
+##### Calling functions.
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent.
 
 Note, however, that the `.` has the lowest precedence! Thus, this code `f.a == 1` is equivalent to `f(a == 1)`!
 
-###### Operators
+##### Operators
 
 In order of precedence, from highest to lowest:
 
@@ -535,14 +535,14 @@ Operator | Meaning
 `a**b` | Exponentiation.
 `a*b`  `a/b`  `a%b` | Multiplication, division, modulo.
 `a+b`  `a-b` | Addition and subtraction.
-`a&b`  `a|b`  `a^b` | Binary AND, OR and XOR.
+`a&b`  `a\|b`  `a^b` | Binary AND, OR and XOR.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
 
 Also note that function calls will _not_ promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.
 
-###### Literals
+##### Literals
 
 Syntax for literal number and string values:
 
@@ -553,13 +553,13 @@ Type | Syntax
 `Real` |    `+10.50` or `1.` or `4.4e-10`. Scientific notation and trailing dot are supported.
 `String` |   `'chars'` or `"chars"`. Supported escape sequences: `\t` `\n` `\r` `\e` `\\`.
 
-###### Magic variables
+##### Magic variables
 
 The magic variable `@` is used by the language to denote the input value in generator expressions and function definitions.
 
 Note that in all other respects this variable acts like a normal variable.
 
-###### Generator expressions
+##### Generator expressions
 
 Type | Syntax
 -----|-------
