@@ -20,10 +20,7 @@ struct ParseStack {
 
     std::vector<mark_val_t> _mark;
     std::vector<String> names;
-
-    UInt counter;
-
-    ParseStack() : counter(0) {}
+    std::vector<UInt> counters;
 
     void push(Command::cmd_t c) { stack.emplace_back(c); }
 
@@ -375,11 +372,11 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         x_ws &
         (x_expr_defbody >> y_expr_define);
 
-    auto y_reset_nth = axe::e_ref([&](I b, I e) { stack.counter = 0; });
-
+    auto y_start_nth = axe::e_ref([&](I b, I e) { stack.counters.push_back(0); });
+    auto y_end_nth = axe::e_ref([&](I b, I e) { stack.counters.pop_back(); });
     auto y_index_nth = axe::e_ref([&](I b, I e) {
-            stack.push(Command::VAL, stack.counter);
-            stack.counter++;
+            stack.push(Command::VAL, stack.counters.back());
+            stack.counters.back()++;
             stack.close(Command::FUN);
             stack.push(Command::VAW, strings().add("@"));
         });
@@ -391,9 +388,10 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
          x_ws & (x_expr_atom | (axe::r_empty() >> y_undo)) >> y_expr_define);
 
     auto x_expr_defstruct =
-        (axe::r_lit('[') >> y_reset_nth) &
-        x_expr_defnth & +(axe::r_lit(',') & x_expr_defnth) &
-        axe::r_lit(']');
+        (axe::r_lit('[') >> y_start_nth) &
+        ((x_expr_defnth & +(axe::r_lit(',') & x_expr_defnth) &
+          (axe::r_lit(']') >> y_end_nth))
+         | r_fail(y_start_nth));
 
     auto x_expr_define =
         x_ws &
