@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-def [year,month,day,temp real.@], sort.{ year.@ -> avg.temp.@ : cut(@,"\t") }
+sort.{ def [year,month,day,temp real.@], year.@ -> avg.temp.@ : cut(@,"\t") }
 ===>
 1948	-39
 1949	100.732

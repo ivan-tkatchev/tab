@@ -1,7 +1,6 @@
 temps.tsv
 ===>
-def [ year uint.@, month uint.@, day, temp real.@ ],
-t={ month.@ -> map(year.@, sort.temp.@) : cut(@,"\t") }~9,
+t={ def [ year uint.@, month uint.@, day, temp real.@ ], month.@ -> map(year.@, sort.temp.@) : cut(@,"\t") }~9,
 mean.t~1998, t~1998~0.5,
 mean.flatten.second.t, (sort.flatten.second.t)~0.5
 ===>

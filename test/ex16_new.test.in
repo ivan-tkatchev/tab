@@ -1,6 +1,6 @@
 temps.tsv
 ===>
-def [ year uint.@, month, day, temp real.@ ],
+def [ year uint.@, _, _, temp real.@ ],
 temps=[. year.@, temp.@ : cut(@,"\t") .],
 def [ year, temp ],
 sd=stddev.[temp.@ : temps],

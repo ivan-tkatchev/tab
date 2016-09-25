@@ -94,14 +94,31 @@ pre {
 }
 
 code {
-    background: #E8E8E8;
+    background: #F4F4F4;
     border: 0px solid #C0C0C0;
     border-radius: 3px;
     padding: 1px 3px;
     font-size: 90%;
 }
 
-</style></head><title>The tab programming language.</title><body>
+table {
+    margin-left: 1em;
+    border: 1px solid gray;
+}
+
+th {
+    border-bottom: 1px dotted gray;
+    padding: 0.5em;
+}
+
+td {
+    padding: 0.5em;
+}
+
+th+th,
+td+td {
+    border-left: 1px dotted gray;
+}</style></head><title>The tab programming language.</title><body>
 <h1 id="introduction">Introduction</h1>
 <p>This is a tutorial and reference for <a href="index.html">tab</a>, a shell language for text/number manipulation.</p>
 <p>Skip to:</p>
@@ -110,6 +127,7 @@ code {
 <li><a href="#comparison">Comparison with other languages</a></li>
 <li>Reference documentation:<ul>
 <li><a href="#grammar">Grammar</a></li>
+<li><a href="#semantics">Semantics</a></li>
 <li><a href="#builtin-functions">Builtin functions</a></li>
 <li><a href="#aggregators">Aggregators</a></li>
 <li>Advanced features:<ul>
@@ -406,7 +424,11 @@ code {
 
 <span class="nx">assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;=&quot;</span> <span class="nx">atomic</span>
 
-<span class="nv">def</span><span class="nx">ine</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="nx">var</span> <span class="o">(</span><span class="nx">atomic</span> <span class="o">|</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span><span class="o">)</span>
+<span class="nv">def</span><span class="nx">ine</span> <span class="o">:</span><span class="nv">=</span> <span class="nv">def</span><span class="nx">_fun</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">_struct</span>
+
+<span class="nv">def</span><span class="nx">_fun</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="nx">var</span> <span class="o">(</span><span class="nx">atomic</span> <span class="o">|</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span><span class="o">)</span>
+
+<span class="nv">def</span><span class="nx">_struct</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="s2">&quot;[&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?</span> <span class="o">(</span><span class="s2">&quot;,&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?)+</span> <span class="s2">&quot;]&quot;</span>
 
 <span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_eq</span>
 
@@ -484,6 +506,146 @@ code {
 </pre></div>
 
 
+<h2 id="semantics">Semantics</h2>
+<h3 id="expressions">Expressions</h3>
+<p>A value is a sequence of expressions separated by <code>,</code> or <code>;</code>, which are equivalent. An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.</p>
+<p>This produces the tuple <code>(0, 1)</code>:</p>
+<div class="codehilite"><pre><span></span><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nv">def</span> <span class="nx">b</span> <span class="nv">@</span><span class="o">,</span> <span class="nx">b</span><span class="o">(</span><span class="nx">a</span><span class="o">)</span>
+</pre></div>
+
+
+<h3 id="variables">Variables</h3>
+<p>Variables are single-assignment: you cannot change the value of an existing variable.</p>
+<p>Assigning to a variable with a name that already exists will create a new variable; the old variable will become unreachable.</p>
+<p>This is a legal expression that returns <code>2</code>:</p>
+<div class="codehilite"><pre><span></span><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span>
+</pre></div>
+
+
+<p>This is also a legal expression, and will return a sequence of ten numbers <code>2</code>:</p>
+<div class="codehilite"><pre><span></span><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="o">[</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="o">:</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">]</span>
+</pre></div>
+
+
+<h3 id="defining-functions">Defining functions</h3>
+<p>Functions can be defined with the <code>def</code> keyword. All function calls are always inlined, and recursive function calls are impossible.</p>
+<p>There are three forms for <code>def</code>:</p>
+<ul>
+<li><code>def f expr</code>: defines the functon <code>f</code>, and <code>expr</code> is an atomic value.</li>
+<li><code>def f (expr)</code>: same, but <code>expr</code> can be a sequence of expressions, including nested definitions and assignments.</li>
+<li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple fields. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
+</ul>
+<p>User-defined functions <em>must</em> take an argument. (Pass a dummy value if the result does not depend on inputs.)</p>
+<h3 id="calling-functions">Calling functions.</h3>
+<p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent.</p>
+<p>Note, however, that the <code>.</code> has the lowest precedence! Thus, this code <code>f.a == 1</code> is equivalent to <code>f(a == 1)</code>!</p>
+<h3 id="operators">Operators</h3>
+<p>In order of precedence, from highest to lowest:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a~b</code> <code>a[b]</code></td>
+<td>Indexing arrays, maps and tuples. See the <a class="wikilink" href="#fn_index">index</a> function. Use <code>~</code> with atomic values, while <code>[]</code> can accept tuples.</td>
+</tr>
+<tr>
+<td><code>:a</code>  <code>?a</code></td>
+<td>Syntactic sugar for the functions <a class="wikilink" href="#fn_flatten">flatten</a> and <a class="wikilink" href="#fn_filter">filter</a>, respectively.</td>
+</tr>
+<tr>
+<td><code>a**b</code></td>
+<td>Exponentiation.</td>
+</tr>
+<tr>
+<td><code>a*b</code>  <code>a/b</code>  <code>a%b</code></td>
+<td>Multiplication, division, modulo.</td>
+</tr>
+<tr>
+<td><code>a+b</code>  <code>a-b</code></td>
+<td>Addition and subtraction.</td>
+</tr>
+<tr>
+<td><code>a&amp;b</code>  <code>a|b</code>  <code>a^b</code></td>
+<td>Binary AND, OR and XOR.</td>
+</tr>
+<tr>
+<td><code>a==b</code> <code>a!=b</code> <code>a&lt;b</code>  <code>a&gt;b</code>  <code>a&lt;=b</code>  <code>a&gt;=b</code></td>
+<td>Comparision.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)</p>
+<p>Also note that function calls will <em>not</em> promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.</p>
+<h3 id="literals">Literals</h3>
+<p>Syntax for literal number and string values:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UInt</code></td>
+<td><code>1234</code> or <code>1234u</code> or <code>0x4D2</code>. Numbers are unsigned by default. Hexadecimal notation is supported for unsigned numbers.</td>
+</tr>
+<tr>
+<td><code>Int</code></td>
+<td><code>-1234</code> or <code>1234i</code> or <code>1234s</code> or <code>1234l</code>. Numbers must be explicitly marked as signed; <code>i</code>, <code>s</code> and <code>l</code> are all equivalent syntactic sugar.</td>
+</tr>
+<tr>
+<td><code>Real</code></td>
+<td><code>+10.50</code> or <code>1.</code> or <code>4.4e-10</code>. Scientific notation and trailing dot are supported.</td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td><code>'chars'</code> or <code>"chars"</code>. Supported escape sequences: <code>\t</code> <code>\n</code> <code>\r</code> <code>\e</code> <code>\\</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="magic-variables">Magic variables</h3>
+<p>The magic variable <code>@</code> is used by the language to denote the input value in generator expressions and function definitions.</p>
+<p>Note that in all other respects this variable acts like a normal variable.</p>
+<h3 id="generator-expressions">Generator expressions</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Seq</code></td>
+<td><code>[ elt : input ]</code></td>
+</tr>
+<tr>
+<td><code>Arr</code></td>
+<td><code>[. elt : input ]</code></td>
+</tr>
+<tr>
+<td><code>Map</code></td>
+<td><code>{ key -&gt; value : input }</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>: input</code> part can be omitted, in which case <code>: @</code> will be silently assumed. For maps the <code>-&gt; key</code> can also be omitted, in which case <code>-&gt; 1</code> will be assumed.</p>
+<p>The right-hand argument <code>input</code> will be converted to a sequence of values automatically. If it is a single value, then a sequence of one element will be assumed.</p>
+<p>The keyword <code>try</code> can be inserted after the opening bracket; fatal errors while generating elements will then be silently swallowed. (See <a href="#error-handling">error handling</a>.)</p>
+<p>See also <a href="#recursion">recursion</a> for a generator expression for complex single values.</p>
+<p>The left- and right-hand sides can include assigment and definition statements. Anything defined or assigned in a generator expression is limited in scope only to this generator expression.</p>
+<p>Thus, this code</p>
+<div class="codehilite"><pre><span></span><span class="o">[</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">,</span> <span class="nv">@</span> <span class="o">],</span> <span class="nx">a</span>
+</pre></div>
+
+
+<p>Will result in an &lsquo;undefined variable&rsquo; error.</p>
 <h2 id="builtin-functions">Builtin functions</h2>
 <p>Listed alphabetically.</p>
 <dl>
@@ -667,7 +829,7 @@ Usage:<br>
 <code>index Arr[a], Real -&gt; a</code> &ndash; returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
 <code>index Map[a,b], a -&gt; b</code> &ndash; returns the element stored in the map with the given key. It is an error if the key is not found; see <a class="wikilink" href="#fn_get">get</a> for a version that returns a default value instead.<br>
 <code>index (a,b,...), UInt</code> &ndash; returns an element from a tuple.<br>
-<code>index Arr[a], Number, Number -&gt; Arr[a]</code> &ndash; returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of <a class="wikilink" href="#fn_index">index</a>.<br>
+<code>index Arr[a], Number, Number -&gt; Arr[a]</code> &ndash; returns a sub-array from an array, <em>including</em> the end element.
 <code>index String, Integer, Integer -&gt; String</code> &ndash; returns a substring from a string, as with the array slicing above. <em>Note:</em> string indexes refer to <em>bytes</em>, <code>tab</code> is not Unicode-aware.</dd>
 <dt id="fn_int">int</dt>
 <dd>Converts an unsigned integer, floating-point value or string into a signed integer.<br>
@@ -971,7 +1133,7 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 
 
 <p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
-<h3 id="error-handling">Error handling</h3>
+<h2 id="error-handling">Error handling</h2>
 <p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.</p>
 <p>Simply put the special token <code>try</code> after the <code>[</code>, <code>{</code> or <code>[.</code> opening parenthesis to silently ignore errors instead of aborting evaluation.</p>
 <p>For example:</p>

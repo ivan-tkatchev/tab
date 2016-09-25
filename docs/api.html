@@ -94,14 +94,31 @@ pre {
 }
 
 code {
-    background: #E8E8E8;
+    background: #F4F4F4;
     border: 0px solid #C0C0C0;
     border-radius: 3px;
     padding: 1px 3px;
     font-size: 90%;
 }
 
-</style></head><title>The tab programming language.</title><body>
+table {
+    margin-left: 1em;
+    border: 1px solid gray;
+}
+
+th {
+    border-bottom: 1px dotted gray;
+    padding: 0.5em;
+}
+
+td {
+    padding: 0.5em;
+}
+
+th+th,
+td+td {
+    border-left: 1px dotted gray;
+}</style></head><title>The tab programming language.</title><body>
 <h1 id="embedding-tab">Embedding tab</h1>
 <p>A short exposition on how to embded the <code>tab</code> language into your own programs.</p>
 <p>Here is a complete example program that evaluates a <code>tab</code> expression of type <code>Int, Int -&gt; Real</code> ten thousand times:</p>

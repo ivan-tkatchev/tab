@@ -77,11 +77,13 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### The average (mean) of the temperature, aggregated by year:
     :::tab
-    { x=cut(@,"\t"), x~0 -> avg.real.x~3 }
+    def [year, month, day, temp real.@], 
+    { year.@ -> avg.temp.@ : cut(@,"\t") }
 
 #### As above, except also with the median:
     :::tab
-    data={ v=real.@~3, @~0 -> avg.v, sort.v : cut(@,"\t") }, [ @~0, @~1~0, @~1~1~0.5 : data ]
+    data={ def [year, _, _, temp real.@], t=temp.@, year.@ -> avg.t, sort.t : cut(@,"\t") },
+    [ @~0, @~1~0, @~1~1~0.5 : sort.data ]
 
 #### A histogram of the temperature, grouped by buckets of ten degrees:
     :::tab
@@ -96,9 +98,11 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### Find temperature outliers (more than 3 standard deviations away from mean) and group them by year:
     :::tab
+    def [ year uint.@, _, _, temp real.@ ],
     temps=[. uint.@~0, real.@~3 : cut(@,"\t") .],
-    sd=stddev.[@~1 : temps],
-    { @~0 -> sum.1 : ?[@~1 > 3*sd, @ : temps] }
+    def [ year, t ],
+    sd=stddev.[ t.@ : temps],
+    { year.@ -> sum.1 : ?[t(@) > 3*sd, @ : temps] }
 
 #### Find years with spotty temperature records -- where the number of measurements taken is more than one standard deviation away from the average year:
     :::tab
@@ -108,27 +112,31 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### Group temperatures by year and month, and find the mean and median for September 1998:
     :::tab
-    t={ uint.@~1 -> map(uint.@~0, sort.real.@~3) : cut(@,"\t") }~9~1998, mean.t, t~0.5
+    t={ def [ year uint.@, month uint.@, day, temp real.@ ], month.@ -> map(year.@, sort.temp.@) : cut(@,"\t") }~9~1998,
+    mean.t, t~0.5
 
 #### Same as above, but compare it to the mean and median across all Septembers:
     :::tab
-    t={ uint.@~1 -> map(uint.@~0, sort.real.@~3) : cut(@,"\t") }~9,
+    t={ def [ year uint.@, month uint.@, day, temp real.@ ], month.@ -> map(year.@, sort.temp.@) : cut(@,"\t") }~9,
     mean.t~1998, t~1998~0.5,
     mean.flatten.second.t, (sort.flatten.second.t)~0.5
 
 #### Average September temperatures by year:
     :::tab
-    sort.map.?[ (uint.@~1) == 9, uint.@~0, avg.real.@~3 : cut(@,"\t") ]
+    def [ year uint.@, month uint.@, day, temp real.@ ],
+    sort.map.?[ (month.@) == 9, year.@, avg.temp.@ : cut(@,"\t") ]
 : pipe the output to `gnuplot -p -e "plot '-' with lines"` to see a graph
 
 #### Moving average of September temperatures, over 10 previous years:
     :::tab
-    t=sort.map.?[ (uint.@~1) == 9, uint.@~0, avg.real.@~3 : cut(@,"\t") ],
+    def [ year uint.@, month uint.@, day, temp real.@ ],
+    t=sort.map.?[ (month.@) == 9, year.@, avg.temp.@ : cut(@,"\t") ],
     sort.{ @~(-1)~0 -> avg.second.seq.@ : ngrams(seq.t, 10) }
 
 #### Calculate the average difference between this day's temperature and the temperature on the first of the month:
     :::tab
-    sort.{ t=(real.@~3)/10, uint.@~1 -> avg(t - box(@~2 == "1", t)~0) : cut(@,"\t") }
+    def [ year uint.@, month uint.@, day, temp real.@ ],
+    sort.{ t=(temp.@)/10, month.@ -> avg(t - box(day(@) == "1", t)~0) : cut(@,"\t") }
 
 ## Working with ad-hoc text formats:
 

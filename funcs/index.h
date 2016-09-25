@@ -266,7 +266,7 @@ Functions::func_t index_checker(const Type& args, Type& ret, obj::Object*& obj) 
         const Type& arg = args.tuple->at(1);
 
         if (!arg.literal || !check_unsigned(arg)) 
-            throw std::runtime_error("Indexing tuples is only possible with integer literals.");
+            throw std::runtime_error("Indexing tuples is only possible with integer literals. (Not expressions!)");
 
         size_t i = (size_t)arg.literal->uint;
 

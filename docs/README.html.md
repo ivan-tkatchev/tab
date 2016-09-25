@@ -8,6 +8,7 @@ Skip to:
 * [Comparison with other languages](#comparison)
 * Reference documentation:
     * [Grammar](#grammar)
+    * [Semantics](#semantics)
     * [Builtin functions](#builtin-functions)
     * [Aggregators](#aggregators)
     * Advanced features:
@@ -388,7 +389,11 @@ atomic_or_assignment := assignment | define | atomic
 
 assignment := var "=" atomic
 
-define := "def" var (atomic | "(" expr ")")
+define := def_fun | def_struct
+
+def_fun := "def" var (atomic | "(" expr ")")
+
+def_struct := "def" "[" var atomic? ("," var atomic?)+ "]"
 
 atomic := e_eq
 
@@ -465,6 +470,111 @@ string := '"' chars '"' |
 chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ```
+
+## Semantics ##
+
+### Expressions
+
+A value is a sequence of expressions separated by `,` or `;`, which are equivalent. An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.
+
+This produces the tuple `(0, 1)`:
+
+    :::tab
+    0, a = 1, def b @, b(a)
+
+### Variables
+
+Variables are single-assignment: you cannot change the value of an existing variable.
+
+Assigning to a variable with a name that already exists will create a new variable; the old variable will become unreachable.
+
+This is a legal expression that returns `2`:
+
+    :::tab
+    a = 1, a = a + 1, a
+
+This is also a legal expression, and will return a sequence of ten numbers `2`:
+
+    :::tab
+    a = 1, [ a = a + 1, a : count.10 ]
+
+### Defining functions
+
+Functions can be defined with the `def` keyword. All function calls are always inlined, and recursive function calls are impossible.
+
+There are three forms for `def`:
+
+* `def f expr`: defines the functon `f`, and `expr` is an atomic value.
+* `def f (expr)`: same, but `expr` can be a sequence of expressions, including nested definitions and assignments.
+* `def [f expr, g expr, ...]`: defines two or more functions, an equivalent shortcut for `def f (@=@[0], expr), def g (@=@[1], expr), ...`. This form is intented to make it easy to give human-readable names to tuple fields. The `expr` is an atomic value and can be omitted -- the simplest form is `def [f,g,...]`.
+
+User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
+
+### Calling functions.
+
+There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent.
+
+Note, however, that the `.` has the lowest precedence! Thus, this code `f.a == 1` is equivalent to `f(a == 1)`!
+
+### Operators
+
+In order of precedence, from highest to lowest:
+
+Operator | Meaning
+---------|--------
+`a~b` `a[b]` | Indexing arrays, maps and tuples. See the [[index]] function. Use `~` with atomic values, while `[]` can accept tuples.
+`:a`  `?a` | Syntactic sugar for the functions [[flatten]] and [[filter]], respectively.
+`a**b` | Exponentiation.
+`a*b`  `a/b`  `a%b` | Multiplication, division, modulo.
+`a+b`  `a-b` | Addition and subtraction.
+`a&b`  `a|b`  `a^b` | Binary AND, OR and XOR.
+`a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
+
+Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
+
+Also note that function calls will _not_ promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.
+
+### Literals
+
+Syntax for literal number and string values:
+
+Type | Syntax
+-----|-------
+`UInt` | `1234` or `1234u` or `0x4D2`. Numbers are unsigned by default. Hexadecimal notation is supported for unsigned numbers.
+`Int`  |    `-1234` or `1234i` or `1234s` or `1234l`. Numbers must be explicitly marked as signed; `i`, `s` and `l` are all equivalent syntactic sugar.
+`Real` |    `+10.50` or `1.` or `4.4e-10`. Scientific notation and trailing dot are supported.
+`String` |   `'chars'` or `"chars"`. Supported escape sequences: `\t` `\n` `\r` `\e` `\\`.
+
+### Magic variables
+
+The magic variable `@` is used by the language to denote the input value in generator expressions and function definitions.
+
+Note that in all other respects this variable acts like a normal variable.
+
+### Generator expressions
+
+Type | Syntax
+-----|-------
+`Seq` | `[ elt : input ]`
+`Arr` | `[. elt : input ]`
+`Map` | `{ key -> value : input }`
+
+The `: input` part can be omitted, in which case `: @` will be silently assumed. For maps the `-> key` can also be omitted, in which case `-> 1` will be assumed.
+
+The right-hand argument `input` will be converted to a sequence of values automatically. If it is a single value, then a sequence of one element will be assumed.
+
+The keyword `try` can be inserted after the opening bracket; fatal errors while generating elements will then be silently swallowed. (See [error handling](#error-handling).)
+
+See also [recursion](#recursion) for a generator expression for complex single values.
+
+The left- and right-hand sides can include assigment and definition statements. Anything defined or assigned in a generator expression is limited in scope only to this generator expression.
+
+Thus, this code
+
+    :::tab
+    [ a=@, @ ], a
+
+Will result in an 'undefined variable' error.
 
 ## Builtin functions ##
 
@@ -687,7 +797,7 @@ Usage:
 `index Arr[a], Real -> a` -- returns an element such that 0.0 is the first element of the array and 1.0 is the last.  
 `index Map[a,b], a -> b` -- returns the element stored in the map with the given key. It is an error if the key is not found; see [[get]] for a version that returns a default value instead.  
 `index (a,b,...), UInt` -- returns an element from a tuple.  
-`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array; the start and end elements of the sub-array are indexed as with the two-argument version of [[index]].  
+`index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array, _including_ the end element.
 `index String, Integer, Integer -> String` -- returns a substring from a string, as with the array slicing above. _Note:_ string indexes refer to _bytes_, `tab` is not Unicode-aware.
 
 int {: #fn_int}
@@ -1062,7 +1172,7 @@ Similarly for arrays:
 
 Arrays under a map key will concatenate, and such a program will produce the expected result -- an array of all day values for each month.
 
-### Error handling ###
+## Error handling ##
 
 Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.
 
