@@ -536,7 +536,7 @@ td+td {
 <li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple fields. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
 </ul>
 <p>User-defined functions <em>must</em> take an argument. (Pass a dummy value if the result does not depend on inputs.)</p>
-<h3 id="calling-functions">Calling functions.</h3>
+<h3 id="calling-functions">Calling functions</h3>
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent.</p>
 <p>Note, however, that the <code>.</code> has the lowest precedence! Thus, this code <code>f.a == 1</code> is equivalent to <code>f(a == 1)</code>!</p>
 <h3 id="operators">Operators</h3>

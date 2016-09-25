@@ -518,7 +518,7 @@ There are three forms for `def`:
 
 User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
 
-##### Calling functions.
+##### Calling functions
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent.
 
@@ -535,7 +535,7 @@ Operator | Meaning
 `a**b` | Exponentiation.
 `a*b`  `a/b`  `a%b` | Multiplication, division, modulo.
 `a+b`  `a-b` | Addition and subtraction.
-`a&b`  `a\|b`  `a^b` | Binary AND, OR and XOR.
+`a&b`  `a&#124;b`  `a^b` | Binary AND, OR and XOR.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)

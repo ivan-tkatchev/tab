@@ -510,7 +510,7 @@ There are three forms for `def`:
 
 User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
 
-### Calling functions.
+### Calling functions
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent.
 
