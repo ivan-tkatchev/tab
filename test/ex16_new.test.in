@@ -1,0 +1,10 @@
+temps.tsv
+===>
+def [ year uint.@, month, day, temp real.@ ],
+temps=[. year.@, temp.@ : cut(@,"\t") .],
+def [ year, temp ],
+sd=stddev.[temp.@ : temps],
+sort.{ year.@ -> sum.1 : ?[temp(@) > 3*sd, @ : temps] }
+===>
+1996	1
+2010	13

@@ -427,6 +427,8 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     Type ret = infer(stack.stack, toplevel_type, typer);
 
+    optimize(stack.stack, typer);
+
     if (debuglevel >= 2) {
         std::cout << "[Program]" << std::endl;    
         stack.print();

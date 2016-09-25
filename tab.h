@@ -6,6 +6,7 @@
 #include "type.h"
 #include "command.h"
 #include "infer.h"
+#include "optimize.h"
 #include "parse.h"
 #include "hash.h"
 #include "object.h"

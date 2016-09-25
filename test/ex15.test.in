@@ -2,8 +2,9 @@ temps.tsv
 ===>
 temps=[. real.cut(@,"\t",3) .],
 u=mean.temps, s=stddev.temps, a=min.temps, b=max.temps,
+def glue :seq.@,
 sort.{ bucket(@~0, a, b, 5) -> sum.@~1, sum.@~2 :
-       :seq([ @, 1, 0 : temps ], [ normal(u,s), 0, 1 : count.count.temps ]) }
+       glue([ @, 1, 0 : temps ], [ normal(u,s), 0, 1 : count.count.temps ]) }
 ===>
 -323	156	225
 -182	2937	2796
