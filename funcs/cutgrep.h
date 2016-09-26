@@ -105,7 +105,7 @@ struct SeqCut : public obj::SeqBase {
 
     SeqCut() : ret(new obj::ArrayAtom<std::string>) {}
 
-    void wrap(obj::Tuple* i) {
+    void do_wrap(obj::Tuple* i) {
         inp = i;
         seq = inp->v[0];
     }
@@ -131,7 +131,7 @@ void cut_seq(const obj::Object* in, obj::Object*& out) {
 
     SeqCut<cut>& ret = obj::get< SeqCut<cut> >(out);
 
-    ret.wrap(&args);
+    ret.do_wrap(&args);
 }
 
 Functions::func_t cut_checker(const Type& args, Type& ret, obj::Object*& obj) {
