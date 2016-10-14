@@ -26,3 +26,7 @@ install: tab
 
 clean:
 	rm tab
+
+test:
+	cd test
+	python3 go.py
