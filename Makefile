@@ -28,5 +28,6 @@ clean:
 	rm tab
 
 test:
-	cd test
-	python3 go.py
+	cd test; python3 go.py
+
+.PHONY: test
