@@ -207,7 +207,7 @@ This command is equivalent to `grep`; it will output all lines from stdin having
 
 `grepif(@,"this"), @` is a tuple of two elements: the first element is `1` or `0` depending on if the line has `"this"` as a substring, and the second element is the whole line itself.
 
-**Note**: tuples in `tab` are *not* surrounded by brackets. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called `tuple` for doing just that.)
+**Note**: tuples in `tab` are *not* surrounded by parentheses. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called `tuple` for doing just that.)
 
 To write a tuple, simply list its elements separated by commas.
 
@@ -475,12 +475,16 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 ### Expressions
 
-A value is a sequence of expressions separated by `,` or `;`, which are equivalent. An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.
+An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.
 
-This produces the tuple `(0, 1)`:
+Expressions separated by `,` or `;` are a tuple. A tuple is itself an expression and a value.
+
+Note: tuples cannot be surrounded by parentheses; if you need to nest tuples, use the builtin function named [[tuple]].
+
+This expression produces the tuple `(0, 1)`:
 
     :::tab
-    0, a = 1, def b @, b(a)
+    0, a = 1, def b @; b(a)
 
 ### Variables
 
@@ -505,14 +509,14 @@ Functions can be defined with the `def` keyword. All function calls are always i
 There are three forms for `def`:
 
 * `def f expr`: defines the functon `f`, and `expr` is an atomic value.
-* `def f (expr)`: same, but `expr` can be a sequence of expressions, including nested definitions and assignments.
-* `def [f expr, g expr, ...]`: defines two or more functions, an equivalent shortcut for `def f (@=@[0], expr), def g (@=@[1], expr), ...`. This form is intented to make it easy to give human-readable names to tuple fields. The `expr` is an atomic value and can be omitted -- the simplest form is `def [f,g,...]`.
+* `def f (expr)`: same, but `expr` can be a tuple, including nested definitions and assignments.
+* `def [f expr, g expr, ...]`: defines two or more functions, an equivalent shortcut for `def f (@=@[0], expr), def g (@=@[1], expr), ...`. This form is intented to make it easy to give human-readable names to tuple elements. The `expr` is an atomic value and can be omitted -- the simplest form is `def [f,g,...]`.
 
 User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
 
 ### Calling functions
 
-There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent.
+There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent, except that the first form allows calling a function with a tuple argument.
 
 Note, however, that the `.` has the lowest precedence! Thus, this code `f.a == 1` is equivalent to `f(a == 1)`!
 
@@ -556,7 +560,7 @@ Note that in all other respects this variable acts like a normal variable.
 Type | Syntax
 -----|-------
 `Seq` | `[ elt : input ]`
-`Arr` | `[. elt : input ]`
+`Arr` | `[. elt : input .]`
 `Map` | `{ key -> value : input }`
 
 The `: input` part can be omitted, in which case `: @` will be silently assumed. For maps the `-> key` can also be omitted, in which case `-> 1` will be assumed.

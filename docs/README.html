@@ -277,7 +277,7 @@ td+td {
 <p>This command is equivalent to <code>grep</code>; it will output all lines from stdin having the string <code>"this"</code>.</p>
 <p><a class="wikilink" href="#fn_grepif">grepif</a> is a lighter version of <a class="wikilink" href="#fn_grep">grep</a>: given a string and a regular expression it will return an integer: <code>1</code> if the regex is found in the string and <code>0</code> if it not. (You could use <code>count(grep(@,"this"))</code> instead, but <a class="wikilink" href="#fn_grepif">grepif</a> is obviously shorter and quicker.)</p>
 <p><code>grepif(@,"this"), @</code> is a tuple of two elements: the first element is <code>1</code> or <code>0</code> depending on if the line has <code>"this"</code> as a substring, and the second element is the whole line itself.</p>
-<p><strong>Note</strong>: tuples in <code>tab</code> are <em>not</em> surrounded by brackets. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called <code>tuple</code> for doing just that.)</p>
+<p><strong>Note</strong>: tuples in <code>tab</code> are <em>not</em> surrounded by parentheses. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called <code>tuple</code> for doing just that.)</p>
 <p>To write a tuple, simply list its elements separated by commas.</p>
 <p><code>?</code> is the <a class="wikilink" href="#fn_filter">filter</a> operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has <code>0</code> as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.</p>
 <p>(So, for example: <code>?[1,@ : x]</code> is equivalent to the original sequence <code>x</code>.)</p>
@@ -508,9 +508,11 @@ td+td {
 
 <h2 id="semantics">Semantics</h2>
 <h3 id="expressions">Expressions</h3>
-<p>A value is a sequence of expressions separated by <code>,</code> or <code>;</code>, which are equivalent. An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.</p>
-<p>This produces the tuple <code>(0, 1)</code>:</p>
-<div class="codehilite"><pre><span></span><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nv">def</span> <span class="nx">b</span> <span class="nv">@</span><span class="o">,</span> <span class="nx">b</span><span class="o">(</span><span class="nx">a</span><span class="o">)</span>
+<p>An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.</p>
+<p>Expressions separated by <code>,</code> or <code>;</code> are a tuple. A tuple is itself an expression and a value.</p>
+<p>Note: tuples cannot be surrounded by parentheses; if you need to nest tuples, use the builtin function named <a class="wikilink" href="#fn_tuple">tuple</a>.</p>
+<p>This expression produces the tuple <code>(0, 1)</code>:</p>
+<div class="codehilite"><pre><span></span><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nv">def</span> <span class="nx">b</span> <span class="nv">@</span><span class="o">;</span> <span class="nx">b</span><span class="o">(</span><span class="nx">a</span><span class="o">)</span>
 </pre></div>
 
 
@@ -532,12 +534,12 @@ td+td {
 <p>There are three forms for <code>def</code>:</p>
 <ul>
 <li><code>def f expr</code>: defines the functon <code>f</code>, and <code>expr</code> is an atomic value.</li>
-<li><code>def f (expr)</code>: same, but <code>expr</code> can be a sequence of expressions, including nested definitions and assignments.</li>
-<li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple fields. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
+<li><code>def f (expr)</code>: same, but <code>expr</code> can be a tuple, including nested definitions and assignments.</li>
+<li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple elements. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
 </ul>
 <p>User-defined functions <em>must</em> take an argument. (Pass a dummy value if the result does not depend on inputs.)</p>
 <h3 id="calling-functions">Calling functions</h3>
-<p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent.</p>
+<p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
 <p>Note, however, that the <code>.</code> has the lowest precedence! Thus, this code <code>f.a == 1</code> is equivalent to <code>f(a == 1)</code>!</p>
 <h3 id="operators">Operators</h3>
 <p>In order of precedence, from highest to lowest:</p>
@@ -627,7 +629,7 @@ td+td {
 </tr>
 <tr>
 <td><code>Arr</code></td>
-<td><code>[. elt : input ]</code></td>
+<td><code>[. elt : input .]</code></td>
 </tr>
 <tr>
 <td><code>Map</code></td>
