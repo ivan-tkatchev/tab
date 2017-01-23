@@ -1,0 +1,3 @@
+{ z="oops", count.z -> {z} : count.5 }
+===>
+4	oops	1
