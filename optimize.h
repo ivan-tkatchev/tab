@@ -3,7 +3,15 @@
 
 namespace tab {
 
-void optimize(std::vector<Command>& commands, const TypeRuntime& typer) {
+namespace {
+
+struct var_access {
+    size_t reads;
+    size_t writes;
+    size_t reads_after_write;
+};
+
+void unneeded_variable(std::vector<Command>& commands, size_t var, var_access& ret) {
 
     if (commands.empty())
         return;
@@ -11,51 +19,75 @@ void optimize(std::vector<Command>& commands, const TypeRuntime& typer) {
     // Find unnecessary variables and remove them.
     // 'Unnecessary' means variables that are accessed only once, immediately after assignment.
 
-    std::vector<size_t> var_reads;
-
-    var_reads.resize(typer.num_vars());
-
-    std::unordered_set<size_t> to_erase;
-
     size_t i = commands.size();
-    while (i > 1) {
+    while (i > 0) {
 
         --i;
         auto& cmd = commands[i];
 
         for (auto& j : cmd.closure) {
-            optimize(j.code, typer);
+            unneeded_variable(j.code, var, ret);
         }
 
-        if (cmd.cmd != Command::VAR)
-            continue;
+        if (cmd.cmd == Command::VAR && cmd.arg.uint == var) {
 
-        UInt var = cmd.arg.uint;
-        var_reads[var]++;
+            ret.reads++;
 
-        auto& cmdprev = commands[i - 1];
+            if (i > 0) {
+                auto& cmdprev = commands[i - 1];
 
-        if (cmdprev.cmd == Command::VAW && cmdprev.arg.uint == var && var_reads[var] == 1) {
+                if (cmdprev.cmd == Command::VAW && cmdprev.arg.uint == var) {
+                    ret.reads_after_write++;
+                }
+            }
 
-            to_erase.insert(i);
-            to_erase.insert(i - 1);
-            var_reads[var]--;
+        } else if (cmd.cmd == Command::VAW && cmd.arg.uint == var) {
+
+            ret.writes++;
         }
     }
+}
 
-    if (to_erase.empty())
-        return;
+void remove_variable(std::vector<Command>& commands, size_t var) {
 
     std::vector<Command> ret;
     ret.reserve(commands.size());
 
-    for (size_t i = 0; i < commands.size(); ++i) {
-        if (to_erase.count(i) == 0) {
-            ret.push_back(commands[i]);
+    for (auto& cmd : commands) {
+
+        for (auto& j : cmd.closure) {
+            remove_variable(j.code, var);
+        }
+
+        bool bad = ((cmd.cmd == Command::VAR || cmd.cmd == Command::VAW) && cmd.arg.uint == var);
+
+        if (!bad) {
+            ret.push_back(cmd);
         }
     }
 
     commands.swap(ret);
+}
+
+}
+
+#include <iostream>
+
+void optimize(std::vector<Command>& commands, const TypeRuntime& typer) {
+
+    if (commands.empty())
+        return;
+
+    for (size_t var = 0; var < typer.num_vars(); ++var) {
+
+        var_access va{0, 0, 0};
+
+        unneeded_variable(commands, var, va);
+
+        if (va.reads == 1 && va.writes == 1 && va.reads_after_write == 1) {
+            remove_variable(commands, var);
+        }
+    }
 }
 
 }

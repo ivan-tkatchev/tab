@@ -7,7 +7,7 @@ FUNCS = \
   funcs/explode.h funcs/uniques.h
 
 INCLUDE = \
-  atom.h command.h deps.h exec.h funcs.h infer.h hash.h object.h parse.h tab.h type.h threaded.h
+  api.h atom.h command.h deps.h exec.h funcs.h infer.h hash.h object.h optimize.h parse.h tab.h threaded.h type.h 
 
 SRC = tab.cc help.cc
 
