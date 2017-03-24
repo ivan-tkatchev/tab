@@ -177,67 +177,111 @@ const std::regex& regex_cache(const std::string& s) {
     return cache.get(s);
 }
 
+template <bool REGEX>
+struct Searcher;
+
+template <>
+struct Searcher<true> {
+
+    std::reference_wrapper<const std::regex> rx;
+
+    Searcher(const std::string& p) : rx(std::cref(regex_cache(p))) {}
+
+    bool matches(const std::string& s) {
+        return std::regex_search(s, rx.get());
+    }
+
+    void matches(const std::string& s, std::vector<std::string>& v) {
+
+        std::sregex_iterator iter(s.begin(), s.end(), rx);
+        std::sregex_iterator end;
+
+        while (iter != end) {
+
+            if (iter->size() == 1) {
+
+                v.emplace_back(iter->str());
+
+            } else if (iter->size() > 1) {
+                auto subi = iter->begin();
+                auto sube = iter->end();
+                ++subi;
+            
+                while (subi != sube) {
+                    v.emplace_back(subi->str());
+                    ++subi;
+                }
+            }
+
+            ++iter;
+        }
+    }
+};
+
+template <>
+struct Searcher<false> {
+
+    std::reference_wrapper<const std::string> substr;
+
+    Searcher(const std::string& p) : substr(std::cref(p)) {}
+
+    bool matches(const std::string& s) {
+        return (s.find(substr) != std::string::npos);
+    }
+
+    void matches(const std::string& s, std::vector<std::string>& v) {
+
+        if (matches(s)) {
+            v.emplace_back(substr);
+        }
+    }
+};
+
+template <bool REGEX>
 void grep(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
-    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+    const std::string& pattern = obj::get<obj::String>(args.v[1]).v;
 
     obj::ArrayAtom<std::string>& vv = obj::get< obj::ArrayAtom<std::string> >(out);
     std::vector<std::string>& v = vv.v;
 
     v.clear();
 
-    const std::regex& r = regex_cache(regex);
+    Searcher<REGEX> searcher(pattern);
 
-    std::sregex_iterator iter(str.begin(), str.end(), r);
-    std::sregex_iterator end;
-
-    while (iter != end) {
-
-        if (iter->size() == 1) {
-
-            v.emplace_back(iter->str());
-
-        } else if (iter->size() > 1) {
-            auto subi = iter->begin();
-            auto sube = iter->end();
-            ++subi;
-            
-            while (subi != sube) {
-                v.emplace_back(subi->str());
-                ++subi;
-            }
-        }
-
-        ++iter;
-    }
+    searcher.matches(str, v);
 }
 
+template <bool REGEX>
 void grepif(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     
     const std::string& str = obj::get<obj::String>(args.v[0]).v;
-    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+    const std::string& pattern = obj::get<obj::String>(args.v[1]).v;
 
     obj::UInt& res = obj::get<obj::UInt>(out);
 
-    const std::regex& r = regex_cache(regex);
+    Searcher<REGEX> searcher(pattern);
 
-    bool found = std::regex_search(str, r);
+    bool found = searcher.matches(str);
 
     res.v = (found ? 1 : 0);
 }
 
+template <bool REGEX>
 struct SeqGrepIf : public obj::SeqBase {
 
     obj::Object* seq;
-    std::regex regex;
+    Searcher<REGEX> searcher;
 
-    void set_regex(const std::regex& r) {
-        regex = r;
+    SeqGrepIf() : searcher("") {}
+
+    void set_pattern(const std::string& p) {
+        searcher = Searcher<REGEX>(p);
     }
 
     void wrap(obj::Object* s) {
@@ -254,25 +298,27 @@ struct SeqGrepIf : public obj::SeqBase {
 
             const std::string& str = obj::get<obj::String>(ret).v;
 
-            if (std::regex_search(str, regex))
+            if (searcher.matches(str))
                 return ret;
         }
     }
 };
 
+template <bool REGEX>
 void grepif_seq(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
 
     obj::Object* sseq = args.v[0];
-    const std::string& regex = obj::get<obj::String>(args.v[1]).v;
+    const std::string& patt = obj::get<obj::String>(args.v[1]).v;
 
-    SeqGrepIf& sgrep = obj::get<SeqGrepIf>(out);
+    SeqGrepIf<REGEX>& sgrep = obj::get< SeqGrepIf<REGEX> >(out);
 
-    sgrep.set_regex(regex_cache(regex));
+    sgrep.set_pattern(patt);
     sgrep.wrap(sseq);
 }
 
+template <bool REGEX>
 Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
@@ -287,7 +333,7 @@ Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj)
     if (check_string(t1)) {
 
         ret = Type(Type::UINT);
-        return grepif;
+        return grepif<REGEX>;
     }
 
     if (t1.type == Type::SEQ && t1.tuple && t1.tuple->size() == 1) {
@@ -299,8 +345,8 @@ Functions::func_t grepif_checker(const Type& args, Type& ret, obj::Object*& obj)
 
         ret = Type(Type::SEQ);
         ret.push(Type(Type::STRING));
-        obj = new SeqGrepIf;
-        return grepif_seq;
+        obj = new SeqGrepIf<REGEX>;
+        return grepif_seq<REGEX>;
     }
 
     return nullptr;
@@ -445,9 +491,16 @@ void register_cutgrep(Functions& funcs) {
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
               Type(Type::ARR, { Type::STRING }),
-              grep);
+              grep<true>);
 
-    funcs.add_poly("grepif", grepif_checker);
+    funcs.add_poly("grepif", grepif_checker<true>);
+
+    funcs.add("find",
+              Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
+              Type(Type::ARR, { Type::STRING }),
+              grep<false>);
+
+    funcs.add_poly("findif", grepif_checker<false>);
 
     funcs.add("replace",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::STRING) }),
