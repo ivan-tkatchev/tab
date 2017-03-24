@@ -226,7 +226,11 @@ struct Searcher<false> {
     Searcher(const std::string& p) : substr(std::cref(p)) {}
 
     bool matches(const std::string& s) {
-        return (s.find(substr) != std::string::npos);
+        // C++ std::string::find is slow in current gcc and clang.
+        // See: https://github.com/gcc-mirror/gcc/commit/fc7ebc4b8d9ad7e2891b7f72152e8a2b7543cd65
+        // return (s.find(substr) != std::string::npos);
+
+        return (::strstr(s.data(), substr.get().data()) != nullptr);
     }
 
     void matches(const std::string& s, std::vector<std::string>& v) {

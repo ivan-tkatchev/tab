@@ -708,6 +708,17 @@ Usage:
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
+`find`
+: Finds a substring match in a string. The first argument is the string to search in, the second argument is the substring. Returns an array of one element containing the substring if found, and an empty array otherwise. See also: `grep`, `grepif`, `findif` for the rationale.  
+Usage:  
+`find String, String -> Arr[String]`
+
+`findif`
+: Filter strings that contain a substring. See also: `grep`, `grepif`, `find`.  
+Usage:  
+`findif String, String -> UInt` -- returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
+`findif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have a substring match. Equivalent to `?[ findif(@,b), @ : a ]`.
+
 `first`
 : Return the first element in a pair, map or sequence or pairs. See also: `second`.  
 Usage:  
@@ -751,12 +762,12 @@ Usage:
 `gmtime Int -> Int, Int, Int, Int, Int, Int` -- returns year, month, day, hour, minute, second.
 
 `grep`
-: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
+: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax. See also: `grepif`, `find`, `findif`.  
 Usage:  
 `grep String, String -> Arr[String]`
 
 `grepif`
-: Filter strings according to a regular expression.  
+: Filter strings according to a regular expression. See also: `grep`, `find`, `findif`.  
 Usage:  
 `grepif String, String -> UInt` -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 `grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.

@@ -700,6 +700,17 @@ filter {: #fn_filter}
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
+find {: #fn_find}
+: Finds a substring match in a string. The first argument is the string to search in, the second argument is the substring. Returns an array of one element containing the substring if found, and an empty array otherwise. See also: [[grep]], [[grepif]], [[findif]] for the rationale.  
+Usage:  
+`find String, String -> Arr[String]`
+
+findif {: #fn_findif}
+: Filter strings that contain a substring. See also: [[grep]], [[grepif]], [[find]].  
+Usage:  
+`findif String, String -> UInt` -- returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
+`findif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have a substring match. Equivalent to `?[ findif(@,b), @ : a ]`.
+
 first {: #fn_first}
 : Return the first element in a pair, map or sequence or pairs. See also: [[second]].  
 Usage:  
@@ -743,12 +754,12 @@ Usage:
 `gmtime Int -> Int, Int, Int, Int, Int, Int` -- returns year, month, day, hour, minute, second.
 
 grep {: #fn_grep}
-: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax.  
+: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax. See also: [[grepif]], [[find]], [[findif]].  
 Usage:  
 `grep String, String -> Arr[String]`
 
 grepif {: #fn_grepif}
-: Filter strings according to a regular expression.  
+: Filter strings according to a regular expression. See also: [[grep]], [[find]], [[findif]].  
 Usage:  
 `grepif String, String -> UInt` -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 `grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.
@@ -1278,19 +1289,20 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 ### Alphabetically by name: 
 
-[[abs]] [[and]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]] [[case]]
-[[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]] [[datetime]] [[e]]
-[[eq]] [[exp]] [[explode]] [[file]] [[filter]] [[first]] [[flatten]]
-[[flip]] [[floor]] [[get]] [[glue]] [[gmtime]] [[grep]] [[grepif]]
-[[has]] [[hash]] [[head]] [[hex]] [[hist]] [[if]] [[iarray]] [[index]] [[int]]
-[[join]] [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]]
-[[min]] [[ngrams]] [[normal]] [[now]] [[open]] [[or]] [[pairs]] [[peek]]
+[[abs]] [[and]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]]
+[[case]] [[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]]
+[[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]] [[filter]]
+[[find]] [[findif]] [[first]] [[flatten]] [[flip]] [[floor]] [[get]]
+[[glue]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
+[[hex]] [[hist]] [[if]] [[iarray]] [[index]] [[int]] [[join]]
+[[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]] [[min]]
+[[ngrams]] [[normal]] [[now]] [[open]] [[or]] [[pairs]] [[peek]]
 [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]]
 [[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]]
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
-[[uint]] [[uniques]] [[uniques_estimate]] [[var]] [[variance]] [[while]]
-[[zip]]
+[[uint]] [[uniques]] [[uniques_estimate]] [[var]] [[variance]]
+[[while]] [[zip]]
 
 ### By kind:
 
@@ -1302,8 +1314,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **Sampling:** [[avg]] [[bucket]] [[hist]] [[max]] [[mean]] [[min]] [[normal]]
 [[rand]] [[sample]] [[stddev]] [[stdev]] [[uniques_estimate]] [[var]] [[variance]]
 
-**Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[grep]] [[grepif]] [[hash]] [[join]] 
-[[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
+**Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[find]] [[findif]] [[grep]]
+[[grepif]] [[hash]] [[join]] [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
 
 **Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[iarray]] [[index]]
 [[join]] [[reverse]] [[skip]] [[sort]] [[stripe]] [[zip]]
@@ -1320,7 +1332,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
-**Conditionals:** [[and]] [[box]] [[case]] [[eq]] [[filter]] [[grepif]] [[has]] [[if]] [[or]] [[while]]
+**Conditionals:** [[and]] [[box]] [[case]] [[eq]] [[filter]] [[findif]] [[grepif]]
+[[has]] [[if]] [[or]] [[while]]
 
 **Files:** [[file]] [[open]]
 

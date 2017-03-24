@@ -144,11 +144,11 @@ static const char* _help[][2] = {
 
     { "functions",
       "\nabs and array avg box bytes case cat ceil cos count cut date datetime e eq\n"
-      "exp explode file filter first flatten flip floor get glue gmtime grep\n"
-      "grepif has hash head hex hist if iarray index int join lines log lsh map max\n"
-      "mean merge min ngrams normal now open or pairs peek pi rand real recut replace\n"
-      "reverse round rsh sample second seq sin skip sort sqrt stddev stdev string\n"
-      "sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
+      "exp explode file filter find findif first flatten flip floor get glue gmtime\n"
+      "grep grepif has hash head hex hist if iarray index int join lines log lsh map\n"
+      "max mean merge min ngrams normal now open or pairs peek pi rand real recut\n"
+      "replace reverse round rsh sample second seq sin skip sort sqrt stddev stdev\n"
+      "string sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
       "uniques_estimate var variance while zip\n"
     },
 
@@ -383,6 +383,33 @@ static const char* _help[][2] = {
      "\n"
      "filter Seq[(Integer,a...) -> Seq[(a...)]\n"
     },
+    {"find",
+     "\n"
+     "Finds a substring match in a string. The first argument is the string\n"
+     "to search in, the second argument is the substring. Returns an array\n"
+     "of one element containing the substring if found, and an empty array\n"
+     "otherwise. See also: 'grep', 'grepif', 'findif' for the rationale.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "find String, String -> Arr[String]\n"
+    },
+    {"findif",
+     "\n"
+     "Filter strings that contain a substring.\n"
+     "See also: 'grep', 'grepif', 'find'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "findif String, String -> UInt\n"
+     "    returns 1 if the first argument contains the second argument as a\n"
+     "    substring, 0 otherwise. Equivalent to count(grep(a,b)) != 0u, except\n"
+     "    much faster.\n"
+     "\n"
+     "findif Seq[String], String -> Seq[String]\n"
+     "    returns a sequence of only those strings that have a substring match.\n"
+     "    Equivalent to ?[ findif(@,b), @ : a ].\n"
+    },
     {"first",
      "\n"
      "Return the first element in a pair, map or sequence or pairs. See\n"
@@ -470,7 +497,7 @@ static const char* _help[][2] = {
      "Finds regular expression matches in a string. The first argument is\n"
      "the string to match in, the second argument is the regular\n"
      "expression. Matches are returned in an array of strings. Regular\n"
-     "expressions use ECMAScript syntax.\n"
+     "expressions use ECMAScript syntax. See also: 'grepif', 'find', 'findif'.\n"
      "\n"
      "Usage:\n"
      "\n"
@@ -479,6 +506,7 @@ static const char* _help[][2] = {
     {"grepif",
      "\n"
      "Filter strings according to a regular expression.\n"
+     "See also: 'grep', 'find', 'findif'.\n"
      "\n"
      "Usage:\n"
      "\n"
