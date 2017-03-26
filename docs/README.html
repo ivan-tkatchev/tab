@@ -753,7 +753,7 @@ Usage:<br>
 <dt id="fn_findif">findif</dt>
 <dd>Filter strings that contain a substring. See also: <a class="wikilink" href="#fn_grep">grep</a>, <a class="wikilink" href="#fn_grepif">grepif</a>, <a class="wikilink" href="#fn_find">find</a>.<br>
 Usage:<br>
-<code>findif String, String -&gt; UInt</code> &ndash; returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to <code>count(grep(a,b)) != 0u</code>, except much faster.<br>
+<code>findif String, String -&gt; UInt</code> &ndash; returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to <code>count(find(a,b)) != 0u</code>, except much faster.<br>
 <code>findif Seq[String], String -&gt; Seq[String]</code> &ndash; returns a sequence of only those strings that have a substring match. Equivalent to <code>?[ findif(@,b), @ : a ]</code>.</dd>
 <dt id="fn_first">first</dt>
 <dd>Return the first element in a pair, map or sequence or pairs. See also: <a class="wikilink" href="#fn_second">second</a>.<br>

@@ -708,7 +708,7 @@ Usage:
 findif {: #fn_findif}
 : Filter strings that contain a substring. See also: [[grep]], [[grepif]], [[find]].  
 Usage:  
-`findif String, String -> UInt` -- returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
+`findif String, String -> UInt` -- returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to `count(find(a,b)) != 0u`, except much faster.  
 `findif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have a substring match. Equivalent to `?[ findif(@,b), @ : a ]`.
 
 first {: #fn_first}

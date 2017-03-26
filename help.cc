@@ -403,7 +403,7 @@ static const char* _help[][2] = {
      "\n"
      "findif String, String -> UInt\n"
      "    returns 1 if the first argument contains the second argument as a\n"
-     "    substring, 0 otherwise. Equivalent to count(grep(a,b)) != 0u, except\n"
+     "    substring, 0 otherwise. Equivalent to count(find(a,b)) != 0u, except\n"
      "    much faster.\n"
      "\n"
      "findif Seq[String], String -> Seq[String]\n"
