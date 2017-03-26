@@ -149,7 +149,7 @@ static const char* _help[][2] = {
       "max mean merge min ngrams normal now open or pairs peek pi rand real recut\n"
       "replace reverse round rsh sample second seq sin skip sort sqrt stddev stdev\n"
       "string sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
-      "uniques_estimate var variance while zip\n"
+      "uniques_estimate url_getparam var variance while zip\n"
     },
 
     {"abs",
@@ -1181,6 +1181,23 @@ static const char* _help[][2] = {
      "Usage:\n"
      "\n"
      "uniques_estimate a -> UInt\n"
+    },
+    {"url_getparam",
+     "\n"
+     "Splits a string with URL query-string parameters into keys and\n"
+     "values. Values will be automatically percent-decoded.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "url_getparam String, String -> String\n"
+     "    calling 'url_getparam(url, key)' will return the first value in 'url' for 'key'.\n"
+     "    Example: 'url_getparam(\"http://www.google.com?q=Hello%20World\", \"q\")'\n"
+     "    will return \"Hello World\".\n"
+     "\n"
+     "url_getparam String -> Seq[(String,String)]\n"
+     "    returns a sequence of all key/value pairs in the url.\n"
+     "    Example: 'url_getparam.\"&one=1&two=2\"' will return a value\n"
+     "    equivalent to 'seq(tuple(\"one\",\"1\"), tuple(\"two\",\"2\"))'.\n"
     },
     {"var",
      "\n"

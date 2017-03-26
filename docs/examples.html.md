@@ -172,6 +172,10 @@ The first three fields are the year, month and day. The fourth field is the dail
     def urlgetparams map.[ try take.@, take.@ : explode.seq.recut(@, "[?&=]")[1,-1] ];
     second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
 
+#### There is built-in support for parsing GET parameters, so really you should be doing this instead:
+    :::tab
+    second.max.flip.{ @ -> sum.1 : :[ first.url_getparam.@ ] }
+
 ## Working with multi-line data:
 
 #### Double-space a file:

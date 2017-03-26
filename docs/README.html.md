@@ -1098,6 +1098,12 @@ uniques_estimate {: #fn_uniques_estimate}
 Usage:  
 `uniques_estimate a -> UInt`
 
+url_getparam {: #fn_url_getparam}
+: Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
+Usage:  
+`url_getparam String, String -> String` -- calling `url_getparam(url, key)` will return the first value in `url` for `key`. Example: `url_getparam("http://www.google.com?q=Hello%20World", "q")` will return `"Hello World"`.  
+`url_getparam String -> Seq[(String,String)]` -- returns a sequence of all key/value pairs in the url. Example: `url_getparam."&one=1&two=2"` will return a value equivalent to `seq(tuple("one","1"), tuple("two","2"))`.
+
 var {: #fn_var}
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: [[mean]] and [[stdev]].  
 Usage:  
@@ -1301,8 +1307,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]]
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
-[[uint]] [[uniques]] [[uniques_estimate]] [[var]] [[variance]]
-[[while]] [[zip]]
+[[uint]] [[uniques]] [[uniques_estimate]] [[url_getparam]] [[var]]
+[[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -1340,6 +1346,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **Type converstion:** [[int]] [[real]] [[string]] [[uint]] [[array]]
 
 **Printing:** [[hex]] [[iarray]] [[lines]]
+
+**File formats and standards:** [[url_getparam]]
 
 **Aggregators:** [[array]] [[avg]] [[iarray]] [[max]] [[mean]] [[merge]] [[min]]
 [[sort]] [[stddev]] [[stdev]] [[sum]] [[uniques]] [[uniques_estimate]] [[var]]

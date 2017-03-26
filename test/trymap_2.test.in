@@ -1,0 +1,10 @@
+urls.txt
+===>
+sort.{ try (map.url_getparam.@)~"q" -> sum.1 }
+===>
+$zm	2
+24NET GAMES.COM	1
+Famous Dungeon Names	1
+anything	1
+dungen ramping	1
+free proxy checker	5

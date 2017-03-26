@@ -29,6 +29,7 @@ namespace funcs {
 #include "funcs/time.h"
 #include "funcs/hist.h"
 #include "funcs/uniques.h"
+#include "funcs/url.h"
 
 } // namespace funcs
 
@@ -65,6 +66,7 @@ void register_functions(size_t seed) {
     funcs::register_time(funs);
     funcs::register_hist(funs);
     funcs::register_uniques(funs);
+    funcs::register_url(funs);
 }
 
 } // namespace tab

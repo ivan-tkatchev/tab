@@ -1106,6 +1106,12 @@ Usage:
 Usage:  
 `uniques_estimate a -> UInt`
 
+`url_getparam`
+: Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
+Usage:  
+`url_getparam String, String -> String` -- calling `url_getparam(url, key)` will return the first value in `url` for `key`. Example: `url_getparam("http://www.google.com?q=Hello%20World", "q")` will return `"Hello World"`.  
+`url_getparam String -> Seq[(String,String)]` -- returns a sequence of all key/value pairs in the url. Example: `url_getparam."&one=1&two=2"` will return a value equivalent to `seq(tuple("one","1"), tuple("two","2"))`.
+
 `var`
 : Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
