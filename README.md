@@ -545,7 +545,7 @@ Operator | Meaning
 `a+b`  `a-b` | Addition and subtraction.
 `a&b`  `aǀb`  `a^b` | Binary AND, OR and XOR.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
-`a&&b` `a||b` | Equivalent to `&` and `|` except with a different precedence. 
+`a&&b` `aǀǀb` | Equivalent to `&` and `ǀ` except with a different precedence. 
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
 
