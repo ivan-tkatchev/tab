@@ -1,4 +1,4 @@
-[ try join([. try tolower.@[0,0] : recut(@, "[^a-zA-Z]+") .][0,-1],"") ]
+[ try join([. try tolower.@[0,0] : resplit(@, "[^a-zA-Z]+") .][0,-1],"") ]
 ===>
 bslvat
 pihgfoctapoo

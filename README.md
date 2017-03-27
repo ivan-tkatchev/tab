@@ -406,7 +406,11 @@ def_fun := "def" var (atomic | "(" expr ")")
 
 def_struct := "def" "[" var atomic? ("," var atomic?)+ "]"
 
-atomic := e_eq
+atomic := e_andor
+
+e_andor := e_eq |
+           e_eq "&&" e_eq |
+           e_eq "||" e_eq
 
 e_eq := e_bit |
         e_bit "==" e_bit |
@@ -541,10 +545,13 @@ Operator | Meaning
 `a+b`  `a-b` | Addition and subtraction.
 `a&b`  `aǀb`  `a^b` | Binary AND, OR and XOR.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
+`a&&b` `a||b` | Equivalent to `&` and `|` except with a different precedence. 
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
 
 Also note that function calls will _not_ promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.
+
+The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
 
 ##### Literals
 
@@ -954,6 +961,9 @@ Usage:
 Usage:  
 `replace String, String, String -> String`
 
+`resplit`
+: A synonym for `recut`.
+
 `reverse`
 : Reverses the elements in an array.  
 Usage:  
@@ -1012,6 +1022,9 @@ Usage:
 `sort Map[a,b] -> Arr[(a,b)]`  
 `sort Seq[a] -> Arr[a]`  
 `sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+
+`split`
+: A synonym for `cut`.
 
 `sqrt`
 : The square root function.  

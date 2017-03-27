@@ -347,7 +347,11 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
                        (axe::r_lit("<=") & x_expr_bit) >> y_expr_lte |
                        (axe::r_lit(">=") & x_expr_bit) >> y_expr_gte);
 
-    x_expr_atom = x_expr_eq;
+    auto x_expr_andor =
+        x_expr_eq & *((axe::r_lit("&&") & x_expr_eq) >> y_expr_and |
+                       (axe::r_lit("||") & x_expr_eq) >> y_expr_or);
+
+    x_expr_atom = x_expr_andor;
 
     auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(make_string(b, e)); });
     auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back());

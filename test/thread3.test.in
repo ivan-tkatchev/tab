@@ -1,5 +1,5 @@
 temps.tsv
 ===>
-[ x=int.cut(@,"\t",3), min.x, max.x ] --> merge.@
+[ x=int.split(@,"\t",3), min.x, max.x ] --> merge.@
 ===>
 -323	382

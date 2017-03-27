@@ -1,4 +1,4 @@
-def cat join(@," "), def long count(@)>0u, ?[def isup toupper(@)==@, def nonum !grepif(@,"[0-9]"), z=cat(?[isup(@)&nonum(@),@ : recut(@,"\\\W+")]), long(z), z]
+def cat join(@," "), def long count(@)>0u, ?[def isup toupper(@)==@, def nonum !grepif(@,"[0-9]"), z=cat(?[isup(@)&&nonum(@),@ : recut(@,"\\\W+")]), long(z), z]
 ===>
 THE SOFTWARE IS PROVIDED AS IS WITHOUT WARRANTY OF ANY KIND EXPRESS OR
 IMPLIED INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY 

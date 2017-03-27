@@ -78,6 +78,7 @@ static const char* _help[][2] = {
       "  a+b  a-b\n"
       "  a&b  a|b  a^b\n"
       "  a==b a!=b a<b  a>b  a<=b  a>=b\n"
+      "  a&&b a||b\n"
       "\n"
       "Parentheses can be used for grouping. Use ',' or ';' for separating statements.\n"
       "'a~b' is syntactic sugar for 'a[b]' is syntactic sugar for 'index(a,b)'\n"
@@ -147,9 +148,9 @@ static const char* _help[][2] = {
       "exp explode file filter find findif first flatten flip floor get glue gmtime\n"
       "grep grepif has hash head hex hist if iarray index int join lines log lsh map\n"
       "max mean merge min ngrams normal now open or pairs peek pi rand real recut\n"
-      "replace reverse round rsh sample second seq sin skip sort sqrt stddev stdev\n"
-      "string sum take tan tabulate time tolower toupper triplets tuple uint uniques\n"
-      "uniques_estimate url_getparam var variance while zip\n"
+      "replace resplit reverse round rsh sample second seq sin skip sort split sqrt\n"
+      "stddev stdev string sum take tan tabulate time tolower toupper triplets tuple\n"
+      "uint uniques uniques_estimate url_getparam var variance while zip\n"
     },
 
     {"abs",
@@ -890,6 +891,10 @@ static const char* _help[][2] = {
      "\n"
      "replace String, String, String -> String\n"
     },
+    {"resplit",
+     "\n"
+     "A synonym for 'recut'.\n"
+    },
     {"reverse",
      "\n"
      "Reverses the elements in an array.\n"
@@ -998,6 +1003,10 @@ static const char* _help[][2] = {
      "    Note: this version of this function will return an array with one\n"
      "    element, marked so that storing it as a value in an existing key of a\n"
      "    map will produce a sorted array of all such values.\n"
+    },
+    {"split",
+     "\n"
+     "A synonym for 'cut'.\n"
     },
     {"sqrt",
      "\n"

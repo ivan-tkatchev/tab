@@ -395,7 +395,11 @@ def_fun := "def" var (atomic | "(" expr ")")
 
 def_struct := "def" "[" var atomic? ("," var atomic?)+ "]"
 
-atomic := e_eq
+atomic := e_andor
+
+e_andor := e_eq |
+           e_eq "&&" e_eq |
+           e_eq "||" e_eq
 
 e_eq := e_bit |
         e_bit "==" e_bit |
@@ -533,10 +537,13 @@ Operator | Meaning
 `a+b`  `a-b` | Addition and subtraction.
 `a&b`  `a|b`  `a^b` | Binary AND, OR and XOR.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
+`a&&b` `a||b` | Equivalent to `&` and `|` except with a different precedence. 
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
 
 Also note that function calls will _not_ promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.
+
+The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
 
 ### Literals
 
@@ -946,6 +953,9 @@ replace {: #fn_replace}
 Usage:  
 `replace String, String, String -> String`
 
+resplit {: #fn_resplit}
+: A synonym for [[recut]].
+
 reverse {: #fn_reverse}
 : Reverses the elements in an array.  
 Usage:  
@@ -1004,6 +1014,9 @@ Usage:
 `sort Map[a,b] -> Arr[(a,b)]`  
 `sort Seq[a] -> Arr[a]`  
 `sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+
+split {: #fn_split}
+: A synonym for [[cut]].
 
 sqrt {: #fn_sqrt}
 : The square root function.  
@@ -1303,8 +1316,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[hex]] [[hist]] [[if]] [[iarray]] [[index]] [[int]] [[join]]
 [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]] [[min]]
 [[ngrams]] [[normal]] [[now]] [[open]] [[or]] [[pairs]] [[peek]]
-[[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[reverse]] [[round]]
-[[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]]
+[[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[resplit]] [[reverse]] [[round]]
+[[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[split]]
 [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
 [[uint]] [[uniques]] [[uniques_estimate]] [[url_getparam]] [[var]]
@@ -1321,7 +1334,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[rand]] [[sample]] [[stddev]] [[stdev]] [[uniques_estimate]] [[var]] [[variance]]
 
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[find]] [[findif]] [[grep]]
-[[grepif]] [[hash]] [[join]] [[recut]] [[replace]] [[string]] [[tolower]] [[toupper]]
+[[grepif]] [[hash]] [[join]] [[recut]] [[replace]] [[resplit]] [[split]]
+[[string]] [[tolower]] [[toupper]]
 
 **Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[iarray]] [[index]]
 [[join]] [[reverse]] [[skip]] [[sort]] [[stripe]] [[zip]]

@@ -491,6 +491,7 @@ Functions::func_t recut_checker(const Type& args, Type& ret, obj::Object*& obj) 
 void register_cutgrep(Functions& funcs) {
 
     funcs.add_poly("cut", cut_checker);
+    funcs.add_poly("split", cut_checker);
 
     funcs.add("grep",
               Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING) }),
@@ -512,6 +513,7 @@ void register_cutgrep(Functions& funcs) {
               replace);
 
     funcs.add_poly("recut", recut_checker);
+    funcs.add_poly("resplit", recut_checker);
 
 }
 

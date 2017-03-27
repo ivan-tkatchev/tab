@@ -1,4 +1,4 @@
-sort.{ @~0 -> map([ @, sum.1 : recut(@~1,"[^a-zA-Z]") ]) : zip(count(),@) }~6
+sort.{ @~0 -> map([ @, sum.1 : resplit(@~1,"[^a-zA-Z]") ]) : zip(count(),@) }~6
 ===>
 	2
 Software	1
