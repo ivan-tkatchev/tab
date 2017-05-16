@@ -171,6 +171,9 @@ struct UrlGetter {
                 hex_decode(i, e, val);
             }
 
+            if (i == e)
+                return true;
+
             ++i;
         }
 
