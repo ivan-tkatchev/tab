@@ -19,6 +19,9 @@ bool hex_digit_decode(I& i, I e, unsigned char& out) {
 
     } else if (out >= '0' && out <= '9') {
         out = out - '0';
+
+    } else {
+        return false;
     }
 
     return true;
@@ -94,6 +97,9 @@ void url_getparam(const std::string& a, const std::string& param, std::string& o
             }
 
             hex_decode(i, e, out);
+
+            if (i == e)
+                return;
 
         } else {
 
