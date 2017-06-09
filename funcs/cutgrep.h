@@ -463,7 +463,7 @@ void recut_seq(const obj::Object* in, obj::Object*& out) {
 
     SeqCut<recut>& ret = obj::get< SeqCut<recut> >(out);
 
-    ret.wrap(&args);
+    ret.do_wrap(&args);
 }
 
 Functions::func_t recut_checker(const Type& args, Type& ret, obj::Object*& obj) {
