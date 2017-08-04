@@ -42,58 +42,87 @@ void cut(const obj::Object* in, obj::Object*& out) {
     v.emplace_back(str.begin() + prev, str.end());
 }
 
-void cutn(const obj::Object* in, obj::Object*& out) {
+template <typename I>
+bool equal(I& b1, I& e1, I& b2, I& e2) {
 
-    obj::Tuple& args = obj::get<obj::Tuple>(in);
-    
-    const std::string& str = obj::get<obj::String>(args.v[0]).v;
-    const std::string& del = obj::get<obj::String>(args.v[1]).v;
-    UInt nth = obj::get<obj::UInt>(args.v[2]).v;
-    
-    size_t N = str.size();
-    size_t M = del.size();
+    if (e1 - b1 < e2 - b2)
+        return false;
 
-    size_t prev = 0;
+    return std::equal(b2, e2, b1);
+}
 
-    std::string& v = obj::get<obj::String>(out).v;
+template <typename I>
+void cutn_impl(I str_b, I str_e, I del_b, I del_e, size_t nth, std::string& out) {
 
-    v.clear();
+    auto prev = str_b;
+
+    out.clear();
 
     UInt nmatch = 0;
-    
-    for (size_t i = 0; i < N; ++i) {
 
-        bool matched = true;
+    for (; str_b != str_e; ++str_b) {
 
-        for (size_t j = 0; j < M; ++j) {
-
-            if (i+j < N && str[i+j] == del[j])
-                continue;
-            
-            matched = false;
-            break;
-        }
+        bool matched = equal(str_b, str_e, del_b, del_e);
 
         if (matched) {
 
             if (nth == nmatch) {
-                v.assign(str.begin() + prev, str.begin() + i);
+                out.assign(prev, str_b);
                 return;
             }
 
             nmatch++;
-            i += M;
-            prev = i;
-            --i;
+            str_b += (del_e - del_b);
+            prev = str_b;
+            --str_b;
         }
     }
 
     if (nth == nmatch) {
-        v.assign(str.begin() + prev, str.end());
+        out.assign(prev, str_b);
         return;
     }
 
     throw std::runtime_error("Substring not found in 'cut'");
+}
+
+template <typename NUM>
+void cutn(const obj::Object* in, obj::Object*& out);
+
+template <>
+void cutn<UInt>(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& del = obj::get<obj::String>(args.v[1]).v;
+    UInt nth = obj::get<obj::UInt>(args.v[2]).v;
+
+    std::string& v = obj::get<obj::String>(out).v;
+
+    cutn_impl(str.begin(), str.end(), del.begin(), del.end(), nth, v);
+}
+
+template <>
+void cutn<Int>(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+
+    const std::string& str = obj::get<obj::String>(args.v[0]).v;
+    const std::string& del = obj::get<obj::String>(args.v[1]).v;
+    Int nth = obj::get<obj::Int>(args.v[2]).v;
+
+    std::string& v = obj::get<obj::String>(out).v;
+
+    if (nth >= 0) {
+
+        cutn_impl(str.begin(), str.end(), del.begin(), del.end(), nth, v);
+
+    } else {
+
+        cutn_impl(str.rbegin(), str.rend(), del.rbegin(), del.rend(), -1 - nth, v);
+        std::reverse(v.begin(), v.end());
+    }
 }
 
 template <void CUTTER(const obj::Object*, obj::Object*&)>
@@ -143,7 +172,12 @@ Functions::func_t cut_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::UINT) })) {
         ret = Type(Type::STRING);
-        return cutn;
+        return cutn<UInt>;
+    }
+
+    if (args == Type(Type::TUP, { Type(Type::STRING), Type(Type::STRING), Type(Type::INT) })) {
+        ret = Type(Type::STRING);
+        return cutn<Int>;
     }
 
     if (args == Type(Type::TUP, { Type(Type::SEQ, { Type(Type::STRING) }), Type(Type::STRING) })) {
