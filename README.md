@@ -672,7 +672,7 @@ Usage:
 : Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
-`cut String, String, UInt -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.  
+`cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.  
 `cut Seq[String], String -> Seq[Arr[String]]` -- equivalent to `[ cut(@,delim) : seq ]`.
 
 `date`

@@ -721,7 +721,7 @@ Usage:<br>
 <dd>Splits a string using a delimiter. See also <a class="wikilink" href="#fn_recut">recut</a> for splitting with a regular expression.<br>
 Usage:<br>
 <code>cut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
-<code>cut String, String, UInt -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.<br>
+<code>cut String, String, Integer -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.<br>
 <code>cut Seq[String], String -&gt; Seq[Arr[String]]</code> &ndash; equivalent to <code>[ cut(@,delim) : seq ]</code>.</dd>
 <dt id="fn_date">date</dt>
 <dd>Converts a UNIX timestamp to a textual representation of a UTC date.<br>

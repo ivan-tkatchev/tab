@@ -302,7 +302,7 @@ static const char* _help[][2] = {
      "    returns an array of strings, such that the first argument is split\n"
      "    using the second argument as a delimiter.\n"
      "\n"
-     "cut String, String, UInt -> String\n"
+     "cut String, String, Integer -> String\n"
      "    calling cut(a,b,n) is equivalent to cut(a,b)[n], except much faster.\n"
      "\n"
      "cut Seq[String], String -> Seq[Arr[String]]\n"
