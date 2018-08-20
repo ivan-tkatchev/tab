@@ -1,0 +1,7 @@
+m={ @ -> sum.1 :: [resplit(@,"[^a-zA-Z]")] }, has(m,"and"), has(m,"foo"),
+a=array.second.m, has(a,1), has(a,5), has(a,15),
+a=array.first.m, has(a,"and"), has(a,"foo"),
+a=array.seq.m, has(a,tuple("of",6)), has(a,tuple("of",7))
+===>
+1	0	1	1	0	1	0	1	0
+

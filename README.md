@@ -780,9 +780,10 @@ Usage:
 `grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.
 
 `has`
-: Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.  
+: Checks for existence in a map or array.  
 Usage:  
-`has Map[a,b], a -> UInt`
+`has Map[a,b], a -> UInt` -- returns 1 if a key exists in the map, 0 otherwise. The first argument is the map, the second argument is the key to check.  
+`has Arr[a], a -> UInt` -- returns 1 if a value is in the array, 0 otherwise. The first argument is the array, the second argument is the value. Equivalent to `has(map.zip(seq.a, count()), b)`.
 
 `hash`
 : Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  

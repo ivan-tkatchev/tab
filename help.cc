@@ -521,12 +521,18 @@ static const char* _help[][2] = {
     },
     {"has",
      "\n"
-     "Checks if a key exists in a map. The first argument is the map, the\n"
-     "second argument is the key to check. Returns either 1 or 0.\n"
+     "Checks for existence in a map or array.\n"
      "\n"
      "Usage:\n"
      "\n"
      "has Map[a,b], a -> UInt\n"
+     "    returns 1 if a key exists in the map, 0 otherwise. The first argument is\n"
+     "    the map, the second argument is the key to check.\n"
+     "\n"
+     "has Arr[a], a -> UInt\n"
+     "    returns 1 if a value is in the array, 0 otherwise. The first argument is\n"
+     "    the array, the second argument is the value. Equivalent to \n"
+     "    has(map.zip(seq.a, count()), b).\n"
     },
     {"hash",
      "\n"

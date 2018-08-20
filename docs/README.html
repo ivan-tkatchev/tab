@@ -808,10 +808,11 @@ Usage:<br>
 Usage:<br>
 <code>grepif String, String -&gt; UInt</code> &ndash; returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to <code>count(grep(a,b)) != 0u</code>, except much faster.<br>
 <code>grepif Seq[String], String -&gt; Seq[String]</code> &ndash; returns a sequence of only those strings that have regular expression matches. Equivalent to <code>?[ grepif(@,b), @ : a ]</code>.</dd>
-<dt id="fn_hase">has</dt>
-<dd>Checks if a key exists in a map. The first argument is the map, the second argument is the key to check. Returns either 1 or 0.<br>
+<dt id="fn_has">has</dt>
+<dd>Checks for existence in a map or array.<br>
 Usage:<br>
-<code>has Map[a,b], a -&gt; UInt</code></dd>
+<code>has Map[a,b], a -&gt; UInt</code> &ndash; returns 1 if a key exists in the map, 0 otherwise. The first argument is the map, the second argument is the key to check.<br>
+<code>has Arr[a], a -&gt; UInt</code> &ndash; returns 1 if a value is in the array, 0 otherwise. The first argument is the array, the second argument is the value. Equivalent to <code>has(map.zip(seq.a, count()), b)</code>.</dd>
 <dt id="fn_hash">hash</dt>
 <dd>Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.<br>
 Usage:<br>

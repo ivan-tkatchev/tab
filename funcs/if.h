@@ -14,7 +14,7 @@ void iffun(const obj::Object* in, obj::Object*& out) {
 }
 
 template <bool SORTED>
-void hasfun(const obj::Object* in, obj::Object*& out) {
+void hasfun_map(const obj::Object* in, obj::Object*& out) {
 
     obj::Tuple& args = obj::get<obj::Tuple>(in);
     obj::MapObject<SORTED>& map = obj::get< obj::MapObject<SORTED> >(args.v[0]);
@@ -26,6 +26,41 @@ void hasfun(const obj::Object* in, obj::Object*& out) {
     } else {
         r.v = 1;
     }
+}
+
+template <typename T>
+void hasfun_arratom(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::ArrayAtom<T>& arr = obj::get< obj::ArrayAtom<T> >(args.v[0]);
+    obj::Atom<T>& key = obj::get< obj::Atom<T> >(args.v[1]);
+    obj::UInt& r = obj::get<obj::UInt>(out);
+
+    for (const auto& i : arr.v) {
+        if (i == key.v) {
+            r.v = 1;
+            return;
+        }
+    }
+
+    r.v = 0;
+}
+
+void hasfun_arrobject(const obj::Object* in, obj::Object*& out) {
+
+    obj::Tuple& args = obj::get<obj::Tuple>(in);
+    obj::ArrayObject& arr = obj::get< obj::ArrayObject >(args.v[0]);
+    obj::Object* key = args.v[1];
+    obj::UInt& r = obj::get<obj::UInt>(out);
+
+    for (const auto& i : arr.v) {
+        if (i->eq(key)) {
+            r.v = 1;
+            return;
+        }
+    }
+
+    r.v = 0;
 }
 
 void casefun(const obj::Object* in, obj::Object*& out) {
@@ -121,17 +156,43 @@ Functions::func_t has_checker(const Type& args, Type& ret, obj::Object*& obj) {
     const Type& t1 = args.tuple->at(0);
     const Type& t2 = args.tuple->at(1);
 
-    if (t1.type != Type::MAP)
-        return nullptr;
+    if (t1.type == Type::MAP || t1.type == Type::ARR) {
 
-    const Type& key = t1.tuple->at(0);
+        const Type& key = t1.tuple->at(0);
     
-    if (t2 != key)
+        if (t2 != key)
+            return nullptr;
+
+        ret = Type(Type::UINT);
+
+        if (t1.type == Type::ARR) {
+
+            if (key.type == Type::ATOM) {
+
+                switch (key.atom) {
+                case Type::UINT:
+                    return hasfun_arratom<UInt>;
+                case Type::INT:
+                    return hasfun_arratom<Int>;
+                case Type::REAL:
+                    return hasfun_arratom<Real>;
+                case Type::STRING:
+                    return hasfun_arratom<std::string>;
+                }
+
+                return nullptr;
+
+            } else {
+                return hasfun_arrobject;
+            }
+
+        } else {
+            return hasfun_map<SORTED>;
+        }
+
+    } else {
         return nullptr;
-
-    ret = Type(Type::UINT);
-
-    return hasfun<SORTED>;
+    }
 }
 
 Functions::func_t case_checker(const Type& args, Type& ret, obj::Object*& obj) {
