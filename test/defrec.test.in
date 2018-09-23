@@ -1,3 +1,5 @@
 def y x(@), def x y(@), x(0)
 !!!
-ERROR: Detected recursive function call of x
+ERROR: In function call of 'x':
+In function call of 'y':
+Detected recursive function call of x

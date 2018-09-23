@@ -340,17 +340,51 @@ struct TypeRuntime {
 
 Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_empty);
 
-Type infer_lam_generator(const Type& args, std::vector<Command>& code, TypeRuntime& typer, UInt& tlvar) {
+Type infer_lam_generator(const Type& args, const String& name, std::vector<Command>& code, TypeRuntime& typer, UInt& tlvar) {
 
-    typer.enter_scope();
+    auto check_arguments = [&]() {
+        bool has_args = false;
 
-    tlvar = typer.add_var(strings().add("@"), args);
+        for (const Command& tmpi : code) {
+            if (tmpi.cmd == Command::VAR && tmpi.arg.which == Atom::UINT && tmpi.arg.uint == tlvar) {
+                has_args = true;
+                break;
+            }
+        }
 
-    Type t = infer_expr(code, typer, false);
+        if (args.type == Type::NONE && has_args) {
+            return "User-defined function '" + strings().get(name) + "' must be called with arguments.";
+        }
 
-    typer.exit_scope();
+        if (args.type != Type::NONE && !has_args) {
+            return "User-defined function '" + strings().get(name) + "' must be called without arguments.";
+        }
 
-    return t;
+        return std::string();
+    };
+
+    try {
+
+        typer.enter_scope();
+
+        tlvar = typer.add_var(strings().add("@"), args);
+
+        Type t = infer_expr(code, typer, false);
+
+        typer.exit_scope();
+
+        std::string message = check_arguments();
+
+        if (message.size() > 0) {
+            throw std::runtime_error(message);
+        }
+
+        return t;
+
+    } catch (std::exception& e) {
+
+        throw std::runtime_error("In function call of '" + strings().get(name) + "':\n" + e.what());
+    }
 }
 
 Type infer_gen_generator(Command& c, TypeRuntime& typer, UInt& tlvar) {
@@ -661,21 +695,24 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             std::vector<Command> def = typer.get_def(c.arg.str);
 
             // User-defined function.
-            if (def.size() > 0 && args.type != Type::NONE) {
+            if (def.size() > 0) {
 
                 UInt tlvar;
-                Type t = infer_lam_generator(args, def, typer, tlvar);
+                Type t = infer_lam_generator(args, c.arg.str, def, typer, tlvar);
 
                 typer.unget_def();
 
                 stack.emplace_back(t);
 
-                ci = commands.insert(ci, clo.code.begin(), clo.code.end());
-                ci += clo.code.size();
-                ci->closure.clear();
+                if (args.type != Type::NONE) {
 
-                ci = commands.insert(ci, Command(Command::VAW, tlvar));
-                ++ci;
+                    ci = commands.insert(ci, clo.code.begin(), clo.code.end());
+                    ci += clo.code.size();
+                    ci->closure.clear();
+
+                    ci = commands.insert(ci, Command(Command::VAW, tlvar));
+                    ++ci;
+                }
 
                 ci = commands.insert(ci, def.begin(), def.end());
                 ci += def.size();
@@ -687,7 +724,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
                 --ci;
 
             } else {
-            
+
                 auto tmp = functions().get(c.arg.str, args, c.object);
                 c.function = (void*)tmp.first;
                 stack.emplace_back(tmp.second);
@@ -696,7 +733,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
                     c.cmd = Command::FUN0;
                 else
                     c.cmd = Command::FUN;
-            
+
                 ci = commands.insert(ci, clo.code.begin(), clo.code.end());
                 ci += clo.code.size();
                 ci->closure.clear();
