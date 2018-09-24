@@ -524,8 +524,6 @@ There are three forms for `def`:
 * `def f (expr)`: same, but `expr` can be a tuple, including nested definitions and assignments.
 * `def [f expr, g expr, ...]`: defines two or more functions, an equivalent shortcut for `def f (@=@[0], expr), def g (@=@[1], expr), ...`. This form is intented to make it easy to give human-readable names to tuple elements. The `expr` is an atomic value and can be omitted -- the simplest form is `def [f,g,...]`.
 
-User-defined functions _must_ take an argument. (Pass a dummy value if the result does not depend on inputs.)
-
 ##### Calling functions
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent, except that the first form allows calling a function with a tuple argument.

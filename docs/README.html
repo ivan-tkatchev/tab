@@ -541,7 +541,6 @@ td+td {
 <li><code>def f (expr)</code>: same, but <code>expr</code> can be a tuple, including nested definitions and assignments.</li>
 <li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple elements. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
 </ul>
-<p>User-defined functions <em>must</em> take an argument. (Pass a dummy value if the result does not depend on inputs.)</p>
 <h3 id="calling-functions">Calling functions</h3>
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
 <p>Note, however, that the <code>.</code> has the lowest precedence! Thus, this code <code>f.a == 1</code> is equivalent to <code>f(a == 1)</code>!</p>
