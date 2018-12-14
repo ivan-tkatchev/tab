@@ -19,7 +19,7 @@ __all__ = ['TabLexer']
 
 class TabLexer(RegexLexer):
     """
-    http://tkatchev.bitbucket.org/tab
+    http://tkatchev.bitbucket.io/tab
     """
 
     name = 'Tab'
