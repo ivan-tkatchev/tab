@@ -287,13 +287,13 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     auto y_mark_flat = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("flatten")); });
     auto y_mark_filter = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("filter")); });
-    
+
     axe::r_rule<I> x_expr_flat;
     x_expr_flat =
         (axe::r_lit(':') >> y_mark_flat & x_expr_flat >> y_close_fun) |
         (axe::r_lit('?') >> y_mark_filter & x_expr_flat >> y_close_fun) |
         x_expr_idx;
-    
+
     auto y_expr_not = axe::e_ref([&](I b, I e) { stack.push(Command::NOT); });
 
     axe::r_rule<I> x_expr_not;
@@ -351,7 +351,12 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         x_expr_eq & *((axe::r_lit("&&") & x_expr_eq) >> y_expr_and |
                        (axe::r_lit("||") & x_expr_eq) >> y_expr_or);
 
-    x_expr_atom = x_expr_andor;
+    auto y_expr_pipe = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, strings().add("@")); });
+
+    auto x_expr_pipe =
+	x_expr_andor & *((axe::r_lit(">>") >> y_expr_pipe) & x_expr_andor);
+
+    x_expr_atom = x_expr_pipe;
 
     auto y_expr_assign_var = axe::e_ref([&](I b, I e) { stack.names.emplace_back(make_string(b, e)); });
     auto y_expr_assign = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, stack.names.back());
