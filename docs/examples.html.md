@@ -28,16 +28,19 @@ This is an example list of useful `tab` programs.
     :::tab
     freq={ count.@ -> sum.1 : :[grep(@,"[A-Za-z0-9]+")] }, sort.freq
 
+#### Same, but with syntactic sugar:
+    :::tab
+    :[grep(@,"[A-Za-z0-9]+")] .. { count.@ -> sum.1 } .. sort.@
+
 #### Same histogram, but also with the words themselves:
     :::tab
-    freq={ count.@ -> sum.1, {tolower.@} : :[grep(@,"[A-Za-z0-9]+")] },
     def f first.@,
     def s second.@,
-    sort.[ f.@, f.s.@, join(f.s.s.@, ",") : freq]
+    :[grep(@,"[A-Za-z0-9]+")] .. { count.@ -> sum.1, {tolower.@} } .. sort.[ f.@, f.s.@, join(f.s.s.@, ",")]
 
 #### All English words following the word 'the':
     :::tab
-    ?[ (tolower.first.@) == "the", second.@ : pairs( :[grep(@,"[A-Za-z0-9]+")] ) ]
+    :[grep(@,"[A-Za-z0-9]+")] .. ?[ (tolower.first.@) == "the", second.@ : pairs.@ ]
 
 #### Count the number of unique English words in a file:
     :::tab
@@ -165,7 +168,7 @@ The first three fields are the year, month and day. The fourth field is the dail
     :::tab
     regex = "[?&]([^&]+)=([^&]+)";
     def urlgetparams map.stripe(pairs.[@ : grep(@, regex) ], 2);
-    second.max.flip.{ @ -> sum.1 : :[ first.urlgetparams.@ ] }
+    :[ first.urlgetparams.@ ] .. second.max.flip.{ @ -> sum.1 }
 
 #### Another implementation of same as above:
     :::tab
@@ -174,7 +177,7 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### There is built-in support for parsing GET parameters, so really you should be doing this instead:
     :::tab
-    second.max.flip.{ @ -> sum.1 : :[ first.url_getparam.@ ] }
+    :[ first.url_getparam.@ ] .. second.max.flip.{ @ -> sum.1 }
 
 ## Working with multi-line data:
 
