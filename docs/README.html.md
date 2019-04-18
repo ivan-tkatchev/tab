@@ -395,7 +395,7 @@ def_fun := "def" var (atomic | "(" expr ")")
 
 def_struct := "def" "[" var atomic? ("," var atomic?)+ "]"
 
-atomic := e_andor
+atomic := e_andor (".." e_andor)*
 
 e_andor := e_eq |
            e_eq "&&" e_eq |
@@ -446,7 +446,7 @@ funcall := funcall_paren | funcall_dot
 
 funcall_paren := var "(" expr ")"
 
-funcall_dot := var "." atomic
+funcall_dot := var "." e_bit
 
 array := "[." "try"? expr (":" expr)? ".]"
 
@@ -520,7 +520,9 @@ There are three forms for `def`:
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent, except that the first form allows calling a function with a tuple argument.
 
-Note, however, that the `.` has the lowest precedence! Thus, this code `f.a == 1` is equivalent to `f(a == 1)`!
+Note, however, that the `.` has low precedence! Thus, this code `f.a & b` is equivalent to `f(a & 1)`!
+
+(See table below.)
 
 ### Operators
 
@@ -530,10 +532,12 @@ Operator | Meaning
 ---------|--------
 `a~b` `a[b]` | Indexing arrays, maps and tuples. See the [[index]] function. Use `~` with atomic values, while `[]` can accept tuples.
 `:a`  `?a` | Syntactic sugar for the functions [[flatten]] and [[filter]], respectively.
+`!a`   | Bitwise NOT.
 `a**b` | Exponentiation.
 `a*b`  `a/b`  `a%b` | Multiplication, division, modulo.
 `a+b`  `a-b` | Addition and subtraction.
 `a&b`  `a|b`  `a^b` | Binary AND, OR and XOR.
+`f.a`               | Function call. Operators above this line are assumed to be part of expression `a`.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
 `a&&b` `a||b` | Equivalent to `&` and `|` except with a different precedence. 
 
@@ -542,6 +546,16 @@ Note that arithmetic operators will silently promote the type of the the result 
 Also note that function calls will _not_ promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.
 
 The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
+
+The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. The following two snippets are equivalent:
+
+    :::tab
+    sample(3, :[ seq.@ : head(cut(@,"\t"), 1000)])
+
+    :::tab
+    cut(@,"\t") .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
+
+(The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)
 
 ### Literals
 
@@ -974,10 +988,7 @@ Usage:
 sample {: #fn_sample}
 : Sample from a sequence of atomic values, without replacement. (See also: [[rand]], [[normal]].)  
 Usage:  
-`sample UInt, Seq[Int] -> Arr[Int]`  
-`sample UInt, Seq[UInt] -> Arr[UInt]`  
-`sample UInt, Seq[Real] -> Arr[Real]`  
-`sample UInt, Seq[String] -> Arr[String]` -- the first argument is the sample size.
+`sample UInt, Seq[a] -> Arr[a]` -- the first argument is the sample size.
 
 second {: #fn_second}
 : Return the second element in a pair, map or sequence or pairs. See also: [[first]].  

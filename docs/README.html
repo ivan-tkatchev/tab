@@ -430,7 +430,7 @@ td+td {
 
 <span class="nv">def</span><span class="nx">_struct</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="s2">&quot;[&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?</span> <span class="o">(</span><span class="s2">&quot;,&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?)+</span> <span class="s2">&quot;]&quot;</span>
 
-<span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_andor</span>
+<span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_andor</span> <span class="o">(</span><span class="s2">&quot;..&quot;</span> <span class="nx">e_andor</span><span class="o">)*</span>
 
 <span class="nx">e_andor</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_eq</span> <span class="o">|</span>
            <span class="nx">e_eq</span> <span class="s2">&quot;&amp;&amp;&quot;</span> <span class="nx">e_eq</span> <span class="o">|</span>
@@ -481,7 +481,7 @@ td+td {
 
 <span class="nx">funcall_paren</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
 
-<span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">atomic</span>
+<span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">e_bit</span>
 
 <span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
 
@@ -543,7 +543,8 @@ td+td {
 </ul>
 <h3 id="calling-functions">Calling functions</h3>
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
-<p>Note, however, that the <code>.</code> has the lowest precedence! Thus, this code <code>f.a == 1</code> is equivalent to <code>f(a == 1)</code>!</p>
+<p>Note, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
+<p>(See table below.)</p>
 <h3 id="operators">Operators</h3>
 <p>In order of precedence, from highest to lowest:</p>
 <table>
@@ -563,6 +564,10 @@ td+td {
 <td>Syntactic sugar for the functions <a class="wikilink" href="#fn_flatten">flatten</a> and <a class="wikilink" href="#fn_filter">filter</a>, respectively.</td>
 </tr>
 <tr>
+<td><code>!a</code></td>
+<td>Bitwise NOT.</td>
+</tr>
+<tr>
 <td><code>a**b</code></td>
 <td>Exponentiation.</td>
 </tr>
@@ -579,6 +584,10 @@ td+td {
 <td>Binary AND, OR and XOR.</td>
 </tr>
 <tr>
+<td><code>f.a</code></td>
+<td>Function call. Operators above this line are assumed to be part of expression <code>a</code>.</td>
+</tr>
+<tr>
 <td><code>a==b</code> <code>a!=b</code> <code>a&lt;b</code>  <code>a&gt;b</code>  <code>a&lt;=b</code>  <code>a&gt;=b</code></td>
 <td>Comparision.</td>
 </tr>
@@ -591,6 +600,15 @@ td+td {
 <p>Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)</p>
 <p>Also note that function calls will <em>not</em> promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.</p>
 <p>The <code>&amp;&amp;</code> and <code>||</code> operators are there because otherwise an expression like <code>a == b &amp; c == d</code> is parsed as <code>a == (b &amp; c) == d</code> and results in a syntax error.</p>
+<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. The following two snippets are equivalent:</p>
+<div class="codehilite"><pre><span></span><span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">head</span><span class="o">(</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">1000</span><span class="o">)])</span>
+
+<span class="o">:::</span><span class="nx">tab</span>
+<span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">..</span> <span class="nx">head</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)</span> <span class="o">..</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">..</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span>
+</pre></div>
+
+
+<p>(The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)</p>
 <h3 id="literals">Literals</h3>
 <p>Syntax for literal number and string values:</p>
 <table>
@@ -978,10 +996,7 @@ Usage:<br>
 <dt id="fn_sample">sample</dt>
 <dd>Sample from a sequence of atomic values, without replacement. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_normal">normal</a>.)<br>
 Usage:<br>
-<code>sample UInt, Seq[Int] -&gt; Arr[Int]</code><br>
-<code>sample UInt, Seq[UInt] -&gt; Arr[UInt]</code><br>
-<code>sample UInt, Seq[Real] -&gt; Arr[Real]</code><br>
-<code>sample UInt, Seq[String] -&gt; Arr[String]</code> &ndash; the first argument is the sample size.</dd>
+<code>sample UInt, Seq[a] -&gt; Arr[a]</code> &ndash; the first argument is the sample size.</dd>
 <dt id="fn_second">second</dt>
 <dd>Return the second element in a pair, map or sequence or pairs. See also: <a class="wikilink" href="#fn_first">first</a>.<br>
 Usage:<br>
