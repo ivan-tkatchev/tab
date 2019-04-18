@@ -1,0 +1,5 @@
+recut(@,"[^a-zA-Z]+") .. array.flatten.@ .. [z=@, [z,@:lines] : lines=@, @] .. flatten.@ .. sample(3, @)
+===>
+DAMAGES	transmit
+OF	derivative
+to	IN

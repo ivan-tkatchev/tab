@@ -131,6 +131,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     
     axe::r_rule<I> x_expr;
     axe::r_rule<I> x_expr_atom;
+    axe::r_rule<I> x_expr_bit;
     
     auto x_ws = *axe::r_any(" \t\n");
 
@@ -258,7 +259,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     auto x_funcall_d =
         (x_ident >> y_mark_name) &
-        ((x_ws & axe::r_lit('.') & (x_expr_atom >> y_close_fun)) |
+        ((x_ws & axe::r_lit('.') & (x_expr_bit >> y_close_fun)) |
          r_fail(y_unmark));
 
     auto x_funcall = x_funcall_b | x_funcall_d;
@@ -326,7 +327,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_expr_or  = axe::e_ref([&](I b, I e) { stack.push(Command::OR); });
     auto y_expr_xor = axe::e_ref([&](I b, I e) { stack.push(Command::XOR); });
 
-    auto x_expr_bit =
+    x_expr_bit =
         x_expr_add & *((axe::r_lit('&') & x_expr_add) >> y_expr_and |
                        (axe::r_lit('|') & x_expr_add) >> y_expr_or |
                        (axe::r_lit('^') & x_expr_add) >> y_expr_xor);
@@ -354,7 +355,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_expr_pipe = axe::e_ref([&](I b, I e) { stack.push(Command::VAW, strings().add("@")); });
 
     auto x_expr_pipe =
-	x_expr_andor & *((axe::r_lit(">>") >> y_expr_pipe) & x_expr_andor);
+	x_expr_andor & *((axe::r_lit("..") >> y_expr_pipe) & x_expr_andor);
 
     x_expr_atom = x_expr_pipe;
 
