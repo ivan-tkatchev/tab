@@ -1,0 +1,3 @@
+[@:z=@, def y count.@]
+!!!
+ERROR: Expression 'z=@, def y count.@' has no value. (Assignment to a variable is not a value.)
