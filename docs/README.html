@@ -595,15 +595,19 @@ td+td {
 <td><code>a&amp;&amp;b</code> <code>a||b</code></td>
 <td>Equivalent to <code>&amp;</code> and <code>|</code> except with a different precedence.</td>
 </tr>
+<tr>
+<td><code>a .. b</code></td>
+<td>Pipe operator. Equivalent to <code>@=a, b</code>.</td>
+</tr>
 </tbody>
 </table>
 <p>Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)</p>
 <p>Also note that function calls will <em>not</em> promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.</p>
 <p>The <code>&amp;&amp;</code> and <code>||</code> operators are there because otherwise an expression like <code>a == b &amp; c == d</code> is parsed as <code>a == (b &amp; c) == d</code> and results in a syntax error.</p>
-<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. The following two snippets are equivalent:</p>
+<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. (See the section below about &lsquo;magic variables&rsquo;.)
+The following two snippets are equivalent:</p>
 <div class="codehilite"><pre><span></span><span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">head</span><span class="o">(</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">1000</span><span class="o">)])</span>
 
-<span class="o">:::</span><span class="nx">tab</span>
 <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">..</span> <span class="nx">head</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)</span> <span class="o">..</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">..</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span>
 </pre></div>
 

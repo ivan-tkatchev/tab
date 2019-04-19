@@ -540,6 +540,7 @@ Operator | Meaning
 `f.a`               | Function call. Operators above this line are assumed to be part of expression `a`.
 `a==b` `a!=b` `a<b`  `a>b`  `a<=b`  `a>=b` | Comparision.
 `a&&b` `a||b` | Equivalent to `&` and `|` except with a different precedence. 
+`a .. b`     | Pipe operator. Equivalent to `@=a, b`.
 
 Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)
 
@@ -547,12 +548,12 @@ Also note that function calls will _not_ promote numeric types as needed! If a f
 
 The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
 
-The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. The following two snippets are equivalent:
+The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. (See the section below about 'magic variables'.)
+The following two snippets are equivalent:
 
     :::tab
     sample(3, :[ seq.@ : head(cut(@,"\t"), 1000)])
-
-    :::tab
+    
     cut(@,"\t") .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
 
 (The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)
