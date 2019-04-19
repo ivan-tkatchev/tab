@@ -21,6 +21,7 @@ struct ParseStack {
     std::vector<mark_val_t> _mark;
     std::vector<String> names;
     std::vector<UInt> counters;
+    std::vector<UInt> expr_len;
 
     void push(Command::cmd_t c) { stack.emplace_back(c); }
 
@@ -407,12 +408,25 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         x_ws &
         axe::r_lit("def") & x_ws & (x_expr_defname | x_expr_defstruct);
 
+    auto y_start_expr = axe::e_ref([&](I b, I e) { stack.expr_len.emplace_back(0); });
+    auto y_incr_expr_len = axe::e_ref([&](I b, I e) { stack.expr_len.back()++; });
+    auto y_end_expr =
+	axe::e_ref([&](I b, I e) {
+		       size_t len = stack.expr_len.back();
+
+		       if (len == 0) {
+			   throw std::runtime_error("Expression '" + std::string(b, e) + "' has no value. (Assignment to a variable is not a value.)");
+		       }
+
+		       stack.expr_len.pop_back();
+		   });
+
     auto x_topexpr =
         x_expr_define |
         x_expr_assign |
-        x_expr_atom;
+        (x_expr_atom >> y_incr_expr_len);
 
-    auto x_expr_seq = x_topexpr & *(axe::r_any(",;") & x_topexpr);
+    auto x_expr_seq = (axe::r_empty() >> y_start_expr) & (x_topexpr & *(axe::r_any(",;") & x_topexpr)) >> y_end_expr;
 
     x_expr = x_expr_seq;
 
