@@ -561,9 +561,7 @@ The following two snippets are equivalent:
 
     :::tab
     sample(3, :[ seq.@ : head(cut(@,"\t"), 1000)])
-
-
-    :::tab
+    
     cut(@,"\t") .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
 
 (The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)
