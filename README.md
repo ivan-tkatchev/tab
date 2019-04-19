@@ -556,10 +556,12 @@ Also note that function calls will _not_ promote numeric types as needed! If a f
 
 The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
 
-The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. The following two snippets are equivalent:
+The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. (See the section below about 'magic variables'.)
+The following two snippets are equivalent:
 
     :::tab
     sample(3, :[ seq.@ : head(cut(@,"\t"), 1000)])
+
 
     :::tab
     cut(@,"\t") .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
