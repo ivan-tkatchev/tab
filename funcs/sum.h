@@ -152,26 +152,25 @@ Functions::func_t add_mul_checker(const Type& args, Type& ret, obj::Object*& obj
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() < 2)
         return nullptr;
 
+    auto first_type = (*args.tuple)[0];
+
     for (const auto& t : *(args.tuple)) {
 
-        if (check_numeric(t)) {
+	if (t != first_type || !check_numeric(t))
+	    return nullptr;
+    }
 
-	    ret = t;
+    ret = first_type;
 
-	    switch (args.atom) {
-	    case Type::INT:
-		return add_mul_func<MUL, obj::Int>;
-	    case Type::UINT:
-		return add_mul_func<MUL, obj::UInt>;
-	    case Type::REAL:
-		return add_mul_func<MUL, obj::Real>;
-	    default:
-		return nullptr;
-	    }
-
-	} else {
-            return nullptr;
-	}
+    switch (first_type.atom) {
+    case Type::INT:
+	return add_mul_func<MUL, obj::Int>;
+    case Type::UINT:
+	return add_mul_func<MUL, obj::UInt>;
+    case Type::REAL:
+	return add_mul_func<MUL, obj::Real>;
+    default:
+	return nullptr;
     }
 
     return nullptr;
