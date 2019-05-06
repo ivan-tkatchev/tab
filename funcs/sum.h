@@ -149,7 +149,7 @@ void add_mul_func(const obj::Object* in, obj::Object*& out) {
 template <bool MUL>
 Functions::func_t add_mul_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
-    if (args.type != Type::TUP || !args.tuple || args.tuple->size() < 1)
+    if (args.type != Type::TUP || !args.tuple || args.tuple->size() < 2)
         return nullptr;
 
     for (const auto& t : *(args.tuple)) {

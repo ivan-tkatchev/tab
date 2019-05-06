@@ -55,7 +55,11 @@ struct Functions {
                 return val_t(f,ret);
         }
 
-        throw std::runtime_error("Invalid function call: " + strings().get(name) + " " + Type::print(args));
+        std::string bad_func_name = strings().get(name);
+        const char* bad_func_help = get_help(bad_func_name);
+        std::string bad_func_hint = (bad_func_help != nullptr ? bad_func_help : "This function doesn't exit.");
+
+        throw std::runtime_error("Invalid function call: " + bad_func_name + " " + Type::print(args) + "\n" + bad_func_hint);
     }
 }; 
 

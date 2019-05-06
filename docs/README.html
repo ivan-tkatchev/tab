@@ -686,10 +686,14 @@ The following two snippets are equivalent:</p>
 Usage:<br>
 <code>abs Int -&gt; Int</code><br>
 <code>abs Real -&gt; Real</code></dd>
+<dt id="fn_add"><code>add</code></dt>
+<dd>Adds the arguments. Equivalent to <code>sum.seq(...)</code> See also <code>sum</code>, <code>mul</code>, <code>product</code>.<br>
+Usage:<br>
+<code>add Number, ... -&gt; Number</code></dd>
 <dt id="fn_and">and</dt>
 <dd>Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to <code>a &amp; b &amp; c ...</code>.  See also <a class="wikilink" href="#fn_or">or</a>.<br>
 Usage:<br>
-<code>and (Integer, Integer...) -&gt; UInt</code></dd>
+<code>and Integer, Integer... -&gt; UInt</code></dd>
 <dt id="fn_array">array</dt>
 <dd>Stores a sequence or map or atomic value into an array. See also <a class="wikilink" href="#fn_sort">sort</a> for a version of this function with sorting. See also: <a class="wikilink" href="#fn_iarray">iarray</a>.<br>
 Usage:<br>
@@ -928,6 +932,10 @@ Usage:<br>
 <code>min Arr[a] -&gt; a</code><br>
 <code>min Seq[a] -&gt; a</code><br>
 <code>min Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.</dd>
+<dt id="fn_mul"><code>mul</code></dt>
+<dd>Multiplies the arguments. Equivalent to <code>product.seq(...)</code> See also <code>add</code>, <code>sum</code>, <code>product</code>.<br>
+Usage:<br>
+<code>mul Number, ... -&gt; Number</code></dd>
 <dt id="fn_ngrams">ngrams</dt>
 <dd>Similar to <a class="wikilink" href="#fn_pairs">pairs</a> and <a class="wikilink" href="#fn_triplets">triplets</a>, except returns a sequence of arrays of length N instead of tuples.<br>
 Usage:<br>
@@ -959,6 +967,12 @@ Usage:<br>
 <dd>Return the number <em>pi</em>.<br>
 Usage:<br>
 <code>pi None -&gt; Real</code></dd>
+<dt id="fn_product"><code>product</code></dt>
+<dd>Computes a product of the elements of a sequence or array. See also <code>sum</code>, <code>add</code>, <code>mul</code>.<br>
+Usage:<br>
+<code>product Arr[Number] -&gt; Number</code><br>
+<code>product Seq[Number] -&gt; Number</code><br>
+<code>product Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
 <dt id="fn_rand">rand</dt>
 <dd>Returns random numbers from the uniform distribution. (See also: <a class="wikilink" href="#fn_normal">normal</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
 Usage:<br>
@@ -1058,7 +1072,7 @@ Usage:<br>
 <code>stripe Seq[a], UInt -&gt; Seq[a]</code><br>
 <code>stripe Arr[a], UInt -&gt; Seq[a]</code></dd>
 <dt id="fn_sum">sum</dt>
-<dd>Computes a sum of the elements of a sequence or array.<br>
+<dd>Computes a sum of the elements of a sequence or array. See also <code>add</code>, <code>mul</code>, <code>product</code>.<br>
 Usage:<br>
 <code>sum Arr[Number] -&gt; Number</code><br>
 <code>sum Seq[Number] -&gt; Number</code><br>
@@ -1271,8 +1285,8 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <h3 id="by-kind">By kind:</h3>
 <p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
-<p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
-<a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
+<p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_add">add</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
+<a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_mul">mul</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
 <p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_normal">normal</a>
 <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
 <p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_find">find</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grep">grep</a>
@@ -1294,5 +1308,5 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
 <p><strong>File formats and standards:</strong> <a class="wikilink" href="#fn_url_getparam">url_getparam</a></p>
 <p><strong>Aggregators:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
-<a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a>
-<a class="wikilink" href="#fn_variance">variance</a></p></body></html>
+<a class="wikilink" href="#fn_product">product</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>
+<a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p></body></html>

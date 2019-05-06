@@ -2,6 +2,7 @@
 #define __TAB_TAB_H
 
 #include "deps.h"
+#include "help.h"
 #include "atom.h"
 #include "type.h"
 #include "command.h"

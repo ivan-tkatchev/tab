@@ -618,10 +618,15 @@ Usage:
 `abs Int -> Int`  
 `abs Real -> Real`
 
+`add`
+: Adds the arguments. Equivalent to `sum.seq(...)` See also `sum`, `mul`, `product`.  
+Usage:  
+`add Number, ... -> Number`
+
 `and`
 : Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to `a & b & c ...`.  See also `or`.  
 Usage:  
-`and (Integer, Integer...) -> UInt`
+`and Integer, Integer... -> UInt`
 
 `array`
 : Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting. See also: `iarray`.  
@@ -909,6 +914,11 @@ Usage:
 `min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
+`mul`
+: Multiplies the arguments. Equivalent to `product.seq(...)` See also `add`, `sum`, `product`.  
+Usage:  
+`mul Number, ... -> Number`
+
 `ngrams`
 : Similar to `pairs` and `triplets`, except returns a sequence of arrays of length N instead of tuples.  
 Usage:  
@@ -947,6 +957,13 @@ Usage:
 : Return the number *pi*.  
 Usage:  
 `pi None -> Real`
+
+`product`
+: Computes a product of the elements of a sequence or array. See also `sum`, `add`, `mul`.  
+Usage:  
+`product Arr[Number] -> Number`  
+`product Seq[Number] -> Number`  
+`product Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
 `rand`
 : Returns random numbers from the uniform distribution. (See also: `normal`, `sample`.)  
@@ -1067,7 +1084,7 @@ Usage:
 `stripe Arr[a], UInt -> Seq[a]`
 
 `sum`
-: Computes a sum of the elements of a sequence or array.  
+: Computes a sum of the elements of a sequence or array. See also `add`, `mul`, `product`.  
 Usage:  
 `sum Arr[Number] -> Number`  
 `sum Seq[Number] -> Number`  

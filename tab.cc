@@ -44,8 +44,6 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
     p.nl();
 }
 
-extern const char* get_help(const std::string&);
-
 void show_help(const std::string& help_section) {
 
     const char* help = get_help(help_section);

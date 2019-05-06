@@ -147,13 +147,13 @@ static const char* _help[][2] = {
     },
 
     { "functions",
-      "\nabs and array avg box bytes case cat ceil cos count cut date datetime e eq\n"
+      "\nabs add and array avg box bytes case cat ceil cos count cut date datetime e eq\n"
       "exp explode file filter find findif first flatten flip floor get glue gmtime\n"
       "grep grepif has hash head hex hist if iarray index int join lines log lsh map\n"
-      "max mean merge min ngrams normal now open or pairs peek pi rand real recut\n"
-      "replace resplit reverse round rsh sample second seq sin skip sort split sqrt\n"
-      "stddev stdev string sum take tan tabulate time tolower toupper triplets tuple\n"
-      "uint uniques uniques_estimate url_getparam var variance while zip\n"
+      "max mean merge min mul ngrams normal now open or pairs peek pi product rand real\n"
+      "recut replace resplit reverse round rsh sample second seq sin skip sort split\n"
+      "sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
+      "tuple uint uniques uniques_estimate url_getparam var variance while zip\n"
     },
 
     {"abs",
@@ -1072,7 +1072,7 @@ static const char* _help[][2] = {
     },
     {"sum",
      "\n"
-     "Computes a sum of the elements of a sequence or array.\n"
+     "Computes a sum of the elements of a sequence or array. See also 'add', 'mul', 'product'.\n"
      "\n"
      "Usage:\n"
      "\n"
