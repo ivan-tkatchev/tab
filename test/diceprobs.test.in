@@ -1,0 +1,3 @@
+x=array.count(6), combo(x,x,x) .. {add.@ -> sum.1} .. @[11]/real.sum(second.@)
+===>
+0.125

@@ -1,0 +1,8 @@
+input=@,
+combs=(combo(array("a","e","i","o","u"),array("b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","y")) .. [cat.@] .. {@}),
+:[recut(@,"[ .,]+"):input] .. [tolower.@] .. ?[has(combs,@),@] .. sort.first.{@}
+===>
+in
+is
+of
+or
