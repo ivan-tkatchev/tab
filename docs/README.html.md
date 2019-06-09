@@ -625,7 +625,7 @@ array {: #fn_array}
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
-`array Number|String|Tuple -> Arr[Number|String|Tuple]` -- returns an array with one element.  
+`array a, ... -> Arr[a]` -- returns an array with the input elements.  
 **Note:** when arrays are used as values in a map, they will concatenate. (See [aggregators](#aggregators) below for details.)
 
 avg {: #fn_avg}
@@ -661,6 +661,13 @@ ceil {: #fn_ceil}
 : Rounds a floating-point number to the smallest integer that is greater than the input value.  
 Usage:  
 `ceil Real -> Real`
+
+combo {: #fn_combo}
+: Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: `zip`.  
+Example: `combo(array(0,1), array(0,1))` returns a sequence of all possible pairs of bits.  
+Usage:  
+`combo Arr[Number], ... -> Seq[(Number,...)]`  
+`combo Arr[String], ... -> Seq[(String,...)]`
 
 cos {: #fn_cos}
 : The cosine function.  
@@ -821,7 +828,7 @@ iarray {: #fn_iarray}
 Usage:  
 `iarray Map[a,b] -> Arr[(a,b)]`  
 `iarray Seq[a] -> Arr[a]`  
-`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`  
+`iarray a, ... -> Arr[a]`  
 `iarray Arr[a] -> Arr[a]`
 
 if {: #fn_if}
@@ -1041,7 +1048,13 @@ Usage:
 `sort Arr[a] -> Arr[a]`  
 `sort Map[a,b] -> Arr[(a,b)]`  
 `sort Seq[a] -> Arr[a]`  
-`sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+`sort a, ... -> Arr[a]` -- returns an array with the input elements, except sorted.  
+**Note:** when sorted arrays are used as values in a map, they will concatenate, and sort. (See [aggregators](#markdown-header-aggregators) below for details.)
+
+sorted {: #fn_sorted}
+: Exactly like [[sort]], except in the case when there are multiple arguments. [[sorted]] treats the input arguments as a tuple and returns an array of one element; [[sort]] treats the input arguments as a list of values to sort and returns an array of several elements. Use [[sorted]] as an [aggregator](#markdown-header-aggregators) in a map.  
+Usage:  
+`sorted a, b, ... -> Arr[(a,b,...)]`
 
 split {: #fn_split}
 : A synonym for [[cut]].
@@ -1198,6 +1211,9 @@ min
 sort
 : Like [[array]], except that the resulting elements will be sorted in ascending order.
 
+sorted
+: Like [[sort]], but treats multiple input arguments as a single tuple, not as a sequence of values.
+
 stddev
 : Synonymous with [[stddev]].
 
@@ -1337,7 +1353,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 ### Alphabetically by name: 
 
 [[abs]] [[and]] [[array]] [[avg]] [[box]] [[bucket]] [[bytes]]
-[[case]] [[cat]] [[ceil]] [[cos]] [[count]] [[cut]] [[date]]
+[[case]] [[cat]] [[ceil]] [[combo]] [[cos]] [[count]] [[cut]] [[date]]
 [[datetime]] [[e]] [[eq]] [[exp]] [[explode]] [[file]] [[filter]]
 [[find]] [[findif]] [[first]] [[flatten]] [[flip]] [[floor]] [[get]]
 [[glue]] [[gmtime]] [[grep]] [[grepif]] [[has]] [[hash]] [[head]]
@@ -1345,8 +1361,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[lines]] [[log]] [[lsh]] [[map]] [[max]] [[mean]] [[merge]] [[min]]
 [[ngrams]] [[normal]] [[now]] [[open]] [[or]] [[pairs]] [[peek]]
 [[pi]] [[rand]] [[real]] [[recut]] [[replace]] [[resplit]] [[reverse]] [[round]]
-[[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[split]]
-[[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
+[[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sorted]]
+[[split]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
 [[uint]] [[uniques]] [[uniques_estimate]] [[url_getparam]] [[var]]
 [[variance]] [[while]] [[zip]]
@@ -1358,15 +1374,15 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **Math:** [[abs]] [[add]] [[bucket]] [[ceil]] [[cos]] [[e]] [[exp]] [[floor]] [[log]]
 [[pi]] [[mul]] [[round]] [[sin]] [[sqrt]]
 
-**Sampling:** [[avg]] [[bucket]] [[hist]] [[max]] [[mean]] [[min]] [[normal]]
-[[rand]] [[sample]] [[stddev]] [[stdev]] [[uniques_estimate]] [[var]] [[variance]]
+**Sampling:** [[avg]] [[bucket]] [[combo]] [[hist]] [[max]] [[mean]] [[min]] 
+[[normal]] [[rand]] [[sample]] [[stddev]] [[stdev]] [[uniques_estimate]] [[var]] [[variance]]
 
 **Strings:** [[bytes]] [[cat]] [[count]] [[cut]] [[find]] [[findif]] [[grep]]
 [[grepif]] [[hash]] [[join]] [[recut]] [[replace]] [[resplit]] [[split]]
 [[string]] [[tolower]] [[toupper]]
 
 **Arrays:** [[array]] [[count]] [[flatten]] [[get]] [[head]] [[iarray]] [[index]]
-[[join]] [[reverse]] [[skip]] [[sort]] [[stripe]] [[zip]]
+[[join]] [[reverse]] [[skip]] [[sort]] [[sorted]] [[stripe]] [[zip]]
 
 **Maps:** [[first]] [[flip]] [[has]] [[hash]] [[get]] [[map]] [[second]]
 
@@ -1392,5 +1408,5 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **File formats and standards:** [[url_getparam]]
 
 **Aggregators:** [[array]] [[avg]] [[iarray]] [[max]] [[mean]] [[merge]] [[min]]
-[[product]] [[sort]] [[stddev]] [[stdev]] [[sum]] [[uniques]] [[uniques_estimate]]
+[[product]] [[sort]] [[sorted]] [[stddev]] [[stdev]] [[sum]] [[uniques]] [[uniques_estimate]]
 [[var]] [[variance]]

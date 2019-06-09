@@ -62,11 +62,22 @@ void array_from_atom(const obj::Object* in, obj::Object*& out) {
     y.v.push_back(x.v);
 }
 
-void array_from_tuple(const obj::Object* in, obj::Object*& out) {
+void array_from_tuple_object(const obj::Object* in, obj::Object*& out) {
     obj::ArrayObject& o = obj::get<obj::ArrayObject>(out);
+    const obj::Tuple& i = obj::get<obj::Tuple>(in);
+
+    o.v = i.v;
+}
+
+template <typename T>
+void array_from_tuple_atom(const obj::Object* in, obj::Object*& out) {
+    obj::ArrayAtom<T>& o = obj::get<obj::ArrayAtom<T>>(out);
+    const obj::Tuple& i = obj::get<obj::Tuple>(in);
 
     o.v.clear();
-    o.v.push_back((obj::Object*)in);
+    for (obj::Object* ii : i.v) {
+        o.v.push_back(obj::get<obj::Atom<T>>(ii).v);
+    }
 }
 
 template <bool SORTED>
@@ -188,7 +199,7 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
             }
 
             return nullptr;
-            
+
         } else {
             return array_from_seq;
         }
@@ -197,7 +208,7 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
         ret = Type(Type::ARR);
         ret.push(args);
-        
+
         switch (args.atom) {
         case Type::INT:
             return array_from_atom<Int>;
@@ -213,12 +224,35 @@ Functions::func_t array_checker(const Type& args, Type& ret, obj::Object*& obj) 
 
     } else if (args.type == Type::TUP) {
 
+        Type first = *(args.tuple->begin());
+
+        for (const Type& t : *(args.tuple)) {
+
+            if (t != first) {
+                return nullptr;
+            }
+        }
+
         ret = Type(Type::ARR);
-        ret.push(args);
-        
-        return array_from_tuple;
+        ret.push(first);
+
+        if (first.type == Type::ATOM) {
+            switch (first.atom) {
+            case Type::INT:
+                return array_from_tuple_atom<Int>;
+            case Type::UINT:
+                return array_from_tuple_atom<UInt>;
+            case Type::REAL:
+                return array_from_tuple_atom<Real>;
+            case Type::STRING:
+                return array_from_tuple_atom<std::string>;
+            }
+
+        } else {
+            return array_from_tuple_object;
+        }
     }
-        
+
     return nullptr;
 }
 
@@ -237,7 +271,7 @@ Functions::func_t iarray_checker(const Type& args, Type& ret, obj::Object*& obj)
     }
 
     if (!fn)
-            return fn;
+        return fn;
 
     if (ret.type != Type::ARR || ret.tuple->size() != 1)
         return nullptr;

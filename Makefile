@@ -4,7 +4,7 @@ FUNCS = \
   funcs/index.h funcs/math.h funcs/zip.h funcs/filter.h funcs/sum.h funcs/if.h \
   funcs/sort.h funcs/misc.h funcs/avg.h funcs/array.h funcs/map.h funcs/minmax.h \
   funcs/hist.h funcs/reverse.h funcs/rand.h funcs/time.h funcs/ngram.h \
-  funcs/explode.h funcs/uniques.h funcs/url.h
+  funcs/explode.h funcs/uniques.h funcs/url.h funcs/combo.h
 
 INCLUDE = \
   api.h atom.h command.h deps.h exec.h funcs.h infer.h hash.h object.h optimize.h parse.h tab.h threaded.h type.h 

@@ -52,6 +52,33 @@ void sort_arr(const obj::Object* in, obj::Object*& out) {
     o.v.swap(x.v);
 }
 
+void sorted_array_from_tuple(const obj::Object* in, obj::Object*& out) {
+    ArrayObjectSort& o = obj::get<ArrayObjectSort>(out);
+ 
+    o.v.clear();
+    o.v.push_back((obj::Object*)in);
+}
+
+void sorted_array_from_tuple_object(const obj::Object* in, obj::Object*& out) {
+    ArrayObjectSort& o = obj::get<ArrayObjectSort>(out);
+    const obj::Tuple& i = obj::get<obj::Tuple>(in);
+
+    o.v = i.v;
+    o.merge_end();
+}
+
+template <typename T>
+void sorted_array_from_tuple_atom(const obj::Object* in, obj::Object*& out) {
+    ArrayAtomSort<T>& o = obj::get<ArrayAtomSort<T>>(out);
+    const obj::Tuple& i = obj::get<obj::Tuple>(in);
+
+    o.v.clear();
+    for (obj::Object* ii : i.v) {
+        o.v.push_back(obj::get<obj::Atom<T>>(ii).v);
+    }
+    o.merge_end();
+}
+
 template <bool SORTED>
 void sort_map(const obj::Object* in, obj::Object*& out) {
 
@@ -183,20 +210,63 @@ Functions::func_t sort_checker(const Type& args, Type& ret, obj::Object*& obj) {
 
     } else if (args.type == Type::TUP) {
 
+        Type first = *(args.tuple->begin());
+
+        for (const Type& t : *(args.tuple)) {
+
+            if (t != first) {
+                return nullptr;
+            }
+        }
+
         ret = Type(Type::ARR);
-        ret.push(args);
-        
-        obj = new ArrayObjectSort;
-        return array_from_tuple;
+        ret.push(first);
+
+        if (first.type == Type::ATOM) {
+            switch (first.atom) {
+            case Type::INT:
+                obj = new ArrayAtomSort<Int>;
+                return sorted_array_from_tuple_atom<Int>;
+            case Type::UINT:
+                obj = new ArrayAtomSort<UInt>;
+                return sorted_array_from_tuple_atom<UInt>;
+            case Type::REAL:
+                obj = new ArrayAtomSort<Real>;
+                return sorted_array_from_tuple_atom<Real>;
+            case Type::STRING:
+                obj = new ArrayAtomSort<std::string>;
+                return sorted_array_from_tuple_atom<std::string>;
+            }
+
+        } else {
+            obj = new ArrayObjectSort;
+            return sorted_array_from_tuple_object;
+        }
     }
         
     return nullptr;
 }
 
 template <bool SORTED>    
+Functions::func_t sorted_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    if (args.type == Type::TUP) {
+
+        ret = Type(Type::ARR);
+        ret.push(args);
+
+        obj = new ArrayObjectSort;
+        return sorted_array_from_tuple;
+    }
+
+    return sort_checker<SORTED>(args, ret, obj);
+}
+    
+template <bool SORTED>    
 void register_sort(Functions& funcs) {
 
     funcs.add_poly("sort", sort_checker<SORTED>);
+    funcs.add_poly("sorted", sorted_checker<SORTED>);
 }
 
 #endif

@@ -14,6 +14,7 @@ namespace funcs {
 #include "funcs/head.h"
 #include "funcs/cutgrep.h"
 #include "funcs/zip.h"
+#include "funcs/combo.h"
 #include "funcs/file.h"
 #include "funcs/sum.h"
 #include "funcs/minmax.h"
@@ -51,6 +52,7 @@ void register_functions(size_t seed) {
     funcs::register_head<SORTED>(funs);
     funcs::register_cutgrep(funs);
     funcs::register_zip<SORTED>(funs);
+    funcs::register_combo(funs);
     funcs::register_file(funs);
     funcs::register_sum(funs);
     funcs::register_minmax(funs);

@@ -699,7 +699,7 @@ Usage:<br>
 Usage:<br>
 <code>array Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>array Seq[a] -&gt; Arr[a]</code><br>
-<code>array Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> &ndash; returns an array with one element.<br>
+<code>array a, ... -&gt; Arr[a]</code> &ndash; returns an array with the input elements.<br>
 <strong>Note:</strong> when arrays are used as values in a map, they will concatenate. (See <a href="#aggregators">aggregators</a> below for details.)</dd>
 <dt id="fn_avg">avg</dt>
 <dd>Synonym for <a class="wikilink" href="#fn_mean">mean</a>.</dd>
@@ -728,6 +728,12 @@ Usage:<br>
 <dd>Rounds a floating-point number to the smallest integer that is greater than the input value.<br>
 Usage:<br>
 <code>ceil Real -&gt; Real</code></dd>
+<dt id="fn_combo">combo</dt>
+<dd>Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: <code>zip</code>.<br>
+Example: <code>combo(array(0,1), array(0,1))</code> returns a sequence of all possible pairs of bits.<br>
+Usage:<br>
+<code>combo Arr[Number], ... -&gt; Seq[(Number,...)]</code><br>
+<code>combo Arr[String], ... -&gt; Seq[(String,...)]</code></dd>
 <dt id="fn_cos">cos</dt>
 <dd>The cosine function.<br>
 Usage:<br>
@@ -860,7 +866,7 @@ Usage:<br>
 Usage:<br>
 <code>iarray Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>iarray Seq[a] -&gt; Arr[a]</code><br>
-<code>iarray Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code><br>
+<code>iarray a, ... -&gt; Arr[a]</code><br>
 <code>iarray Arr[a] -&gt; Arr[a]</code></dd>
 <dt id="fn_if">if</dt>
 <dd>Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
@@ -1044,7 +1050,12 @@ Usage:<br>
 <code>sort Arr[a] -&gt; Arr[a]</code><br>
 <code>sort Map[a,b] -&gt; Arr[(a,b)]</code><br>
 <code>sort Seq[a] -&gt; Arr[a]</code><br>
-<code>sort Number|String|Tuple -&gt; Arr[Number|String|Tuple]</code> &ndash; <strong>Note:</strong> this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. </dd>
+<code>sort a, ... -&gt; Arr[a]</code> &ndash; returns an array with the input elements, except sorted.<br>
+<strong>Note:</strong> when sorted arrays are used as values in a map, they will concatenate, and sort. (See <a href="#markdown-header-aggregators">aggregators</a> below for details.)</dd>
+<dt id="fn_sorted">sorted</dt>
+<dd>Exactly like <a class="wikilink" href="#fn_sort">sort</a>, except in the case when there are multiple arguments. <a class="wikilink" href="#fn_sorted">sorted</a> treats the input arguments as a tuple and returns an array of one element; <a class="wikilink" href="#fn_sort">sort</a> treats the input arguments as a list of values to sort and returns an array of several elements. Use <a class="wikilink" href="#fn_sorted">sorted</a> as an <a href="#markdown-header-aggregators">aggregator</a> in a map.<br>
+Usage:<br>
+<code>sorted a, b, ... -&gt; Arr[(a,b,...)]</code></dd>
 <dt id="fn_split">split</dt>
 <dd>A synonym for <a class="wikilink" href="#fn_cut">cut</a>.</dd>
 <dt id="fn_sqrt">sqrt</dt>
@@ -1167,6 +1178,8 @@ Usage:<br>
 <dd>Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.</dd>
 <dt>sort</dt>
 <dd>Like <a class="wikilink" href="#fn_array">array</a>, except that the resulting elements will be sorted in ascending order.</dd>
+<dt>sorted</dt>
+<dd>Like <a class="wikilink" href="#fn_sort">sort</a>, but treats multiple input arguments as a single tuple, not as a sequence of values.</dd>
 <dt>stddev</dt>
 <dd>Synonymous with <a class="wikilink" href="#fn_stddev">stddev</a>.</dd>
 <dt>stdev</dt>
@@ -1270,7 +1283,7 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <h2 id="builtin-function-index">Builtin function index</h2>
 <h3 id="alphabetically-by-name">Alphabetically by name:</h3>
 <p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_bytes">bytes</a>
-<a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_date">date</a>
+<a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_combo">combo</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_date">date</a>
 <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_filter">filter</a>
 <a class="wikilink" href="#fn_find">find</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_get">get</a>
 <a class="wikilink" href="#fn_glue">glue</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_head">head</a>
@@ -1278,8 +1291,8 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_log">log</a> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
 <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_open">open</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a>
 <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_resplit">resplit</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_round">round</a>
-<a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_split">split</a>
-<a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
+<a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a>
+<a class="wikilink" href="#fn_split">split</a> <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
 <a class="wikilink" href="#fn_tabulate">tabulate</a> <a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_tuple">tuple</a>
 <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a>
 <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
@@ -1287,13 +1300,13 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
 <p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_add">add</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
 <a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_mul">mul</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
-<p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> <a class="wikilink" href="#fn_normal">normal</a>
-<a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
+<p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_combo">combo</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> 
+<a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
 <p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_find">find</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grep">grep</a>
 <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_resplit">resplit</a> <a class="wikilink" href="#fn_split">split</a>
 <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a></p>
 <p><strong>Arrays:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_index">index</a>
-<a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <p><strong>Maps:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_second">second</a></p>
 <p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_glue">glue</a>
 <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_take">take</a>
@@ -1308,5 +1321,5 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
 <p><strong>File formats and standards:</strong> <a class="wikilink" href="#fn_url_getparam">url_getparam</a></p>
 <p><strong>Aggregators:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
-<a class="wikilink" href="#fn_product">product</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>
+<a class="wikilink" href="#fn_product">product</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>
 <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p></body></html>

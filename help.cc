@@ -143,16 +143,16 @@ static const char* _help[][2] = {
      "Count the total number of four-digit numbers:\n"
      "    count.:[grep(@,'[0-9]{4}')] --> sum.@\n\n"
      "Find the most popular four-digit number:\n"
-     "    { @ -> sum.1 ::[grep(@,'[0-9]{4}')] } --> (sort.flip.map.@)[-1]\n"
+     "    { @ -> sum.1 ::[grep(@,'[0-9]{4}')] } --> (sort.flip.@)[-1]\n"
     },
 
     { "functions",
-      "\nabs add and array avg box bytes case cat ceil cos count cut date datetime e eq\n"
-      "exp explode file filter find findif first flatten flip floor get glue gmtime\n"
+      "\nabs add and array avg box bytes case cat ceil combo cos count cut date datetime\n"
+      "e eq exp explode file filter find findif first flatten flip floor get glue gmtime\n"
       "grep grepif has hash head hex hist if iarray index int join lines log lsh map\n"
       "max mean merge min mul ngrams normal now open or pairs peek pi product rand real\n"
-      "recut replace resplit reverse round rsh sample second seq sin skip sort split\n"
-      "sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
+      "recut replace resplit reverse round rsh sample second seq sin skip sort sorted\n"
+      "split sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
       "tuple uint uniques uniques_estimate url_getparam var variance while zip\n"
     },
 
@@ -185,8 +185,8 @@ static const char* _help[][2] = {
      "\n"
      "array Seq[a] -> Arr[a]\n"
      "\n"
-     "array Number|String|Tuple -> Arr[Number|String|Tuple]\n"
-     "    returns an array with one element.\n"
+     "array a, ... -> Arr[a]\n"
+     "    returns an array with the input elements.\n"
      "\n"
      "Note: when arrays are used as values in a map, they will concatenate. \n"
     },
@@ -256,6 +256,19 @@ static const char* _help[][2] = {
      "Usage:\n"
      "\n"
      "ceil Real -> Real\n"
+    },
+    {"combo",
+     "\n"
+     "Given several arrays, returns a sequence of all combinations of elements\n"
+     "from those arrays. See also: 'zip'.\n"
+     "\n"
+     "Example: 'combo(array(0,1), array(0,1))' returns a sequence of all possible\n"
+     "pairs of bits.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "combo Arr[Number], ... -> Seq[(Number,...)]\n"
+     "combo Arr[String], ... -> Seq[(String,...)]\n"
     },
     {"cos",
      "\n"
@@ -589,7 +602,7 @@ static const char* _help[][2] = {
      "\n"
      "iarray Seq[a] -> Arr[a]\n"
      "\n"
-     "iarray Number|String|Tuple -> Arr[Number|String|Tuple]\n"
+     "iarray a, ... -> Arr[a]\n"
      "\n"
      "iarray Arr[a] -> Arr[a]\n"
     },
@@ -1002,10 +1015,23 @@ static const char* _help[][2] = {
      "\n"
      "sort Seq[a] -> Arr[a]\n"
      "\n"
-     "sort Number|String|Tuple -> Arr[Number|String|Tuple]\n"
-     "    Note: this version of this function will return an array with one\n"
-     "    element, marked so that storing it as a value in an existing key of a\n"
-     "    map will produce a sorted array of all such values.\n"
+     "sort a, ... -> Arr[a]\n"
+     "    returns an array with the input elements, except sorted.\n"
+     "\n"
+     "Note: when sorted arrays are used as values in a map, they will\n"
+     "concatenate, and sort.\n"
+    },
+    {"sorted",
+     "\n"
+     "Exactly like 'sort', except in the case when there are multiple arguments.\n"
+     "'sorted' treats the input arguments as a tuple and returns an array of\n"
+     "one element; 'sort' treats the input arguments as a list of values to sort\n"
+     "and returns an array of several elements.\n"
+     "Use 'sorted' as an aggregator in a map.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "sorted a, b, ... -> Arr[(a,b,...)]\n"
     },
     {"split",
      "\n"

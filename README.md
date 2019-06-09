@@ -633,7 +633,7 @@ Usage:
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
-`array Number|String|Tuple -> Arr[Number|String|Tuple]` -- returns an array with one element.  
+`array a, ... -> Arr[a]` -- returns an array with the input elements.  
 **Note:** when arrays are used as values in a map, they will concatenate. (See [aggregators](#markdown-header-aggregators) below for details.)
 
 `avg`
@@ -669,6 +669,13 @@ Usage:
 : Rounds a floating-point number to the smallest integer that is greater than the input value.  
 Usage:  
 `ceil Real -> Real`
+
+`combo`
+: Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: `zip`.  
+Example: `combo(array(0,1), array(0,1))` returns a sequence of all possible pairs of bits.  
+Usage:  
+`combo Arr[Number], ... -> Seq[(Number,...)]`  
+`combo Arr[String], ... -> Seq[(String,...)]`
 
 `cos`
 : The cosine function.  
@@ -829,7 +836,7 @@ Usage:
 Usage:  
 `iarray Map[a,b] -> Arr[(a,b)]`  
 `iarray Seq[a] -> Arr[a]`  
-`iarray Number|String|Tuple -> Arr[Number|String|Tuple]`  
+`iarray a, ... -> Arr[a]`  
 `iarray Arr[a] -> Arr[a]`
 
 `if`
@@ -1049,7 +1056,13 @@ Usage:
 `sort Arr[a] -> Arr[a]`  
 `sort Map[a,b] -> Arr[(a,b)]`  
 `sort Seq[a] -> Arr[a]`  
-`sort Number|String|Tuple -> Arr[Number|String|Tuple]` -- **Note:** this version of this function will return an array with one element, marked so that storing it as a value in an existing key of a map will produce a sorted array of all such values. 
+`sort a, ... -> Arr[a]` -- returns an array with the input elements, except sorted.  
+**Note:** when sorted arrays are used as values in a map, they will concatenate, and sort. (See [aggregators](#markdown-header-aggregators) below for details.)
+
+`sorted`
+: Exactly like `sort`, except in the case when there are multiple arguments. `sorted` treats the input arguments as a tuple and returns an array of one element; `sort` treats the input arguments as a list of values to sort and returns an array of several elements. Use `sorted` as an [aggregator](#markdown-header-aggregators) in a map.  
+Usage:  
+`sorted a, b, ... -> Arr[(a,b,...)]`
 
 `split`
 : A synonym for `cut`.
