@@ -57,7 +57,7 @@ struct Functions {
 
         std::string bad_func_name = strings().get(name);
         const char* bad_func_help = get_help(bad_func_name);
-        std::string bad_func_hint = (bad_func_help != nullptr ? bad_func_help : "This function doesn't exit.");
+        std::string bad_func_hint = (bad_func_help != nullptr ? bad_func_help : "This function doesn't exist.");
 
         throw std::runtime_error("Invalid function call: " + bad_func_name + " " + Type::print(args) + "\n" + bad_func_hint);
     }
