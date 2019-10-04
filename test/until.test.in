@@ -1,0 +1,3 @@
+pairs.:recut(@,"\\s+") .. while.[@!="", @ : first.until.[@==tuple("the","Software"), @]] .. join(@," ")
+===>
+the Software is furnished to do so, all subject to the following:

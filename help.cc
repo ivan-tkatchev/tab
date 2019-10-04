@@ -153,7 +153,7 @@ static const char* _help[][2] = {
       "max mean merge min mul ngrams normal now open or pairs peek pi product rand real\n"
       "recut replace resplit reverse round rsh sample second seq sin skip sort sorted\n"
       "split sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
-      "tuple uint uniques uniques_estimate url_getparam var variance while zip\n"
+      "tuple uint uniques uniques_estimate until url_getparam var variance while zip\n"
     },
 
     {"abs",
@@ -391,10 +391,10 @@ static const char* _help[][2] = {
     {"filter",
      "\n"
      "Filters a sequence by returning an equivalent sequence but with\n"
-     "certain elements removed. The input sequence must be a tuple where the\n"
-     "first element is an integer; elements where this first elelemt is\n"
-     "equal to 0 will be removed from the output sequence. See also:\n"
-     "'while'.\n"
+     "certain elements removed. The input is a sequence of tuples where\n"
+     "the first element is an integer; the output is a sequence with the\n"
+     "rest of the tuple, filtered on condition that the first element is\n"
+     "not 0. See also: 'while', 'until'.\n"
      "\n"
      "Usage:\n"
      "\n"
@@ -1220,6 +1220,15 @@ static const char* _help[][2] = {
      "\n"
      "uniques_estimate a -> UInt\n"
     },
+    {"until",
+     "\n"
+     "Similar to 'filter', but filters only until the first valid element is found,\n"
+     "then stops filtering and returns the sequence as-is. See also: 'filter', 'while'.\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "until Seq[(Integer,a...)] -> Seq[(a...)]\n"
+    },
     {"url_getparam",
      "\n"
      "Splits a string with URL query-string parameters into keys and\n"
@@ -1261,7 +1270,7 @@ static const char* _help[][2] = {
     {"while",
      "\n"
      "Similar to 'filter', but stops the output sequence once the first\n"
-     "filtered element is reached. See: 'filter'.\n"
+     "filtered element is reached. See alse: 'filter', 'until'.\n"
      "\n"
      "Usage:\n"
      "\n"

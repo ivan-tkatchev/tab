@@ -728,7 +728,7 @@ Usage:
 `file String -> Seq[String]`
 
 filter {: #fn_filter}
-: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence. See also: [[while]].  
+: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: [[while]], [[until]].  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
@@ -1152,6 +1152,11 @@ uniques_estimate {: #fn_uniques_estimate}
 Usage:  
 `uniques_estimate a -> UInt`
 
+until {: #fn_until}
+: Similar to [[filter]], but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See also: [[filter]], [[while]].  
+Usage:  
+`until Seq[(Integer,a...)] -> Seq[(a...)]`
+
 url_getparam {: #fn_url_getparam}
 : Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
 Usage:  
@@ -1169,7 +1174,7 @@ variance {: #fn_variance}
 : Synonym for [[var]].
 
 while {: #fn_while}
-: Similar to [[filter]], but stops the output sequence once the first filtered element is reached. See: [[filter]].  
+: Similar to [[filter]], but stops the output sequence once the first filtered element is reached. See also: [[filter]], [[until]].  
 Usage:  
 `while Seq[(Integer,a...)] -> Seq[(a...)]`
 
@@ -1364,7 +1369,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sorted]]
 [[split]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
-[[uint]] [[uniques]] [[uniques_estimate]] [[url_getparam]] [[var]]
+[[uint]] [[uniques]] [[uniques_estimate]] [[until]] [[url_getparam]] [[var]]
 [[variance]] [[while]] [[zip]]
 
 ### By kind:
@@ -1388,7 +1393,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 **Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
 [[head]] [[ngrams]] [[pairs]] [[peek]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]]
-[[triplets]] [[while]] [[zip]]
+[[triplets]] [[until]] [[while]] [[zip]]
 
 **Tuples:** [[first]] [[lines]] [[second]] [[tuple]]
 
@@ -1397,7 +1402,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
 **Conditionals:** [[and]] [[box]] [[case]] [[eq]] [[filter]] [[findif]] [[grepif]]
-[[has]] [[if]] [[or]] [[while]]
+[[has]] [[if]] [[or]] [[until]] [[while]]
 
 **Files:** [[file]] [[open]]
 

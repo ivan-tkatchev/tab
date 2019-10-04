@@ -736,7 +736,7 @@ Usage:
 `file String -> Seq[String]`
 
 `filter`
-: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence. See also: `while`.  
+: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: `while`, `until`.  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
@@ -1160,6 +1160,11 @@ Usage:
 Usage:  
 `uniques_estimate a -> UInt`
 
+`until`
+: Similar to `filter`, but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See: `filter`, `while`.  
+Usage:  
+`until Seq[(Integer,a...)] -> Seq[(a...)]`
+
 `url_getparam`
 : Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
 Usage:  
@@ -1177,7 +1182,7 @@ Usage:
 : Synonym for `var`.
 
 `while`
-: Similar to `filter`, but stops the output sequence once the first filtered element is reached. See: `filter`.  
+: Similar to `filter`, but stops the output sequence once the first filtered element is reached. See: `filter`, `until`.  
 Usage:  
 `while Seq[(Integer,a...)] -> Seq[(a...)]`
 

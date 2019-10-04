@@ -783,7 +783,7 @@ Usage:<br>
 Usage:<br>
 <code>file String -&gt; Seq[String]</code></dd>
 <dt id="fn_filter">filter</dt>
-<dd>Filters a sequence by returning an equivalent sequence but with certain elements removed. The input sequence must be a tuple where the first element is an integer; elements where this first elelemt is equal to 0 will be removed from the output sequence. See also: <a class="wikilink" href="#fn_while">while</a>.<br>
+<dd>Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: <a class="wikilink" href="#fn_while">while</a>, <a class="wikilink" href="#fn_until">until</a>.<br>
 Usage:<br>
 <code>filter Seq[(Integer,a...) -&gt; Seq[(a...)]</code></dd>
 <dt id="fn_find">find</dt>
@@ -1134,6 +1134,10 @@ Usage:<br>
 <dd>Returns an aggregator for estimating the number of unique values. A <a href="http://en.wikipedia.org/wiki/HyperLogLog">statistical estimator</a> is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also <a class="wikilink" href="#fn_uniques">uniques</a>.<br>
 Usage:<br>
 <code>uniques_estimate a -&gt; UInt</code></dd>
+<dt id="fn_until">until</dt>
+<dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See also: <a class="wikilink" href="#fn_filter">filter</a>, <a class="wikilink" href="#fn_while">while</a>.<br>
+Usage:<br>
+<code>until Seq[(Integer,a...)] -&gt; Seq[(a...)]</code></dd>
 <dt id="fn_url_getparam">url_getparam</dt>
 <dd>Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.<br>
 Usage:<br>
@@ -1148,7 +1152,7 @@ Usage:<br>
 <dt id="fn_variance">variance</dt>
 <dd>Synonym for <a class="wikilink" href="#fn_var">var</a>.</dd>
 <dt id="fn_while">while</dt>
-<dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but stops the output sequence once the first filtered element is reached. See: <a class="wikilink" href="#fn_filter">filter</a>.<br>
+<dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but stops the output sequence once the first filtered element is reached. See also: <a class="wikilink" href="#fn_filter">filter</a>, <a class="wikilink" href="#fn_until">until</a>.<br>
 Usage:<br>
 <code>while Seq[(Integer,a...)] -&gt; Seq[(a...)]</code></dd>
 <dt id="fn_zip">zip</dt>
@@ -1294,7 +1298,7 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a>
 <a class="wikilink" href="#fn_split">split</a> <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
 <a class="wikilink" href="#fn_tabulate">tabulate</a> <a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_tuple">tuple</a>
-<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a>
+<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a>
 <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <h3 id="by-kind">By kind:</h3>
 <p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
@@ -1310,12 +1314,12 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Maps:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_second">second</a></p>
 <p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_glue">glue</a>
 <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_take">take</a>
-<a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <p><strong>Tuples:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_tuple">tuple</a></p>
 <p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
 <p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>
 <p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grepif">grepif</a>
-<a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_while">while</a></p>
+<a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a></p>
 <p><strong>Files:</strong> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_open">open</a></p>
 <p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
