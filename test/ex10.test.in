@@ -1,6 +1,6 @@
 def empties sum([ count(@) == 0 : sample(4, @) ]),
 sort.{ empties.open."../LICENSE.txt" -> sum.1 : count(100) }
 ===>
-0	55
-1	37
-2	8
+0	56
+1	38
+2	6
