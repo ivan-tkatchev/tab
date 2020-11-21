@@ -94,8 +94,12 @@ void sample(const obj::Object* in, obj::Object*& out) {
 	    vvv.emplace_back();
             _sample_assign<TV>()(vvv.back(), x);
 
-        } else if (std::uniform_int_distribution<UInt>(0, i)(gen) < n) {
-            _sample_assign<TV>()(vvv[std::uniform_int_distribution<UInt>(0, n-1)(gen)], x);
+        } else {
+            auto j = std::uniform_int_distribution<UInt>(0, i)(gen);
+
+            if (j < n) {
+                _sample_assign<TV>()(vvv[j], x);
+            }
         }
 
         ++i;
