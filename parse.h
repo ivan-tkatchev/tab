@@ -23,6 +23,8 @@ struct ParseStack {
     std::vector<UInt> counters;
     std::vector<UInt> expr_len;
 
+    std::vector<std::string> errors;
+
     void push(Command::cmd_t c) { stack.emplace_back(c); }
 
     template <typename T>
@@ -140,7 +142,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
             try {
                 stack.push(Command::VAL, std::stol(std::string(b, e)));
             } catch (std::exception& ex) {
-                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an integer.");
+                stack.errors.emplace_back("Could not convert '" + std::string(b, e) + "' to an integer.");
             }
         });
 
@@ -152,7 +154,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
             try {
                 stack.push(Command::VAL, std::stoul(std::string(b, e), nullptr, 0));
             } catch (std::exception& ex) {
-                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to an unsigned integer.");
+                stack.errors.emplace_back("Could not convert '" + std::string(b, e) + "' to an unsigned integer.");
             }
         });
     
@@ -166,7 +168,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
             try {
                 stack.push(Command::VAL, std::stod(std::string(b, e)));
             } catch (std::exception& ex) {
-                throw std::runtime_error("Could not convert '" + std::string(b, e) + "' to a floating-point number.");
+                stack.errors.emplace_back("Could not convert '" + std::string(b, e) + "' to a floating-point number.");
             }
         });
 
@@ -420,10 +422,10 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_incr_expr_len = axe::e_ref([&](I b, I e) { stack.expr_len.back()++; });
     auto y_end_expr =
 	axe::e_ref([&](I b, I e) {
-		       size_t len = stack.expr_len.back();
+		       UInt len = stack.expr_len.back();
 
 		       if (len == 0) {
-			   throw std::runtime_error("Expression '" + std::string(b, e) + "' has no value. (Assignment to a variable is not a value.)");
+                           stack.errors.emplace_back("Expression '" + std::string(b, e) + "' has no value. (Assignment to a variable is not a value.)");
 		       }
 
 		       stack.expr_len.pop_back();
@@ -446,8 +448,20 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         axe::r_fail([](I b, I e) {
                 throw std::runtime_error("Syntax error, unparsed input: \"" + std::string(b, e) + "\"");
             });
-    
+
     x_go(beg, end);
+
+    if (stack.errors.size() > 0) {
+
+        std::string msg;
+        for (const std::string& m : stack.errors) {
+            msg += m;
+            msg += "\n";
+        }
+        msg.pop_back();
+
+        throw std::runtime_error(msg);
+    }
 
     if (debuglevel >= 3) {
         std::cout << "[Parse tree]" << std::endl;
