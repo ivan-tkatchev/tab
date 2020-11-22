@@ -263,7 +263,15 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         ((x_ws & axe::r_lit('.') & (x_expr_bit >> y_close_fun)) |
          r_fail(y_unmark));
 
-    auto x_funcall = x_funcall_b | x_funcall_d;
+    auto y_mark_dollar = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("$")); });
+
+    auto x_funcall_dollar =
+        (axe::r_lit('$') >> y_mark_dollar >> y_default_from) & 
+        (((x_ws & axe::r_lit('(') & x_expr & x_ws & axe::r_lit(')')) |
+          x_expr_bit)
+         >> y_close_fun);
+
+    auto x_funcall = x_funcall_b | x_funcall_d | x_funcall_dollar;
 
     auto y_var_read = axe::e_ref([&](I b, I e) { stack.push(Command::VAR, make_string(b, e)); });
     
@@ -379,7 +387,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         (x_expr_atom);
 
     auto x_expr_defname = 
-        (x_ident >> y_mark_name) &
+        ((x_ident | axe::r_lit('$')) >> y_mark_name) &
         x_ws &
         (x_expr_defbody >> y_expr_define);
 

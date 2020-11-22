@@ -1,0 +1,30 @@
+str="execute, and transmit the Software, and to prepare derivative works of the";
+del1=" ";
+del2="and to prepare derivative works of the";
+def $ cat('[',cut(@~1, @~2, @~0),']');
+seq(
+ [ try $(str, del1) : seq(0, 2, 13) ];
+ [ try $(str, del2) : seq(0, 1) ];
+ [ try $(str, str) : seq(0, 1) ];
+ [ try $(del1, str) : seq(0, 1, 2) ];
+
+ [ try $(str, del1) : seq(-1, -2, -13) ];
+ [ try $(str, del2) : seq(-1, -2) ];
+ [ try $(str, str) : seq(-1, -2) ];
+ [ try $(del1, str) : seq(-1, -2, -3) ]
+)
+===>
+[execute,]
+[transmit]
+[execute, and transmit the Software, ]
+[]
+[]
+[]
+[ ]
+[the]
+[of]
+[]
+[execute, and transmit the Software, ]
+[]
+[]
+[ ]
