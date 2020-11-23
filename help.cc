@@ -618,6 +618,9 @@ static const char* _help[][2] = {
      "Usage:\n"
      "\n"
      "if Integer, a, a -> a\n"
+     "if Integer, a -> a\n"
+     "    this alternative form throws an error if the first integer argument is 0.\n"
+     "    Useful for error checking or for sequences with the 'try' clause."
     },
     {"index",
      "\n"

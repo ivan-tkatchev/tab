@@ -1,5 +1,5 @@
 
 Install the syntax highligher by running
 
-   pip2.7 install .
+   pip install .
 

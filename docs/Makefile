@@ -10,7 +10,7 @@ all: README.html examples.html api.html
 	echo "<!DOCTYPE html><html><head><style>" > $@
 	cat style.css >> $@
 	echo "</style></head><title>The tab programming language.</title><body>" >> $@
-	cat $< | markdown_py2 $(MARKDOWN_OPTS) >> $@
+	cat $< | markdown_py $(MARKDOWN_OPTS) >> $@
 	echo "</body></html>" >> $@
 
 #README.html: README.html.md style.css

@@ -836,6 +836,7 @@ if {: #fn_if}
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
 Usage:  
 `if Integer, a, a -> a`  
+`if Integer, a -> a` -- this alternative form throws an error if the first integer argument is 0. Useful for error checking or for sequences with the `try` clause.
 
 index {: #fn_index}
 : Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
