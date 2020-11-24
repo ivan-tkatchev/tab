@@ -51,7 +51,7 @@ If your `<expression>` is too long, you can pass it in via a file, with the `-f`
 
 (In this case, the contents of `mycode` will be appended to `<expression>`, separated with a comma.)
 
-Run `tab -h` to see the rest of the supported command-line parameters. The binary comes with built-in documentation; use `-h` to read a complete language reference right in your shell prompt.
+Run `tab -h` to see the rest of the supported command-line parameters. The binary comes with built-in documentation; use `-h` to read a complete language reference right in your shell prompt. (This includes documentation for all built-in functions too; for example, try `tab -h if`.)
 
 # Language tutorial #
 
@@ -526,7 +526,7 @@ Note, however, that the `.` has low precedence! Thus, this code `f.a & b` is equ
 
 (See table below.)
 
-Additionally, there is a special function called `$` which allows a shorter form of calling syntax: `$a` or `$(a, b)`. Both of these forms translate to calling `$ with the value of `@` passed as the first argument implicitly. You must first define the function `$`. 
+Additionally, there is a special function called `$` which allows a shorter form of calling syntax: `$a` or `$(a, b)`. Both of these forms translate to calling `$` with the value of `@` passed as the first argument implicitly. You must first define the function `$`. 
 
 This is best demonstrated with an example. This code
 
