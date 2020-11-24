@@ -64,7 +64,7 @@ static const char* _help[][2] = {
       "       (Thrown exceptions will be ignored when there's an optional 'try'.)\n"
       "\n"
       "Function calls:\n"
-      "  f(x) or f.x\n"
+      "  f(x) or f.x or $x\n"
       "Defining variables:\n"
       "  x = expr\n"
       "Defining functions:\n"

@@ -389,7 +389,7 @@ td+td {
 
 <p>Running time: around 2.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;{cut(cut(@,&quot; &quot;,2),&quot;?&quot;,0) -&gt; sum(1)}&#39;</span>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;{ cut(@,&quot; &quot;,2) .. cut(@,&quot;?&quot;,0) -&gt; sum(1) }&#39;</span>
 </code></pre></div>
 
 <p>Running time: around 0.9 seconds.</p>
@@ -455,11 +455,13 @@ td+td {
 
 <span class="nx">literal</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">real</span> <span class="o">|</span> <span class="nx">int</span> <span class="o">|</span> <span class="nx">uint</span> <span class="o">|</span> <span class="nx">string</span>
 
-<span class="nx">funcall</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">funcall_paren</span> <span class="o">|</span> <span class="nx">funcall_dot</span>
+<span class="nx">funcall</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">funcall_paren</span> <span class="o">|</span> <span class="nx">funcall_dot</span> <span class="o">|</span> <span class="nx">funcall_dollar</span>
 
 <span class="nx">funcall_paren</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
 
 <span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">e_bit</span>
+
+<span class="nx">funcall_dollar</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;$&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span> <span class="s2">&quot;$&quot;</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
 
 <span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
 
@@ -519,6 +521,15 @@ td+td {
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
 <p>Note, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
 <p>(See table below.)</p>
+<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$ with the value of</code>@<code>passed as the first argument implicitly. You must first define the function</code>$`. </p>
+<p>This is best demonstrated with an example. This code</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="err">$</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="nv">@</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span> <span class="o">[</span> <span class="err">$</span><span class="mi">0</span><span class="o">,</span> <span class="err">$</span><span class="mi">2</span> <span class="o">]</span>
+</code></pre></div>
+
+<p>is equivalent to this:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">),</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">]</span>
+</code></pre></div>
+
 <h3 id="operators">Operators</h3>
 <p>In order of precedence, from highest to lowest:</p>
 <table>
@@ -578,7 +589,7 @@ td+td {
 <p>Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)</p>
 <p>Also note that function calls will <em>not</em> promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.</p>
 <p>The <code>&amp;&amp;</code> and <code>||</code> operators are there because otherwise an expression like <code>a == b &amp; c == d</code> is parsed as <code>a == (b &amp; c) == d</code> and results in a syntax error.</p>
-<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. (See the section below about &lsquo;magic variables&rsquo;.)
+<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. (See the section below about <a href="#magic-variables">magic variables</a>.)
 The following two snippets are equivalent:</p>
 <div class="codehilite"><pre><span></span><code><span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">head</span><span class="o">(</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">1000</span><span class="o">)])</span>
 
@@ -617,6 +628,7 @@ The following two snippets are equivalent:</p>
 <h3 id="magic-variables">Magic variables</h3>
 <p>The magic variable <code>@</code> is used by the language to denote the input value in generator expressions and function definitions.</p>
 <p>Note that in all other respects this variable acts like a normal variable.</p>
+<p>The special function named <code>$</code> can be called without writing out <code>@</code> as the first argument explicitly. (See the section <a href="#calling-functions">calling functions</a> above.)</p>
 <h3 id="generator-expressions">Generator expressions</h3>
 <table>
 <thead>

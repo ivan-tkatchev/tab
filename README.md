@@ -382,7 +382,7 @@ Running time: around 2.1 seconds.
 Here is the solution using `tab`:
 
     :::bash
-    $ ./tab -i req.log '{cut(cut(@," ",2),"?",0) -> sum(1)}'
+    $ ./tab -i req.log '{ cut(@," ",2) .. cut(@,"?",0) -> sum(1) }'
 
 Running time: around 0.9 seconds.
 
@@ -452,11 +452,13 @@ e := literal | funcall | var | array | map | seq | paren
 
 literal := real | int | uint | string
 
-funcall := funcall_paren | funcall_dot
+funcall := funcall_paren | funcall_dot | funcall_dollar
 
 funcall_paren := var "(" expr ")"
 
 funcall_dot := var "." e_bit
+
+funcall_dollar := "$" e_bit | "$" "(" expr ")"
 
 array := "[." "try"? expr (":" expr)? ".]"
 
@@ -532,6 +534,18 @@ Note, however, that the `.` has low precedence! Thus, this code `f.a & b` is equ
 
 (See table below.)
 
+Additionally, there is a special function called `$` which allows a shorter form of calling syntax: `$a` or `$(a, b)`. Both of these forms translate to calling `$ with the value of `@` passed as the first argument implicitly. You must first define the function `$`. 
+
+This is best demonstrated with an example. This code
+
+    :::tab
+    def $ cut(@[0], "\t", @[1]); [ $0, $2 ]
+
+is equivalent to this:
+
+    :::tab
+    [ cut(@, "\t", 0), cut(@, "\t", 2) ]
+
 ##### Operators
 
 In order of precedence, from highest to lowest:
@@ -556,7 +570,7 @@ Also note that function calls will _not_ promote numeric types as needed! If a f
 
 The `&&` and `||` operators are there because otherwise an expression like `a == b & c == d` is parsed as `a == (b & c) == d` and results in a syntax error.
 
-The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. (See the section below about 'magic variables'.)
+The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. (See the section below about [magic variables](#markdown-header-magic-variables).)
 The following two snippets are equivalent:
 
     :::tab
@@ -582,6 +596,8 @@ Type | Syntax
 The magic variable `@` is used by the language to denote the input value in generator expressions and function definitions.
 
 Note that in all other respects this variable acts like a normal variable.
+
+The special function named `$` can be called without writing out `@` as the first argument explicitly. (See the section [calling functions](#markdown-header-calling-functions) above.)
 
 ##### Generator expressions
 
