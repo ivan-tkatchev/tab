@@ -232,8 +232,17 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
 
     auto x_opt_try_mark = ((x_ws & axe::r_lit("try") >> y_mark_try) | (axe::r_empty() >> y_mark));
 
+    auto y_mark_if = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("if")); });
+
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+
+    auto x_filter_generator = 
+        ((axe::r_lit('[') & x_ws & axe::r_lit('/') & x_ws) >> y_mark_try >> y_mark_if) &
+        (x_expr_atom >> y_default_from >> y_close_fun >> y_close_gen) & x_from & axe::r_lit(']');
+
     auto x_generator =
-        (axe::r_lit('[') & x_opt_try_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']');
+        x_filter_generator | 
+        ((axe::r_lit('[') & x_opt_try_mark) & (x_expr >> y_close_gen) & x_from & axe::r_lit(']'));
 
     auto y_array = axe::e_ref([&](I b, I e) { stack.push(Command::ARR); });
     auto y_map = axe::e_ref([&](I b, I e) { stack.push(Command::MAP); });
@@ -252,8 +261,6 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto x_recursor =
         (axe::r_lit("<<") >> y_mark) & (x_expr >> y_close_rec) &
         (((axe::r_lit(':') >> y_mark) & x_expr) >> y_close_arg) & axe::r_lit(">>");
-
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
     auto x_funcall_b =
         (x_ident >> y_mark_name) &
