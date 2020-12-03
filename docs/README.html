@@ -271,6 +271,7 @@ td+td {
 <p>(So, for example: <code>?[1,@ : x]</code> is equivalent to the original sequence <code>x</code>.)</p>
 <p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_filter">filter</a> function.</p>
 <p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
+<p><strong>Note</strong>: there is an alternative shortcut syntax for filtering sequences: this expression could also have been written as <code>[/ grepif(@,"this") ]</code>. This expression is a shortcut for <code>[try if(grepif(@,"this"), @)]</code>. See the documentation for <a href="#generator-expressions">generator expressions</a> for details.</p>
 <h3 id="9">9.</h3>
 <div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
 </code></pre></div>
@@ -467,7 +468,8 @@ td+td {
 
 <span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
 
-<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
+<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span> <span class="o">|</span>
+       <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;/&quot;</span> <span class="nx">atomic</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
 
 <span class="nx">recursor</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;:&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
 
@@ -662,6 +664,7 @@ The following two snippets are equivalent:</p>
 </code></pre></div>
 
 <p>Will result in an &lsquo;undefined variable&rsquo; error.</p>
+<p><strong>Note</strong>: There is a special shortcut syntax for filtering sequences: <code>[/ a ]</code> is equivalent to <code>[try if(a, @)]</code>. (Here <code>a</code> must be an atomic expression; that is, tuples, assignments and definitions are not allowed inside <code>[/ ... ]</code>. A right-hand side argument like <code>[/ a : b]</code> is also allowed.)</p>
 <h2 id="builtin-functions">Builtin functions</h2>
 <p>Listed alphabetically.</p>
 <dl>

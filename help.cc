@@ -87,6 +87,7 @@ static const char* _help[][2] = {
       "':a' is syntactic sugar for 'flatten(a)'.\n"
       "'?a' is syntactic sugar for 'filter(a)'.\n"
       "'a .. b' is syntactic sugar for '@=a, b'.\n"
+      "'[/ a]' is syntactic sugar for '[try if(a, @)]'.\n"
       "\n"
       "'@' is the variable name denoting input to a function or left side of\n"
       "generator expression.\n"

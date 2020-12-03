@@ -105,7 +105,7 @@ The first three fields are the year, month and day. The fourth field is the dail
     temps=[. uint.@~0, real.@~3 : cut(@,"\t") .],
     def [ year, t ],
     sd=stddev.[ t.@ : temps],
-    { year.@ -> sum.1 : ?[t(@) > 3*sd, @ : temps] }
+    { year.@ -> sum.1 : [/ t(@) > 3*sd : temps] }
 
 #### Find years with spotty temperature records -- where the number of measurements taken is more than one standard deviation away from the average year:
     :::tab

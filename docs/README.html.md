@@ -218,6 +218,8 @@ To write a tuple, simply list its elements separated by commas.
 **Note**: the `?` operator is straightforward syntactic sugar for the [[filter]] function.
 
 **Note**: the `?[ grepif(@,b), @ : a ]` expression has a shortcut convenience function, written simply as `grepif(a, b)`. Thus, one could have simply run `./tab 'grepif(@,"this")'` instead.
+
+**Note**: there is an alternative shortcut syntax for filtering sequences: this expression could also have been written as `[/ grepif(@,"this") ]`. This expression is a shortcut for `[try if(grepif(@,"this"), @)]`. See the documentation for [generator expressions](#generator-expressions) for details.
                               
 ### 9.
 
@@ -454,7 +456,8 @@ array := "[." "try"? expr (":" expr)? ".]"
 
 map := "{" "try"? expr ("->" expr)? (":" expr)? "}"
 
-seq := "[" "try"? expr (":" expr)? "]"
+seq := "[" "try"? expr (":" expr)? "]" |
+       "[" "/" atomic (":" expr)? "]"
 
 recursor := "<<" expr ":" expr ">>"                                    
 
@@ -615,6 +618,8 @@ Thus, this code
     [ a=@, @ ], a
 
 Will result in an 'undefined variable' error.
+
+**Note**: There is a special shortcut syntax for filtering sequences: `[/ a ]` is equivalent to `[try if(a, @)]`. (Here `a` must be an atomic expression; that is, tuples, assignments and definitions are not allowed inside `[/ ... ]`. A right-hand side argument like `[/ a : b]` is also allowed.)
 
 ## Builtin functions ##
 
