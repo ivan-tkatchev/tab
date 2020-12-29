@@ -875,6 +875,7 @@ static const char* _help[][2] = {
      "product Number -> Number\n"
      "    this version of this function will mark the value to be aggregated as\n"
      "    a sum when stored as a value into an existing key of a map.\n"
+    },
     {"rand",
      "\n"
      "Returns random numbers from the uniform distribution. (See also:\n"
