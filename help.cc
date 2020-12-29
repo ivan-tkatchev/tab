@@ -784,6 +784,14 @@ static const char* _help[][2] = {
      "    calculate the min when stored as a value into an existing key of a\n"
      "    map.\n"
     },
+    {"mul",
+     "\n"
+     "Multiplies the arguments. Equivalent to 'product.seq(...)'\n"
+     "See also 'add', 'sum', 'product'.\n"
+     "\n"
+     "Usage:\n"
+     "mul Number, ... -> Number\n"
+    },
     {"ngrams",
      "\n"
      "Similar to 'pairs' and 'triplets', except returns a sequence of arrays\n"
@@ -856,6 +864,17 @@ static const char* _help[][2] = {
      "\n"
      "pi None -> Real\n"
     },
+    {"product",
+     "\n"
+     "Computes a product of the elements of a sequence or array.\n"
+     "See also 'sum', 'add', 'mul'. \n"
+     "\n"
+     "Usage:\n"
+     "product Arr[Number] -> Number\n"
+     "product Seq[Number] -> Number\n"
+     "product Number -> Number\n"
+     "    this version of this function will mark the value to be aggregated as\n"
+     "    a sum when stored as a value into an existing key of a map.\n"
     {"rand",
      "\n"
      "Returns random numbers from the uniform distribution. (See also:\n"
