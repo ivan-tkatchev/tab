@@ -250,7 +250,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         stack.mark_rollback();
     });
 
-    auto y_mark_rollback = axe::e_ref([&](I b, I e) { stack.mark_rollback(); });
+    //auto y_mark_rollback = axe::e_ref([&](I b, I e) { stack.mark_rollback(); });
     auto y_unmark_rollback = axe::e_ref([&](I b, I e) { stack.unmark_rollback(); });
     auto y_rollback = axe::e_ref([&](I b, I e) { stack.rollback(); str_buff.clear(); });
 
