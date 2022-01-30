@@ -359,7 +359,7 @@ static const char* _help[][2] = {
      "\n"
      "Usage:\n"
      "\n"
-     "eq a,a,... -> UInt\n"
+     "eq a, a, ... -> UInt\n"
     },
     {"exp",
      "\n"
@@ -992,13 +992,13 @@ static const char* _help[][2] = {
     },
     {"seq",
      "\n"
-     "Accepts two or more values of the same type and returns a sequence of\n"
+     "Accepts values of the same type and returns a sequence of\n"
      "those values. (A synonym for 'tabulate'.)\n"
      "If one argument is passed, then it is equivalent to [@ : arg].\n"
      "\n"
      "Usage:\n"
      "\n"
-     "seq (a,...),... -> Seq[a]\n"
+     "seq a, ... -> Seq[a]\n"
      "\n"
      "seq Arr[a] -> Seq[a]\n"
      "\n"
@@ -1093,8 +1093,7 @@ static const char* _help[][2] = {
     },
     {"string",
      "\n"
-     "Converts an unsigned integer, signed integer, floating-point number or\n"
-     "a byte array to a string.\n"
+     "Converts arguments to a string.\n"
      "\n"
      "Usage:\n"
      "\n"
@@ -1108,6 +1107,9 @@ static const char* _help[][2] = {
      "    Note: here it is assumed that the array will hold byte (0-255)\n"
      "    values. Passing in something else is an error. This function is not\n"
      "    Unicode-aware.\n"
+     "string a, ... -> String\n"
+     "    A polymorphic version that accepts values of any type. The resulting\n"
+     "    string is exactly like what would be produced on standard output.\n"
     },
     {"stripe",
      "\n"

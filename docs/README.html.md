@@ -731,7 +731,7 @@ Usage:
 eq {: #fn_eq}
 : Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  
 Usage:  
-`eq a,a,... -> UInt`
+`eq a, a, ... -> UInt`
 
 exp {: #fn_exp}
 : The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
@@ -1045,10 +1045,10 @@ Usage:
 `second Seq[(a,b)] -> Seq[b]`
 
 seq {: #fn_seq}
-: Accepts two or more values of the same type and returns a sequence of those values. (A synonym for [[tabulate]].)  
+: Accepts values of the same type and returns a sequence of those values. (A synonym for [[tabulate]].)  
 If one argument is passed, then it is equivalent to `[@ : arg]`.  
 Usage:  
-`seq (a,...),... -> Seq[a]`  
+`seq a, ... -> Seq[a]`  
 `seq Arr[a] -> Seq[a]`  
 `seq Map[a,b] -> Seq[(a,b)]`  
 `seq a -> Seq[a]`
@@ -1097,12 +1097,13 @@ Usage:
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
 string {: #fn_string}
-: Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.  
+: Converts arguments to a string.  
 Usage:  
 `string UInt -> String`  
 `string Int -> String`  
 `string Real -> String`  
-`string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.
+`string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.  
+`string a, ... -> String` -- A polymorphic version that accepts values of any type. The resulting string is exactly like what would be produced on standard output.
 
 stripe {: #fn_stripe}
 : Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: [[head]], [[skip]].  

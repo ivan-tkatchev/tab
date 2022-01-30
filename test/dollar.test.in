@@ -1,0 +1,22 @@
+def $ index.@; [ try cut(@," ") .. $0 ..$(0,0) ]
+===>
+B
+P
+o
+t
+e
+S
+d
+T
+t
+m
+a
+w
+a
+T
+I
+F
+S
+F
+A
+D

@@ -22,7 +22,7 @@ struct LTuple : public obj::Tuple {
 struct HexUInt : public obj::UInt {
 
     void print(obj::Printer& p) {
-        printf("0x%lX", v);
+        p.hex(v);
     }
 };
 
@@ -253,6 +253,23 @@ Functions::func_t hex_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return hex;
 }
 
+void string_print(const obj::Object* in, obj::Object*& out) {
+
+    std::string& ret = obj::get<obj::String>(out).v;
+
+    obj::PrinterStr printer;
+    const_cast<obj::Object*>(in)->print(printer);
+
+    ret.swap(printer.buff);
+}
+
+Functions::func_t string_checker(const Type& args, Type& ret, obj::Object*& obj) {
+
+    ret = Type(Type::STRING);
+    return string_print;
+}
+
+
 void register_misc(Functions& funcs) {
 
     funcs.add("tolower",
@@ -302,6 +319,7 @@ void register_misc(Functions& funcs) {
     funcs.add_poly("tuple", tuple_checker);
     funcs.add_poly("lines", lines_checker);
     funcs.add_poly("hex", hex_checker);
+    funcs.add_poly("string", string_checker);
 }
 
 

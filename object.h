@@ -10,6 +10,7 @@ struct Printer {
     virtual void val(tab::UInt v) { printf("%lu", v); }
     virtual void val(tab::Int v)  { printf("%ld", v); }
     virtual void val(tab::Real v) { printf("%g", v); }
+    virtual void hex(tab::UInt v) { printf("0x%lX", v); }
 
     virtual void val(const std::string& v) {
         fwrite(v.data(), sizeof(char), v.size(), stdout);
@@ -18,6 +19,30 @@ struct Printer {
     virtual void rs() { printf("\t"); }
     virtual void nl() { printf("\n"); }
     virtual void alts() { printf(";"); }
+};
+
+struct PrinterStr : public Printer {
+    std::string buff;
+    static const size_t SPACE = 64;
+    char tmp[SPACE];
+
+    template <typename V>
+    void val_(const char* format, V v) {
+        int n = snprintf(tmp, SPACE, format, v);
+        if ((size_t)n >= SPACE) {
+            throw std::runtime_error("snprintf overflow sanity error.");
+        }
+        buff += tmp;
+    }
+
+    virtual void val(tab::UInt v) { val_("%lu", v); }
+    virtual void val(tab::Int v)  { val_("%ld", v); }
+    virtual void val(tab::Real v) { val_("%g", v); }
+    virtual void val(const std::string& v) { buff += v; }
+    virtual void hex(tab::UInt v) { val_("0x%lX", v); }
+    virtual void rs() { buff += "\t"; }
+    virtual void nl() { buff += "\n"; }
+    virtual void alts() { buff += ";"; }
 };
 
 struct Object {
