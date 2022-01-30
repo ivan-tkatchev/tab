@@ -605,10 +605,11 @@ For example:
 ```
 
 Some finer points:
-  * Tuples are rendered without a separator. So, `` `${1, 2, 3}` `` is evaluted as the string `'123'`.
-  * `${expr}` can contain an arbitrary expression; even other interpolated strings! So, `` `${`${1+1}`}` `` is a valid string. (Here the backticks nest like parentheses.) 
-  * If the `${...}` expression does not parse correctly then it will be inserted verbatim. So, `` `${def a}` `` evaluates to the literal string `'${def a}'`.
-  * Arbitrary top-level expressions are allowed. So, `` `${def a @+1, a(2), 2}` `` is evaluated as the string `'32'`.
+
+* Tuples are rendered without a separator. So, `` `${1, 2, 3}` `` is evaluted as the string `'123'`.
+* `${expr}` can contain an arbitrary expression; even other interpolated strings! So, `` `${`${1+1}`}` `` is a valid string. (Here the backticks nest like parentheses.) 
+* If the `${...}` expression does not parse correctly then it will be inserted verbatim. So, `` `${def a}` `` evaluates to the literal string `'${def a}'`.
+* Arbitrary top-level expressions are allowed. So, `` `${def a @+1, a(2), 2}` `` is evaluated as the string `'32'`.
 
 ##### Magic variables
 
