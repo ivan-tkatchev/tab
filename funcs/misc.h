@@ -253,20 +253,24 @@ Functions::func_t hex_checker(const Type& args, Type& ret, obj::Object*& obj) {
     return hex;
 }
 
+template <bool COMPACT=false>
 void string_print(const obj::Object* in, obj::Object*& out) {
 
     std::string& ret = obj::get<obj::String>(out).v;
 
-    obj::PrinterStr printer;
+    obj::PrinterStr<COMPACT> printer;
     const_cast<obj::Object*>(in)->print(printer);
 
     ret.swap(printer.buff);
 }
 
+template <bool COMPACT=false>
 Functions::func_t string_checker(const Type& args, Type& ret, obj::Object*& obj) {
+    if (args.type == Type::NONE)
+        return nullptr;
 
     ret = Type(Type::STRING);
-    return string_print;
+    return string_print<COMPACT>;
 }
 
 
@@ -319,7 +323,8 @@ void register_misc(Functions& funcs) {
     funcs.add_poly("tuple", tuple_checker);
     funcs.add_poly("lines", lines_checker);
     funcs.add_poly("hex", hex_checker);
-    funcs.add_poly("string", string_checker);
+    funcs.add_poly("string", string_checker<false>);
+    funcs.add_poly("string_interpolate", string_checker<true>);
 }
 
 

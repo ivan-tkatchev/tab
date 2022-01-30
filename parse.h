@@ -22,6 +22,7 @@ struct ParseStack {
     std::vector<String> names;
     std::vector<UInt> counters;
     std::vector<UInt> expr_len;
+    std::vector<size_t> rollback_mark;
 
     std::vector<std::string> errors;
 
@@ -35,10 +36,35 @@ struct ParseStack {
     }
 
     void unmark() {
+        if (_mark.empty()) {
+            throw std::runtime_error("unmark() sanity error when parsing");
+        }
         _mark.pop_back();
     }
 
+    void mark_rollback() {
+        rollback_mark.push_back(stack.size());
+    }
+
+    void unmark_rollback() {
+        if (rollback_mark.empty()) {
+            throw std::runtime_error("unmark_rollback() sanity error when parsing");
+        }
+        rollback_mark.pop_back();
+    }
+
+    void rollback() {
+        if (rollback_mark.empty()) {
+            throw std::runtime_error("rollback() sanity error when parsing");
+        }
+        stack.resize(rollback_mark.back());
+        rollback_mark.pop_back();
+    }
+
     mark_val_t close_to(std::vector<Command>& otherstack, bool do_pop = true) {
+        if (_mark.empty()) {
+            throw std::runtime_error("close_to() sanity error when parsing");
+        }
 
         push(Command::TUP);
 
@@ -54,6 +80,9 @@ struct ParseStack {
     }
 
     void close(Command::cmd_t cmd, bool do_pop = true, Command::cmd_t altcmd = Command::cmd_t{}) {
+        if (_mark.empty()) {
+            throw std::runtime_error("close() sanity error when parsing");
+        }
 
         Command::Closure c;
 
@@ -199,7 +228,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
             }
         });
     auto y_char = axe::e_ref([&](I b, I e) { str_buff += *b; });
-    
+
     auto x_quotedchar = axe::r_lit("\\") > (axe::r_any() >> y_quotedchar);
     auto x_char1 = x_quotedchar | (axe::r_any() - axe::r_lit('\\') - axe::r_lit('"')) >> y_char;
     auto x_char2 = x_quotedchar | (axe::r_any() - axe::r_lit('\\') - axe::r_lit('\'')) >> y_char;
@@ -207,7 +236,33 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
         (axe::r_lit('"')  >> y_string_start & axe::r_many(x_char1,0) & axe::r_lit('"')  >> y_string_end) |
         (axe::r_lit('\'') >> y_string_start & axe::r_many(x_char2,0) & axe::r_lit('\'') >> y_string_end);
 
-    auto x_literal = x_hex | x_float | x_int | x_uint | x_string;
+    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
+    auto y_unmark = axe::e_ref([&](I b, I e) { stack.unmark(); });
+
+    auto y_mark_strinterp = axe::e_ref([&](I b, I e) {
+        stack.mark(false, make_string("string_interpolate"));
+        str_buff.clear(); });
+
+    auto y_strinterp_end = axe::e_ref([&](I b, I e) {
+        if (!str_buff.empty()) {
+            stack.push(Command::VAL, strings().add(str_buff));
+        }
+        stack.mark_rollback();
+    });
+
+    auto y_mark_rollback = axe::e_ref([&](I b, I e) { stack.mark_rollback(); });
+    auto y_unmark_rollback = axe::e_ref([&](I b, I e) { stack.unmark_rollback(); });
+    auto y_rollback = axe::e_ref([&](I b, I e) { stack.rollback(); str_buff.clear(); });
+
+    auto x_char3 =
+        x_quotedchar |
+        (axe::r_lit("${") >> y_strinterp_end & ((x_expr & axe::r_lit("}")) >> y_unmark_rollback | r_fail(y_rollback))) >> y_string_start |
+        (axe::r_any() - axe::r_lit('\\') - axe::r_lit('`')) >> y_char;
+
+    auto x_strinterp = 
+        (axe::r_lit('`') >> y_mark_strinterp) & axe::r_many(x_char3,0) & (axe::r_lit('`') >> y_string_end >> y_close_fun);
+
+    auto x_literal = x_hex | x_float | x_int | x_uint | x_string | x_strinterp;
 
     auto x_ident = (axe::r_alpha() & axe::r_many(axe::r_alnum() | axe::r_lit('_'),0));
     auto x_var = axe::r_lit('@') | x_ident;
@@ -215,7 +270,6 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto y_mark = axe::e_ref([&](I b, I e) { stack.mark(); });
     auto y_mark_try = axe::e_ref([&](I b, I e) { stack.mark(true); });
     auto y_mark_name = axe::e_ref([&](I b, I e) { stack.mark(false, make_string(b, e)); });
-    auto y_unmark = axe::e_ref([&](I b, I e) { stack.unmark(); });
 
     auto y_close_seq = axe::e_ref([&](I b, I e) { stack.push(Command::TUP); stack.push(Command::SEQ); });
     auto y_close_arg = axe::e_ref([&](I b, I e) { stack.close(); });
@@ -233,8 +287,6 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto x_opt_try_mark = ((x_ws & axe::r_lit("try") >> y_mark_try) | (axe::r_empty() >> y_mark));
 
     auto y_mark_if = axe::e_ref([&](I b, I e) { stack.mark(false, make_string("if")); });
-
-    auto y_close_fun = axe::e_ref([&](I b, I e) { stack.close(Command::FUN); });
 
     auto x_filter_generator = 
         ((axe::r_lit('[') & x_ws & axe::r_lit('/') & x_ws) >> y_mark_try >> y_mark_if) &
@@ -398,7 +450,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto x_expr_defname = 
         ((x_ident | axe::r_lit('$')) >> y_mark_name) &
         x_ws &
-        (x_expr_defbody >> y_expr_define);
+        ((x_expr_defbody >> y_expr_define) | r_fail(y_unmark));
 
     auto y_start_nth = axe::e_ref([&](I b, I e) { stack.counters.push_back(0); });
     auto y_end_nth = axe::e_ref([&](I b, I e) { stack.counters.pop_back(); });

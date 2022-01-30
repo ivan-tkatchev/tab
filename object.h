@@ -21,6 +21,7 @@ struct Printer {
     virtual void alts() { printf(";"); }
 };
 
+template <bool COMPACT=false>
 struct PrinterStr : public Printer {
     std::string buff;
     static const size_t SPACE = 64;
@@ -40,7 +41,7 @@ struct PrinterStr : public Printer {
     virtual void val(tab::Real v) { val_("%g", v); }
     virtual void val(const std::string& v) { buff += v; }
     virtual void hex(tab::UInt v) { val_("0x%lX", v); }
-    virtual void rs() { buff += "\t"; }
+    virtual void rs() { if (!COMPACT) { buff += "\t"; } }
     virtual void nl() { buff += "\n"; }
     virtual void alts() { buff += ";"; }
 };

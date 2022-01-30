@@ -482,10 +482,12 @@ uint := digits "u"? | ("0x" | "0X") [0-9a-fA-F]+
 real := [-+]? digits ("." [0-9]*)? ([eE] [-+]? digits)?
 
 string := '"' chars '"' |
-          "'" chars "'"
+          "'" chars "'" |
+          "`" (chars | string_interpolation)* "`"
 
 chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
+string_interpolation = "${" expr "}"
 ```
 
 ### Semantics ###
@@ -593,6 +595,20 @@ Type | Syntax
 `Int`  |    `-1234` or `1234i` or `1234s` or `1234l`. Numbers must be explicitly marked as signed; `i`, `s` and `l` are all equivalent syntactic sugar.
 `Real` |    `+10.50` or `1.` or `4.4e-10`. Scientific notation and trailing dot are supported.
 `String` |   `'chars'` or `"chars"`. Supported escape sequences: `\t` `\n` `\r` `\e` `\\`.
+
+##### String interpolation
+
+String interpolation looks somewhat like the Javascript implementation. Backticks delimit the string, and `${...}` is the expression delimiter.
+For example:
+```
+`text ${expr} text ${expr}`
+```
+
+Some finer points:
+  * Tuples are rendered without a separator. So, `` `${1, 2, 3}` `` is evaluted as the string `'123'`.
+  * `${expr}` can contain an arbitrary expression; even other interpolated strings! So, `` `${`${1+1}`}` `` is a valid string. (Here the backticks nest like parentheses.) 
+  * If the `${...}` expression does not parse correctly then it will be inserted verbatim. So, `` `${def a}` `` evaluates to the literal string `'${def a}'`.
+  * Arbitrary top-level expressions are allowed. So, `` `${def a @+1, a(2), 2}` `` is evaluated as the string `'32'`.
 
 ##### Magic variables
 

@@ -55,7 +55,7 @@ static const char* _help[][2] = {
       " UInt:     1234 or 1234u or 0x4D2\n"
       " Int:      -1234 or 1234i or 1234s or 1234l\n"
       " Real:     +10.50 or 1. or 4.4e-10\n"
-      " String:   'chars' or \"chars\"\n"
+      " String:   'chars' or \"chars\" or `${expr}`\n"
       "           supported escape sequences: \\t \\n \\r \\e \\\\\n"
       " Tuple:    a, b, c or a; b; c\n"
       " Sequence: [ expr ] or [ expr : source ]                            also [ try ... ]\n"
