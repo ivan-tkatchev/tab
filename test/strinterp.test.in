@@ -1,0 +1,3 @@
+`x${1,2,3}${seq(1,2,3)..sum.@}${`hello${1}`}x ${1..} ${def a 1, a()} ${def a} ${def [a,]} ${def [a,b], b(8,9)}`
+===>
+x1236hello1x ${1..} 1 ${def a} ${def [a,]} 9

@@ -822,9 +822,10 @@ Usage:
 `get Arr[a], UInt, a -> a` -- returns the element at the given index, or the third argument if the index is out of bounds.
 
 `glue`
-: Adds an element to the head of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`, `peek`.  
+: Adds an element to the head or tail of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`, `peek`.  
 Usage:  
-`glue a, Seq[a] -> Seq[a]`
+`glue a, Seq[a] -> Seq[a]`  
+`glue Seq[a], a -> Seq[a]`
 
 `gmtime`
 : Converts a UNIX timestamp to a UTC date and time.  

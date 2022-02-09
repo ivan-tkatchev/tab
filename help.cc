@@ -494,12 +494,14 @@ static const char* _help[][2] = {
     },
     {"glue",
      "\n"
-     "Adds an element to the head of a sequence. glue(1, seq(2, 3)) is\n"
+     "Adds an element to the head or tail of a sequence. glue(1, seq(2, 3)) is\n"
      "equivalent to seq(1, 2, 3). See also: 'take', 'peek'.\n"
      "\n"
      "Usage:\n"
      "\n"
      "glue a, Seq[a] -> Seq[a]\n"
+     "\n"
+     "glue Seq[a], a -> Seq[a]\n"
     },
     {"gmtime",
      "\n"

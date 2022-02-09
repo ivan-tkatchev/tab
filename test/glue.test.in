@@ -1,0 +1,4 @@
+zip(count.6, glue(1, glue(2, glue(glue(seq(3, 4), 5), 6)))) .. sum.[@~0-@~1]
+===>
+0
+

@@ -21,6 +21,33 @@ struct SeqWithPrev : public obj::SeqBase {
     }
 };
 
+struct SeqWithEnd : public obj::SeqBase {
+
+    obj::Object* seq;
+    obj::Object* end;
+
+    void wrap(obj::Object* s) {
+        seq = s;
+        end = nullptr;
+    }
+
+    obj::Object* next() {
+
+        obj::Object* ret = seq->next();
+
+        if (ret == nullptr) {
+            if (end != nullptr) {
+                ret = end;
+                end = nullptr;
+            } else {
+                return nullptr;
+            }
+        }
+
+        return ret;
+    }
+};
+
 struct SeqExplode : public obj::SeqBase {
 
     SeqWithPrev seq;
@@ -105,6 +132,15 @@ void glue(const obj::Object* in, obj::Object*& out) {
     seq.prev = args.v[0];
 }
 
+void glue_append(const obj::Object* in, obj::Object*& out) {
+
+    const obj::Tuple& args = obj::get<obj::Tuple>(in);
+    SeqWithEnd& seq = obj::get<SeqWithEnd>(out);
+
+    seq.wrap(args.v[0]);
+    seq.end = args.v[1];
+}
+
 void box(const obj::Object* in, obj::Object*& out) {
 
     const obj::Tuple& args = obj::get<obj::Tuple>(in);
@@ -163,18 +199,22 @@ Functions::func_t glue_checker(const Type& args, Type& ret, obj::Object*& obj) {
     if (args.type != Type::TUP || !args.tuple || args.tuple->size() != 2)
         return nullptr;
 
-    const Type& val = args.tuple->at(0);
-    const Type& seq = args.tuple->at(1);
+    const Type& a0 = args.tuple->at(0);
+    const Type& a1 = args.tuple->at(1);
 
-    if (seq.type != Type::SEQ || !seq.tuple || seq.tuple->size() != 1)
+    if (a1.type == Type::SEQ && a1.tuple && a1.tuple->size() == 1 && a0 == a1.tuple->at(0)) {
+        ret = a1;
+        obj = new SeqWithPrev;
+        return glue;
+
+    } else if (a0.type == Type::SEQ && a0.tuple && a0.tuple->size() == 1 && a1 == a0.tuple->at(0)) {
+        ret = a0;
+        obj = new SeqWithEnd;
+        return glue_append;
+        
+    } else {
         return nullptr;
-
-    if (val != seq.tuple->at(0))
-        return nullptr;
-
-    ret = seq;
-    obj = new SeqWithPrev;
-    return glue;
+    }
 }
 
 Functions::func_t box_checker(const Type& args, Type& ret, obj::Object*& obj) {
