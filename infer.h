@@ -250,8 +250,9 @@ struct TypeRuntime {
     
     size_t nscopes;
     std::vector<size_t> scope;
+    bool debug;
 
-    TypeRuntime() : nscopes(0) {
+    TypeRuntime(bool debug_ = false) : nscopes(0), debug(debug_) {
         scope.push_back(0);
     }
 
@@ -704,6 +705,10 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
                 UInt tlvar;
                 Type t = infer_lam_generator(args, c.arg.str, def, typer, tlvar);
 
+                if (typer.debug) {
+                    std::cout << " " << strings().get(c.arg.str) << " " << Type::print(args) << " -> " << Type::print(t) << std::endl;
+                }
+
                 typer.unget_def();
 
                 stack.emplace_back(t);
@@ -732,6 +737,10 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
                 auto tmp = functions().get(c.arg.str, args, c.object);
                 c.function = (void*)tmp.first;
                 stack.emplace_back(tmp.second);
+
+                if (typer.debug) {
+                    std::cout << " " << strings().get(c.arg.str) << " " << Type::print(args) << " -> " << Type::print(tmp.second) << std::endl;
+                }
 
                 if (args.type == Type::NONE)
                     c.cmd = Command::FUN0;
@@ -822,6 +831,10 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
 }
 
 Type infer(std::vector<Command>& commands, const Type& toplevel, TypeRuntime& typer) {
+
+    if (typer.debug) {
+        std::cout << "[Inference log]" << std::endl;
+    }
 
     typer.add_var(strings().add("@"), toplevel);
     return infer_expr(commands, typer);

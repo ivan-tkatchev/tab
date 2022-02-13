@@ -20,7 +20,7 @@ struct API {
     template <typename I>
     static void compile(I beg, I end, const Type& input, compiled_t& out, unsigned int debuglevel = 0) {
 
-        TypeRuntime typer;
+        TypeRuntime typer(debuglevel >= 2 ? true : false);
         out.result = parse(beg, end, input, typer, out.commands, debuglevel);
 
         out.rt.init(typer.num_vars());

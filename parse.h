@@ -534,7 +534,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     optimize(stack.stack, typer);
 
     if (debuglevel >= 2) {
-        std::cout << "[Program]" << std::endl;    
+        std::cout << "\n[Program]" << std::endl;
         stack.print();
         std::cout << std::endl;
     }
