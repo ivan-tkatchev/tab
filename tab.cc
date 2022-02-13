@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
         std::string programfile;
         size_t seed = ::time(NULL);
         bool help = false;
+        bool has_program = false;
         std::string help_section;
 
         size_t nthreads = 0;
@@ -150,12 +151,12 @@ int main(int argc, char** argv) {
                 sorted = true;
 
             } else if (getopt('f', argc, argv, i, programfile)) {
-                //
 
             } else if (getopt('i', argc, argv, i, infile)) {
                 //
 
             } else if (getopt('h', argc, argv, i, help_section, false)) {
+                help = true;
 
 #ifdef _REENTRANT
             } else if (getopt('t', argc, argv, i, out)) {
@@ -163,6 +164,7 @@ int main(int argc, char** argv) {
                 nthreads = std::stoul(out);
 #endif
             } else {
+                has_program = true;
 
                 if (program.size() > 0) {
                     program += ' ';
@@ -173,6 +175,7 @@ int main(int argc, char** argv) {
         }
 
         if (programfile.size() > 0) {
+            has_program = true;
 
             std::ifstream f;
             f.open(programfile);
@@ -192,7 +195,7 @@ int main(int argc, char** argv) {
 
         // //
 
-        if (help || program.empty()) {
+        if (help || !has_program) {
             show_help(help_section);
             return 1;
         }
