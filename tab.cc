@@ -114,9 +114,11 @@ int main(int argc, char** argv) {
             return 1;
         }
 
+        static const std::string prelude = "def $ index.@,";
+
         unsigned int debuglevel = 0;
         bool sorted = false;
-        std::string program;
+        std::string program = prelude;
         std::string infile;
         std::string programfile;
         size_t seed = ::time(NULL);

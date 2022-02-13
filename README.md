@@ -450,7 +450,7 @@ e_idx := e |
          e ("[" expr "]")* |
          e ("~" e)*
 
-e := literal | funcall | var | array | map | seq | paren
+e_bottom := literal | funcall | var | array | map | seq | paren
 
 literal := real | int | uint | string
 
@@ -460,7 +460,7 @@ funcall_paren := var "(" expr ")"
 
 funcall_dot := var "." e_bit
 
-funcall_dollar := "$" e_bit | "$" "(" expr ")"
+funcall_dollar := "$" e_bottom | "$" "(" expr ")"
 
 array := "[." "try"? expr (":" expr)? ".]"
 
@@ -535,11 +535,11 @@ There are three forms for `def`:
 
 There are two function call syntaxes: `f(a, b, ...)` and `f.a`. Both are equivalent, except that the first form allows calling a function with a tuple argument.
 
-Note, however, that the `.` has low precedence! Thus, this code `f.a & b` is equivalent to `f(a & 1)`!
+**Note**, however, that the `.` has low precedence! Thus, this code `f.a & b` is equivalent to `f(a & 1)`!
 
 (See table below.)
 
-Additionally, there is a special function called `$` which allows a shorter form of calling syntax: `$a` or `$(a, b)`. Both of these forms translate to calling `$` with the value of `@` passed as the first argument implicitly. You must first define the function `$`. 
+Additionally, there is a special function called `$` which allows a shorter form of calling syntax: `$a` or `$(a, b)`. Both of these forms translate to calling `$` with the value of `@` passed as the first argument implicitly. 
 
 This is best demonstrated with an example. This code
 
@@ -551,12 +551,17 @@ is equivalent to this:
     :::tab
     [ cut(@, "\t", 0), cut(@, "\t", 2) ]
 
+By default `$` is defined as `index.@`, which means that, for example, `$0` is shorthand for `@[0]` and `@~0`. 
+
+There is some special syntactic support for `$`. When using parentheses `$(...)` this looks and acts like a normal function call, but you can also leave them out: `$a`. In this case `$` acts like a operator with the highest precedence. (`$@[0]` is parsed as `index($@, 0)`)
+
 ##### Operators
 
 In order of precedence, from highest to lowest:
 
 Operator | Meaning
 ---------|--------
+`$a` | Function call of `$`.
 `a~b` `a[b]` | Indexing arrays, maps and tuples. See the `index` function. Use `~` with atomic values, while `[]` can accept tuples.
 `:a`  `?a` | Syntactic sugar for the functions `flatten` and `filter`, respectively.
 `!a`   | Bitwise NOT.

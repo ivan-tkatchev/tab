@@ -164,6 +164,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     axe::r_rule<I> x_expr;
     axe::r_rule<I> x_expr_atom;
     axe::r_rule<I> x_expr_bit;
+    axe::r_rule<I> x_expr_bottom;
     
     auto x_ws = *axe::r_any(" \t\n");
 
@@ -329,7 +330,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     auto x_funcall_dollar =
         (axe::r_lit('$') >> y_mark_dollar >> y_default_from) & 
         (((x_ws & axe::r_lit('(') & x_expr & x_ws & axe::r_lit(')')) |
-          x_expr_bit)
+          x_expr_bottom)
          >> y_close_fun);
 
     auto x_funcall = x_funcall_b | x_funcall_d | x_funcall_dollar;
@@ -338,7 +339,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     
     auto x_var_read = x_var >> y_var_read;
 
-    auto x_expr_bottom =
+    x_expr_bottom =
         x_ws &
         (x_literal | x_funcall | x_var_read | x_array | x_map | x_generator | x_recursor |
          (axe::r_lit('(') & x_expr_atom & axe::r_lit(')'))) &
