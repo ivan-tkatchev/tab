@@ -440,7 +440,7 @@ e_idx := e |
          e ("[" expr "]")*
          e ("~" e)*
 
-e := literal | funcall | var | array | map | seq | recursor | paren
+e_bottom := literal | funcall | var | array | map | seq | recursor | paren
 
 literal := real | int | uint | string
 
@@ -450,7 +450,7 @@ funcall_paren := var "(" expr ")"
 
 funcall_dot := var "." e_bit
 
-funcall_dollar := "$" e_bit | "$" "(" expr ")"
+funcall_dollar := "$" e_bottom | "$" "(" expr ")"
 
 array := "[." "try"? expr (":" expr)? ".]"
 
