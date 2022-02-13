@@ -452,7 +452,7 @@ square_of_square(4)
 <span class="w">         </span><span class="n">e</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;]&quot;</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
 <span class="w">         </span><span class="n">e</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
 
-<span class="nl">e</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">literal</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">funcall</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">seq</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">recursor</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">paren</span><span class="w"></span>
+<span class="nl">e_bottom</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">literal</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">funcall</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">seq</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">recursor</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">paren</span><span class="w"></span>
 
 <span class="nl">literal</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
 
@@ -462,7 +462,7 @@ square_of_square(4)
 
 <span class="nl">funcall_dot</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"></span>
 
-<span class="nl">funcall_dollar</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"></span>
+<span class="nl">funcall_dollar</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="n">e_bottom</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"></span>
 
 <span class="nl">array</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;[.&quot;</span><span class="w"> </span><span class="s">&quot;try&quot;</span><span class="o">?</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="s">&quot;.]&quot;</span><span class="w"></span>
 
@@ -524,9 +524,9 @@ square_of_square(4)
 </ul>
 <h3 id="calling-functions">Calling functions</h3>
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
-<p>Note, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
+<p><strong>Note</strong>, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
 <p>(See table below.)</p>
-<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$</code> with the value of <code>@</code> passed as the first argument implicitly. You must first define the function <code>$</code>. </p>
+<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$</code> with the value of <code>@</code> passed as the first argument implicitly. </p>
 <p>This is best demonstrated with an example. This code</p>
 <div class="codehilite"><pre><span></span><code>def $ cut(@[0], &quot;\t&quot;, @[1]); [ $0, $2 ]
 </code></pre></div>
@@ -535,6 +535,8 @@ square_of_square(4)
 <div class="codehilite"><pre><span></span><code>[ cut(@, &quot;\t&quot;, 0), cut(@, &quot;\t&quot;, 2) ]
 </code></pre></div>
 
+<p>By default <code>$</code> is defined as <code>index.@</code>, which means that, for example, <code>$0</code> is shorthand for <code>@[0]</code> and <code>@~0</code>. </p>
+<p>There is some special syntactic support for <code>$</code>. When using parentheses <code>$(...)</code> this looks and acts like a normal function call, but you can also leave them out: <code>$a</code>. In this case <code>$</code> acts like a operator with the highest precedence. (<code>$@[0]</code> is parsed as <code>index($@, 0)</code>)</p>
 <h3 id="operators">Operators</h3>
 <p>In order of precedence, from highest to lowest:</p>
 <table>
@@ -545,6 +547,10 @@ square_of_square(4)
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>$a</code></td>
+<td>Function call of <code>$</code>.</td>
+</tr>
 <tr>
 <td><code>a~b</code> <code>a[b]</code></td>
 <td>Indexing arrays, maps and tuples. See the <a class="wikilink" href="#fn_index">index</a> function. Use <code>~</code> with atomic values, while <code>[]</code> can accept tuples.</td>
