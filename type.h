@@ -134,6 +134,12 @@ struct Type {
         tuple->push_back(t);
         return tuple->back();
     }
+
+    void pop_front() {
+        if (tuple && tuple->size() > 1) {
+            tuple = std::make_shared< std::vector<Type> >(tuple->begin()+1, tuple->end());
+        }
+    }
 };
 
 } // namespace tab

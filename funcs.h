@@ -31,6 +31,7 @@ namespace funcs {
 #include "funcs/hist.h"
 #include "funcs/uniques.h"
 #include "funcs/url.h"
+#include "funcs/unflatten.h"
 
 } // namespace funcs
 
@@ -69,6 +70,7 @@ void register_functions(size_t seed) {
     funcs::register_hist(funs);
     funcs::register_uniques(funs);
     funcs::register_url(funs);
+    funcs::register_unflatten(funs);
 }
 
 } // namespace tab

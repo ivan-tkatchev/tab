@@ -154,7 +154,7 @@ static const char* _help[][2] = {
       "max mean merge min mul ngrams normal now open or pairs peek pi product rand real\n"
       "recut replace resplit reverse round rsh sample second seq sin skip sort sorted\n"
       "split sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
-      "tuple uint uniques uniques_estimate until url_getparam var variance while zip\n"
+      "tuple uint uniques uniques_estimate unflatten until url_getparam var variance while zip\n"
     },
 
     {"abs",

@@ -158,7 +158,7 @@ Functions::func_t filter_while_until_checker(const Type& args, Type& ret, obj::O
         //return nullptr;
     }
 
-    t.tuple = std::make_shared<std::vector<Type>>(t.tuple->begin()+1, t.tuple->end());
+    t.pop_front();
 
     if (t.tuple->size() == 1) {
 
