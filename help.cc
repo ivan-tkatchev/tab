@@ -154,7 +154,7 @@ static const char* _help[][2] = {
       "max mean merge min mul ngrams normal now open or pairs peek pi product rand real\n"
       "recut replace resplit reverse round rsh sample second seq sin skip sort sorted\n"
       "split sqrt stddev stdev string sum take tan tabulate time tolower toupper triplets\n"
-      "tuple uint uniques uniques_estimate unflatten until url_getparam var variance while zip\n"
+      "tuple uint unflatten uniques uniques_estimate until url_getparam var variance while zip\n"
     },
 
     {"abs",
@@ -1225,6 +1225,20 @@ static const char* _help[][2] = {
      "uint String, Integer -> UInt\n"
      "    tries to convert the string to an unsigned integer; if the conversion\n"
      "    fails, returns the second argument instead.\n"
+    },
+    {"unflatten",
+     "\n"
+     "Turns a sequence into a sequence of sequences, according to user-defined\n"
+     "cut-off points. Accepts a sequence of tuples of at least size 2, where the\n"
+     "first element of the pair is an integer: 0 to continue the current sequence,\n"
+     "or not 0 to start a new sequence. The second and remaining elements form the\n"
+     "output sequences.\n"
+     "Best demonstrated with an example: 'count(9) .. unflatten.[ (@ % 3) == 0, @ ]'\n"
+     "returns the sequence 'seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))'\n"
+     "\n"
+     "Usage:\n"
+     "\n"
+     "unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]\n"
     },
     {"uniques",
      "\n"

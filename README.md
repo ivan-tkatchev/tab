@@ -1196,6 +1196,12 @@ Usage:
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
+`unflatten`
+: Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
+Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`__
+Usage:__
+`unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]`
+
 `uniques`
 : Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also `uniques_estimate`.  
 Usage:  

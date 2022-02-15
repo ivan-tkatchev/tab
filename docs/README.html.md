@@ -1187,6 +1187,12 @@ Usage:
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
+`unflatten` {: #fn_unflatten }
+: Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
+Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`__
+Usage:__
+`unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]`
+
 uniques {: #fn_uniques}
 : Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also [[uniques_estimate]].  
 Usage:  
@@ -1414,8 +1420,8 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 [[rsh]] [[sample]] [[second]] [[seq]] [[sin]] [[skip]] [[sort]] [[sorted]]
 [[split]] [[sqrt]] [[stddev]] [[stdev]] [[string]] [[sum]] [[take]] [[tan]]
 [[tabulate]] [[time]] [[tolower]] [[toupper]] [[triplets]] [[tuple]]
-[[uint]] [[uniques]] [[uniques_estimate]] [[until]] [[url_getparam]] [[var]]
-[[variance]] [[while]] [[zip]]
+[[uint]] [[unflatten]] [[uniques]] [[uniques_estimate]] [[until]] 
+[[url_getparam]] [[var]] [[variance]] [[while]] [[zip]]
 
 ### By kind:
 
@@ -1438,7 +1444,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 
 **Sequences:** [[count]] [[explode]] [[filter]] [[first]] [[flatten]] [[flip]] [[glue]]
 [[head]] [[ngrams]] [[pairs]] [[peek]] [[skip]] [[second]] [[seq]] [[stripe]] [[take]]
-[[triplets]] [[until]] [[while]] [[zip]]
+[[triplets]] [[unflatten]] [[until]] [[while]] [[zip]]
 
 **Tuples:** [[first]] [[lines]] [[second]] [[tuple]]
 
@@ -1447,7 +1453,7 @@ The input type of the 'gather' thread is `Seq[(String, Int)]`.
 **Date and time:** [[date]] [[datetime]] [[gmtime]] [[now]] [[time]]
 
 **Conditionals:** [[and]] [[box]] [[case]] [[eq]] [[filter]] [[findif]] [[grepif]]
-[[has]] [[if]] [[or]] [[until]] [[while]]
+[[has]] [[if]] [[or]] [[unflatten]] [[until]] [[while]] 
 
 **Files:** [[file]] [[open]]
 
