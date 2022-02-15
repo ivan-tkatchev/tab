@@ -5,12 +5,14 @@ struct SeqUnflattened : public obj::SeqBase {
 
     obj::Object* seq;
     obj::Object* prev;
+    bool first;
 
-    SeqUnflattened(const Type& t) {}
+    SeqUnflattened(const Type& t) : first(true) {}
 
     void wrap(obj::Object* s) {
         seq = s;
         prev = nullptr;
+        first = true;
     }
 
     obj::Object* next() {
@@ -33,10 +35,12 @@ struct SeqUnflattened : public obj::SeqBase {
         obj::Int& y = obj::get<obj::Int>(x.v[0]);
         obj::Object* val = x.v[1];
 
-        if (y.v == 1) {
+        if (y.v && !first) {
             prev = val;
             return nullptr;
-        } 
+        }
+
+        first = false;
 
         return val;
     }
@@ -47,8 +51,9 @@ struct SeqUnflattenedMany : public obj::SeqBase {
     obj::Object* seq;
     obj::Object* prev;
     obj::Tuple* holder;
+    bool first;
 
-    SeqUnflattenedMany(const Type& t) {
+    SeqUnflattenedMany(const Type& t) : first(true) {
         holder = new obj::Tuple;
         holder->v.resize(t.tuple->size());
     }
@@ -60,6 +65,7 @@ struct SeqUnflattenedMany : public obj::SeqBase {
     void wrap(obj::Object* s) {
         seq = s;
         prev = nullptr;
+        first = true;
     }
 
     obj::Object* next() {
@@ -85,10 +91,12 @@ struct SeqUnflattenedMany : public obj::SeqBase {
             holder->v[i] = x.v[i+1];
         }
 
-        if (y.v == 1) {
+        if (y.v && !first) {
             prev = holder;
             return nullptr;
-        } 
+        }
+
+        first = false;
 
         return holder;
     }

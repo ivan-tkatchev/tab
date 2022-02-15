@@ -1,0 +1,189 @@
+<!DOCTYPE html><html><head><style>
+.hll { background-color: #ffffcc }
+.c { color: #408080; font-style: italic } /* Comment */
+.err { color: #008000; font-weight: bold } /* Error */
+.k { color: #008000; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.cp { color: #BC7A00 } /* Comment.Preproc */
+.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.cs { color: #408080; font-style: italic } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #808080 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0040D0 } /* Generic.Traceback */
+.kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #008000 } /* Keyword.Pseudo */
+.kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #B00040 } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BA2121 } /* Literal.String */
+.na { color: #7D9029 } /* Name.Attribute */
+.nb { color: #008000 } /* Name.Builtin */
+.nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #0000FF } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #19177C } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+.mf { color: #000033 } /* Literal.Number.Float */
+.mh { color: #666666 } /* Literal.Number.Hex */
+.mi { color: #000033 } /* Literal.Number.Integer */
+.mo { color: #666666 } /* Literal.Number.Oct */
+.sb { color: #BA2121 } /* Literal.String.Backtick */
+.sc { color: #BA2121 } /* Literal.String.Char */
+.sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.s2 { color: #BA2121 } /* Literal.String.Double */
+.se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.sh { color: #BA2121 } /* Literal.String.Heredoc */
+.si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.sx { color: #008000 } /* Literal.String.Other */
+.sr { color: #BB6688 } /* Literal.String.Regex */
+.s1 { color: #BA2121 } /* Literal.String.Single */
+.ss { color: #19177C } /* Literal.String.Symbol */
+.bp { color: #008000 } /* Name.Builtin.Pseudo */
+.vc { color: #19177C } /* Name.Variable.Class */
+.vg { color: #19177C } /* Name.Variable.Global */
+.vi { color: #19177C } /* Name.Variable.Instance */
+.il { color: #666666 } /* Literal.Number.Integer.Long */
+
+.wikilink {
+    text-decoration: none;
+    background-color: #F6F0AC;
+    border-radius: 4px;
+    text-shadow: 1px 1px white;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-family: monospace;
+}
+
+dt {
+    margin-top: 1em;
+    font-family: monospace;
+    font-size: 110%;
+    font-weight: bold;
+}
+
+body {
+    color: #303030;
+    font-size: 14px;
+    line-height: 1.42857;
+    margin: 50px;
+    padding: 50px;
+}
+
+pre {
+    background: #F5F5F5;
+    border: 1px solid #C0C0C0;
+    border-radius: 3px;
+    padding: 5px 10px;
+}
+
+code {
+    background: #F4F4F4;
+    border: 0px solid #C0C0C0;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font-size: 90%;
+}
+
+table {
+    margin-left: 1em;
+    border: 1px solid gray;
+}
+
+th {
+    border-bottom: 1px dotted gray;
+    padding: 0.5em;
+}
+
+td {
+    padding: 0.5em;
+}
+
+th+th,
+td+td {
+    border-left: 1px dotted gray;
+}</style></head><title>The tab programming language.</title><body>
+<h1 id="embedding-tab">Embedding tab</h1>
+<p>A short exposition on how to embded the <code>tab</code> language into your own programs.</p>
+<p>Here is a complete example program that evaluates a <code>tab</code> expression of type <code>Int, Int -&gt; Real</code> ten thousand times:</p>
+<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;tab.h&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">using</span> <span class="n">T</span> <span class="o">=</span> <span class="n">tab</span><span class="o">::</span><span class="n">Type</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">API</span> <span class="o">=</span> <span class="n">tab</span><span class="o">::</span><span class="n">API</span><span class="o">&lt;</span><span class="nb">false</span><span class="o">&gt;</span><span class="p">;</span>
+
+    <span class="kt">size_t</span> <span class="n">seed</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">stoul</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+    <span class="n">API</span><span class="o">::</span><span class="n">init</span><span class="p">(</span><span class="n">seed</span><span class="p">);</span>
+
+    <span class="k">static</span> <span class="n">T</span> <span class="n">in_type</span><span class="p">(</span><span class="n">T</span><span class="o">::</span><span class="n">TUP</span><span class="p">,</span> <span class="p">{</span> <span class="n">T</span><span class="o">::</span><span class="n">INT</span><span class="p">,</span> <span class="n">T</span><span class="o">::</span><span class="n">INT</span> <span class="p">});</span>
+    <span class="k">static</span> <span class="n">T</span> <span class="n">out_type</span><span class="p">(</span><span class="n">T</span><span class="o">::</span><span class="n">REAL</span><span class="p">);</span>
+
+    <span class="k">typename</span> <span class="n">API</span><span class="o">::</span><span class="n">compiled_t</span> <span class="n">code</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">program</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+    <span class="n">API</span><span class="o">::</span><span class="n">compile</span><span class="p">(</span><span class="n">program</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">program</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">in_type</span><span class="p">,</span> <span class="n">code</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">code</span><span class="p">.</span><span class="n">result</span> <span class="o">!=</span> <span class="n">out_type</span><span class="p">)</span>
+        <span class="k">throw</span> <span class="n">std</span><span class="o">::</span><span class="n">runtime_error</span><span class="p">(</span><span class="s">&quot;Error: function must return Real.&quot;</span><span class="p">);</span>
+
+    <span class="k">static</span> <span class="n">tab</span><span class="o">::</span><span class="n">obj</span><span class="o">::</span><span class="n">Tuple</span><span class="o">*</span> <span class="n">input</span> <span class="o">=</span> <span class="n">API</span><span class="o">::</span><span class="n">make</span><span class="p">(</span><span class="n">in_type</span><span class="p">);</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+
+            <span class="k">namespace</span> <span class="n">to</span> <span class="o">=</span> <span class="n">tab</span><span class="o">::</span><span class="n">obj</span><span class="p">;</span>
+
+            <span class="n">to</span><span class="o">::</span><span class="n">Tuple</span><span class="o">&amp;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">to</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">to</span><span class="o">::</span><span class="n">Tuple</span><span class="o">&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+            <span class="n">to</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">to</span><span class="o">::</span><span class="n">Int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">v</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="n">to</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">to</span><span class="o">::</span><span class="n">Int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]).</span><span class="n">v</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>
+
+            <span class="n">tab</span><span class="o">::</span><span class="n">obj</span><span class="o">::</span><span class="n">Object</span><span class="o">*</span> <span class="n">output</span> <span class="o">=</span> <span class="n">API</span><span class="o">::</span><span class="n">run</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">input</span><span class="p">);</span>
+
+            <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">to</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">to</span><span class="o">::</span><span class="n">Real</span><span class="o">&gt;</span><span class="p">(</span><span class="n">output</span><span class="p">).</span><span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>(Please compile with maximum optimization, <code>-O3</code>, or your program will run slow.)</p>
+<ul>
+<li>An expression is compiled once and can be evaluated many times with different inputs.</li>
+<li>An expression must have only one input type and only one output type.</li>
+<li>Compile expressions with <code>API::compile</code> and evaluate them with <code>API::run</code>.</li>
+<li>The template argument of <code>API</code> is whether or not to use sorted (binary tree) or unsorted (hash table) maps.</li>
+<li>Values are represented by pointers to objects derived from <code>obj::Object</code>.</li>
+<li>Values, as a general rule, are allocated once and never freed.</li>
+</ul>
+<p>For getting data into and out of values, you&rsquo;ll need to delve into the implementation specifics:</p>
+<ul>
+<li>Atomic values are represented by <code>obj::Atom&lt;T&gt;</code>, a.k.a. <code>obj::Int</code>, <code>obj::UInt</code>, <code>obj::Real</code> and <code>obj::String</code>.</li>
+<li>Arrays of atomic values are represented by <code>obj::ArrayAtom&lt;T&gt;</code>.</li>
+<li>Arrays of any other type of value are represented by <code>obj::ArrayObject</code>.</li>
+<li>Tuples are represented by <code>obj::Tuple</code>.</li>
+<li>Maps are represented by <code>obj::MapObject&lt;bool&gt;</code>, where the argument, again, is whether or not a sorted map should be used.</li>
+<li>Sequences are objects derived from <code>obj::SeqBase</code>.</li>
+</ul>
+<p>Sequences must have a method <code>obj::Object* next()</code> which returns the next value in a sequence or <code>nullptr</code> to flag an end-of-sequence.</p>
+<p>All other values have a member variable <code>v</code> that holds the corresponding C++ value.</p>
+<p>You can construct a default value from a type by calling <code>API::make</code>. (Doesn&rsquo;t work with sequences.)</p>
+<p>Use <code>obj::get&lt;T&gt;</code> to cast an <code>obj::Object*</code> to a concrete value. (No run-time type checking is done, so take care.)</p></body></html>

@@ -1,0 +1,1306 @@
+<!DOCTYPE html><html><head><style>
+.hll { background-color: #ffffcc }
+.c { color: #408080; font-style: italic } /* Comment */
+.err { color: #008000; font-weight: bold } /* Error */
+.k { color: #008000; font-weight: bold } /* Keyword */
+.o { color: #666666 } /* Operator */
+.cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.cp { color: #BC7A00 } /* Comment.Preproc */
+.c1 { color: #408080; font-style: italic } /* Comment.Single */
+.cs { color: #408080; font-style: italic } /* Comment.Special */
+.gd { color: #A00000 } /* Generic.Deleted */
+.ge { font-style: italic } /* Generic.Emph */
+.gr { color: #FF0000 } /* Generic.Error */
+.gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.gi { color: #00A000 } /* Generic.Inserted */
+.go { color: #808080 } /* Generic.Output */
+.gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.gs { font-weight: bold } /* Generic.Strong */
+.gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.gt { color: #0040D0 } /* Generic.Traceback */
+.kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.kp { color: #008000 } /* Keyword.Pseudo */
+.kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.kt { color: #B00040 } /* Keyword.Type */
+.m { color: #666666 } /* Literal.Number */
+.s { color: #BA2121 } /* Literal.String */
+.na { color: #7D9029 } /* Name.Attribute */
+.nb { color: #008000 } /* Name.Builtin */
+.nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.no { color: #880000 } /* Name.Constant */
+.nd { color: #AA22FF } /* Name.Decorator */
+.ni { color: #999999; font-weight: bold } /* Name.Entity */
+.ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.nf { color: #0000FF } /* Name.Function */
+.nl { color: #A0A000 } /* Name.Label */
+.nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.nt { color: #008000; font-weight: bold } /* Name.Tag */
+.nv { color: #19177C } /* Name.Variable */
+.ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.w { color: #bbbbbb } /* Text.Whitespace */
+.mf { color: #000033 } /* Literal.Number.Float */
+.mh { color: #666666 } /* Literal.Number.Hex */
+.mi { color: #000033 } /* Literal.Number.Integer */
+.mo { color: #666666 } /* Literal.Number.Oct */
+.sb { color: #BA2121 } /* Literal.String.Backtick */
+.sc { color: #BA2121 } /* Literal.String.Char */
+.sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.s2 { color: #BA2121 } /* Literal.String.Double */
+.se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.sh { color: #BA2121 } /* Literal.String.Heredoc */
+.si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.sx { color: #008000 } /* Literal.String.Other */
+.sr { color: #BB6688 } /* Literal.String.Regex */
+.s1 { color: #BA2121 } /* Literal.String.Single */
+.ss { color: #19177C } /* Literal.String.Symbol */
+.bp { color: #008000 } /* Name.Builtin.Pseudo */
+.vc { color: #19177C } /* Name.Variable.Class */
+.vg { color: #19177C } /* Name.Variable.Global */
+.vi { color: #19177C } /* Name.Variable.Instance */
+.il { color: #666666 } /* Literal.Number.Integer.Long */
+
+.wikilink {
+    text-decoration: none;
+    background-color: #F6F0AC;
+    border-radius: 4px;
+    text-shadow: 1px 1px white;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-family: monospace;
+}
+
+dt {
+    margin-top: 1em;
+    font-family: monospace;
+    font-size: 110%;
+    font-weight: bold;
+}
+
+body {
+    color: #303030;
+    font-size: 14px;
+    line-height: 1.42857;
+    margin: 50px;
+    padding: 50px;
+}
+
+pre {
+    background: #F5F5F5;
+    border: 1px solid #C0C0C0;
+    border-radius: 3px;
+    padding: 5px 10px;
+}
+
+code {
+    background: #F4F4F4;
+    border: 0px solid #C0C0C0;
+    border-radius: 3px;
+    padding: 1px 3px;
+    font-size: 90%;
+}
+
+table {
+    margin-left: 1em;
+    border: 1px solid gray;
+}
+
+th {
+    border-bottom: 1px dotted gray;
+    padding: 0.5em;
+}
+
+td {
+    padding: 0.5em;
+}
+
+th+th,
+td+td {
+    border-left: 1px dotted gray;
+}</style></head><title>The tab programming language.</title><body>
+<h1 id="introduction">Introduction</h1>
+<p>This is a tutorial and reference for <a href="index.html">tab</a>, a shell language for text/number manipulation.</p>
+<p>Skip to:</p>
+<ul>
+<li><a href="#language-tutorial">Tutorial</a></li>
+<li><a href="#comparison">Comparison with other languages</a></li>
+<li>Reference documentation:<ul>
+<li><a href="#grammar">Grammar</a></li>
+<li><a href="#semantics">Semantics</a></li>
+<li><a href="#builtin-functions">Builtin functions</a></li>
+<li><a href="#aggregators">Aggregators</a></li>
+<li>Advanced features:<ul>
+<li><a href="#error-handling">Error handling</a></li>
+<li><a href="#recursion">Recursion</a></li>
+<li><a href="#multi-core">Multi-core</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#builtin-function-index">Function index</a></li>
+</ul>
+<h1 id="compiling-and-installing">Compiling and installing</h1>
+<p>Type <code>make</code>. Requires a modern C++11 compiler. Recent versions of gcc (4.9 and up) and clang will work.</p>
+<p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
+<p>If you want to use a compiler other than gcc, e.g., clang, then type this:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">CXX</span><span class="nv">=</span><span class="nx">clang</span><span class="o">++</span> <span class="nx">make</span>
+</code></pre></div>
+
+<p>The official git repository is found <a href="http://bitbucket.org/tkatchev/tab">here</a>.</p>
+<h1 id="usage">Usage</h1>
+<p>The default is to read from standard input:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">cat</span> <span class="nx">mydata</span> <span class="o">|</span> <span class="nx">tab</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+</code></pre></div>
+
+<p>The result will be written to standard output.</p>
+<p>You can also use the <code>-i</code> flag to read from a file:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">mydata</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+</code></pre></div>
+
+<p>If your <code>&lt;expression&gt;</code> is too long, you can pass it in via a file, with the <code>-f</code> flag:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">f</span> <span class="nx">mycode</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+</code></pre></div>
+
+<p>(In this case, the contents of <code>mycode</code> will be appended to <code>&lt;expression&gt;</code>, separated with a comma.)</p>
+<p>Run <code>tab -h</code> to see the rest of the supported command-line parameters. The binary comes with built-in documentation; use <code>-h</code> to read a complete language reference right in your shell prompt. (This includes documentation for all built-in functions too; for example, try <code>tab -h if</code>.)</p>
+<h1 id="language-tutorial">Language tutorial</h1>
+<h2 id="basic-types">Basic types</h2>
+<p><code>tab</code> is a statically-typed language. However, you will not need to declare any types, the appropriate type information will be deduced automatically, and any errors will be reported before execution.</p>
+<p>There are four basic atomic types:</p>
+<ul>
+<li><strong>Int</strong>, a signed integer. (Equivalent to a <code>long</code> in C.)</li>
+<li><strong>UInt</strong>, an unsigned integer. (Equivalent to an <code>unsigned long</code> in C.)</li>
+<li><strong>Real</strong>, a floating-point number. (Equivalent to a <code>double</code> in C.)</li>
+<li><strong>String</strong>, a string, stored as a byte array.</li>
+</ul>
+<p>There are also four structured types:</p>
+<ul>
+<li><strong>Tuple</strong>, a sequence of several values of (possibly) different types. The number of values and their types cannot change at runtime.</li>
+<li><strong>Array</strong>, an array of values. Elements can be added and removed at runtime, but the type of all of the values is the same and cannot change.</li>
+<li><strong>Map</strong>, a hash map (associative array) from values to values. Like with the array, elements can be added and removed, but the type of keys and values cannot change.</li>
+<li><strong>Sequence</strong>, a.k.a. &ldquo;lazy list&rdquo; or &ldquo;generator&rdquo;. A sequence doesn&rsquo;t store any values, but will generate a new element in the sequence each time is asked to. As with arrays, all generated elements are of the same type.</li>
+</ul>
+<p>Structures can be composed together in complex ways. So, for example, you cannot mix integers and strings in an array, but you can store pairs of strings and integers. (A pair is a tuple of two elements.)</p>
+<p>When outputing, each element of an array, map or sequence is printed on its own line, even when nested inside some other structure. The elements of a tuple are printed separated by a tab character, <code>\t</code>.</p>
+<p>(So, for example, a printed sequence of arrays of strings looks exactly the same as a sequence of strings.)</p>
+<p>Maps, by default, store values in an unspecified order. Use the <code>-s</code> command-line parameter to force a strict ordering on map keys.</p>
+<h2 id="atomic-types">Atomic types</h2>
+<p>The default number type in <code>tab</code> is the unsigned integer. A plain sequence of digits will be interpreted as a <code>UInt</code>. When you need an explicitly signed <code>Int</code>, put an <code>s</code>, <code>i</code> or <code>l</code> suffix onto the digits; for example, <code>1996l</code>. All three suffixes are equivalent, they are syntactic sugar.</p>
+<p>Floating-point number literals can be entered using a <code>.</code> or using scientific notation; for example, <code>3.</code> or <code>3e0</code>.</p>
+<p>String literals are delimited with single or double quotes. Both are equivalent. (Again, syntactic sugar.) A limited set of escape characters are supported within strings: <code>\t</code>, <code>\n</code>, <code>\r</code>, <code>\e</code>, <code>\\</code>, <code>\'</code>, <code>\"</code>.</p>
+<h2 id="control-structures">Control structures</h2>
+<p><code>tab</code> has no loops or conditional &ldquo;if&rdquo; statements; the input expression is evaluated, and the resulting value is printed on standard output.</p>
+<p>Instead of loops you&rsquo;d use sequences and comprehensions.</p>
+<p>The input is a file stream, usually the standard input. A file stream in <code>tab</code> is represented as a sequence of strings, each string being a line from the file. (Lines are assumed be be separated by <code>\n</code>.)</p>
+<p>Built-in functions in <code>tab</code> are polymorphic, meaning that a function with the same name will act differently with input arguments of different types.</p>
+<p>You can enable a verbose debug mode to output the precise derivations of types in the input expression:</p>
+<ul>
+<li><code>-v</code> will output the resulting type of the whole input expression</li>
+<li><code>-vv</code> will output the resulting type along the the generated virtual machine instruction codes and their types</li>
+<li><code>-vvv</code> will output the parse tree along with the generated code and resulting type.</li>
+</ul>
+<h2 id="examples">Examples</h2>
+<p>An introduction to <code>tab</code> in 10 easy steps.</p>
+<h3 id="1">1.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;@&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>cat</code>. <code>@</code> is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.</p>
+<h3 id="2">2.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;sin(pi()/2)&#39;</span>
+<span class="mi">1</span>
+
+<span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
+<span class="mi">1</span>
+</code></pre></div>
+
+<p><code>tab</code> can also be used as a desktop calculator. <a class="wikilink" href="#fn_pi">pi</a> is a function that returns the value of <em>pi</em>, <a class="wikilink" href="#fn_cos">cos</a> and <a class="wikilink" href="#fn_sin">sin</a> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
+<h3 id="3">3.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(@)&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>wc -l</code>. <a class="wikilink" href="#fn_count">count</a> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
+<h3 id="4">4.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>egrep -o "[a-zA-Z]+"</code>. <a class="wikilink" href="#fn_grep">grep</a> is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings &ndash; the array of any found matches.</p>
+<p><code>[...]</code> is the syntax for <em>sequence comprehensions</em> &ndash; transformers that apply an expression to all elements of a sequence; the result of a sequence comprehension is also a sequence.</p>
+<p>The general syntax for sequence comprehensions is this: <code>[ &lt;element&gt; : &lt;input&gt; ]</code>. Here <code>&lt;input&gt;</code> is evaluated (once), converted to a sequence, and each element of that sequence becomes the input to the epxression <code>&lt;element&gt;</code>. The result is a sequence of <code>&lt;element&gt;</code>. (Or, in other words, a sequence of transformed elements from <code>&lt;input&gt;</code>.)</p>
+<p>If the <code>: &lt;input&gt;</code> part is omitted, then <code>: @</code> is automatically implied instead.</p>
+<p>Each time <code>&lt;element&gt;</code> is evaluated, its argument (an individual element in <code>&lt;input&gt;</code>) is passed via a variable that is also called <code>@</code>.</p>
+<p>Thus: the expressions <code>@</code>, <code>[@]</code> and <code>[@ : @]</code> are all equivalent; they all return the input sequence of lines from stdin unchanged.</p>
+<p>The variables defined in <code>&lt;element&gt;</code> (on the left side of <code>:</code>) are <em>scoped</em>: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the <code>[ ... ]</code> brackets.</p>
+<h3 id="5">5.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;zip(count(), @)&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>nl -ba -w1</code>; that is, it outputs stdin with a line number prefixed to each line.</p>
+<p><a class="wikilink" href="#fn_zip">zip</a> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
+<p><a class="wikilink" href="#fn_count">count</a> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
+<h3 id="6">6.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>wc -w</code>: it prints the number of words in stdin. <code>[ grep(@,"\\S+") ]</code> is an expression we have seen earlier &ndash; it returns a sequence of arrays of regex matches.</p>
+<p><code>:</code> here is <em>not</em> part of a comprehension, it is a special <a class="wikilink" href="#fn_flatten">flatten</a> operator: given a sequence of sequences, it will return a &ldquo;flattened&rdquo; sequence of elements in all the interior sequences.</p>
+<p>If given a sequence of arrays, maps or atomic values then this operator will automatically convert the interior structures into equivalent sequences.</p>
+<p>Thus, the result of <code>:[ grep(@,"\\S+") ]</code> is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of <code>\S+</code> in stdin.</p>
+<p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <a class="wikilink" href="#fn_flatten">flatten</a> builtin function.</p>
+<h3 id="7">7.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
+</code></pre></div>
+
+<p>This command will output an unsorted list of unique words in stdin.</p>
+<p>The <code>{ @ : ... }</code> is the syntax for <em>map comprehensions</em>. The full form of map comprehensions looks like this: <code>{ &lt;key&gt; -&gt; &lt;value&gt; : &lt;input&gt; }</code>. Like with sequence comprehensions, <code>&lt;input&gt;</code> will be evaluated, each element will be used to construct <code>&lt;key&gt;</code> and <code>&lt;value&gt;</code>, and the key-value pairs will be stored in the resulting map.</p>
+<p>If <code>-&gt; &lt;value&gt;</code> is omitted, then <code>-&gt; 1</code> will be automatically implied. If <code>: &lt;input&gt;</code> is omitted, then <code>: @</code> will be automatically implied.</p>
+<p>The result of this command will be a map where each word in stdin is mapped to an integer value of one.</p>
+<p>(Note: you can use whitespace creatively to make this command prettier, <code>{ @ :: [ grep(@,"\\S+") ] }</code></p>
+<p>You can also wrap the expression in <code>count(...)</code> if you just want the number of unique words in stdin.</p>
+<h3 id="8">8.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
+</code></pre></div>
+
+<p>This command is equivalent to <code>grep</code>; it will output all lines from stdin having the string <code>"this"</code>.</p>
+<p><a class="wikilink" href="#fn_grepif">grepif</a> is a lighter version of <a class="wikilink" href="#fn_grep">grep</a>: given a string and a regular expression it will return an integer: <code>1</code> if the regex is found in the string and <code>0</code> if it not. (You could use <code>count(grep(@,"this"))</code> instead, but <a class="wikilink" href="#fn_grepif">grepif</a> is obviously shorter and quicker.)</p>
+<p><code>grepif(@,"this"), @</code> is a tuple of two elements: the first element is <code>1</code> or <code>0</code> depending on if the line has <code>"this"</code> as a substring, and the second element is the whole line itself.</p>
+<p><strong>Note</strong>: tuples in <code>tab</code> are <em>not</em> surrounded by parentheses. There is no syntax for creating nested tuples literally. (Though they can exist as a result of a function call, and there is a built-in function called <code>tuple</code> for doing just that.)</p>
+<p>To write a tuple, simply list its elements separated by commas.</p>
+<p><code>?</code> is the <a class="wikilink" href="#fn_filter">filter</a> operator: it accepts a sequence of tuples, where the first element of each tuple must be an integer. The output is also a sequence: if a tuple of the input sequence has <code>0</code> as the first element, then it is skipped in the output sequence; if the first element of the input tuple is any other value, then it is removed, and the rest of the input tuple is output.</p>
+<p>(So, for example: <code>?[1,@ : x]</code> is equivalent to the original sequence <code>x</code>.)</p>
+<p><strong>Note</strong>: the <code>?</code> operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_filter">filter</a> function.</p>
+<p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
+<p><strong>Note</strong>: there is an alternative shortcut syntax for filtering sequences: this expression could also have been written as <code>[/ grepif(@,"this") ]</code>. This expression is a shortcut for <code>[try if(grepif(@,"this"), @)]</code>. See the documentation for <a href="#generator-expressions">generator expressions</a> for details.</p>
+<h3 id="9">9.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
+</code></pre></div>
+
+<p>This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.</p>
+<p><code>{ ... : zip(count(), @) }</code> is, as before, a map comprehension, with a sequence of pairs (line number, line) as the input.</p>
+<p><code>@[0] % 2</code> is the key in the map: we use the indexing operator <code>[]</code> to select the first element from the input pair, which is the line number. <code>%</code> is the mathematical modulo operator (like in C); line number modulo 2 gives us <code>0</code> for even line numbers and <code>1</code> for odd line numbers.</p>
+<p><code>sum(count(@[1]))</code> is the mapped value in the map. As before, indexing the input pair with <code>1</code> gives us the second element, which is the contents of the line from stdin; <a class="wikilink" href="#fn_count">count</a>, when applied to a string, gives us the length of the string in bytes. </p>
+<p><a class="wikilink" href="#fn_sum">sum</a> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <a class="wikilink" href="#fn_sum">sum</a> when groupped together as part of the map&rsquo;s value.</p>
+<p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
+<h3 id="10">10.</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
+</code></pre></div>
+
+<p>This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.</p>
+<p>The <code>z=</code> here is an example of <em>variable assignment</em>. Here the variable <code>z</code> will be assigned a map of unique words with their frequencies. (See example 7; <code>z</code> here is the same, except that each word is lowercased and a word count is tallied.)</p>
+<p>Variable assignments do not produce a type and do not evaluate to a value; whatever is between the <code>=</code> and the <code>,</code> (the map comprehension in this case) will not be output.</p>
+<p>Moving on: <a class="wikilink" href="#fn_sort">sort</a> is a function that accepts an array, map or sequence and returns its elements in an array, sorted lexicographically. Here we reverse the keys and values in the map <code>z</code> by wrapping it in a sequence, so that the resulting array is sorted by word frequency, not by word.</p>
+<p><code>@~0</code> is syntactic sugar that is completely equivalent to <code>@[0]</code>.</p>
+<p><code>[-5,-1]</code> is the <em>indexing</em> operator, which accesses elements in a tuple, array or map. The logic and arguments of this operator differ depending on what type is being indexed:</p>
+<ul>
+<li>Tuples can only be indexed with literal integer values. (Not variables or results of a computation.)</li>
+<li>Maps can be indexed by the key, returning the corresponding value; if the key is not in the map, an error will be signalled.</li>
+<li>Arrays indexes are more complex, they can be indexed by:<ul>
+<li>0-based integers. (0 being the first element in an array.)</li>
+<li>Negative indexes, where -1 is the last element in the array, -2 is second-to-last, etc.</li>
+<li>Real-valued indexes; in this case 0.0 is interpreted as the first element in the array and 1.0 as the last. (So 0.5 would be the middle element in the array.)</li>
+<li>Splices, which are two comma-separated indexes. In this case a sub-array will be returned, beginning with element referenced by the first index and ending with the element referenced by the last. (The last element is also part of the range, unlike in Python and C++.)</li>
+</ul>
+</li>
+<li>Strings can be spliced as if they were byte arrays; substrings will returned.</li>
+</ul>
+<p>In this case a sub-array of five elements is returned &ndash; the last five elements in the array returned by <a class="wikilink" href="#fn_sort">sort</a></p>
+<p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_index">index</a> function.</p>
+<p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It&rsquo;s syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
+<h3 id="bonus-track">Bonus track</h3>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;</span>
+<span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
+<span class="s1"> def uniq { 1 -&gt; stats(@) }[1],</span>
+<span class="s1"> x=[ uint.cut(@,&quot;|&quot;,3)) ],</span>
+<span class="s1"> x=uniq(x),</span>
+<span class="s1"> avg=x[0], stdev=x[1], max=x[2], min=x[3], q=x[4],</span>
+<span class="s1"> tabulate(tuple(&quot;mean/median&quot;, avg, q[0.5]),</span>
+<span class="s1">          tuple(&quot;68-percentile&quot;, avg + stdev, q[0.68]),</span>
+<span class="s1">          tuple(&quot;95-percentile&quot;, avg + 2*stdev, q[0.95]),</span>
+<span class="s1">          tuple(&quot;99-percentile&quot;, avg + 3*stdev, q[0.99]),</span>
+<span class="s1">          tuple(&quot;min and max&quot;, real(min), max))&#39;</span>
+<span class="nx">mean</span><span class="o">/</span><span class="nx">median</span>     <span class="mf">1764.54</span> <span class="mi">1728</span>
+<span class="mi">68</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">1933.15</span> <span class="mi">1840</span>
+<span class="mi">95</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2101.75</span> <span class="mi">1992</span>
+<span class="mi">99</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2270.35</span> <span class="mi">2419</span>
+<span class="nx">min</span> <span class="nx">and</span> <span class="nx">max</span>     <span class="mi">0</span>       <span class="mi">2508</span>
+</code></pre></div>
+
+<p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn&rsquo;t look to be normally-distributed.)</p>
+<p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
+<p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
+<p>You can use parentheses to delimit code blocks in function definitions. For example:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nx">square_of_square</span> <span class="o">(</span> <span class="nv">def</span> <span class="nx">square</span> <span class="nv">@</span><span class="o">*</span><span class="nv">@</span><span class="o">;</span> <span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)*</span><span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">);</span>
+<span class="nx">square_of_square</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span>
+</code></pre></div>
+
+<p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
+<p>Let&rsquo;s check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
+<span class="mf">250.8</span>   <span class="mi">23</span>
+<span class="mf">501.6</span>   <span class="mi">0</span>
+<span class="mf">752.4</span>   <span class="mi">1</span>
+<span class="mf">1003.2</span>  <span class="mi">0</span>
+<span class="mi">1254</span>    <span class="mi">0</span>
+<span class="mf">1504.8</span>  <span class="mi">227</span>
+<span class="mf">1755.6</span>  <span class="mi">28027</span>
+<span class="mf">2006.4</span>  <span class="mi">19986</span>
+<span class="mf">2257.2</span>  <span class="mi">490</span>
+<span class="mi">2508</span>    <span class="mi">1792</span>
+</code></pre></div>
+
+<h1 id="comparison">Comparison</h1>
+<p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
+<p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
+<p>Here is a solution using standard shell utilities:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">cat</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39; &#39;</span> <span class="o">-</span><span class="nx">f3</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39;?&#39;</span> <span class="o">-</span><span class="nx">f1</span> <span class="o">|</span> <span class="nx">sort</span> <span class="o">|</span> <span class="nx">uniq</span> <span class="o">-</span><span class="nx">c</span>
+</code></pre></div>
+
+<p>Running time: around 2.7 seconds on my particular (slow) laptop.</p>
+<p>Here is an equivalent Python script:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">:</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">d</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+    <span class="nb">print</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span>
+</code></pre></div>
+
+<p>Running time: around 3.1 seconds.</p>
+<p>Perl:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">my</span> <span class="nv">%counts</span><span class="p">;</span>
+<span class="k">for</span> <span class="k">my</span> <span class="nv">$line</span> <span class="p">(</span><span class="o">&lt;&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="nv">$path</span> <span class="o">=</span> <span class="p">(</span><span class="nb">split</span> <span class="sr">/\?/</span><span class="p">,</span> <span class="p">(</span><span class="nb">split</span> <span class="sr">/ /</span><span class="p">,</span> <span class="nv">$line</span><span class="p">)[</span><span class="mi">2</span><span class="p">])[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="nv">$counts</span><span class="p">{</span><span class="nv">$path</span><span class="p">}</span><span class="o">++</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="k">my</span> <span class="nv">$path</span> <span class="p">(</span><span class="nb">keys</span> <span class="nv">%counts</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="nv">$count</span> <span class="o">=</span> <span class="nv">$counts</span><span class="p">{</span><span class="nv">$path</span><span class="p">};</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;$count $path\n&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>Running time: around 4.1 seconds.</p>
+<p>A resonably simple solution using <code>awk</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">$</span> <span class="nx">awk</span> <span class="o">-</span><span class="nx">F</span><span class="s2">&quot; &quot;</span> <span class="s1">&#39;{ split($3,x,&quot;?&quot;); paths[x[1]]++; } END { for (path in paths) { print paths[path], path }}&#39;</span>
+</code></pre></div>
+
+<p>Running time: around 2.1 seconds.</p>
+<p>Here is the solution using <code>tab</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;{ cut(@,&quot; &quot;,2) .. cut(@,&quot;?&quot;,0) -&gt; sum(1) }&#39;</span>
+</code></pre></div>
+
+<p>Running time: around 0.9 seconds.</p>
+<p>Not only is <code>tab</code> faster in this case, it is also (in my opinion) more concise and idiomatic.</p>
+<h1 id="reference">Reference</h1>
+<h2 id="grammar">Grammar</h2>
+<div class="codehilite"><pre><span></span><code><span class="nx">expr</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">atomic_or_assignment</span> <span class="o">((</span><span class="s2">&quot;,&quot;</span> <span class="o">|</span> <span class="s2">&quot;;&quot;</span><span class="o">)</span> <span class="nx">atomic_or_assignment</span><span class="o">)*</span>
+
+<span class="nx">atomic_or_assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">assignment</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">ine</span> <span class="o">|</span> <span class="nx">atomic</span>
+
+<span class="nx">assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;=&quot;</span> <span class="nx">atomic</span>
+
+<span class="nv">def</span><span class="nx">ine</span> <span class="o">:</span><span class="nv">=</span> <span class="nv">def</span><span class="nx">_fun</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">_struct</span>
+
+<span class="nv">def</span><span class="nx">_fun</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="nx">var</span> <span class="o">(</span><span class="nx">atomic</span> <span class="o">|</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span><span class="o">)</span>
+
+<span class="nv">def</span><span class="nx">_struct</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="s2">&quot;[&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?</span> <span class="o">(</span><span class="s2">&quot;,&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?)+</span> <span class="s2">&quot;]&quot;</span>
+
+<span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_andor</span> <span class="o">(</span><span class="s2">&quot;..&quot;</span> <span class="nx">e_andor</span><span class="o">)*</span>
+
+<span class="nx">e_andor</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_eq</span> <span class="o">|</span>
+           <span class="nx">e_eq</span> <span class="s2">&quot;&amp;&amp;&quot;</span> <span class="nx">e_eq</span> <span class="o">|</span>
+           <span class="nx">e_eq</span> <span class="s2">&quot;||&quot;</span> <span class="nx">e_eq</span>
+
+<span class="nx">e_eq</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;==&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;!=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
+        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;=&quot;</span> <span class="nx">e_bit</span>
+
+<span class="nx">e_bit</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;&amp;&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;|&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
+         <span class="nx">e_add</span> <span class="s2">&quot;^&quot;</span> <span class="nx">e_add</span>
+
+<span class="nx">e_add</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_mul</span> <span class="o">|</span>
+         <span class="nx">e_mul</span> <span class="s2">&quot;+&quot;</span> <span class="nx">e_mul</span> <span class="o">|</span>
+         <span class="nx">e_mul</span> <span class="s2">&quot;-&quot;</span> <span class="nx">e_mul</span>
+
+<span class="nx">e_mul</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;*&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;/&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
+         <span class="nx">e_exp</span> <span class="s2">&quot;%&quot;</span> <span class="nx">e_exp</span>
+
+<span class="nx">e_exp</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_not</span> <span class="o">|</span>
+         <span class="nx">e_not</span> <span class="s2">&quot;**&quot;</span> <span class="nx">e_not</span>
+
+
+<span class="nx">e_not</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_flat</span> <span class="o">|</span>
+         <span class="s2">&quot;!&quot;</span> <span class="nx">e_not</span>
+
+<span class="nx">e_flat</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_idx</span> <span class="o">|</span>
+          <span class="s2">&quot;:&quot;</span> <span class="nx">e_flat</span> <span class="o">|</span>
+          <span class="s2">&quot;?&quot;</span> <span class="nx">e_flat</span>
+
+<span class="nx">e_idx</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e</span> <span class="o">|</span>
+         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;[&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;]&quot;</span><span class="o">)*</span>
+         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;~&quot;</span> <span class="nx">e</span><span class="o">)*</span>
+
+<span class="nx">e</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">literal</span> <span class="o">|</span> <span class="nx">funcall</span> <span class="o">|</span> <span class="nx">var</span> <span class="o">|</span> <span class="nx">array</span> <span class="o">|</span> <span class="nx">map</span> <span class="o">|</span> <span class="nx">seq</span> <span class="o">|</span> <span class="nx">recursor</span> <span class="o">|</span> <span class="nx">paren</span>
+
+<span class="nx">literal</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">real</span> <span class="o">|</span> <span class="nx">int</span> <span class="o">|</span> <span class="nx">uint</span> <span class="o">|</span> <span class="nx">string</span>
+
+<span class="nx">funcall</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">funcall_paren</span> <span class="o">|</span> <span class="nx">funcall_dot</span> <span class="o">|</span> <span class="nx">funcall_dollar</span>
+
+<span class="nx">funcall_paren</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
+
+<span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">e_bit</span>
+
+<span class="nx">funcall_dollar</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;$&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span> <span class="s2">&quot;$&quot;</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
+
+<span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
+
+<span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
+
+<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span> <span class="o">|</span>
+       <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;/&quot;</span> <span class="nx">atomic</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
+
+<span class="nx">recursor</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;:&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
+
+<span class="nx">paren</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;(&quot;</span> <span class="nx">atomic</span> <span class="s2">&quot;)&quot;</span>
+
+<span class="nx">var</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;@&quot;</span> <span class="o">|</span> <span class="o">[</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z</span><span class="o">][</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z0</span><span class="o">-</span><span class="mi">9</span><span class="nx">_</span><span class="o">]*</span>
+
+<span class="nx">digits</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span>
+
+<span class="nx">int</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;-&quot;</span> <span class="nx">digits</span> <span class="o">|</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;i&quot;</span> <span class="o">|</span> <span class="s2">&quot;s&quot;</span> <span class="o">|</span> <span class="s2">&quot;l&quot;</span><span class="o">)</span>
+
+<span class="nx">uint</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;u&quot;</span><span class="o">)?</span> <span class="o">|</span> <span class="o">(</span><span class="s2">&quot;0x&quot;</span> <span class="o">|</span> <span class="s2">&quot;0X&quot;</span><span class="o">)</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="nx">a</span><span class="o">-</span><span class="nx">fA</span><span class="o">-</span><span class="nx">F</span><span class="o">]+</span>
+
+<span class="nx">real</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[-+]?</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;.&quot;</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]*)?</span> <span class="o">([</span><span class="nx">eE</span><span class="o">]</span> <span class="o">[-+]?</span> <span class="nx">digits</span><span class="o">)?</span>
+
+<span class="nx">string</span> <span class="o">:</span><span class="nv">=</span> <span class="s1">&#39;&quot;&#39;</span> <span class="nx">chars</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">|</span>
+          <span class="s2">&quot;&#39;&quot;</span> <span class="nx">chars</span> <span class="s2">&quot;&#39;&quot;</span>
+
+<span class="nx">chars</span> <span class="o">:</span><span class="nv">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> <span class="o">|</span> <span class="s2">&quot;\n&quot;</span> <span class="o">|</span> <span class="s2">&quot;\r&quot;</span> <span class="o">|</span> <span class="s2">&quot;\e&quot;</span> <span class="o">|</span> <span class="s2">&quot;\\&quot;</span> <span class="o">|</span> <span class="nx">any</span><span class="o">)*</span>
+</code></pre></div>
+
+<h2 id="semantics">Semantics</h2>
+<h3 id="expressions">Expressions</h3>
+<p>An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.</p>
+<p>Expressions separated by <code>,</code> or <code>;</code> are a tuple. A tuple is itself an expression and a value.</p>
+<p>Note: tuples cannot be surrounded by parentheses; if you need to nest tuples, use the builtin function named <a class="wikilink" href="#fn_tuple">tuple</a>.</p>
+<p>This expression produces the tuple <code>(0, 1)</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nv">def</span> <span class="nx">b</span> <span class="nv">@</span><span class="o">;</span> <span class="nx">b</span><span class="o">(</span><span class="nx">a</span><span class="o">)</span>
+</code></pre></div>
+
+<h3 id="variables">Variables</h3>
+<p>Variables are single-assignment: you cannot change the value of an existing variable.</p>
+<p>Assigning to a variable with a name that already exists will create a new variable; the old variable will become unreachable.</p>
+<p>This is a legal expression that returns <code>2</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span>
+</code></pre></div>
+
+<p>This is also a legal expression, and will return a sequence of ten numbers <code>2</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="o">[</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="o">:</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">]</span>
+</code></pre></div>
+
+<h3 id="defining-functions">Defining functions</h3>
+<p>Functions can be defined with the <code>def</code> keyword. All function calls are always inlined, and recursive function calls are impossible.</p>
+<p>There are three forms for <code>def</code>:</p>
+<ul>
+<li><code>def f expr</code>: defines the functon <code>f</code>, and <code>expr</code> is an atomic value.</li>
+<li><code>def f (expr)</code>: same, but <code>expr</code> can be a tuple, including nested definitions and assignments.</li>
+<li><code>def [f expr, g expr, ...]</code>: defines two or more functions, an equivalent shortcut for <code>def f (@=@[0], expr), def g (@=@[1], expr), ...</code>. This form is intented to make it easy to give human-readable names to tuple elements. The <code>expr</code> is an atomic value and can be omitted &ndash; the simplest form is <code>def [f,g,...]</code>.</li>
+</ul>
+<h3 id="calling-functions">Calling functions</h3>
+<p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
+<p>Note, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
+<p>(See table below.)</p>
+<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$</code> with the value of <code>@</code> passed as the first argument implicitly. You must first define the function <code>$</code>. </p>
+<p>This is best demonstrated with an example. This code</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="err">$</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="nv">@</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span> <span class="o">[</span> <span class="err">$</span><span class="mi">0</span><span class="o">,</span> <span class="err">$</span><span class="mi">2</span> <span class="o">]</span>
+</code></pre></div>
+
+<p>is equivalent to this:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">),</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">]</span>
+</code></pre></div>
+
+<h3 id="operators">Operators</h3>
+<p>In order of precedence, from highest to lowest:</p>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a~b</code> <code>a[b]</code></td>
+<td>Indexing arrays, maps and tuples. See the <a class="wikilink" href="#fn_index">index</a> function. Use <code>~</code> with atomic values, while <code>[]</code> can accept tuples.</td>
+</tr>
+<tr>
+<td><code>:a</code>  <code>?a</code></td>
+<td>Syntactic sugar for the functions <a class="wikilink" href="#fn_flatten">flatten</a> and <a class="wikilink" href="#fn_filter">filter</a>, respectively.</td>
+</tr>
+<tr>
+<td><code>!a</code></td>
+<td>Bitwise NOT.</td>
+</tr>
+<tr>
+<td><code>a**b</code></td>
+<td>Exponentiation.</td>
+</tr>
+<tr>
+<td><code>a*b</code>  <code>a/b</code>  <code>a%b</code></td>
+<td>Multiplication, division, modulo.</td>
+</tr>
+<tr>
+<td><code>a+b</code>  <code>a-b</code></td>
+<td>Addition and subtraction.</td>
+</tr>
+<tr>
+<td><code>a&amp;b</code>  <code>a|b</code>  <code>a^b</code></td>
+<td>Binary AND, OR and XOR.</td>
+</tr>
+<tr>
+<td><code>f.a</code></td>
+<td>Function call. Operators above this line are assumed to be part of expression <code>a</code>.</td>
+</tr>
+<tr>
+<td><code>a==b</code> <code>a!=b</code> <code>a&lt;b</code>  <code>a&gt;b</code>  <code>a&lt;=b</code>  <code>a&gt;=b</code></td>
+<td>Comparision.</td>
+</tr>
+<tr>
+<td><code>a&amp;&amp;b</code> <code>a||b</code></td>
+<td>Equivalent to <code>&amp;</code> and <code>|</code> except with a different precedence.</td>
+</tr>
+<tr>
+<td><code>a .. b</code></td>
+<td>Pipe operator. Equivalent to <code>@=a, b</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Note that arithmetic operators will silently promote the type of the the result as needed. (Subtracting integers always results in a signed integer, adding a real results in a real, etc.)</p>
+<p>Also note that function calls will <em>not</em> promote numeric types as needed! If a function requires a signed integer, then passing in an unsigned is an error.</p>
+<p>The <code>&amp;&amp;</code> and <code>||</code> operators are there because otherwise an expression like <code>a == b &amp; c == d</code> is parsed as <code>a == (b &amp; c) == d</code> and results in a syntax error.</p>
+<p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. (See the section below about <a href="#magic-variables">magic variables</a>.)
+The following two snippets are equivalent:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">head</span><span class="o">(</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">1000</span><span class="o">)])</span>
+
+<span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">..</span> <span class="nx">head</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)</span> <span class="o">..</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">..</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span>
+</code></pre></div>
+
+<p>(The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)</p>
+<h3 id="literals">Literals</h3>
+<p>Syntax for literal number and string values:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UInt</code></td>
+<td><code>1234</code> or <code>1234u</code> or <code>0x4D2</code>. Numbers are unsigned by default. Hexadecimal notation is supported for unsigned numbers.</td>
+</tr>
+<tr>
+<td><code>Int</code></td>
+<td><code>-1234</code> or <code>1234i</code> or <code>1234s</code> or <code>1234l</code>. Numbers must be explicitly marked as signed; <code>i</code>, <code>s</code> and <code>l</code> are all equivalent syntactic sugar.</td>
+</tr>
+<tr>
+<td><code>Real</code></td>
+<td><code>+10.50</code> or <code>1.</code> or <code>4.4e-10</code>. Scientific notation and trailing dot are supported.</td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td><code>'chars'</code> or <code>"chars"</code>. Supported escape sequences: <code>\t</code> <code>\n</code> <code>\r</code> <code>\e</code> <code>\\</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="magic-variables">Magic variables</h3>
+<p>The magic variable <code>@</code> is used by the language to denote the input value in generator expressions and function definitions.</p>
+<p>Note that in all other respects this variable acts like a normal variable.</p>
+<p>The special function named <code>$</code> can be called without writing out <code>@</code> as the first argument explicitly. (See the section <a href="#calling-functions">calling functions</a> above.)</p>
+<h3 id="generator-expressions">Generator expressions</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Syntax</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Seq</code></td>
+<td><code>[ elt : input ]</code></td>
+</tr>
+<tr>
+<td><code>Arr</code></td>
+<td><code>[. elt : input .]</code></td>
+</tr>
+<tr>
+<td><code>Map</code></td>
+<td><code>{ key -&gt; value : input }</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>: input</code> part can be omitted, in which case <code>: @</code> will be silently assumed. For maps the <code>-&gt; key</code> can also be omitted, in which case <code>-&gt; 1</code> will be assumed.</p>
+<p>The right-hand argument <code>input</code> will be converted to a sequence of values automatically. If it is a single value, then a sequence of one element will be assumed.</p>
+<p>The keyword <code>try</code> can be inserted after the opening bracket; fatal errors while generating elements will then be silently swallowed. (See <a href="#error-handling">error handling</a>.)</p>
+<p>See also <a href="#recursion">recursion</a> for a generator expression for complex single values.</p>
+<p>The left- and right-hand sides can include assigment and definition statements. Anything defined or assigned in a generator expression is limited in scope only to this generator expression.</p>
+<p>Thus, this code</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">,</span> <span class="nv">@</span> <span class="o">],</span> <span class="nx">a</span>
+</code></pre></div>
+
+<p>Will result in an &lsquo;undefined variable&rsquo; error.</p>
+<p><strong>Note</strong>: There is a special shortcut syntax for filtering sequences: <code>[/ a ]</code> is equivalent to <code>[try if(a, @)]</code>. (Here <code>a</code> must be an atomic expression; that is, tuples, assignments and definitions are not allowed inside <code>[/ ... ]</code>. A right-hand side argument like <code>[/ a : b]</code> is also allowed.)</p>
+<h2 id="builtin-functions">Builtin functions</h2>
+<p>Listed alphabetically.</p>
+<dl>
+<dt id="fn_abs">abs</dt>
+<dd>Computes absolute value.<br>
+Usage:<br>
+<code>abs Int -&gt; Int</code><br>
+<code>abs Real -&gt; Real</code></dd>
+<dt id="fn_add"><code>add</code></dt>
+<dd>Adds the arguments. Equivalent to <code>sum.seq(...)</code> See also <code>sum</code>, <code>mul</code>, <code>product</code>.<br>
+Usage:<br>
+<code>add Number, ... -&gt; Number</code></dd>
+<dt id="fn_and">and</dt>
+<dd>Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to <code>a &amp; b &amp; c ...</code>.  See also <a class="wikilink" href="#fn_or">or</a>.<br>
+Usage:<br>
+<code>and Integer, Integer... -&gt; UInt</code></dd>
+<dt id="fn_array">array</dt>
+<dd>Stores a sequence or map or atomic value into an array. See also <a class="wikilink" href="#fn_sort">sort</a> for a version of this function with sorting. See also: <a class="wikilink" href="#fn_iarray">iarray</a>.<br>
+Usage:<br>
+<code>array Map[a,b] -&gt; Arr[(a,b)]</code><br>
+<code>array Seq[a] -&gt; Arr[a]</code><br>
+<code>array a, ... -&gt; Arr[a]</code> &ndash; returns an array with the input elements.<br>
+<strong>Note:</strong> when arrays are used as values in a map, they will concatenate. (See <a href="#aggregators">aggregators</a> below for details.)</dd>
+<dt id="fn_avg">avg</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_mean">mean</a>.</dd>
+<dt id="fn_box">box</dt>
+<dd>Remembers a value. Returns a &lsquo;box&rsquo;, which is a tuple of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument.<br>
+Usage:<br>
+<code>box UInt, a -&gt; (a,)</code></dd>
+<dt id="fn_bucket">bucket</dt>
+<dd>Return a bucket key. <code>bucket(x, a, b, n)</code> will split the interval <code>[a, b]</code> into <code>n</code> equal sub-intervals and return <code>x</code> rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: <a class="wikilink" href="#fn_hist">hist</a>.<br>
+Usage:<br>
+<code>bucket Number, Number, Number, UInt -&gt; Number</code> &ndash; the first three arguments must be the same numeric type.</dd>
+<dt id="fn_bytes">bytes</dt>
+<dd>Accepts a string and returns an array of integers representing the bytes in the string. <em>Warning</em>: this function is not Unicode-aware and assumes the string is an ASCII bytestream.<br>
+Usage:<br>
+<code>bytes String -&gt; Arr[UInt]</code></dd>
+<dt id="fn_case">case</dt>
+<dd>A switch/case function. The first argument is compared to every argument at position <code>n+1</code>, and if they compare equal, the argument at position <code>n+2</code> is returned. If none match equal, then the last argument is returned. See also: <a class="wikilink" href="#fn_if">if</a>.<br>
+Example: <code>[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]</code> returns <code>a b c c</code>.<br>
+Usage:<br>
+<code>case a,a,b,...,b -&gt; b</code></dd>
+<dt id="fn_cat">cat</dt>
+<dd>Concatenates strings.<br>
+Usage:<br>
+<code>cat String,... -&gt; String</code>. At least one string argument is required.</dd>
+<dt id="fn_ceil">ceil</dt>
+<dd>Rounds a floating-point number to the smallest integer that is greater than the input value.<br>
+Usage:<br>
+<code>ceil Real -&gt; Real</code></dd>
+<dt id="fn_combo">combo</dt>
+<dd>Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: <code>zip</code>.<br>
+Example: <code>combo(array(0,1), array(0,1))</code> returns a sequence of all possible pairs of bits.<br>
+Usage:<br>
+<code>combo Arr[Number], ... -&gt; Seq[(Number,...)]</code><br>
+<code>combo Arr[String], ... -&gt; Seq[(String,...)]</code></dd>
+<dt id="fn_cos">cos</dt>
+<dd>The cosine function.<br>
+Usage:<br>
+<code>cos Number -&gt; Real</code></dd>
+<dt id="fn_count">count</dt>
+<dd>Counts the number of elements.<br>
+Usage:<br>
+<code>count None -&gt; Seq[UInt]</code> &ndash; returns an infinite sequence that counts from 1 to infinity.<br>
+<code>count UInt -&gt; Seq[UInt]</code> &ndash; returns a sequence that counts from 1 to the supplied argument.<br>
+<code>count Number, Number, Number</code> &ndash; returns a sequence of numbers from <code>a</code> to <code>b</code> with increment <code>c</code>. All three arguments must be the same numeric type.<br>
+<code>count String -&gt; UInt</code> &ndash; returns the number of bytes in the string.<br>
+<code>count Seq[a] -&gt; UInt</code> &ndash; returns the number of elements in the sequence. (<em>Warning</em>: counting the number of elements will consume the sequence!)<br>
+<code>count Map[a] -&gt; UInt</code> &ndash; returns the number of keys in the map.<br>
+<code>count Arr[a] -&gt; UInt</code> &ndash; returns the number of elements in the array.</dd>
+<dt id="fn_cut">cut</dt>
+<dd>Splits a string using a delimiter. See also <a class="wikilink" href="#fn_recut">recut</a> for splitting with a regular expression.<br>
+Usage:<br>
+<code>cut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a delimiter.<br>
+<code>cut String, String, Integer -&gt; String</code> &ndash; calling <code>cut(a,b,n)</code> is equivalent to <code>cut(a,b)[n]</code>, except much faster.<br>
+<code>cut Seq[String], String -&gt; Seq[Arr[String]]</code> &ndash; equivalent to <code>[ cut(@,delim) : seq ]</code>.</dd>
+<dt id="fn_date">date</dt>
+<dd>Converts a UNIX timestamp to a textual representation of a UTC date.<br>
+Usage:<br>
+<code>date Int -&gt; String</code> &ndash; returns a UTC date in the <code>"YYYY-MM-DD"</code> format.</dd>
+<dt id="fn_datetime">datetime</dt>
+<dd>Converts a UNIX timestamp to a textual representation of a UTC date and time.<br>
+Usage:<br>
+<code>datetime Int -&gt; String</code> &ndash; returns a UTC date and time in the <code>"YYYY-MM-DD HH:MM:SS"</code> format.</dd>
+<dt id="fn_e">e</dt>
+<dd>Returns the number <em>e</em>.<br>
+Usage:<br>
+<code>e None -&gt; Real</code></dd>
+<dt id="fn_eq">eq</dt>
+<dd>Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.<br>
+Usage:<br>
+<code>eq a,a,... -&gt; UInt</code></dd>
+<dt id="fn_exp">exp</dt>
+<dd>The exponentiation function. Calling <code>exp(a)</code> is equivalent to <code>e()**a</code>.<br>
+Usage:<br>
+<code>exp Number -&gt; Real</code></dd>
+<dt id="fn_explode">explode</dt>
+<dd>Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. Equivalent to <code>x=@, [ glue(@, x) ]</code>.<br>
+Usage:<br>
+<code>explode Seq[a] -&gt; Seq[Seq[a]]</code></dd>
+<dt id="fn_file">file</dt>
+<dd>Opens a file and returns the lines in the file as a sequence of strings. (This allows a <code>tab</code> expression to process several files instead of just one.)<br>
+Usage:<br>
+<code>file String -&gt; Seq[String]</code></dd>
+<dt id="fn_filter">filter</dt>
+<dd>Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: <a class="wikilink" href="#fn_while">while</a>, <a class="wikilink" href="#fn_until">until</a>.<br>
+Usage:<br>
+<code>filter Seq[(Integer,a...) -&gt; Seq[(a...)]</code></dd>
+<dt id="fn_find">find</dt>
+<dd>Finds a substring match in a string. The first argument is the string to search in, the second argument is the substring. Returns an array of one element containing the substring if found, and an empty array otherwise. See also: <a class="wikilink" href="#fn_grep">grep</a>, <a class="wikilink" href="#fn_grepif">grepif</a>, <a class="wikilink" href="#fn_findif">findif</a> for the rationale.<br>
+Usage:<br>
+<code>find String, String -&gt; Arr[String]</code></dd>
+<dt id="fn_findif">findif</dt>
+<dd>Filter strings that contain a substring. See also: <a class="wikilink" href="#fn_grep">grep</a>, <a class="wikilink" href="#fn_grepif">grepif</a>, <a class="wikilink" href="#fn_find">find</a>.<br>
+Usage:<br>
+<code>findif String, String -&gt; UInt</code> &ndash; returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to <code>count(find(a,b)) != 0u</code>, except much faster.<br>
+<code>findif Seq[String], String -&gt; Seq[String]</code> &ndash; returns a sequence of only those strings that have a substring match. Equivalent to <code>?[ findif(@,b), @ : a ]</code>.</dd>
+<dt id="fn_first">first</dt>
+<dd>Return the first element in a pair, map or sequence or pairs. See also: <a class="wikilink" href="#fn_second">second</a>.<br>
+Usage:<br>
+<code>first a,b -&gt; a</code><br>
+<code>first Map[a,b] -&gt; Seq[a]</code><br>
+<code>first Seq[(a,b)] -&gt; Seq[a]</code></dd>
+<dt id="fn_flatten">flatten</dt>
+<dd>Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.<br>
+Usage:<br>
+<code>flatten Seq[ Seq[a] ] -&gt; Seq[a]</code><br>
+<code>flatten Seq[ Arr[a] ] -&gt; Seq[a]</code><br>
+<code>flatten Seq[ Map[a,b] ] -&gt; Seq[(a,b)]</code><br>
+<code>flatten Seq[a] -&gt; Seq[a]</code> &ndash; sequences that are already flat will be returned unchanged. (Though at a performance cost.)</dd>
+<dt id="fn_flip">flip</dt>
+<dd>Given a sequence of pairs or a map, returns a sequence where the pair elements are swapped.<br>
+Usage:<br>
+<code>flip Seq[(a,b)] -&gt; Seq[(b,a)]</code><br>
+<code>flip Map[a,b] -&gt; Seq[(b,a)]</code></dd>
+<dt id="fn_floor">floor</dt>
+<dd>Rounds a floating-point number to the greatest integer that is less than the input value.<br>
+Usage:<br>
+<code>floor Real -&gt; Real</code></dd>
+<dt id="fn_get">get</dt>
+<dd>Accesses map or array elements (like <a class="wikilink" href="#fn_index">index</a>), but returns a default value if the key is not found in the map or if the index is out of bounds. (Unlike <a class="wikilink" href="#fn_index">index</a> which throws an exception.)<br>
+Usage:<br>
+<code>get Map[a,b], a, b -&gt; b</code> &ndash; returns the element stored in the map with the given key, or the third argument if the key is not found.<br>
+<code>get Arr[a], UInt, a -&gt; a</code> &ndash; returns the element at the given index, or the third argument if the index is out of bounds.</dd>
+<dt id="fn_glue">glue</dt>
+<dd>Adds an element to the head of a sequence. <code>glue(1, seq(2, 3))</code> is equivalent to <code>seq(1, 2, 3)</code>. See also: <a class="wikilink" href="#fn_take">take</a>, <a class="wikilink" href="#fn_peek">peek</a>.<br>
+Usage:<br>
+<code>glue a, Seq[a] -&gt; Seq[a]</code></dd>
+<dt id="fn_gmtime">gmtime</dt>
+<dd>Converts a UNIX timestamp to a UTC date and time.<br>
+Usage:<br>
+<code>gmtime Int -&gt; Int, Int, Int, Int, Int, Int</code> &ndash; returns year, month, day, hour, minute, second.</dd>
+<dt id="fn_grep">grep</dt>
+<dd>Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax. See also: <a class="wikilink" href="#fn_grepif">grepif</a>, <a class="wikilink" href="#fn_find">find</a>, <a class="wikilink" href="#fn_findif">findif</a>.<br>
+Usage:<br>
+<code>grep String, String -&gt; Arr[String]</code></dd>
+<dt id="fn_grepif">grepif</dt>
+<dd>Filter strings according to a regular expression. See also: <a class="wikilink" href="#fn_grep">grep</a>, <a class="wikilink" href="#fn_find">find</a>, <a class="wikilink" href="#fn_findif">findif</a>.<br>
+Usage:<br>
+<code>grepif String, String -&gt; UInt</code> &ndash; returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to <code>count(grep(a,b)) != 0u</code>, except much faster.<br>
+<code>grepif Seq[String], String -&gt; Seq[String]</code> &ndash; returns a sequence of only those strings that have regular expression matches. Equivalent to <code>?[ grepif(@,b), @ : a ]</code>.</dd>
+<dt id="fn_has">has</dt>
+<dd>Checks for existence in a map or array.<br>
+Usage:<br>
+<code>has Map[a,b], a -&gt; UInt</code> &ndash; returns 1 if a key exists in the map, 0 otherwise. The first argument is the map, the second argument is the key to check.<br>
+<code>has Arr[a], a -&gt; UInt</code> &ndash; returns 1 if a value is in the array, 0 otherwise. The first argument is the array, the second argument is the value. Equivalent to <code>has(map.zip(seq.a, count()), b)</code>.</dd>
+<dt id="fn_hash">hash</dt>
+<dd>Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.<br>
+Usage:<br>
+<code>hash a -&gt; UInt</code></dd>
+<dt id="fn_head">head</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: <a class="wikilink" href="#fn_skip">skip</a>, <a class="wikilink" href="#fn_stripe">stripe</a>.<br>
+Usage:<br>
+<code>head Seq[a], UInt -&gt; Seq[a]</code><br>
+<code>head Arr[a], UInt -&gt; Seq[a]</code></dd>
+<dt id="fn_hex">hex</dt>
+<dd>Marks the given unsigned integer such that it is output in hexadecimal.<br>
+Usage:<br>
+<code>hex UInt -&gt; UInt</code></dd>
+<dt id="fn_hist">hist</dt>
+<dd>Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: <a class="wikilink" href="#fn_bucket">bucket</a>.  </dd>
+<dd>Usage:<br>
+<code>hist Arr[Number], UInt -&gt; Arr[(Real,UInt)]</code>  </dd>
+<dt id="fn_iarray">iarray</dt>
+<dd>Exactly equivalent to <a class="wikilink" href="#fn_array">array</a>, except when printing the elements will be separated with a <code>;</code> instead of a newline.<br>
+Usage:<br>
+<code>iarray Map[a,b] -&gt; Arr[(a,b)]</code><br>
+<code>iarray Seq[a] -&gt; Arr[a]</code><br>
+<code>iarray a, ... -&gt; Arr[a]</code><br>
+<code>iarray Arr[a] -&gt; Arr[a]</code></dd>
+<dt id="fn_if">if</dt>
+<dd>Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
+<em>Note</em>: this is not a true conditional control structure, since all three arguments are always evaluated.<br>
+Usage:<br>
+<code>if Integer, a, a -&gt; a</code><br>
+<code>if Integer, a -&gt; a</code> &ndash; this alternative form throws an error if the first integer argument is 0. Useful for error checking or for sequences with the <code>try</code> clause.</dd>
+<dt id="fn_index">index</dt>
+<dd>Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.<br>
+Usage:<br>
+<code>index Arr[a], UInt -&gt; a</code> &ndash; returns element from the array, using a 0-based index.<br>
+<code>index Arr[a], Int -&gt; a</code> &ndash; negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.<br>
+<code>index Arr[a], Real -&gt; a</code> &ndash; returns an element such that 0.0 is the first element of the array and 1.0 is the last.<br>
+<code>index Map[a,b], a -&gt; b</code> &ndash; returns the element stored in the map with the given key. It is an error if the key is not found; see <a class="wikilink" href="#fn_get">get</a> for a version that returns a default value instead.<br>
+<code>index (a,b,...), UInt</code> &ndash; returns an element from a tuple.<br>
+<code>index Arr[a], Number, Number -&gt; Arr[a]</code> &ndash; returns a sub-array from an array, <em>including</em> the end element.
+<code>index String, Integer, Integer -&gt; String</code> &ndash; returns a substring from a string, as with the array slicing above. <em>Note:</em> string indexes refer to <em>bytes</em>, <code>tab</code> is not Unicode-aware.</dd>
+<dt id="fn_int">int</dt>
+<dd>Converts an unsigned integer, floating-point value or string into a signed integer.<br>
+Usage:<br>
+<code>int UInt -&gt; Int</code><br>
+<code>int Real -&gt; Int</code><br>
+<code>int String -&gt; Int</code><br>
+<code>int String, Integer -&gt; Int</code> &ndash; tries to convert the string to an integer; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_join">join</dt>
+<dd>Concatenates the elements in a string array or sequence using a delimiter.<br>
+Usage:<br>
+<code>join Arr[String], String -&gt; String</code><br>
+<code>join Seq[String], String -&gt; String</code><br>
+<code>join String, Arr[String], String, String -&gt; String</code> &ndash; adds a prefix and suffix as well. Equivalent to <code>cat(p, join(a, d), s)</code>.<br>
+<code>join String, Seq[String], String, String -&gt; String</code></dd>
+<dt id="fn_lines">lines</dt>
+<dd>Returns its arguments as a tuple, except that each element will be printed on its own line. See also: <a class="wikilink" href="#fn_tuple">tuple</a>.<br>
+Usage:<br>
+<code>lines (a,b,...) -&gt; (a,b,...)</code></dd>
+<dt id="fn_log">log</dt>
+<dd>The natural logarithm function.<br>
+Usage:<br>
+<code>log Number -&gt; Real</code></dd>
+<dt id="fn_lsh">lsh</dt>
+<dd>Bit shift left; like the C <code>&lt;&lt;</code> operator. (See also <a class="wikilink" href="#fn_rsh">rsh</a>.)<br>
+Usage:<br>
+<code>lsh Int, Integer -&gt; Int</code><br>
+<code>lsh UInt, Integer -&gt; UInt</code></dd>
+<dt id="fn_map">map</dt>
+<dd>Stores a sequence of pairs or a single pair into a map.<br>
+Usage:<br>
+<code>map Seq[(a,b)] -&gt; Map[a,b]</code><br>
+<code>map (a,b) -&gt; Map[a,b]</code> &ndash; returns a map with one element.<br>
+<strong>Note:</strong> when maps are used as values in other maps, they will merge. (See <a href="#aggregators">aggregators</a> below for details.)</dd>
+<dt id="fn_max">max</dt>
+<dd>Finds the maximum element in a sequence or array. See also: <a class="wikilink" href="#fn_min">min</a>.<br>
+Usage:<br>
+<code>max Arr[a] -&gt; a</code><br>
+<code>max Seq[a] -&gt; a</code><br>
+<code>max Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.</dd>
+<dt id="fn_mean">mean</dt>
+<dd>Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: <a class="wikilink" href="#fn_var">var</a> and <a class="wikilink" href="#fn_stdev">stdev</a>.<br>
+Usage:<br>
+<code>mean Arr[Number] -&gt; Real</code><br>
+<code>mean Seq[Number] -&gt; Real</code><br>
+<code>mean Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.</dd>
+<dt id="fn_merge">merge</dt>
+<dd>Aggregates a sequence of values. <code>merge(a)</code> is equivalent to <code>{ 1 -&gt; @ : a }~1</code>, except faster. See also <a href="#aggregators">aggregators</a>.<br>
+Usage:<br>
+<code>merge Seq[a] -&gt; a</code></dd>
+<dt id="fn_min">min</dt>
+<dd>Finds the minimum element in a sequence or array. See also: <a class="wikilink" href="#fn_max">max</a>.<br>
+Usage:<br>
+<code>min Arr[a] -&gt; a</code><br>
+<code>min Seq[a] -&gt; a</code><br>
+<code>min Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.</dd>
+<dt id="fn_mul"><code>mul</code></dt>
+<dd>Multiplies the arguments. Equivalent to <code>product.seq(...)</code> See also <code>add</code>, <code>sum</code>, <code>product</code>.<br>
+Usage:<br>
+<code>mul Number, ... -&gt; Number</code></dd>
+<dt id="fn_ngrams">ngrams</dt>
+<dd>Similar to <a class="wikilink" href="#fn_pairs">pairs</a> and <a class="wikilink" href="#fn_triplets">triplets</a>, except returns a sequence of arrays of length N instead of tuples.<br>
+Usage:<br>
+<code>ngrams Seq[a], UInt -&gt; Seq[Arr[a]]</code></dd>
+<dt id="fn_normal">normal</dt>
+<dd>Returns random numbers from the normal (gaussian) distribution. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
+Usage:<br>
+<code>normal None -&gt; Real</code> &ndash; returns a random number with mean <code>0</code> and standard deviation <code>1</code>.<br>
+<code>normal Real, Real -&gt; Real</code> &ndash; same, but with mean and standard deviation of <code>a</code> and <code>b</code>.</dd>
+<dt id="fn_now">now</dt>
+<dd>Returns the current UNIX timestamp.<br>
+Usage:<br>
+<code>now None -&gt; Int</code></dd>
+<dt id="fn_open">open</dt>
+<dd>Same as <a class="wikilink" href="#fn_file">file</a>.</dd>
+<dt id="fn_or">or</dt>
+<dd>Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to <code>a | b | c ...</code>.  See also <a class="wikilink" href="#fn_and">and</a>.<br>
+Usage:<br>
+<code>or (Integer, Integer...) -&gt; UInt</code></dd>
+<dt id="fn_pairs">pairs</dt>
+<dd>Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given <code>[ 1, 2, 3, 4 ]</code> will return <code>[ (1, 2), (2, 3), (3, 4) ]</code>. (See also: <a class="wikilink" href="#fn_triplets">triplets</a> and <a class="wikilink" href="#fn_ngrams">ngrams</a>.)<br>
+Usage:<br>
+<code>pairs Seq[a] -&gt; Seq[(a,a)]</code></dd>
+<dt id="fn_peek">peek</dt>
+<dd>Given a sequence, return a pair of its first element and the sequence itself with the first element reattached. Equivalent to <code>h=take.@, h, glue(h, @)</code>. See also: <a class="wikilink" href="#fn_take">take</a>, <a class="wikilink" href="#fn_glue">glue</a>.<br>
+Usage:<br>
+<code>peek Seq[a] -&gt; (a, Seq[a])</code></dd>
+<dt id="fn_pi">pi</dt>
+<dd>Return the number <em>pi</em>.<br>
+Usage:<br>
+<code>pi None -&gt; Real</code></dd>
+<dt id="fn_product"><code>product</code></dt>
+<dd>Computes a product of the elements of a sequence or array. See also <code>sum</code>, <code>add</code>, <code>mul</code>.<br>
+Usage:<br>
+<code>product Arr[Number] -&gt; Number</code><br>
+<code>product Seq[Number] -&gt; Number</code><br>
+<code>product Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
+<dt id="fn_rand">rand</dt>
+<dd>Returns random numbers from the uniform distribution. (See also: <a class="wikilink" href="#fn_normal">normal</a>, <a class="wikilink" href="#fn_sample">sample</a>.)<br>
+Usage:<br>
+<code>rand None -&gt; Real</code> &ndash; returns a random real number from the range <code>[0, 1)</code>.<br>
+<code>rand Real, Real -&gt; Real</code> &ndash; same, but with the range <code>[a, b)</code>.<br>
+<code>rand UInt, UInt -&gt; UInt</code><br>
+<code>rand Int, Int -&gt; Int</code> &ndash; returns a random number from the integer range <code>[a, b]</code>.</dd>
+<dt id="fn_real">real</dt>
+<dd>Converts an unsigned integer, signed integer or string into a floating-point value.<br>
+Usage:<br>
+<code>real UInt -&gt; Real</code><br>
+<code>real Int -&gt; Real</code><br>
+<code>real String -&gt; Real</code><br>
+<code>real String, Real -&gt; Real</code> &ndash; tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_recut">recut</dt>
+<dd>Splits a string using a regular expression. See also <a class="wikilink" href="#fn_cut">cut</a> for splitting with a byte string.<br>
+<code>recut String, String -&gt; Arr[String]</code> &ndash; returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.<br>
+<code>recut String, String, UInt -&gt; String</code> &ndash; calling <code>recut(a,b,n)</code> is equivalent to <code>recut(a,b)[n]</code>, except faster.<br>
+<code>recut Seq[String], String -&gt; Seq[Arr[String]]</code> &ndash; equivalent to <code>[ recut(@,delim) : seq ]</code>.</dd>
+<dt id="fn_replace">replace</dt>
+<dd>Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.<br>
+Usage:<br>
+<code>replace String, String, String -&gt; String</code></dd>
+<dt id="fn_resplit">resplit</dt>
+<dd>A synonym for <a class="wikilink" href="#fn_recut">recut</a>.</dd>
+<dt id="fn_reverse">reverse</dt>
+<dd>Reverses the elements in an array.<br>
+Usage:<br>
+<code>reverse Arr[a] -&gt; Arr[a]</code></dd>
+<dt id="fn_round">round</dt>
+<dd>Rounds a floating-point number to the nearest integer.<br>
+Usage:<br>
+<code>round Real -&gt; Real</code></dd>
+<dt id="fn_rsh">rsh</dt>
+<dd>Bit shift right; like the C <code>&gt;&gt;</code> operator. (See also <a class="wikilink" href="#fn_lsh">lsh</a>.)<br>
+Usage:<br>
+<code>rsh Int, Integer -&gt; Int</code><br>
+<code>rsh UInt, Integer -&gt; UInt</code></dd>
+<dt id="fn_sample">sample</dt>
+<dd>Sample from a sequence of atomic values, without replacement. (See also: <a class="wikilink" href="#fn_rand">rand</a>, <a class="wikilink" href="#fn_normal">normal</a>.)<br>
+Usage:<br>
+<code>sample UInt, Seq[a] -&gt; Arr[a]</code> &ndash; the first argument is the sample size.</dd>
+<dt id="fn_second">second</dt>
+<dd>Return the second element in a pair, map or sequence or pairs. See also: <a class="wikilink" href="#fn_first">first</a>.<br>
+Usage:<br>
+<code>second a,b -&gt; b</code><br>
+<code>second Map[a,b] -&gt; Seq[b]</code><br>
+<code>second Seq[(a,b)] -&gt; Seq[b]</code></dd>
+<dt id="fn_seq">seq</dt>
+<dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <a class="wikilink" href="#fn_tabulate">tabulate</a>.)<br>
+If one argument is passed, then it is equivalent to <code>[@ : arg]</code>.<br>
+Usage:<br>
+<code>seq (a,...),... -&gt; Seq[a]</code><br>
+<code>seq Arr[a] -&gt; Seq[a]</code><br>
+<code>seq Map[a,b] -&gt; Seq[(a,b)]</code><br>
+<code>seq a -&gt; Seq[a]</code></dd>
+<dt id="fn_sin">sin</dt>
+<dd>The sine function.<br>
+Usage:<br>
+<code>sin Number -&gt; Real</code></dd>
+<dt id="fn_skip">skip</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence where the first N elements are ignored. See also: <a class="wikilink" href="#fn_head">head</a>, <a class="wikilink" href="#fn_stripe">stripe</a>.<br>
+Usage:<br>
+<code>skip Seq[a], UInt -&gt; Seq[a]</code><br>
+<code>skip Arr[a], UInt -&gt; Seq[a]</code></dd>
+<dt id="fn_sort">sort</dt>
+<dd>Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also <a class="wikilink" href="#fn_array">array</a>, a version of this function without sorting.<br>
+Usage:<br>
+<code>sort Arr[a] -&gt; Arr[a]</code><br>
+<code>sort Map[a,b] -&gt; Arr[(a,b)]</code><br>
+<code>sort Seq[a] -&gt; Arr[a]</code><br>
+<code>sort a, ... -&gt; Arr[a]</code> &ndash; returns an array with the input elements, except sorted.<br>
+<strong>Note:</strong> when sorted arrays are used as values in a map, they will concatenate, and sort. (See <a href="#markdown-header-aggregators">aggregators</a> below for details.)</dd>
+<dt id="fn_sorted">sorted</dt>
+<dd>Exactly like <a class="wikilink" href="#fn_sort">sort</a>, except in the case when there are multiple arguments. <a class="wikilink" href="#fn_sorted">sorted</a> treats the input arguments as a tuple and returns an array of one element; <a class="wikilink" href="#fn_sort">sort</a> treats the input arguments as a list of values to sort and returns an array of several elements. Use <a class="wikilink" href="#fn_sorted">sorted</a> as an <a href="#markdown-header-aggregators">aggregator</a> in a map.<br>
+Usage:<br>
+<code>sorted a, b, ... -&gt; Arr[(a,b,...)]</code></dd>
+<dt id="fn_split">split</dt>
+<dd>A synonym for <a class="wikilink" href="#fn_cut">cut</a>.</dd>
+<dt id="fn_sqrt">sqrt</dt>
+<dd>The square root function.<br>
+Usage:<br>
+<code>sqrt Number -&gt; Real</code></dd>
+<dt id="fn_stddev">stddev</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_stdev">stdev</a>.</dd>
+<dt id="fn_stdev">stdev</dt>
+<dd>Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to <a class="wikilink" href="#fn_var">var</a>, with the difference that the square root of the result is taken. See also: <a class="wikilink" href="#fn_mean">mean</a>.<br>
+Usage:<br>
+<code>stdev Arr[Number] -&gt; Real</code><br>
+<code>stdev Seq[Number] -&gt; Real</code><br>
+<code>stdev Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
+<dt id="fn_string">string</dt>
+<dd>Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.<br>
+Usage:<br>
+<code>string UInt -&gt; String</code><br>
+<code>string Int -&gt; String</code><br>
+<code>string Real -&gt; String</code><br>
+<code>string Arr[UInt] -&gt; String</code> &ndash; <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
+<dt id="fn_stripe">stripe</dt>
+<dd>Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: <a class="wikilink" href="#fn_head">head</a>, <a class="wikilink" href="#fn_skip">skip</a>.<br>
+Usage:<br>
+<code>stripe Seq[a], UInt -&gt; Seq[a]</code><br>
+<code>stripe Arr[a], UInt -&gt; Seq[a]</code></dd>
+<dt id="fn_sum">sum</dt>
+<dd>Computes a sum of the elements of a sequence or array. See also <code>add</code>, <code>mul</code>, <code>product</code>.<br>
+Usage:<br>
+<code>sum Arr[Number] -&gt; Number</code><br>
+<code>sum Seq[Number] -&gt; Number</code><br>
+<code>sum Number -&gt; Number</code> &ndash; <strong>Note:</strong> this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.</dd>
+<dt id="fn_take">take</dt>
+<dd>Returns the first element in a sequence. Equivalent to <code>array(head(@, 1))[0]</code>. See also: <a class="wikilink" href="#fn_peek">peek</a>, <a class="wikilink" href="#fn_glue">glue</a>.<br>
+Usage:<br>
+<code>take Seq[a] -&gt; a</code> &ndash; gives an error on empty sequence.<br>
+<code>take Seq[a], a -&gt; a</code> &ndash; returns the second argument on empty sequence.</dd>
+<dt id="fn_tan">tan</dt>
+<dd>The tangent function.<br>
+Usage:<br>
+<code>tan Number -&gt; Real</code></dd>
+<dt id="fn_tabulate">tabulate</dt>
+<dd>A synonym for <a class="wikilink" href="#fn_seq">seq</a>.</dd>
+<dt id="fn_time">time</dt>
+<dd>Converts a UNIX timestamp to a textual representation of a UTC time.<br>
+Usage:<br>
+<code>time Int -&gt; String</code> &ndash; returns a UTC time in the <code>"HH:MM:SS"</code> format.</dd>
+<dt id="fn_tolower">tolower</dt>
+<dd>Converts to bytes of a string to lowercase. <em>Note:</em> only works on ASCII data, Unicode is not supported.<br>
+Usage:<br>
+<code>tolower String -&gt; String</code></dd>
+<dt id="fn_toupper">toupper</dt>
+<dd>Converts to bytes of a string to uppercase. <em>Note:</em> only works on ASCII data, Unicode is not supported.<br>
+Usage:<br>
+<code>toupper String -&gt; String</code></dd>
+<dt id="fn_triplets">triplets</dt>
+<dd>Similar to <a class="wikilink" href="#fn_pairs">pairs</a>, except returns triplets of before-previous, previous and current elements. (See also: <a class="wikilink" href="#fn_pairs">pairs</a> and <a class="wikilink" href="#fn_ngrams">ngrams</a>.)<br>
+Usage:<br>
+<code>triplets Seq[a] -&gt; Seq[(a,a,a)]</code></dd>
+<dt id="fn_tuple">tuple</dt>
+<dd>Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples. See also: <a class="wikilink" href="#fn_lines">lines</a>.<br>
+Usage:<br>
+<code>tuple (a,b,...) -&gt; (a,b,...)</code></dd>
+<dt id="fn_uint">uint</dt>
+<dd>Converts a signed integer, floating-point number or string to an unsigned integer.<br>
+Usage:<br>
+<code>uint Int -&gt; UInt</code><br>
+<code>uint Real -&gt; UInt</code><br>
+<code>uint String -&gt; UInt</code><br>
+<code>uint String, Integer -&gt; UInt</code> &ndash; tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_uniques">uniques</dt>
+<dd>Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>.<br>
+Usage:<br>
+<code>uniques a -&gt; UInt</code></dd>
+<dt id="fn_uniques_estimate">uniques_estimate</dt>
+<dd>Returns an aggregator for estimating the number of unique values. A <a href="http://en.wikipedia.org/wiki/HyperLogLog">statistical estimator</a> is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also <a class="wikilink" href="#fn_uniques">uniques</a>.<br>
+Usage:<br>
+<code>uniques_estimate a -&gt; UInt</code></dd>
+<dt id="fn_until">until</dt>
+<dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See also: <a class="wikilink" href="#fn_filter">filter</a>, <a class="wikilink" href="#fn_while">while</a>.<br>
+Usage:<br>
+<code>until Seq[(Integer,a...)] -&gt; Seq[(a...)]</code></dd>
+<dt id="fn_url_getparam">url_getparam</dt>
+<dd>Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.<br>
+Usage:<br>
+<code>url_getparam String, String -&gt; String</code> &ndash; calling <code>url_getparam(url, key)</code> will return the first value in <code>url</code> for <code>key</code>. Example: <code>url_getparam("http://www.google.com?q=Hello%20World", "q")</code> will return <code>"Hello World"</code>.<br>
+<code>url_getparam String -&gt; Seq[(String,String)]</code> &ndash; returns a sequence of all key/value pairs in the url. Example: <code>url_getparam."&amp;one=1&amp;two=2"</code> will return a value equivalent to <code>seq(tuple("one","1"), tuple("two","2"))</code>.</dd>
+<dt id="fn_var">var</dt>
+<dd>Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: <a class="wikilink" href="#fn_mean">mean</a> and <a class="wikilink" href="#fn_stdev">stdev</a>.<br>
+Usage:<br>
+<code>var Arr[Number] -&gt; Real</code><br>
+<code>var Seq[Number] -&gt; Real</code><br>
+<code>var Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.</dd>
+<dt id="fn_variance">variance</dt>
+<dd>Synonym for <a class="wikilink" href="#fn_var">var</a>.</dd>
+<dt id="fn_while">while</dt>
+<dd>Similar to <a class="wikilink" href="#fn_filter">filter</a>, but stops the output sequence once the first filtered element is reached. See also: <a class="wikilink" href="#fn_filter">filter</a>, <a class="wikilink" href="#fn_until">until</a>.<br>
+Usage:<br>
+<code>while Seq[(Integer,a...)] -&gt; Seq[(a...)]</code></dd>
+<dt id="fn_zip">zip</dt>
+<dd>Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.<br>
+Usage:<br>
+<code>zip Seq[a], Seq[b],... -&gt; Seq[(a,b,...)]</code><br>
+<code>zip Arr[a], Arr[b],... -&gt; Seq[(a,b,...)]</code></dd>
+</dl>
+<h2 id="aggregators">Aggregators</h2>
+<p>Aggregators are functions like any other; they accept a value and return a value, though usually the result is not useful as such. What&rsquo;s important is that aggregators have a side effect: the returned value is (invisibly) marked such that it will combine in special ways when it ends up keyed in a map that already stores another element at this key.</p>
+<p>Aggregation is performed efficiently: no unnecessary temporary data structures are created and no unnecessary bookkeeping calculations are performed.</p>
+<p>Here is a list of aggregators and their effects, sorted alphabetically:</p>
+<dl>
+<dt>array, [. .]</dt>
+<dd>Arrays are implicit aggregators. When combined together under one key of a map, arrays will concatenate, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: <a class="wikilink" href="#fn_sort">sort</a>.</dd>
+<dt>avg</dt>
+<dd>Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.</dd>
+<dt>iarray</dt>
+<dd>Like <a class="wikilink" href="#fn_array">array</a> except all elements are printed on one line.</dd>
+<dt>map, { }</dt>
+<dd>Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)</dd>
+<dt>max</dt>
+<dd>Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.</dd>
+<dt>mean</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_avg">avg</a>.</dd>
+<dt>min</dt>
+<dd>Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.</dd>
+<dt>sort</dt>
+<dd>Like <a class="wikilink" href="#fn_array">array</a>, except that the resulting elements will be sorted in ascending order.</dd>
+<dt>sorted</dt>
+<dd>Like <a class="wikilink" href="#fn_sort">sort</a>, but treats multiple input arguments as a single tuple, not as a sequence of values.</dd>
+<dt>stddev</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_stddev">stddev</a>.</dd>
+<dt>stdev</dt>
+<dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: <a class="wikilink" href="#fn_var">var</a>.</dd>
+<dt>sum</dt>
+<dd>Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.</dd>
+<dt>uniques</dt>
+<dd>Accepts any value and returns a <code>UInt</code>-valued aggregator that counts the number of unique values when combined. <em>Note:</em> hashes of values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique values.</dd>
+<dt>uniques_estimate</dt>
+<dd>Like <a class="wikilink" href="#fn_uniques">uniques</a>, except that a <a href="http://en.wikipedia.org/wiki/HyperLogLog">statistical estimator</a> is used instead. The result is not exact but the estimator uses constant memory. <em>Note:</em> the estimator works better with larger counts of unique values.</dd>
+<dt>var</dt>
+<dd>Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.</dd>
+<dt>variance</dt>
+<dd>Synonymous with <a class="wikilink" href="#fn_var">var</a>.</dd>
+</dl>
+<p>An explanation of how arrays and maps are aggregated implicitly:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">map</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span><span class="o">)</span> <span class="o">:</span> <span class="nx">pairs</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">}</span>
+</code></pre></div>
+
+<p>This program will produce the intuitively obvious result &ndash; a map of maps where the leaf values are frequency counts.
+This works as expected because maps-inside-maps will automatically aggregate.</p>
+<p>Similarly for arrays:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nx">month</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">array</span><span class="o">(</span><span class="nx">day_values</span><span class="o">(</span><span class="nv">@</span><span class="o">))</span> <span class="o">:</span> <span class="nx">data</span> <span class="o">}</span>
+</code></pre></div>
+
+<p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
+<h2 id="error-handling">Error handling</h2>
+<p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.</p>
+<p>Simply put the special token <code>try</code> after the <code>[</code>, <code>{</code> or <code>[.</code> opening parenthesis to silently ignore errors instead of aborting evaluation.</p>
+<p>For example:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">try</span> <span class="nx">uint</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
+</code></pre></div>
+
+<p>will ignore any lines on the standard input that can&rsquo;t be parsed as a number.</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">first</span><span class="o">.{</span> <span class="nx">try</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot; &quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">}</span>
+</code></pre></div>
+
+<p>will output the second word from each line, and ignore all lines that don&rsquo;t contain a space character.</p>
+<h2 id="recursion">Recursion</h2>
+<p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
+<p>Consider the example of computing the factorial: given a sequence of integers, compute its product.</p>
+<p>In <code>tab</code> the factorial function looks like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nx">fac</span> <span class="o">&lt;&lt;</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">*</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">&gt;&gt;</span>
+</code></pre></div>
+
+<p>The <code>&lt;&lt; ... : ... &gt;&gt;</code> takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.</p>
+<p>An expression that looks like <code>&lt;&lt; f(@~0, @~1) : a, seq(b, c, d) &gt;&gt;</code> will be unrolled to be equivalent to this:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">a</span><span class="o">,</span> <span class="nx">b</span><span class="o">),</span> <span class="nx">c</span><span class="o">),</span> <span class="nx">d</span><span class="o">)</span>
+</code></pre></div>
+
+<p>The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.</p>
+<p>For example: calling <code>fac.3</code> from the above example results in evaluating <code>(((1 * 1) * 1) * 2) * 3</code>.</p>
+<p>Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">&lt;&lt;</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">b</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">tuple</span><span class="o">(</span><span class="nx">b</span><span class="o">,</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="o">)</span> <span class="o">:</span> <span class="nx">tuple</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">),</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">&gt;&gt;~</span><span class="mi">1</span>
+</code></pre></div>
+
+<h2 id="multi-core">Multi-core</h2>
+<p><code>tab</code> can take advantage of multi-core systems by evaluating expressions using multiple threads.</p>
+<p>Use the <code>-t</code> command-line option to enable multithreaded evaluation.</p>
+<p>Parallel evaluation is not quite automatic: <code>tab</code> uses a simple scatter/gather evaluation model. N parallel threads will evaluate a &lsquo;scatter&rsquo; expression, generating N independent sequences. A separate &lsquo;gather&rsquo; thread will then read sequentially from all N sequences and aggregate them into a single result stream.</p>
+<p>The syntax for parallel evaluation looks like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">tN</span> <span class="nx">scatter</span> <span class="o">--&gt;</span> <span class="nx">gather</span>
+</code></pre></div>
+
+<p>The <code>--&gt;</code> is a special token that separates &lsquo;scatter&rsquo; and &lsquo;gather&rsquo; expressions. </p>
+<p>Examples:</p>
+<h3 id="1_1">1.</h3>
+<div class="codehilite"><pre><span></span><code><span class="o">:[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span>
+</code></pre></div>
+
+<p>A simple expression that will search for all four-digit numbers. </p>
+<p><strong>Note:</strong> if there is no <code>--&gt;</code> token in the epxression, then a default <code>--&gt; @</code> will be automatically appended.</p>
+<p>In this case no result aggregation is done, all parallel threads will simply print what they found to standard output.</p>
+<h3 id="2_1">2.</h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">count</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">--&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span>
+</code></pre></div>
+
+<p>Same as the previous example, except that we want to count the numbers we found, instead of outputting them.
+The aggregating &lsquo;gather&rsquo; expression will compute the sum of the counts found by all of the &lsquo;scatter&rsquo; counting threads.</p>
+<p><strong>Note:</strong> the &lsquo;scatter&rsquo; threads will read from the input stream atomically; there is no danger of an input line being read twice.</p>
+<p>(A reminder that the <code>:</code> operator is equivalent to the <a class="wikilink" href="#fn_flatten">flatten</a> function.)</p>
+<h3 id="3_1">3.</h3>
+<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nv">@</span> <span class="o">::[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">}</span> <span class="o">--&gt;</span> <span class="nx">count</span><span class="o">.</span><span class="nx">map</span><span class="o">.</span><span class="nv">@</span>
+</code></pre></div>
+
+<p>Here we count the unique numbers found. The &lsquo;scatter&rsquo; threads will aggregate a subset of the input into a map with a four-digit number as the key.
+The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsquo; maps into one final map, and output the count of its keys.</p>
+<p><strong>Note:</strong> the output of each &lsquo;scatter&rsquo; thread will be a <em>sequence</em>. When a map or array is the result, it will be automatically turned into a sequence by an automatic application of <a class="wikilink" href="#fn_seq">seq</a>. (Same as with the right-hand side expression in a <code>[ ... : ... ]</code> or <code>{ ... : ... }</code> generator.)</p>
+<p>The input type of the &lsquo;gather&rsquo; thread is <code>Seq[(String, Int)]</code>.</p>
+<h2 id="builtin-function-index">Builtin function index</h2>
+<h3 id="alphabetically-by-name">Alphabetically by name:</h3>
+<p><a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_bytes">bytes</a>
+<a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_combo">combo</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_date">date</a>
+<a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_filter">filter</a>
+<a class="wikilink" href="#fn_find">find</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_get">get</a>
+<a class="wikilink" href="#fn_glue">glue</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_grep">grep</a> <a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_head">head</a>
+<a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_index">index</a> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_join">join</a>
+<a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_log">log</a> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
+<a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_open">open</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a>
+<a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_resplit">resplit</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_round">round</a>
+<a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a>
+<a class="wikilink" href="#fn_split">split</a> <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
+<a class="wikilink" href="#fn_tabulate">tabulate</a> <a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_tuple">tuple</a>
+<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a>
+<a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<h3 id="by-kind">By kind:</h3>
+<p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
+<p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_add">add</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
+<a class="wikilink" href="#fn_pi">pi</a> <a class="wikilink" href="#fn_mul">mul</a> <a class="wikilink" href="#fn_round">round</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_sqrt">sqrt</a></p>
+<p><strong>Sampling:</strong> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_combo">combo</a> <a class="wikilink" href="#fn_hist">hist</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_min">min</a> 
+<a class="wikilink" href="#fn_normal">normal</a> <a class="wikilink" href="#fn_rand">rand</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p>
+<p><strong>Strings:</strong> <a class="wikilink" href="#fn_bytes">bytes</a> <a class="wikilink" href="#fn_cat">cat</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_cut">cut</a> <a class="wikilink" href="#fn_find">find</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grep">grep</a>
+<a class="wikilink" href="#fn_grepif">grepif</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_recut">recut</a> <a class="wikilink" href="#fn_replace">replace</a> <a class="wikilink" href="#fn_resplit">resplit</a> <a class="wikilink" href="#fn_split">split</a>
+<a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a></p>
+<p><strong>Arrays:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_index">index</a>
+<a class="wikilink" href="#fn_join">join</a> <a class="wikilink" href="#fn_reverse">reverse</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<p><strong>Maps:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_second">second</a></p>
+<p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_glue">glue</a>
+<a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_take">take</a>
+<a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<p><strong>Tuples:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_tuple">tuple</a></p>
+<p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
+<p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>
+<p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grepif">grepif</a>
+<a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a></p>
+<p><strong>Files:</strong> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_open">open</a></p>
+<p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
+<p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
+<p><strong>File formats and standards:</strong> <a class="wikilink" href="#fn_url_getparam">url_getparam</a></p>
+<p><strong>Aggregators:</strong> <a class="wikilink" href="#fn_array">array</a> <a class="wikilink" href="#fn_avg">avg</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_max">max</a> <a class="wikilink" href="#fn_mean">mean</a> <a class="wikilink" href="#fn_merge">merge</a> <a class="wikilink" href="#fn_min">min</a>
+<a class="wikilink" href="#fn_product">product</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>
+<a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a></p></body></html>
