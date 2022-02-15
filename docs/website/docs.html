@@ -144,22 +144,22 @@ td+td {
 <p>Type <code>make</code>. Requires a modern C++11 compiler. Recent versions of gcc (4.9 and up) and clang will work.</p>
 <p>Copy the resulting binary of <code>tab</code> somewhere in your path.</p>
 <p>If you want to use a compiler other than gcc, e.g., clang, then type this:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">CXX</span><span class="nv">=</span><span class="nx">clang</span><span class="o">++</span> <span class="nx">make</span>
+<div class="codehilite"><pre><span></span><code>$ <span class="nv">CXX</span><span class="o">=</span>clang++ make
 </code></pre></div>
 
 <p>The official git repository is found <a href="http://bitbucket.org/tkatchev/tab">here</a>.</p>
 <h1 id="usage">Usage</h1>
 <p>The default is to read from standard input:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">cat</span> <span class="nx">mydata</span> <span class="o">|</span> <span class="nx">tab</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+<div class="codehilite"><pre><span></span><code>$ cat mydata <span class="p">|</span> tab &lt;expression&gt;...
 </code></pre></div>
 
 <p>The result will be written to standard output.</p>
 <p>You can also use the <code>-i</code> flag to read from a file:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">mydata</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+<div class="codehilite"><pre><span></span><code>$ tab -i mydata &lt;expression&gt;...
 </code></pre></div>
 
 <p>If your <code>&lt;expression&gt;</code> is too long, you can pass it in via a file, with the <code>-f</code> flag:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">f</span> <span class="nx">mycode</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
+<div class="codehilite"><pre><span></span><code>$ tab -f mycode &lt;expression&gt;...
 </code></pre></div>
 
 <p>(In this case, the contents of <code>mycode</code> will be appended to <code>&lt;expression&gt;</code>, separated with a comma.)</p>
@@ -203,26 +203,26 @@ td+td {
 <h2 id="examples">Examples</h2>
 <p>An introduction to <code>tab</code> in 10 easy steps.</p>
 <h3 id="1">1.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;@&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;@&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>cat</code>. <code>@</code> is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.</p>
 <h3 id="2">2.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;sin(pi()/2)&#39;</span>
-<span class="mi">1</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;sin(pi()/2)&#39;</span>
+<span class="m">1</span>
 
-<span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
-<span class="mi">1</span>
+$ ./tab <span class="s1">&#39;cos(1)**2+sin(1)**2&#39;</span>
+<span class="m">1</span>
 </code></pre></div>
 
 <p><code>tab</code> can also be used as a desktop calculator. <a class="wikilink" href="#fn_pi">pi</a> is a function that returns the value of <em>pi</em>, <a class="wikilink" href="#fn_cos">cos</a> and <a class="wikilink" href="#fn_sin">sin</a> are the familiar trigonometric functions. The usual mathematical infix operators are supported; <code>**</code> is the exponentiation oprator.</p>
 <h3 id="3">3.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(@)&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;count(@)&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>wc -l</code>. <a class="wikilink" href="#fn_count">count</a> is a function that will count the number of elements in a sequence, array or map. Each element in <code>@</code> (the stdin) is a line, thus counting elements in <code>@</code> means counting lines in stdin.</p>
 <h3 id="4">4.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;[ grep(@,&quot;[a-zA-Z]+&quot;) ]&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>egrep -o "[a-zA-Z]+"</code>. <a class="wikilink" href="#fn_grep">grep</a> is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings &ndash; the array of any found matches.</p>
@@ -233,14 +233,14 @@ td+td {
 <p>Thus: the expressions <code>@</code>, <code>[@]</code> and <code>[@ : @]</code> are all equivalent; they all return the input sequence of lines from stdin unchanged.</p>
 <p>The variables defined in <code>&lt;element&gt;</code> (on the left side of <code>:</code>) are <em>scoped</em>: you can read from variables defined in a higher-level scope, but any variable writes will not be visible outside of the <code>[ ... ]</code> brackets.</p>
 <h3 id="5">5.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;zip(count(), @)&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;zip(count(), @)&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>nl -ba -w1</code>; that is, it outputs stdin with a line number prefixed to each line.</p>
 <p><a class="wikilink" href="#fn_zip">zip</a> is a function that accepts two or more sequences and returns one sequence of tuples of elements from each input sequence. (The returned sequence stops when any of the input sequences stop.)</p>
 <p><a class="wikilink" href="#fn_count">count</a> when called without arguments will return an infinite sequence of successive numbers, starting with <code>1</code>.</p>
 <h3 id="6">6.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;count(:[ grep(@,&quot;\\S+&quot;) ])&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>wc -w</code>: it prints the number of words in stdin. <code>[ grep(@,"\\S+") ]</code> is an expression we have seen earlier &ndash; it returns a sequence of arrays of regex matches.</p>
@@ -249,7 +249,7 @@ td+td {
 <p>Thus, the result of <code>:[ grep(@,"\\S+") ]</code> is a sequence of strings, regex matches from stdin, ignoring line breaks. Counting elements in this sequence will count the number of matches of <code>\S+</code> in stdin.</p>
 <p><strong>Note:</strong> the unary prefix <code>:</code> operator is just straightforward syntactic sugar for the <a class="wikilink" href="#fn_flatten">flatten</a> builtin function.</p>
 <h3 id="7">7.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;{ @ : :[ grep(@,&quot;\\S+&quot;) ] }&#39;</span>
 </code></pre></div>
 
 <p>This command will output an unsorted list of unique words in stdin.</p>
@@ -259,7 +259,7 @@ td+td {
 <p>(Note: you can use whitespace creatively to make this command prettier, <code>{ @ :: [ grep(@,"\\S+") ] }</code></p>
 <p>You can also wrap the expression in <code>count(...)</code> if you just want the number of unique words in stdin.</p>
 <h3 id="8">8.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;?[ grepif(@,&quot;this&quot;), @ ]&#39;</span>
 </code></pre></div>
 
 <p>This command is equivalent to <code>grep</code>; it will output all lines from stdin having the string <code>"this"</code>.</p>
@@ -273,7 +273,7 @@ td+td {
 <p><strong>Note</strong>: the <code>?[ grepif(@,b), @ : a ]</code> expression has a shortcut convenience function, written simply as <code>grepif(a, b)</code>. Thus, one could have simply run <code>./tab 'grepif(@,"this")'</code> instead.</p>
 <p><strong>Note</strong>: there is an alternative shortcut syntax for filtering sequences: this expression could also have been written as <code>[/ grepif(@,"this") ]</code>. This expression is a shortcut for <code>[try if(grepif(@,"this"), @)]</code>. See the documentation for <a href="#generator-expressions">generator expressions</a> for details.</p>
 <h3 id="9">9.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;{ @[0] % 2 -&gt; sum(count(@[1])) : zip(count(), @) }&#39;</span>
 </code></pre></div>
 
 <p>This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.</p>
@@ -283,7 +283,7 @@ td+td {
 <p><a class="wikilink" href="#fn_sum">sum</a> is a little tricker: when applied to a number, it returns the input argument, but marks it with a special tag that causes the map comprehension to add together values marked with <a class="wikilink" href="#fn_sum">sum</a> when groupped together as part of the map&rsquo;s value.</p>
 <p>(So, for example, using <code>sum(1)</code> on the right side of <code>-&gt;</code> in a map comprehension will count the number of occurences of whatever is on the left side of <code>-&gt;</code>.)</p>
 <h3 id="10">10.</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab <span class="s1">&#39;z={ tolower(@) -&gt; sum(1) :: [grep(@,&quot;[a-zA-Z]+&quot;)] }, sort([ @~1, @~0 : z ])[-5,-1]&#39;</span>
 </code></pre></div>
 
 <p>This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.</p>
@@ -308,7 +308,7 @@ td+td {
 <p><strong>Note</strong>: the <code>[...]</code> indexing operator is straightforward syntactic sugar for the <a class="wikilink" href="#fn_index">index</a> function.</p>
 <p><strong>Note</strong>: the <code>~</code> indexing operator is equivalent to <code>[...]</code>. It&rsquo;s syntactic sugar to make chained indexes more palatable: <code>a~0~1</code> is equivalent to <code>a[0][1]</code>. (The <code>~</code> will only work for single-element indexes, not splices.)</p>
 <h3 id="bonus-track">Bonus track</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab -i req.log <span class="s1">&#39;</span>
 <span class="s1"> def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),</span>
 <span class="s1"> def uniq { 1 -&gt; stats(@) }[1],</span>
 <span class="s1"> x=[ uint.cut(@,&quot;|&quot;,3)) ],</span>
@@ -319,41 +319,41 @@ td+td {
 <span class="s1">          tuple(&quot;95-percentile&quot;, avg + 2*stdev, q[0.95]),</span>
 <span class="s1">          tuple(&quot;99-percentile&quot;, avg + 3*stdev, q[0.99]),</span>
 <span class="s1">          tuple(&quot;min and max&quot;, real(min), max))&#39;</span>
-<span class="nx">mean</span><span class="o">/</span><span class="nx">median</span>     <span class="mf">1764.54</span> <span class="mi">1728</span>
-<span class="mi">68</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">1933.15</span> <span class="mi">1840</span>
-<span class="mi">95</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2101.75</span> <span class="mi">1992</span>
-<span class="mi">99</span><span class="o">-</span><span class="nx">percentile</span>   <span class="mf">2270.35</span> <span class="mi">2419</span>
-<span class="nx">min</span> <span class="nx">and</span> <span class="nx">max</span>     <span class="mi">0</span>       <span class="mi">2508</span>
+mean/median     <span class="m">1764</span>.54 <span class="m">1728</span>
+<span class="m">68</span>-percentile   <span class="m">1933</span>.15 <span class="m">1840</span>
+<span class="m">95</span>-percentile   <span class="m">2101</span>.75 <span class="m">1992</span>
+<span class="m">99</span>-percentile   <span class="m">2270</span>.35 <span class="m">2419</span>
+min and max     <span class="m">0</span>       <span class="m">2508</span>
 </code></pre></div>
 
 <p>Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn&rsquo;t look to be normally-distributed.)</p>
 <p><strong>Note</strong>: The <code>f.x</code> notation is an alternative syntax for calling functions with only one argument; <code>f.x</code> is completely equivalent to <code>f(x)</code>. (Likewise, <code>g.f.x</code> is equivalent to <code>g(f(x))</code>.)</p>
 <p><strong>Note</strong>: The <code>def</code> keyword is for defining user-defined functions. User-defined functions in <code>tab</code> are polymorphic and bound at call time; they act like templates that are inlined when called. The names of user-defined functions have lexical scope, like variables. (However, they are stored in a separate namespace; you cannot assign a function to a variable.)</p>
 <p>You can use parentheses to delimit code blocks in function definitions. For example:</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nx">square_of_square</span> <span class="o">(</span> <span class="nv">def</span> <span class="nx">square</span> <span class="nv">@</span><span class="o">*</span><span class="nv">@</span><span class="o">;</span> <span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)*</span><span class="nx">square</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">);</span>
-<span class="nx">square_of_square</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><code>def square_of_square ( def square @*@; square(@)*square(@) );
+square_of_square(4)
 </code></pre></div>
 
 <p><strong>Note</strong>: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.</p>
 <p>Let&rsquo;s check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
-<span class="mf">250.8</span>   <span class="mi">23</span>
-<span class="mf">501.6</span>   <span class="mi">0</span>
-<span class="mf">752.4</span>   <span class="mi">1</span>
-<span class="mf">1003.2</span>  <span class="mi">0</span>
-<span class="mi">1254</span>    <span class="mi">0</span>
-<span class="mf">1504.8</span>  <span class="mi">227</span>
-<span class="mf">1755.6</span>  <span class="mi">28027</span>
-<span class="mf">2006.4</span>  <span class="mi">19986</span>
-<span class="mf">2257.2</span>  <span class="mi">490</span>
-<span class="mi">2508</span>    <span class="mi">1792</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab -i req.log <span class="s1">&#39;hist([. uint.cut(@,&quot;|&quot;,7) .], 10)&#39;</span>
+<span class="m">250</span>.8   <span class="m">23</span>
+<span class="m">501</span>.6   <span class="m">0</span>
+<span class="m">752</span>.4   <span class="m">1</span>
+<span class="m">1003</span>.2  <span class="m">0</span>
+<span class="m">1254</span>    <span class="m">0</span>
+<span class="m">1504</span>.8  <span class="m">227</span>
+<span class="m">1755</span>.6  <span class="m">28027</span>
+<span class="m">2006</span>.4  <span class="m">19986</span>
+<span class="m">2257</span>.2  <span class="m">490</span>
+<span class="m">2508</span>    <span class="m">1792</span>
 </code></pre></div>
 
 <h1 id="comparison">Comparison</h1>
 <p>A short, hands-on comparison of <code>tab</code> with equivalent shell and Python scripts.</p>
 <p>The input file is around 100000 lines of web server logs, and we want to find out the number of requests for each URL path.</p>
 <p>Here is a solution using standard shell utilities:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">cat</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39; &#39;</span> <span class="o">-</span><span class="nx">f3</span> <span class="o">|</span> <span class="nx">cut</span> <span class="o">-</span><span class="nx">d</span><span class="s1">&#39;?&#39;</span> <span class="o">-</span><span class="nx">f1</span> <span class="o">|</span> <span class="nx">sort</span> <span class="o">|</span> <span class="nx">uniq</span> <span class="o">-</span><span class="nx">c</span>
+<div class="codehilite"><pre><span></span><code>$ cat req.log <span class="p">|</span> cut -d<span class="s1">&#39; &#39;</span> -f3 <span class="p">|</span> cut -d<span class="s1">&#39;?&#39;</span> -f1 <span class="p">|</span> sort <span class="p">|</span> uniq -c
 </code></pre></div>
 
 <p>Running time: around 2.7 seconds on my particular (slow) laptop.</p>
@@ -390,105 +390,108 @@ td+td {
 
 <p>Running time: around 2.1 seconds.</p>
 <p>Here is the solution using <code>tab</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="o">./</span><span class="nx">tab</span> <span class="o">-</span><span class="nx">i</span> <span class="nx">req</span><span class="o">.</span><span class="nx">log</span> <span class="s1">&#39;{ cut(@,&quot; &quot;,2) .. cut(@,&quot;?&quot;,0) -&gt; sum(1) }&#39;</span>
+<div class="codehilite"><pre><span></span><code>$ ./tab -i req.log <span class="s1">&#39;{ cut(@,&quot; &quot;,2) .. cut(@,&quot;?&quot;,0) -&gt; sum(1) }&#39;</span>
 </code></pre></div>
 
 <p>Running time: around 0.9 seconds.</p>
 <p>Not only is <code>tab</code> faster in this case, it is also (in my opinion) more concise and idiomatic.</p>
 <h1 id="reference">Reference</h1>
 <h2 id="grammar">Grammar</h2>
-<div class="codehilite"><pre><span></span><code><span class="nx">expr</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">atomic_or_assignment</span> <span class="o">((</span><span class="s2">&quot;,&quot;</span> <span class="o">|</span> <span class="s2">&quot;;&quot;</span><span class="o">)</span> <span class="nx">atomic_or_assignment</span><span class="o">)*</span>
+<div class="codehilite"><pre><span></span><code><span class="nl">expr</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">atomic_or_assignment</span><span class="w"> </span><span class="p">((</span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;;&quot;</span><span class="p">)</span><span class="w"> </span><span class="n">atomic_or_assignment</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
 
-<span class="nx">atomic_or_assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">assignment</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">ine</span> <span class="o">|</span> <span class="nx">atomic</span>
+<span class="nl">atomic_or_assignment</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">assignment</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">define</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="k">atomic</span><span class="w"></span>
 
-<span class="nx">assignment</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;=&quot;</span> <span class="nx">atomic</span>
+<span class="nl">assignment</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="s">&quot;=&quot;</span><span class="w"> </span><span class="k">atomic</span><span class="w"></span>
 
-<span class="nv">def</span><span class="nx">ine</span> <span class="o">:</span><span class="nv">=</span> <span class="nv">def</span><span class="nx">_fun</span> <span class="o">|</span> <span class="nv">def</span><span class="nx">_struct</span>
+<span class="nl">define</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">def_fun</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">def_struct</span><span class="w"></span>
 
-<span class="nv">def</span><span class="nx">_fun</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="nx">var</span> <span class="o">(</span><span class="nx">atomic</span> <span class="o">|</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span><span class="o">)</span>
+<span class="nl">def_fun</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;def&quot;</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="p">(</span><span class="k">atomic</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">)</span><span class="w"></span>
 
-<span class="nv">def</span><span class="nx">_struct</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;def&quot;</span> <span class="s2">&quot;[&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?</span> <span class="o">(</span><span class="s2">&quot;,&quot;</span> <span class="nx">var</span> <span class="nx">atomic</span><span class="o">?)+</span> <span class="s2">&quot;]&quot;</span>
+<span class="nl">def_struct</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;def&quot;</span><span class="w"> </span><span class="s">&quot;[&quot;</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="k">atomic</span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="k">atomic</span><span class="o">?</span><span class="p">)</span><span class="o">+</span><span class="w"> </span><span class="s">&quot;]&quot;</span><span class="w"></span>
 
-<span class="nx">atomic</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_andor</span> <span class="o">(</span><span class="s2">&quot;..&quot;</span> <span class="nx">e_andor</span><span class="o">)*</span>
+<span class="k">atomic</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="n">e_andor</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;..&quot;</span><span class="w"> </span><span class="n">e_andor</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
 
-<span class="nx">e_andor</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_eq</span> <span class="o">|</span>
-           <span class="nx">e_eq</span> <span class="s2">&quot;&amp;&amp;&quot;</span> <span class="nx">e_eq</span> <span class="o">|</span>
-           <span class="nx">e_eq</span> <span class="s2">&quot;||&quot;</span> <span class="nx">e_eq</span>
+<span class="nl">e_andor</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_eq</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">           </span><span class="n">e_eq</span><span class="w"> </span><span class="s">&quot;&amp;&amp;&quot;</span><span class="w"> </span><span class="n">e_eq</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">           </span><span class="n">e_eq</span><span class="w"> </span><span class="s">&quot;||&quot;</span><span class="w"> </span><span class="n">e_eq</span><span class="w"></span>
 
-<span class="nx">e_eq</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;==&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;!=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;&quot;</span>  <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;&lt;=&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span>
-        <span class="nx">e_bit</span> <span class="s2">&quot;&gt;=&quot;</span> <span class="nx">e_bit</span>
+<span class="nl">e_eq</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;==&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;!=&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;&lt;&quot;</span><span class="w">  </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;&gt;&quot;</span><span class="w">  </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;&lt;=&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">        </span><span class="n">e_bit</span><span class="w"> </span><span class="s">&quot;&gt;=&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"></span>
 
-<span class="nx">e_bit</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_add</span> <span class="o">|</span>
-         <span class="nx">e_add</span> <span class="s2">&quot;&amp;&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
-         <span class="nx">e_add</span> <span class="s2">&quot;|&quot;</span> <span class="nx">e_add</span> <span class="o">|</span>
-         <span class="nx">e_add</span> <span class="s2">&quot;^&quot;</span> <span class="nx">e_add</span>
+<span class="nl">e_bit</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_add</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_add</span><span class="w"> </span><span class="s">&quot;&amp;&quot;</span><span class="w"> </span><span class="n">e_add</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_add</span><span class="w"> </span><span class="s">&quot;|&quot;</span><span class="w"> </span><span class="n">e_add</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_add</span><span class="w"> </span><span class="s">&quot;^&quot;</span><span class="w"> </span><span class="n">e_add</span><span class="w"></span>
 
-<span class="nx">e_add</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_mul</span> <span class="o">|</span>
-         <span class="nx">e_mul</span> <span class="s2">&quot;+&quot;</span> <span class="nx">e_mul</span> <span class="o">|</span>
-         <span class="nx">e_mul</span> <span class="s2">&quot;-&quot;</span> <span class="nx">e_mul</span>
+<span class="nl">e_add</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_mul</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_mul</span><span class="w"> </span><span class="s">&quot;+&quot;</span><span class="w"> </span><span class="n">e_mul</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_mul</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="w"> </span><span class="n">e_mul</span><span class="w"></span>
 
-<span class="nx">e_mul</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_exp</span> <span class="o">|</span>
-         <span class="nx">e_exp</span> <span class="s2">&quot;*&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
-         <span class="nx">e_exp</span> <span class="s2">&quot;/&quot;</span> <span class="nx">e_exp</span> <span class="o">|</span>
-         <span class="nx">e_exp</span> <span class="s2">&quot;%&quot;</span> <span class="nx">e_exp</span>
+<span class="nl">e_mul</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_exp</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_exp</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="w"> </span><span class="n">e_exp</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_exp</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="w"> </span><span class="n">e_exp</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_exp</span><span class="w"> </span><span class="s">&quot;%&quot;</span><span class="w"> </span><span class="n">e_exp</span><span class="w"></span>
 
-<span class="nx">e_exp</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_not</span> <span class="o">|</span>
-         <span class="nx">e_not</span> <span class="s2">&quot;**&quot;</span> <span class="nx">e_not</span>
+<span class="nl">e_exp</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_not</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e_not</span><span class="w"> </span><span class="s">&quot;**&quot;</span><span class="w"> </span><span class="n">e_not</span><span class="w"></span>
 
 
-<span class="nx">e_not</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_flat</span> <span class="o">|</span>
-         <span class="s2">&quot;!&quot;</span> <span class="nx">e_not</span>
+<span class="nl">e_not</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_flat</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="s">&quot;!&quot;</span><span class="w"> </span><span class="n">e_not</span><span class="w"></span>
 
-<span class="nx">e_flat</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e_idx</span> <span class="o">|</span>
-          <span class="s2">&quot;:&quot;</span> <span class="nx">e_flat</span> <span class="o">|</span>
-          <span class="s2">&quot;?&quot;</span> <span class="nx">e_flat</span>
+<span class="nl">e_flat</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e_idx</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">e_flat</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;?&quot;</span><span class="w"> </span><span class="n">e_flat</span><span class="w"></span>
 
-<span class="nx">e_idx</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">e</span> <span class="o">|</span>
-         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;[&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;]&quot;</span><span class="o">)*</span>
-         <span class="nx">e</span> <span class="o">(</span><span class="s2">&quot;~&quot;</span> <span class="nx">e</span><span class="o">)*</span>
+<span class="nl">e_idx</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">e</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">         </span><span class="n">e</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;[&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;]&quot;</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
+<span class="w">         </span><span class="n">e</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;~&quot;</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
 
-<span class="nx">e</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">literal</span> <span class="o">|</span> <span class="nx">funcall</span> <span class="o">|</span> <span class="nx">var</span> <span class="o">|</span> <span class="nx">array</span> <span class="o">|</span> <span class="nx">map</span> <span class="o">|</span> <span class="nx">seq</span> <span class="o">|</span> <span class="nx">recursor</span> <span class="o">|</span> <span class="nx">paren</span>
+<span class="nl">e_bottom</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">literal</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">funcall</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">seq</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">recursor</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">paren</span><span class="w"></span>
 
-<span class="nx">literal</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">real</span> <span class="o">|</span> <span class="nx">int</span> <span class="o">|</span> <span class="nx">uint</span> <span class="o">|</span> <span class="nx">string</span>
+<span class="nl">literal</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">uint</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">string</span><span class="w"></span>
 
-<span class="nx">funcall</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">funcall_paren</span> <span class="o">|</span> <span class="nx">funcall_dot</span> <span class="o">|</span> <span class="nx">funcall_dollar</span>
+<span class="nl">funcall</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">funcall_paren</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">funcall_dot</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">funcall_dollar</span><span class="w"></span>
 
-<span class="nx">funcall_paren</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
+<span class="nl">funcall_paren</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"></span>
 
-<span class="nx">funcall_dot</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">var</span> <span class="s2">&quot;.&quot;</span> <span class="nx">e_bit</span>
+<span class="nl">funcall_dot</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">var</span><span class="w"> </span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="n">e_bit</span><span class="w"></span>
 
-<span class="nx">funcall_dollar</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;$&quot;</span> <span class="nx">e_bit</span> <span class="o">|</span> <span class="s2">&quot;$&quot;</span> <span class="s2">&quot;(&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;)&quot;</span>
+<span class="nl">funcall_dollar</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="n">e_bottom</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;$&quot;</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"></span>
 
-<span class="nx">array</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[.&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;.]&quot;</span>
+<span class="nl">array</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;[.&quot;</span><span class="w"> </span><span class="s">&quot;try&quot;</span><span class="o">?</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="s">&quot;.]&quot;</span><span class="w"></span>
 
-<span class="nx">map</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;{&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;-&gt;&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;}&quot;</span>
+<span class="nl">map</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;{&quot;</span><span class="w"> </span><span class="s">&quot;try&quot;</span><span class="o">?</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;-&gt;&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="s">&quot;}&quot;</span><span class="w"></span>
 
-<span class="nx">seq</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;try&quot;</span><span class="o">?</span> <span class="nx">expr</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span> <span class="o">|</span>
-       <span class="s2">&quot;[&quot;</span> <span class="s2">&quot;/&quot;</span> <span class="nx">atomic</span> <span class="o">(</span><span class="s2">&quot;:&quot;</span> <span class="nx">expr</span><span class="o">)?</span> <span class="s2">&quot;]&quot;</span>
+<span class="nl">seq</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;[&quot;</span><span class="w"> </span><span class="s">&quot;try&quot;</span><span class="o">?</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="s">&quot;]&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">       </span><span class="s">&quot;[&quot;</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="w"> </span><span class="k">atomic</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="s">&quot;]&quot;</span><span class="w"></span>
 
-<span class="nx">recursor</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;&lt;&lt;&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;:&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;&gt;&gt;&quot;</span>                                    
+<span class="nl">recursor</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;&lt;&lt;&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;:&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;&gt;&gt;&quot;</span><span class="w">                                    </span>
 
-<span class="nx">paren</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;(&quot;</span> <span class="nx">atomic</span> <span class="s2">&quot;)&quot;</span>
+<span class="nl">paren</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;(&quot;</span><span class="w"> </span><span class="k">atomic</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"></span>
 
-<span class="nx">var</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;@&quot;</span> <span class="o">|</span> <span class="o">[</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z</span><span class="o">][</span><span class="nx">a</span><span class="o">-</span><span class="nx">zA</span><span class="o">-</span><span class="nx">Z0</span><span class="o">-</span><span class="mi">9</span><span class="nx">_</span><span class="o">]*</span>
+<span class="nl">var</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s">&quot;@&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">[</span><span class="n">a</span><span class="o">-</span><span class="n">zA</span><span class="o">-</span><span class="n">Z</span><span class="p">][</span><span class="n">a</span><span class="o">-</span><span class="n">zA</span><span class="o">-</span><span class="n">Z0</span><span class="mi">-9</span><span class="n">_</span><span class="p">]</span><span class="o">*</span><span class="w"></span>
 
-<span class="nx">digits</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]+</span>
+<span class="nl">digits</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0-9</span><span class="p">]</span><span class="o">+</span><span class="w"></span>
 
-<span class="nx">int</span> <span class="o">:</span><span class="nv">=</span> <span class="s2">&quot;-&quot;</span> <span class="nx">digits</span> <span class="o">|</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;i&quot;</span> <span class="o">|</span> <span class="s2">&quot;s&quot;</span> <span class="o">|</span> <span class="s2">&quot;l&quot;</span><span class="o">)</span>
+<span class="kt">int</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="s">&quot;-&quot;</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;i&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;s&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;l&quot;</span><span class="p">)</span><span class="w"></span>
 
-<span class="nx">uint</span> <span class="o">:</span><span class="nv">=</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;u&quot;</span><span class="o">)?</span> <span class="o">|</span> <span class="o">(</span><span class="s2">&quot;0x&quot;</span> <span class="o">|</span> <span class="s2">&quot;0X&quot;</span><span class="o">)</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="nx">a</span><span class="o">-</span><span class="nx">fA</span><span class="o">-</span><span class="nx">F</span><span class="o">]+</span>
+<span class="nl">uint</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;u&quot;</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;0x&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;0X&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">[</span><span class="mi">0-9</span><span class="n">a</span><span class="o">-</span><span class="n">fA</span><span class="o">-</span><span class="n">F</span><span class="p">]</span><span class="o">+</span><span class="w"></span>
 
-<span class="nx">real</span> <span class="o">:</span><span class="nv">=</span> <span class="o">[-+]?</span> <span class="nx">digits</span> <span class="o">(</span><span class="s2">&quot;.&quot;</span> <span class="o">[</span><span class="mi">0</span><span class="o">-</span><span class="mi">9</span><span class="o">]*)?</span> <span class="o">([</span><span class="nx">eE</span><span class="o">]</span> <span class="o">[-+]?</span> <span class="nx">digits</span><span class="o">)?</span>
+<span class="nl">real</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="o">-+</span><span class="p">]</span><span class="o">?</span><span class="w"> </span><span class="n">digits</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;.&quot;</span><span class="w"> </span><span class="p">[</span><span class="mi">0-9</span><span class="p">]</span><span class="o">*</span><span class="p">)</span><span class="o">?</span><span class="w"> </span><span class="p">([</span><span class="n">eE</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="o">-+</span><span class="p">]</span><span class="o">?</span><span class="w"> </span><span class="n">digits</span><span class="p">)</span><span class="o">?</span><span class="w"></span>
 
-<span class="nx">string</span> <span class="o">:</span><span class="nv">=</span> <span class="s1">&#39;&quot;&#39;</span> <span class="nx">chars</span> <span class="s1">&#39;&quot;&#39;</span> <span class="o">|</span>
-          <span class="s2">&quot;&#39;&quot;</span> <span class="nx">chars</span> <span class="s2">&quot;&#39;&quot;</span>
+<span class="nl">string</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;&quot;&#39;</span><span class="w"> </span><span class="n">chars</span><span class="w"> </span><span class="sc">&#39;&quot;&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;&#39;&quot;</span><span class="w"> </span><span class="n">chars</span><span class="w"> </span><span class="s">&quot;&#39;&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"></span>
+<span class="w">          </span><span class="s">&quot;`&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">chars</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">string_interpolation</span><span class="p">)</span><span class="o">*</span><span class="w"> </span><span class="s">&quot;`&quot;</span><span class="w"></span>
 
-<span class="nx">chars</span> <span class="o">:</span><span class="nv">=</span> <span class="o">(</span><span class="s2">&quot;\t&quot;</span> <span class="o">|</span> <span class="s2">&quot;\n&quot;</span> <span class="o">|</span> <span class="s2">&quot;\r&quot;</span> <span class="o">|</span> <span class="s2">&quot;\e&quot;</span> <span class="o">|</span> <span class="s2">&quot;\\&quot;</span> <span class="o">|</span> <span class="nx">any</span><span class="o">)*</span>
+<span class="nl">chars</span> <span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\r</span><span class="s">&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;\e&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\\</span><span class="s">&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">any</span><span class="p">)</span><span class="o">*</span><span class="w"></span>
+
+<span class="n">string_interpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;${&quot;</span><span class="w"> </span><span class="n">expr</span><span class="w"> </span><span class="s">&quot;}&quot;</span><span class="w"></span>
 </code></pre></div>
 
 <h2 id="semantics">Semantics</h2>
@@ -497,18 +500,18 @@ td+td {
 <p>Expressions separated by <code>,</code> or <code>;</code> are a tuple. A tuple is itself an expression and a value.</p>
 <p>Note: tuples cannot be surrounded by parentheses; if you need to nest tuples, use the builtin function named <a class="wikilink" href="#fn_tuple">tuple</a>.</p>
 <p>This expression produces the tuple <code>(0, 1)</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="mi">0</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nv">def</span> <span class="nx">b</span> <span class="nv">@</span><span class="o">;</span> <span class="nx">b</span><span class="o">(</span><span class="nx">a</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><code><span class="mf">0</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">1</span><span class="p">,</span> <span class="kd">def</span> <span class="n">b</span> <span class="err">@</span><span class="p">;</span> <span class="n">b</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 </code></pre></div>
 
 <h3 id="variables">Variables</h3>
 <p>Variables are single-assignment: you cannot change the value of an existing variable.</p>
 <p>Assigning to a variable with a name that already exists will create a new variable; the old variable will become unreachable.</p>
 <p>This is a legal expression that returns <code>2</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span>
+<div class="codehilite"><pre><span></span><code>a = 1, a = a + 1, a
 </code></pre></div>
 
 <p>This is also a legal expression, and will return a sequence of ten numbers <code>2</code>:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">a</span> <span class="nv">=</span> <span class="mi">1</span><span class="o">,</span> <span class="o">[</span> <span class="nx">a</span> <span class="nv">=</span> <span class="nx">a</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">a</span> <span class="o">:</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>a = 1, [ a = a + 1, a : count.10 ]
 </code></pre></div>
 
 <h3 id="defining-functions">Defining functions</h3>
@@ -521,17 +524,19 @@ td+td {
 </ul>
 <h3 id="calling-functions">Calling functions</h3>
 <p>There are two function call syntaxes: <code>f(a, b, ...)</code> and <code>f.a</code>. Both are equivalent, except that the first form allows calling a function with a tuple argument.</p>
-<p>Note, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
+<p><strong>Note</strong>, however, that the <code>.</code> has low precedence! Thus, this code <code>f.a &amp; b</code> is equivalent to <code>f(a &amp; 1)</code>!</p>
 <p>(See table below.)</p>
-<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$</code> with the value of <code>@</code> passed as the first argument implicitly. You must first define the function <code>$</code>. </p>
+<p>Additionally, there is a special function called <code>$</code> which allows a shorter form of calling syntax: <code>$a</code> or <code>$(a, b)</code>. Both of these forms translate to calling <code>$</code> with the value of <code>@</code> passed as the first argument implicitly. </p>
 <p>This is best demonstrated with an example. This code</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="err">$</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">[</span><span class="mi">0</span><span class="o">],</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="nv">@</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span> <span class="o">[</span> <span class="err">$</span><span class="mi">0</span><span class="o">,</span> <span class="err">$</span><span class="mi">2</span> <span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>def $ cut(@[0], &quot;\t&quot;, @[1]); [ $0, $2 ]
 </code></pre></div>
 
 <p>is equivalent to this:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">),</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot;\t&quot;</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>[ cut(@, &quot;\t&quot;, 0), cut(@, &quot;\t&quot;, 2) ]
 </code></pre></div>
 
+<p>By default <code>$</code> is defined as <code>index.@</code>, which means that, for example, <code>$0</code> is shorthand for <code>@[0]</code> and <code>@~0</code>. </p>
+<p>There is some special syntactic support for <code>$</code>. When using parentheses <code>$(...)</code> this looks and acts like a normal function call, but you can also leave them out: <code>$a</code>. In this case <code>$</code> acts like a operator with the highest precedence. (<code>$@[0]</code> is parsed as <code>index($@, 0)</code>)</p>
 <h3 id="operators">Operators</h3>
 <p>In order of precedence, from highest to lowest:</p>
 <table>
@@ -542,6 +547,10 @@ td+td {
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>$a</code></td>
+<td>Function call of <code>$</code>.</td>
+</tr>
 <tr>
 <td><code>a~b</code> <code>a[b]</code></td>
 <td>Indexing arrays, maps and tuples. See the <a class="wikilink" href="#fn_index">index</a> function. Use <code>~</code> with atomic values, while <code>[]</code> can accept tuples.</td>
@@ -593,9 +602,9 @@ td+td {
 <p>The <code>&amp;&amp;</code> and <code>||</code> operators are there because otherwise an expression like <code>a == b &amp; c == d</code> is parsed as <code>a == (b &amp; c) == d</code> and results in a syntax error.</p>
 <p>The &ldquo;pipe operator&rdquo; <code>..</code> is syntactic sugar meant to make composing code blocks easier. (See the section below about <a href="#magic-variables">magic variables</a>.)
 The following two snippets are equivalent:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">:</span> <span class="nx">head</span><span class="o">(</span><span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">),</span> <span class="mi">1000</span><span class="o">)])</span>
+<div class="codehilite"><pre><span></span><code>sample(3, :[ seq.@ : head(cut(@,&quot;\t&quot;), 1000)])
 
-<span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span><span class="s2">&quot;\t&quot;</span><span class="o">)</span> <span class="o">..</span> <span class="nx">head</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="mi">1000</span><span class="o">)</span> <span class="o">..</span> <span class="o">:[</span> <span class="nx">seq</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span> <span class="o">..</span> <span class="nx">sample</span><span class="o">(</span><span class="mi">3</span><span class="o">,</span> <span class="nv">@</span><span class="o">)</span>
+cut(@,&quot;\t&quot;) .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
 </code></pre></div>
 
 <p>(The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)</p>
@@ -627,6 +636,17 @@ The following two snippets are equivalent:</p>
 </tr>
 </tbody>
 </table>
+<h3 id="string-interpolation">String interpolation</h3>
+<p>String interpolation looks somewhat like the Javascript implementation. Backticks delimit the string, and <code>${...}</code> is the expression delimiter.
+For example:</p>
+<div class="codehilite"><pre><span></span><code>`text <span class="cp">${</span><span class="n">expr</span><span class="cp">}</span> text <span class="cp">${</span><span class="n">expr</span><span class="cp">}</span>`
+</code></pre></div>
+
+<p>Some finer points:
+  * Tuples are rendered without a separator. So, <code>`${1, 2, 3}`</code> is evaluted as the string <code>'123'</code>.
+  * <code>${expr}</code> can contain an arbitrary expression; even other interpolated strings! So, <code>`${`${1+1}`}`</code> is a valid string. (Here the backticks nest like parentheses.) 
+  * If the <code>${...}</code> expression does not parse correctly then it will be inserted verbatim. So, <code>`${def a}`</code> evaluates to the literal string <code>'${def a}'</code>.
+  * Arbitrary top-level expressions are allowed. So, <code>`${def a @+1, a(2), 2}`</code> is evaluated as the string <code>'32'</code>.</p>
 <h3 id="magic-variables">Magic variables</h3>
 <p>The magic variable <code>@</code> is used by the language to denote the input value in generator expressions and function definitions.</p>
 <p>Note that in all other respects this variable acts like a normal variable.</p>
@@ -660,7 +680,7 @@ The following two snippets are equivalent:</p>
 <p>See also <a href="#recursion">recursion</a> for a generator expression for complex single values.</p>
 <p>The left- and right-hand sides can include assigment and definition statements. Anything defined or assigned in a generator expression is limited in scope only to this generator expression.</p>
 <p>Thus, this code</p>
-<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">,</span> <span class="nv">@</span> <span class="o">],</span> <span class="nx">a</span>
+<div class="codehilite"><pre><span></span><code>[ a=@, @ ], a
 </code></pre></div>
 
 <p>Will result in an &lsquo;undefined variable&rsquo; error.</p>
@@ -756,7 +776,7 @@ Usage:<br>
 <dt id="fn_eq">eq</dt>
 <dd>Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.<br>
 Usage:<br>
-<code>eq a,a,... -&gt; UInt</code></dd>
+<code>eq a, a, ... -&gt; UInt</code></dd>
 <dt id="fn_exp">exp</dt>
 <dd>The exponentiation function. Calling <code>exp(a)</code> is equivalent to <code>e()**a</code>.<br>
 Usage:<br>
@@ -810,9 +830,10 @@ Usage:<br>
 <code>get Map[a,b], a, b -&gt; b</code> &ndash; returns the element stored in the map with the given key, or the third argument if the key is not found.<br>
 <code>get Arr[a], UInt, a -&gt; a</code> &ndash; returns the element at the given index, or the third argument if the index is out of bounds.</dd>
 <dt id="fn_glue">glue</dt>
-<dd>Adds an element to the head of a sequence. <code>glue(1, seq(2, 3))</code> is equivalent to <code>seq(1, 2, 3)</code>. See also: <a class="wikilink" href="#fn_take">take</a>, <a class="wikilink" href="#fn_peek">peek</a>.<br>
+<dd>Adds an element to the head or tail of a sequence. <code>glue(1, seq(2, 3))</code> is equivalent to <code>seq(1, 2, 3)</code>. See also: <a class="wikilink" href="#fn_take">take</a>, <a class="wikilink" href="#fn_peek">peek</a>.<br>
 Usage:<br>
-<code>glue a, Seq[a] -&gt; Seq[a]</code></dd>
+<code>glue a, Seq[a] -&gt; Seq[a]</code><br>
+<code>glue Seq[a], a -&gt; Seq[a]</code></dd>
 <dt id="fn_gmtime">gmtime</dt>
 <dd>Converts a UNIX timestamp to a UTC date and time.<br>
 Usage:<br>
@@ -1016,10 +1037,10 @@ Usage:<br>
 <code>second Map[a,b] -&gt; Seq[b]</code><br>
 <code>second Seq[(a,b)] -&gt; Seq[b]</code></dd>
 <dt id="fn_seq">seq</dt>
-<dd>Accepts two or more values of the same type and returns a sequence of those values. (A synonym for <a class="wikilink" href="#fn_tabulate">tabulate</a>.)<br>
+<dd>Accepts values of the same type and returns a sequence of those values. (A synonym for <a class="wikilink" href="#fn_tabulate">tabulate</a>.)<br>
 If one argument is passed, then it is equivalent to <code>[@ : arg]</code>.<br>
 Usage:<br>
-<code>seq (a,...),... -&gt; Seq[a]</code><br>
+<code>seq a, ... -&gt; Seq[a]</code><br>
 <code>seq Arr[a] -&gt; Seq[a]</code><br>
 <code>seq Map[a,b] -&gt; Seq[(a,b)]</code><br>
 <code>seq a -&gt; Seq[a]</code></dd>
@@ -1059,12 +1080,13 @@ Usage:<br>
 <code>stdev Seq[Number] -&gt; Real</code><br>
 <code>stdev Number -&gt; Real</code> &ndash; <strong>Note:</strong> this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.</dd>
 <dt id="fn_string">string</dt>
-<dd>Converts an unsigned integer, signed integer, floating-point number or a byte array to a string.<br>
+<dd>Converts arguments to a string.<br>
 Usage:<br>
 <code>string UInt -&gt; String</code><br>
 <code>string Int -&gt; String</code><br>
 <code>string Real -&gt; String</code><br>
-<code>string Arr[UInt] -&gt; String</code> &ndash; <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.</dd>
+<code>string Arr[UInt] -&gt; String</code> &ndash; <strong>Note:</strong> here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.<br>
+<code>string a, ... -&gt; String</code> &ndash; A polymorphic version that accepts values of any type. The resulting string is exactly like what would be produced on standard output.</dd>
 <dt id="fn_stripe">stripe</dt>
 <dd>Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: <a class="wikilink" href="#fn_head">head</a>, <a class="wikilink" href="#fn_skip">skip</a>.<br>
 Usage:<br>
@@ -1114,6 +1136,11 @@ Usage:<br>
 <code>uint Real -&gt; UInt</code><br>
 <code>uint String -&gt; UInt</code><br>
 <code>uint String, Integer -&gt; UInt</code> &ndash; tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
+<dt id="fn_unflatten"><code>unflatten</code></dt>
+<dd>Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.<br>
+Best demonstrated with an example: <code>count(9) .. unflatten.[ (@ % 3) == 0, @ ]</code> returns the sequence <code>seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))</code><strong>
+Usage:</strong>
+<code>unflatten Seq[(UInt, a, ...)] -&gt; Seq[Seq[(a, ...)]]</code></dd>
 <dt id="fn_uniques">uniques</dt>
 <dd>Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>.<br>
 Usage:<br>
@@ -1188,13 +1215,13 @@ Usage:<br>
 <dd>Synonymous with <a class="wikilink" href="#fn_var">var</a>.</dd>
 </dl>
 <p>An explanation of how arrays and maps are aggregated implicitly:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nx">map</span><span class="o">(</span><span class="nv">@</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">sum</span><span class="o">.</span><span class="mi">1</span><span class="o">)</span> <span class="o">:</span> <span class="nx">pairs</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">}</span>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="err">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="nf">map</span><span class="p">(</span><span class="err">@</span><span class="o">~</span><span class="mi">1</span><span class="p">,</span> <span class="nf">sum</span><span class="mf">.1</span><span class="p">)</span> <span class="o">:</span> <span class="n">pairs</span><span class="p">(</span><span class="err">@</span><span class="p">)</span> <span class="p">}</span>
 </code></pre></div>
 
 <p>This program will produce the intuitively obvious result &ndash; a map of maps where the leaf values are frequency counts.
 This works as expected because maps-inside-maps will automatically aggregate.</p>
 <p>Similarly for arrays:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nx">month</span><span class="o">(</span><span class="nv">@</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="nx">array</span><span class="o">(</span><span class="nx">day_values</span><span class="o">(</span><span class="nv">@</span><span class="o">))</span> <span class="o">:</span> <span class="nx">data</span> <span class="o">}</span>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="n">month</span><span class="p">(</span><span class="err">@</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">array</span><span class="p">(</span><span class="n">day_values</span><span class="p">(</span><span class="err">@</span><span class="p">))</span> <span class="o">:</span> <span class="kt">data</span> <span class="p">}</span>
 </code></pre></div>
 
 <p>Arrays under a map key will concatenate, and such a program will produce the expected result &ndash; an array of all day values for each month.</p>
@@ -1202,11 +1229,11 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 <p>Sequence, map and array comprehensions allow a special syntax for handling exceptions thrown while evaluating generator expressions.</p>
 <p>Simply put the special token <code>try</code> after the <code>[</code>, <code>{</code> or <code>[.</code> opening parenthesis to silently ignore errors instead of aborting evaluation.</p>
 <p>For example:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">[</span> <span class="nx">try</span> <span class="nx">uint</span><span class="o">.</span><span class="nv">@</span> <span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>[ try uint.@ ]
 </code></pre></div>
 
 <p>will ignore any lines on the standard input that can&rsquo;t be parsed as a number.</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">first</span><span class="o">.{</span> <span class="nx">try</span> <span class="nx">cut</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s2">&quot; &quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">)</span> <span class="o">}</span>
+<div class="codehilite"><pre><span></span><code>first.{ try cut(@, &quot; &quot;, 1) }
 </code></pre></div>
 
 <p>will output the second word from each line, and ignore all lines that don&rsquo;t contain a space character.</p>
@@ -1214,18 +1241,18 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 <p><code>tab</code> supports a limited kind of tail recursion for special cases when a simple step-by-step application of operations will not work.</p>
 <p>Consider the example of computing the factorial: given a sequence of integers, compute its product.</p>
 <p>In <code>tab</code> the factorial function looks like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">def</span> <span class="nx">fac</span> <span class="o">&lt;&lt;</span> <span class="nv">@</span><span class="o">~</span><span class="mi">0</span> <span class="o">*</span> <span class="nv">@</span><span class="o">~</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">count</span><span class="o">.</span><span class="nv">@</span> <span class="o">&gt;&gt;</span>
+<div class="codehilite"><pre><span></span><code>def fac &lt;&lt; @~0 * @~1 : 1, count.@ &gt;&gt;
 </code></pre></div>
 
 <p>The <code>&lt;&lt; ... : ... &gt;&gt;</code> takes an expression on the left-hand side and a pair of value and sequence on the right-hand side.</p>
 <p>An expression that looks like <code>&lt;&lt; f(@~0, @~1) : a, seq(b, c, d) &gt;&gt;</code> will be unrolled to be equivalent to this:</p>
-<div class="codehilite"><pre><span></span><code><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">f</span><span class="o">(</span><span class="nx">a</span><span class="o">,</span> <span class="nx">b</span><span class="o">),</span> <span class="nx">c</span><span class="o">),</span> <span class="nx">d</span><span class="o">)</span>
+<div class="codehilite"><pre><span></span><code>f(f(f(a, b), c), d)
 </code></pre></div>
 
 <p>The left-hand side will be evaluated repeatedly, with an argument that is a pair of values. The first element of the pair is the previous evaluation result, and the second element is the next element in the input sequence. The right-hand side is also a pair, with the first element a starting value and the second element the input sequence.</p>
 <p>For example: calling <code>fac.3</code> from the above example results in evaluating <code>(((1 * 1) * 1) * 2) * 3</code>.</p>
 <p>Note that the type of the result and the type of the sequence elements can be different. This will calculate the 11th Fibonacci number:</p>
-<div class="codehilite"><pre><span></span><code><span class="o">&lt;&lt;</span> <span class="nx">a</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">0</span><span class="o">,</span> <span class="nx">b</span><span class="nv">=@</span><span class="o">~</span><span class="mi">0</span><span class="o">~</span><span class="mi">1</span><span class="o">,</span> <span class="nx">tuple</span><span class="o">(</span><span class="nx">b</span><span class="o">,</span> <span class="nx">a</span> <span class="o">+</span> <span class="nx">b</span><span class="o">)</span> <span class="o">:</span> <span class="nx">tuple</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">1</span><span class="o">),</span> <span class="nx">count</span><span class="o">.</span><span class="mi">10</span> <span class="o">&gt;&gt;~</span><span class="mi">1</span>
+<div class="codehilite"><pre><span></span><code>&lt;&lt; a=@~0~0, b=@~0~1, tuple(b, a + b) : tuple(0, 1), count.10 &gt;&gt;~1
 </code></pre></div>
 
 <h2 id="multi-core">Multi-core</h2>
@@ -1233,20 +1260,20 @@ This works as expected because maps-inside-maps will automatically aggregate.</p
 <p>Use the <code>-t</code> command-line option to enable multithreaded evaluation.</p>
 <p>Parallel evaluation is not quite automatic: <code>tab</code> uses a simple scatter/gather evaluation model. N parallel threads will evaluate a &lsquo;scatter&rsquo; expression, generating N independent sequences. A separate &lsquo;gather&rsquo; thread will then read sequentially from all N sequences and aggregate them into a single result stream.</p>
 <p>The syntax for parallel evaluation looks like this:</p>
-<div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">tab</span> <span class="o">-</span><span class="nx">tN</span> <span class="nx">scatter</span> <span class="o">--&gt;</span> <span class="nx">gather</span>
+<div class="codehilite"><pre><span></span><code>$ tab -tN scatter --&gt; gather
 </code></pre></div>
 
 <p>The <code>--&gt;</code> is a special token that separates &lsquo;scatter&rsquo; and &lsquo;gather&rsquo; expressions. </p>
 <p>Examples:</p>
 <h3 id="1_1">1.</h3>
-<div class="codehilite"><pre><span></span><code><span class="o">:[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span>
+<div class="codehilite"><pre><span></span><code>:[ grep(@, &#39;[0-9]{4}&#39;) ]
 </code></pre></div>
 
 <p>A simple expression that will search for all four-digit numbers. </p>
 <p><strong>Note:</strong> if there is no <code>--&gt;</code> token in the epxression, then a default <code>--&gt; @</code> will be automatically appended.</p>
 <p>In this case no result aggregation is done, all parallel threads will simply print what they found to standard output.</p>
 <h3 id="2_1">2.</h3>
-<div class="codehilite"><pre><span></span><code><span class="nx">count</span><span class="o">.</span><span class="nx">flatten</span><span class="o">.[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">--&gt;</span> <span class="nx">sum</span><span class="o">.</span><span class="nv">@</span>
+<div class="codehilite"><pre><span></span><code><span class="nf">count</span><span class="p">.</span><span class="n">flatten</span><span class="p">.[</span> <span class="n">grep</span><span class="p">(</span><span class="err">@</span><span class="p">,</span> <span class="s">&#39;[0-9]{4}&#39;</span><span class="p">)</span> <span class="p">]</span> <span class="o">--&gt;</span> <span class="nf">sum</span><span class="p">.</span><span class="err">@</span>
 </code></pre></div>
 
 <p>Same as the previous example, except that we want to count the numbers we found, instead of outputting them.
@@ -1254,7 +1281,7 @@ The aggregating &lsquo;gather&rsquo; expression will compute the sum of the coun
 <p><strong>Note:</strong> the &lsquo;scatter&rsquo; threads will read from the input stream atomically; there is no danger of an input line being read twice.</p>
 <p>(A reminder that the <code>:</code> operator is equivalent to the <a class="wikilink" href="#fn_flatten">flatten</a> function.)</p>
 <h3 id="3_1">3.</h3>
-<div class="codehilite"><pre><span></span><code><span class="o">{</span> <span class="nv">@</span> <span class="o">::[</span> <span class="nx">grep</span><span class="o">(</span><span class="nv">@</span><span class="o">,</span> <span class="s1">&#39;[0-9]{4}&#39;</span><span class="o">)</span> <span class="o">]</span> <span class="o">}</span> <span class="o">--&gt;</span> <span class="nx">count</span><span class="o">.</span><span class="nx">map</span><span class="o">.</span><span class="nv">@</span>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span> <span class="err">@</span> <span class="o">::</span><span class="p">[</span> <span class="n">grep</span><span class="p">(</span><span class="err">@</span><span class="p">,</span> <span class="s">&#39;[0-9]{4}&#39;</span><span class="p">)</span> <span class="p">]</span> <span class="p">}</span> <span class="o">--&gt;</span> <span class="nf">count</span><span class="p">.</span><span class="nf">map</span><span class="p">.</span><span class="err">@</span>
 </code></pre></div>
 
 <p>Here we count the unique numbers found. The &lsquo;scatter&rsquo; threads will aggregate a subset of the input into a map with a four-digit number as the key.
@@ -1275,8 +1302,8 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <a class="wikilink" href="#fn_rsh">rsh</a> <a class="wikilink" href="#fn_sample">sample</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_sin">sin</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_sort">sort</a> <a class="wikilink" href="#fn_sorted">sorted</a>
 <a class="wikilink" href="#fn_split">split</a> <a class="wikilink" href="#fn_sqrt">sqrt</a> <a class="wikilink" href="#fn_stddev">stddev</a> <a class="wikilink" href="#fn_stdev">stdev</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_sum">sum</a> <a class="wikilink" href="#fn_take">take</a> <a class="wikilink" href="#fn_tan">tan</a>
 <a class="wikilink" href="#fn_tabulate">tabulate</a> <a class="wikilink" href="#fn_time">time</a> <a class="wikilink" href="#fn_tolower">tolower</a> <a class="wikilink" href="#fn_toupper">toupper</a> <a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_tuple">tuple</a>
-<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a>
-<a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_unflatten">unflatten</a> <a class="wikilink" href="#fn_uniques">uniques</a> <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a> <a class="wikilink" href="#fn_until">until</a> 
+<a class="wikilink" href="#fn_url_getparam">url_getparam</a> <a class="wikilink" href="#fn_var">var</a> <a class="wikilink" href="#fn_variance">variance</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <h3 id="by-kind">By kind:</h3>
 <p><strong>Core language:</strong> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_index">index</a></p>
 <p><strong>Math:</strong> <a class="wikilink" href="#fn_abs">abs</a> <a class="wikilink" href="#fn_add">add</a> <a class="wikilink" href="#fn_bucket">bucket</a> <a class="wikilink" href="#fn_ceil">ceil</a> <a class="wikilink" href="#fn_cos">cos</a> <a class="wikilink" href="#fn_e">e</a> <a class="wikilink" href="#fn_exp">exp</a> <a class="wikilink" href="#fn_floor">floor</a> <a class="wikilink" href="#fn_log">log</a>
@@ -1291,12 +1318,12 @@ The &lsquo;gather&rsquo; thread will aggregate each of the &lsquo;scattered&rsqu
 <p><strong>Maps:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_hash">hash</a> <a class="wikilink" href="#fn_get">get</a> <a class="wikilink" href="#fn_map">map</a> <a class="wikilink" href="#fn_second">second</a></p>
 <p><strong>Sequences:</strong> <a class="wikilink" href="#fn_count">count</a> <a class="wikilink" href="#fn_explode">explode</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_flatten">flatten</a> <a class="wikilink" href="#fn_flip">flip</a> <a class="wikilink" href="#fn_glue">glue</a>
 <a class="wikilink" href="#fn_head">head</a> <a class="wikilink" href="#fn_ngrams">ngrams</a> <a class="wikilink" href="#fn_pairs">pairs</a> <a class="wikilink" href="#fn_peek">peek</a> <a class="wikilink" href="#fn_skip">skip</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_seq">seq</a> <a class="wikilink" href="#fn_stripe">stripe</a> <a class="wikilink" href="#fn_take">take</a>
-<a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
+<a class="wikilink" href="#fn_triplets">triplets</a> <a class="wikilink" href="#fn_unflatten">unflatten</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a> <a class="wikilink" href="#fn_zip">zip</a></p>
 <p><strong>Tuples:</strong> <a class="wikilink" href="#fn_first">first</a> <a class="wikilink" href="#fn_lines">lines</a> <a class="wikilink" href="#fn_second">second</a> <a class="wikilink" href="#fn_tuple">tuple</a></p>
 <p><strong>Bit manipulation:</strong> <a class="wikilink" href="#fn_lsh">lsh</a> <a class="wikilink" href="#fn_rsh">rsh</a></p>
 <p><strong>Date and time:</strong> <a class="wikilink" href="#fn_date">date</a> <a class="wikilink" href="#fn_datetime">datetime</a> <a class="wikilink" href="#fn_gmtime">gmtime</a> <a class="wikilink" href="#fn_now">now</a> <a class="wikilink" href="#fn_time">time</a></p>
 <p><strong>Conditionals:</strong> <a class="wikilink" href="#fn_and">and</a> <a class="wikilink" href="#fn_box">box</a> <a class="wikilink" href="#fn_case">case</a> <a class="wikilink" href="#fn_eq">eq</a> <a class="wikilink" href="#fn_filter">filter</a> <a class="wikilink" href="#fn_findif">findif</a> <a class="wikilink" href="#fn_grepif">grepif</a>
-<a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a></p>
+<a class="wikilink" href="#fn_has">has</a> <a class="wikilink" href="#fn_if">if</a> <a class="wikilink" href="#fn_or">or</a> <a class="wikilink" href="#fn_unflatten">unflatten</a> <a class="wikilink" href="#fn_until">until</a> <a class="wikilink" href="#fn_while">while</a> </p>
 <p><strong>Files:</strong> <a class="wikilink" href="#fn_file">file</a> <a class="wikilink" href="#fn_open">open</a></p>
 <p><strong>Type converstion:</strong> <a class="wikilink" href="#fn_int">int</a> <a class="wikilink" href="#fn_real">real</a> <a class="wikilink" href="#fn_string">string</a> <a class="wikilink" href="#fn_uint">uint</a> <a class="wikilink" href="#fn_array">array</a></p>
 <p><strong>Printing:</strong> <a class="wikilink" href="#fn_hex">hex</a> <a class="wikilink" href="#fn_iarray">iarray</a> <a class="wikilink" href="#fn_lines">lines</a></p>
