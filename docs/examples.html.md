@@ -15,7 +15,10 @@ This is an example list of useful `tab` programs.
 #### Output the three longest lines in a file:
     :::tab
     [ @~1 : sort([ count(@), @ ])[-3,-1] ]
+
 Or:
+
+    :::tab
     sort([ count.@, @ ])[-3,-1] .. second.seq.@
 
 #### Output the most common English word in a file:
@@ -199,7 +202,9 @@ The first three fields are the year, month and day. The fourth field is the dail
 #### Count the number of lines in every paragraph in a file:
     :::tab
     explode.@ .. [ count.while.[ @ != "", @ ] ]
-: Or also:
+
+Or also:
+
     :::tab
     unflatten.[ @ == "", @ ] .. [ count.[/ @ != ""] ]
 

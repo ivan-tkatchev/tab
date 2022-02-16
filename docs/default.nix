@@ -3,12 +3,10 @@
 } :
 with pkgs;
 let
-  python = python3;
-  tablexer = callPackage ./TabLexer { python3Packages = python.packages; };
-  pyenv = python.withPackages (p: with p; [ 
+  pyenv = python3.withPackages (p: with p; [ 
      markdown 
      pygments 
-     (callPackage ./TabLexer { python3Packages = p; }) 
+     (callPackage ./TabLexer/default.nix {}) 
   ]);
 in
 mkShell {

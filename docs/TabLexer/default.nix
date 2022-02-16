@@ -1,9 +1,10 @@
 {
-  python3Packages
+  buildPythonPackage
+, pygments
+, setuptools
 } :
-with python3Packages;
-buildPythonApplication {
+buildPythonPackage {
   name = "pygments-tab";
   src = ./.;
-  propagatedBuildInputs = [ pygments ];
+  propagatedBuildInputs = [ setuptools pygments ];
 }
