@@ -15,6 +15,8 @@ This is an example list of useful `tab` programs.
 #### Output the three longest lines in a file:
     :::tab
     [ @~1 : sort([ count(@), @ ])[-3,-1] ]
+Or:
+    sort([ count.@, @ ])[-3,-1] .. second.seq.@
 
 #### Output the most common English word in a file:
     :::tab
@@ -46,6 +48,11 @@ This is an example list of useful `tab` programs.
     :::tab
     merge.flatten.[ [ uniques.tolower.@ : grep(@, "[A-Za-z0-9]+") ] ]
 
+#### Change the first three fields in a TSV file to a properly formatted date:
+    :::tab
+    def pad (if(count.@ == 1, "0", ""), @);
+    cut(@, "\t") .. [ `${$0}-${ pad($1) }-${ pad($2) }`, $(3,-1) ]
+
 ## Sampling data randomly from files:
 
 #### Output four random lines from a file:
@@ -63,9 +70,9 @@ This is an example list of useful `tab` programs.
 
 ## Basic math and loops:
 
-#### A sine and cose table:
+#### A sine and cosine table:
     :::tab
-    [ sin.@, cos.@ : count(0.0, 2*pi(), pi()/8) ]
+    count(0.0, 2*pi(), pi()/8) .. [ sin.@, cos.@ ]
 
 ## Numeric data aggregation:
 
@@ -191,19 +198,22 @@ The first three fields are the year, month and day. The fourth field is the dail
 
 #### Count the number of lines in every paragraph in a file:
     :::tab
-    [ count.while.[ @ != "", @ ] : explode.@ ]
+    explode.@ .. [ count.while.[ @ != "", @ ] ]
+: Or also:
+    :::tab
+    unflatten.[ @ == "", @ ] .. [ count.[/ @ != ""] ]
 
 #### Remove duplicate lines, like the Unix tool `uniq`:
     :::tab
-    x=peek.pairs.@, glue(first.first.x, ?[ @~0 != @~1, @~1 : second.x ])
+    x=peek.pairs.@, glue(first.first.x, ?[ $0 != $1, $1 : second.x ])
 
 ## Recursive functions
 
 #### Compute the factorial:
     :::tab
-    def fac << @~0 * @~1 : 1, count.@ >>, fac.12
+    def fac << $0 * $1 : 1, count.@ >>, fac.12
 
-#### A 32-bit number with only the odd bits flipped:
+#### A 64-bit number with only the odd bits flipped:
     :::tab
     << lsh(@~0, 2) | 1 : 0, count.32 >>
 

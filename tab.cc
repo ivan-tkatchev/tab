@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 
         unsigned int debuglevel = 0;
         bool sorted = false;
-        std::string program = prelude;
+        std::string program;
         std::string infile;
         std::string programfile;
         size_t seed = ::time(NULL);
@@ -189,7 +189,7 @@ int main(int argc, char** argv) {
             if (program.empty()) {
                 program = programfile;
             } else {
-                program = program + "," + programfile;
+                program = programfile + "," + program;
             }
         }
 
@@ -199,6 +199,8 @@ int main(int argc, char** argv) {
             show_help(help_section);
             return 1;
         }
+
+        program = prelude + program;
 
         // //
 
