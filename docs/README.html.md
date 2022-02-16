@@ -1189,8 +1189,8 @@ Usage:
 
 `unflatten` {: #fn_unflatten }
 : Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
-Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`__
-Usage:__
+Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`  
+Usage:  
 `unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]`
 
 uniques {: #fn_uniques}

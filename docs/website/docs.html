@@ -1138,8 +1138,8 @@ Usage:<br>
 <code>uint String, Integer -&gt; UInt</code> &ndash; tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.</dd>
 <dt id="fn_unflatten"><code>unflatten</code></dt>
 <dd>Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.<br>
-Best demonstrated with an example: <code>count(9) .. unflatten.[ (@ % 3) == 0, @ ]</code> returns the sequence <code>seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))</code><strong>
-Usage:</strong>
+Best demonstrated with an example: <code>count(9) .. unflatten.[ (@ % 3) == 0, @ ]</code> returns the sequence <code>seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))</code><br>
+Usage:<br>
 <code>unflatten Seq[(UInt, a, ...)] -&gt; Seq[Seq[(a, ...)]]</code></dd>
 <dt id="fn_uniques">uniques</dt>
 <dd>Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also <a class="wikilink" href="#fn_uniques_estimate">uniques_estimate</a>.<br>
