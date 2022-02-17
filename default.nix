@@ -3,6 +3,6 @@
 } :
 with pkgs;
 mkShell.override { stdenv = gcc11Stdenv; } {
-  buildInputs = [ python3 ];
+  buildInputs = [ python3 glibc.static ];
 }
 
