@@ -19,16 +19,16 @@ You can think of `tab` as a kind of general-purpose query language for text file
 
 Skip to:
 
-* [Tutorial](#markdown-header-language-tutorial)
+* [Tutorial](#language-tutorial)
 * Reference
-    * [Grammar](#markdown-header-grammar)
-    * [Semantics](#markdown-header-semantics)
-    * [Builtin functions](#markdown-header-builtin-functions)
-    * [Aggregators](#markdown-header-aggregators)
+    * [Grammar](#grammar)
+    * [Semantics](#semantics)
+    * [Builtin functions](#builtin-functions)
+    * [Aggregators](#aggregators)
 * Advanced features:
-    * [Error handling](#markdown-header-error-handling)
-    * [Recursion](#markdown-header-recursion)
-    * [Multi-core](#markdown-header-multi-core)
+    * [Error handling](#error-handling)
+    * [Recursion](#recursion)
+    * [Multi-core](#multi-core)
 
 ## Compiling and installing ##
 
