@@ -1,6 +1,6 @@
 # Introduction #
 
-This is a tutorial and reference for [tab](http://tkatchev.bitbucket.io/tab/), a kind of programming language/shell calculator.
+This is a tutorial and reference for [tab](http://tab-lang.xyz), a kind of programming language/shell calculator.
 
 Why another programming language? Because `tab` is a special programming language unlike any other:
 
@@ -15,7 +15,7 @@ Why another programming language? Because `tab` is a special programming languag
 
 You can think of `tab` as a kind of general-purpose query language for text files.
 
-(Also see ['Comparison'](#markdown-header-comparison) below, and a cookbook of [examples](http://tkatchev.bitbucket.io/tab/examples.html).)
+(Also see ['Comparison'](#markdown-header-comparison) below, and a cookbook of [examples](http://tab-lang.xyz/examples.html).)
 
 Skip to:
 

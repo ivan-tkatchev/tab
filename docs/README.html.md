@@ -28,7 +28,7 @@ If you want to use a compiler other than gcc, e.g., clang, then type this:
     :::tab
     $ CXX=clang++ make
 
-The official git repository is found [here](http://bitbucket.org/tkatchev/tab).
+The official git repository is found [here](https://github.com/ivan-tkatchev/tab).
 
 # Usage #
 
