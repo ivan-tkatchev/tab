@@ -684,78 +684,92 @@ Will result in an 'undefined variable' error.
 
 Listed alphabetically.
 
-`abs`
-: Computes absolute value.  
+> `abs`
+
+Computes absolute value.  
 Usage:  
 `abs Int -> Int`  
 `abs Real -> Real`
 
-`add`
-: Adds the arguments. Equivalent to `sum.seq(...)` See also `sum`, `mul`, `product`.  
+> `add`
+
+Adds the arguments. Equivalent to `sum.seq(...)` See also `sum`, `mul`, `product`.  
 Usage:  
 `add Number, ... -> Number`
 
-`and`
-: Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to `a & b & c ...`.  See also `or`.  
+> `and`
+
+Returns 1 if all the arguments are not 0, returns 0 otherwise. Equivalent to `a & b & c ...`.  See also `or`.  
 Usage:  
 `and Integer, Integer... -> UInt`
 
-`array`
-: Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting. See also: `iarray`.  
+> `array`
+
+Stores a sequence or map or atomic value into an array. See also `sort` for a version of this function with sorting. See also: `iarray`.  
 Usage:  
 `array Map[a,b] -> Arr[(a,b)]`  
 `array Seq[a] -> Arr[a]`  
 `array a, ... -> Arr[a]` -- returns an array with the input elements.  
 **Note:** when arrays are used as values in a map, they will concatenate. (See [aggregators](#markdown-header-aggregators) below for details.)
 
-`avg`
-: Synonym for `mean`.
+> `avg`
 
-`box`
-: Remembers a value. Returns a 'box', which is a tuple of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument.  
+Synonym for `mean`.
+
+> `box`
+
+Remembers a value. Returns a 'box', which is a tuple of one remembered value. Stores the second argument in the box if the box is empty. If the box is not empty and the first argument is not zero, then replaces the value in the box with the second argument.  
 Usage:  
 `box UInt, a -> (a,)`
 
-`bucket`
-: Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: `hist`.  
+> `bucket`
+
+Return a bucket key. `bucket(x, a, b, n)` will split the interval `[a, b]` into `n` equal sub-intervals and return `x` rounded down to the nearest sub-interval lower bound. Useful for making histograms. See also: `hist`.  
 Usage:  
 `bucket Number, Number, Number, UInt -> Number` -- the first three arguments must be the same numeric type.
 
-`bytes`
-: Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
+> `bytes`
+
+Accepts a string and returns an array of integers representing the bytes in the string. _Warning_: this function is not Unicode-aware and assumes the string is an ASCII bytestream.  
 Usage:  
 `bytes String -> Arr[UInt]`
 
-`case`
-: A switch/case function. The first argument is compared to every argument at position `n+1`, and if they compare equal, the argument at position `n+2` is returned. If none match equal, then the last argument is returned. See also: `if`.  
+> `case`
+
+A switch/case function. The first argument is compared to every argument at position `n+1`, and if they compare equal, the argument at position `n+2` is returned. If none match equal, then the last argument is returned. See also: `if`.  
 Example: `[ case(int.@; 1,'a'; 2,'b'; 'c') : count(4) ]` returns `a b c c`.  
 Usage:  
 `case a,a,b,...,b -> b`
 
-`cat`
-: Concatenates strings.  
+> `cat`
+
+Concatenates strings.  
 Usage:  
 `cat String,... -> String`. At least one string argument is required.
 
-`ceil`
-: Rounds a floating-point number to the smallest integer that is greater than the input value.  
+> `ceil`
+
+Rounds a floating-point number to the smallest integer that is greater than the input value.  
 Usage:  
 `ceil Real -> Real`
 
-`combo`
-: Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: `zip`.  
+> `combo`
+
+Given several arrays, returns a sequence of all combinations of elements from those arrays. See also: `zip`.  
 Example: `combo(array(0,1), array(0,1))` returns a sequence of all possible pairs of bits.  
 Usage:  
 `combo Arr[Number], ... -> Seq[(Number,...)]`  
 `combo Arr[String], ... -> Seq[(String,...)]`
 
-`cos`
-: The cosine function.  
+> `cos`
+
+The cosine function.  
 Usage:  
 `cos Number -> Real`
 
-`count`
-: Counts the number of elements.  
+> `count`
+
+Counts the number of elements.  
 Usage:  
 `count None -> Seq[UInt]` -- returns an infinite sequence that counts from 1 to infinity.  
 `count UInt -> Seq[UInt]` -- returns a sequence that counts from 1 to the supplied argument.  
@@ -765,162 +779,190 @@ Usage:
 `count Map[a] -> UInt` -- returns the number of keys in the map.  
 `count Arr[a] -> UInt` -- returns the number of elements in the array.
 
-`cut`
-: Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
+> `cut`
+
+Splits a string using a delimiter. See also `recut` for splitting with a regular expression.  
 Usage:  
 `cut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a delimiter.  
 `cut String, String, Integer -> String` -- calling `cut(a,b,n)` is equivalent to `cut(a,b)[n]`, except much faster.  
 `cut Seq[String], String -> Seq[Arr[String]]` -- equivalent to `[ cut(@,delim) : seq ]`.
 
-`date`
-: Converts a UNIX timestamp to a textual representation of a UTC date.  
+> `date`
+
+Converts a UNIX timestamp to a textual representation of a UTC date.  
 Usage:  
 `date Int -> String` -- returns a UTC date in the `"YYYY-MM-DD"` format.
 
-`datetime`
-: Converts a UNIX timestamp to a textual representation of a UTC date and time.  
+> `datetime`
+
+Converts a UNIX timestamp to a textual representation of a UTC date and time.  
 Usage:  
 `datetime Int -> String` -- returns a UTC date and time in the `"YYYY-MM-DD HH:MM:SS"` format.
 
-`e`
-: Returns the number *e*.  
+> `e`
+
+Returns the number *e*.  
 Usage:  
 `e None -> Real`
 
-`eq`
-: Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  
+> `eq`
+
+Checks values for equality. If the first argument is equal to any of the other arguments, returns 1. Otherwise returns 0.  
 Usage:  
 `eq a, a, ... -> UInt`
 
-`exp`
-: The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
+> `exp`
+
+The exponentiation function. Calling `exp(a)` is equivalent to `e()**a`.  
 Usage:  
 `exp Number -> Real`
 
-`explode`
-: Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. Equivalent to `x=@, [ glue(@, x) ]`.  
+> `explode`
+
+Makes a sequence of sequences from a plain sequence: given an input sequence, returns that sequence for every element in it. Equivalent to `x=@, [ glue(@, x) ]`.  
 Usage:  
 `explode Seq[a] -> Seq[Seq[a]]`
 
-`file`
-: Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
+> `file`
+
+Opens a file and returns the lines in the file as a sequence of strings. (This allows a `tab` expression to process several files instead of just one.)  
 Usage:  
 `file String -> Seq[String]`
 
-`filter`
-: Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: `while`, `until`.  
+> `filter`
+
+Filters a sequence by returning an equivalent sequence but with certain elements removed. The input is a sequence of tuples where the first element is an integer; the output is a sequence with the rest of the tuple, filtered on condition that the first element is not 0. See also: `while`, `until`.  
 Usage:  
 `filter Seq[(Integer,a...) -> Seq[(a...)]`
 
-`find`
-: Finds a substring match in a string. The first argument is the string to search in, the second argument is the substring. Returns an array of one element containing the substring if found, and an empty array otherwise. See also: `grep`, `grepif`, `findif` for the rationale.  
+> `find`
+
+Finds a substring match in a string. The first argument is the string to search in, the second argument is the substring. Returns an array of one element containing the substring if found, and an empty array otherwise. See also: `grep`, `grepif`, `findif` for the rationale.  
 Usage:  
 `find String, String -> Arr[String]`
 
-`findif`
-: Filter strings that contain a substring. See also: `grep`, `grepif`, `find`.  
+> `findif`
+
+Filter strings that contain a substring. See also: `grep`, `grepif`, `find`.  
 Usage:  
 `findif String, String -> UInt` -- returns 1 if the first argument contains the second argument as a substring, 0 otherwise. Equivalent to `count(find(a,b)) != 0u`, except much faster.  
 `findif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have a substring match. Equivalent to `?[ findif(@,b), @ : a ]`.
 
-`first`
-: Return the first element in a pair, map or sequence or pairs. See also: `second`.  
+> `first`
+
+Return the first element in a pair, map or sequence or pairs. See also: `second`.  
 Usage:  
 `first a,b -> a`  
 `first Map[a,b] -> Seq[a]`  
 `first Seq[(a,b)] -> Seq[a]`
 
-`flatten`
-: Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
+> `flatten`
+
+Flattens a sequence of sequences, a sequence of arrays or a sequence of maps into a sequence of values.  
 Usage:  
 `flatten Seq[ Seq[a] ] -> Seq[a]`  
 `flatten Seq[ Arr[a] ] -> Seq[a]`  
 `flatten Seq[ Map[a,b] ] -> Seq[(a,b)]`  
 `flatten Seq[a] -> Seq[a]` -- sequences that are already flat will be returned unchanged. (Though at a performance cost.)
 
-`flip`
-: Given a sequence of pairs or a map, returns a sequence where the pair elements are swapped.  
+> `flip`
+
+Given a sequence of pairs or a map, returns a sequence where the pair elements are swapped.  
 Usage:  
 `flip Seq[(a,b)] -> Seq[(b,a)]`  
 `flip Map[a,b] -> Seq[(b,a)]`
 
-`floor`
-: Rounds a floating-point number to the greatest integer that is less than the input value.  
+> `floor`
+
+Rounds a floating-point number to the greatest integer that is less than the input value.  
 Usage:  
 `floor Real -> Real`
 
-`get`
-: Accesses map or array elements (like `index`), but returns a default value if the key is not found in the map or if the index is out of bounds. (Unlike `index` which throws an exception.)  
+> `get`
+
+Accesses map or array elements (like `index`), but returns a default value if the key is not found in the map or if the index is out of bounds. (Unlike `index` which throws an exception.)  
 Usage:  
 `get Map[a,b], a, b -> b` -- returns the element stored in the map with the given key, or the third argument if the key is not found.  
 `get Arr[a], UInt, a -> a` -- returns the element at the given index, or the third argument if the index is out of bounds.
 
-`glue`
-: Adds an element to the head or tail of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`, `peek`.  
+> `glue`
+
+Adds an element to the head or tail of a sequence. `glue(1, seq(2, 3))` is equivalent to `seq(1, 2, 3)`. See also: `take`, `peek`.  
 Usage:  
 `glue a, Seq[a] -> Seq[a]`  
 `glue Seq[a], a -> Seq[a]`
 
-`gmtime`
-: Converts a UNIX timestamp to a UTC date and time.  
+> `gmtime`
+
+Converts a UNIX timestamp to a UTC date and time.  
 Usage:  
 `gmtime Int -> Int, Int, Int, Int, Int, Int` -- returns year, month, day, hour, minute, second.
 
-`grep`
-: Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax. See also: `grepif`, `find`, `findif`.  
+> `grep`
+
+Finds regular expression matches in a string. The first argument is the string to match in, the second argument is the regular expression. Matches are returned in an array of strings. Regular expressions use ECMAScript syntax. See also: `grepif`, `find`, `findif`.  
 Usage:  
 `grep String, String -> Arr[String]`
 
-`grepif`
-: Filter strings according to a regular expression. See also: `grep`, `find`, `findif`.  
+> `grepif`
+
+Filter strings according to a regular expression. See also: `grep`, `find`, `findif`.  
 Usage:  
 `grepif String, String -> UInt` -- returns 1 if a regular expression has matches in a string, 0 otherwise. Equivalent to `count(grep(a,b)) != 0u`, except much faster.  
 `grepif Seq[String], String -> Seq[String]` -- returns a sequence of only those strings that have regular expression matches. Equivalent to `?[ grepif(@,b), @ : a ]`.
 
-`has`
-: Checks for existence in a map or array.  
+> `has`
+
+Checks for existence in a map or array.  
 Usage:  
 `has Map[a,b], a -> UInt` -- returns 1 if a key exists in the map, 0 otherwise. The first argument is the map, the second argument is the key to check.  
 `has Arr[a], a -> UInt` -- returns 1 if a value is in the array, 0 otherwise. The first argument is the array, the second argument is the value. Equivalent to `has(map.zip(seq.a, count()), b)`.
 
-`hash`
-: Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  
+> `hash`
+
+Hashes a value to an unsigned integer. The FNV hash function (32 or 64 bit depending on CPU architecture) is used.  
 Usage:  
 `hash a -> UInt`
 
-`head`
-: Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`, `stripe`.  
+> `head`
+
+Accepts a sequence or array and returns an equivalent sequence that is truncated to be no longer than N elements. See also: `skip`, `stripe`.  
 Usage:  
 `head Seq[a], UInt -> Seq[a]`  
 `head Arr[a], UInt -> Seq[a]`
 
-`hex`
-: Marks the given unsigned integer such that it is output in hexadecimal.  
+> `hex`
+
+Marks the given unsigned integer such that it is output in hexadecimal.  
 Usage:  
 `hex UInt -> UInt`
 
-`hist`
-: Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: `bucket`.  
-: Usage:  
+> `hist`
+
+Accepts an array of numbers and a bucket count and returns an array of tuples representing a histogram of the values in the array. (The interval between the maximum and minimum value is split into N equal sub-intervals, and a number of values that falls into each sub-interval is tallied.) The return value is an array of pairs: (sub-interval lower bound, number of elements). See also: `bucket`.  
+Usage:  
 `hist Arr[Number], UInt -> Arr[(Real,UInt)]`  
 
-`iarray`
-: Exactly equivalent to `array`, except when printing the elements will be separated with a `;` instead of a newline.  
+> `iarray`
+
+Exactly equivalent to `array`, except when printing the elements will be separated with a `;` instead of a newline.  
 Usage:  
 `iarray Map[a,b] -> Arr[(a,b)]`  
 `iarray Seq[a] -> Arr[a]`  
 `iarray a, ... -> Arr[a]`  
 `iarray Arr[a] -> Arr[a]`
 
-`if`
-: Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
+> `if`
+
+Choose between alternatives. If the first integer argument is not 0, then the second argument is returned; otherwise, the third argument is returned. The second and third arguments must have the same type.
 *Note*: this is not a true conditional control structure, since all three arguments are always evaluated.  
 Usage:  
 `if Integer, a, a -> a`  
 `if Integer, a -> a` -- this alternative form throws an error if the first integer argument is 0. Useful for error checking or for sequences with the `try` clause.
 
-`index`
-: Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
+> `index`
+
+Select elements from arrays, maps or tuples. Indexing a non-existent element will cause an error.  
 Usage:  
 `index Arr[a], UInt -> a` -- returns element from the array, using a 0-based index.  
 `index Arr[a], Int -> a` -- negative indexes select elements from the end of the array, such that -1 is the last element, -2 is second-to-last, etc.  
@@ -930,182 +972,213 @@ Usage:
 `index Arr[a], Number, Number -> Arr[a]` -- returns a sub-array from an array, _including_ the end element.
 `index String, Integer, Integer -> String` -- returns a substring from a string, as with the array slicing above. _Note:_ string indexes refer to _bytes_, `tab` is not Unicode-aware.
 
-`int`
-: Converts an unsigned integer, floating-point value or string into a signed integer.  
+> `int`
+
+Converts an unsigned integer, floating-point value or string into a signed integer.  
 Usage:  
 `int UInt -> Int`  
 `int Real -> Int`  
 `int String -> Int`  
 `int String, Integer -> Int` -- tries to convert the string to an integer; if the conversion fails, returns the second argument instead.
 
-`join`
-: Concatenates the elements in a string array or sequence using a delimiter.  
+> `join`
+
+Concatenates the elements in a string array or sequence using a delimiter.  
 Usage:  
 `join Arr[String], String -> String`  
 `join Seq[String], String -> String`  
 `join String, Arr[String], String, String -> String` -- adds a prefix and suffix as well. Equivalent to `cat(p, join(a, d), s)`.  
 `join String, Seq[String], String, String -> String`
 
-`lines`
-: Returns its arguments as a tuple, except that each element will be printed on its own line. See also: `tuple`.  
+> `lines`
+
+Returns its arguments as a tuple, except that each element will be printed on its own line. See also: `tuple`.  
 Usage:  
 `lines (a,b,...) -> (a,b,...)`
 
-`log`
-: The natural logarithm function.  
+> `log`
+
+The natural logarithm function.  
 Usage:  
 `log Number -> Real`
 
-`lsh`
-: Bit shift left; like the C `<<` operator. (See also `rsh`.)  
+> `lsh`
+
+Bit shift left; like the C `<<` operator. (See also `rsh`.)  
 Usage:  
 `lsh Int, Integer -> Int`  
 `lsh UInt, Integer -> UInt`
 
-`map`
-: Stores a sequence of pairs or a single pair into a map.  
+> `map`
+
+Stores a sequence of pairs or a single pair into a map.  
 Usage:  
 `map Seq[(a,b)] -> Map[a,b]`  
 `map (a,b) -> Map[a,b]` -- returns a map with one element.  
 **Note:** when maps are used as values in other maps, they will merge. (See [aggregators](#markdown-header-aggregators) below for details.)
 
-`max`
-: Finds the maximum element in a sequence or array. See also: `min`.  
+> `max`
+
+Finds the maximum element in a sequence or array. See also: `min`.  
 Usage:  
 `max Arr[a] -> a`  
 `max Seq[a] -> a`  
 `max Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the max when stored as a value into an existing key of a map.
 
-`mean`
-: Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
+> `mean`
+
+Calculates the mean (arithmetic average) of a sequence or array of numbers. See also: `var` and `stdev`.  
 Usage:  
 `mean Arr[Number] -> Real`  
 `mean Seq[Number] -> Real`  
 `mean Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the mean when stored as a value into an existing key of a map.
 
-`merge`
-: Aggregates a sequence of values. `merge(a)` is equivalent to `{ 1 -> @ : a }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
+> `merge`
+
+Aggregates a sequence of values. `merge(a)` is equivalent to `{ 1 -> @ : a }~1`, except faster. See also [aggregators](#markdown-header-aggregators).  
 Usage:  
 `merge Seq[a] -> a`
 
-`min`
-: Finds the minimum element in a sequence or array. See also: `max`.  
+> `min`
+
+Finds the minimum element in a sequence or array. See also: `max`.  
 Usage:  
 `min Arr[a] -> a`  
 `min Seq[a] -> a`  
 `min Number -> Number` -- **Note:** this version of this function will mark the return value to calculate the min when stored as a value into an existing key of a map.
 
-`mul`
-: Multiplies the arguments. Equivalent to `product.seq(...)` See also `add`, `sum`, `product`.  
+> `mul`
+
+Multiplies the arguments. Equivalent to `product.seq(...)` See also `add`, `sum`, `product`.  
 Usage:  
 `mul Number, ... -> Number`
 
-`ngrams`
-: Similar to `pairs` and `triplets`, except returns a sequence of arrays of length N instead of tuples.  
+> `ngrams`
+
+Similar to `pairs` and `triplets`, except returns a sequence of arrays of length N instead of tuples.  
 Usage:  
 `ngrams Seq[a], UInt -> Seq[Arr[a]]`
 
-`normal`
-: Returns random numbers from the normal (gaussian) distribution. (See also: `rand`, `sample`.)  
+> `normal`
+
+Returns random numbers from the normal (gaussian) distribution. (See also: `rand`, `sample`.)  
 Usage:  
 `normal None -> Real` -- returns a random number with mean `0` and standard deviation `1`.  
 `normal Real, Real -> Real` -- same, but with mean and standard deviation of `a` and `b`.
 
-`now`
-: Returns the current UNIX timestamp.  
+> `now`
+
+Returns the current UNIX timestamp.  
 Usage:  
 `now None -> Int`
 
-`open`
-: Same as `file`.
+> `open`
 
-`or`
-: Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to `a | b | c ...`.  See also `and`.  
+Same as `file`.
+
+> `or`
+
+Returns 0 if all the arguments are 0, returns 1 otherwise. Equivalent to `a | b | c ...`.  See also `and`.  
 Usage:  
 `or (Integer, Integer...) -> UInt`
 
-`pairs`
-: Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: `triplets` and `ngrams`.)  
+> `pairs`
+
+Given a sequence, return a sequence of pairs of the previous sequence element and the current sequence element. Example: given `[ 1, 2, 3, 4 ]` will return `[ (1, 2), (2, 3), (3, 4) ]`. (See also: `triplets` and `ngrams`.)  
 Usage:  
 `pairs Seq[a] -> Seq[(a,a)]`
 
-`peek`
-: Given a sequence, return a pair of its first element and the sequence itself with the first element reattached. Equivalent to `h=take.@, h, glue(h, @)`. See also: `take`, `glue`.  
+> `peek`
+
+Given a sequence, return a pair of its first element and the sequence itself with the first element reattached. Equivalent to `h=take.@, h, glue(h, @)`. See also: `take`, `glue`.  
 Usage:  
 `peek Seq[a] -> (a, Seq[a])`
 
-`pi`
-: Return the number *pi*.  
+> `pi`
+
+Return the number *pi*.  
 Usage:  
 `pi None -> Real`
 
-`product`
-: Computes a product of the elements of a sequence or array. See also `sum`, `add`, `mul`.  
+> `product`
+
+Computes a product of the elements of a sequence or array. See also `sum`, `add`, `mul`.  
 Usage:  
 `product Arr[Number] -> Number`  
 `product Seq[Number] -> Number`  
 `product Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
-`rand`
-: Returns random numbers from the uniform distribution. (See also: `normal`, `sample`.)  
+> `rand`
+
+Returns random numbers from the uniform distribution. (See also: `normal`, `sample`.)  
 Usage:  
 `rand None -> Real` -- returns a random real number from the range `[0, 1)`.  
 `rand Real, Real -> Real` -- same, but with the range `[a, b)`.  
 `rand UInt, UInt -> UInt`  
 `rand Int, Int -> Int` -- returns a random number from the integer range `[a, b]`.
 
-`real`
-: Converts an unsigned integer, signed integer or string into a floating-point value.  
+> `real`
+
+Converts an unsigned integer, signed integer or string into a floating-point value.  
 Usage:  
 `real UInt -> Real`  
 `real Int -> Real`  
 `real String -> Real`  
 `real String, Real -> Real` -- tries to convert the string to a floating-point value; if the conversion fails, returns the second argument instead.
 
-`recut`
-: Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
+> `recut`
+
+Splits a string using a regular expression. See also `cut` for splitting with a byte string.  
 `recut String, String -> Arr[String]` -- returns an array of strings, such that the first argument is split using the second argument as a regular expression delimiter.  
 `recut String, String, UInt -> String` -- calling `recut(a,b,n)` is equivalent to `recut(a,b)[n]`, except faster.  
 `recut Seq[String], String -> Seq[Arr[String]]` -- equivalent to `[ recut(@,delim) : seq ]`.
 
-`replace`
-: Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
+> `replace`
+
+Search-and-replace in a string with regexes. The first argument is the string to search, the second argument is the regex, and the third argument is the replacement string. Regex and replacement string use ECMAScript syntax.  
 Usage:  
 `replace String, String, String -> String`
 
-`resplit`
-: A synonym for `recut`.
+> `resplit`
 
-`reverse`
-: Reverses the elements in an array.  
+A synonym for `recut`.
+
+> `reverse`
+
+Reverses the elements in an array.  
 Usage:  
 `reverse Arr[a] -> Arr[a]`
 
-`round`
-: Rounds a floating-point number to the nearest integer.  
+> `round`
+
+Rounds a floating-point number to the nearest integer.  
 Usage:  
 `round Real -> Real`
 
-`rsh`
-: Bit shift right; like the C `>>` operator. (See also `lsh`.)  
+> `rsh`
+
+Bit shift right; like the C `>>` operator. (See also `lsh`.)  
 Usage:  
 `rsh Int, Integer -> Int`  
 `rsh UInt, Integer -> UInt`
 
-`sample`
-: Sample from a sequence of atomic values, without replacement. (See also: `rand`, `normal`.)  
+> `sample`
+
+Sample from a sequence of atomic values, without replacement. (See also: `rand`, `normal`.)  
 Usage:  
 `sample UInt, Seq[a] -> Arr[a]` -- the first argument is the sample size.
 
-`second`
-: Return the second element in a pair, map or sequence or pairs. See also: `first`.  
+> `second`
+
+Return the second element in a pair, map or sequence or pairs. See also: `first`.  
 Usage:  
 `second a,b -> b`  
 `second Map[a,b] -> Seq[b]`  
 `second Seq[(a,b)] -> Seq[b]`
 
-`seq`
-: Accepts values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
+> `seq`
+
+Accepts values of the same type and returns a sequence of those values. (A synonym for `tabulate`.)  
 If one argument is passed, then it is equivalent to `[@ : arg]`.  
 Usage:  
 `seq a, ... -> Seq[a]`  
@@ -1113,19 +1186,22 @@ Usage:
 `seq Map[a,b] -> Seq[(a,b)]`  
 `seq a -> Seq[a]`
 
-`sin`
-: The sine function.  
+> `sin`
+
+The sine function.  
 Usage:  
 `sin Number -> Real`
 
-`skip`
-: Accepts a sequence or array and returns an equivalent sequence where the first N elements are ignored. See also: `head`, `stripe`.  
+> `skip`
+
+Accepts a sequence or array and returns an equivalent sequence where the first N elements are ignored. See also: `head`, `stripe`.  
 Usage:  
 `skip Seq[a], UInt -> Seq[a]`  
 `skip Arr[a], UInt -> Seq[a]`
 
-`sort`
-: Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
+> `sort`
+
+Sorts a sequence, array or map lexicographically. The result is stored into an array if the input is a map or a sequence. See also `array` a version of this function without sorting.  
 Usage:  
 `sort Arr[a] -> Arr[a]`  
 `sort Map[a,b] -> Arr[(a,b)]`  
@@ -1133,31 +1209,37 @@ Usage:
 `sort a, ... -> Arr[a]` -- returns an array with the input elements, except sorted.  
 **Note:** when sorted arrays are used as values in a map, they will concatenate, and sort. (See [aggregators](#markdown-header-aggregators) below for details.)
 
-`sorted`
-: Exactly like `sort`, except in the case when there are multiple arguments. `sorted` treats the input arguments as a tuple and returns an array of one element; `sort` treats the input arguments as a list of values to sort and returns an array of several elements. Use `sorted` as an [aggregator](#markdown-header-aggregators) in a map.  
+> `sorted`
+
+Exactly like `sort`, except in the case when there are multiple arguments. `sorted` treats the input arguments as a tuple and returns an array of one element; `sort` treats the input arguments as a list of values to sort and returns an array of several elements. Use `sorted` as an [aggregator](#markdown-header-aggregators) in a map.  
 Usage:  
 `sorted a, b, ... -> Arr[(a,b,...)]`
 
-`split`
-: A synonym for `cut`.
+> `split`
 
-`sqrt`
-: The square root function.  
+A synonym for `cut`.
+
+> `sqrt`
+
+The square root function.  
 Usage:  
 `sqrt Number -> Real`
 
-`stddev`
-: Synonym for `stdev`.
+> `stddev`
 
-`stdev`
-: Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
+Synonym for `stdev`.
+
+> `stdev`
+
+Calculates the sample standard deviation, defined as the square root of the variance. This function is completely analogous to `var`, with the difference that the square root of the result is taken. See also: `mean`.  
 Usage:  
 `stdev Arr[Number] -> Real`  
 `stdev Seq[Number] -> Real`  
 `stdev Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the standard deviation when stored as a value into an existing key of a map.
 
-`string`
-: Converts arguments to a string.  
+> `string`
+
+Converts arguments to a string.  
 Usage:  
 `string UInt -> String`  
 `string Int -> String`  
@@ -1165,110 +1247,130 @@ Usage:
 `string Arr[UInt] -> String` -- **Note:** here it is assumed that the array will hold byte (0-255) values. Passing in something else is an error. This function is not Unicode-aware.  
 `string a, ... -> String` -- A polymorphic version that accepts values of any type. The resulting string is exactly like what would be produced on standard output.
 
-`stripe`
-: Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: `head`, `skip`.  
+> `stripe`
+
+Accepts a sequence or array and returns an equivalent sequence except with only every Nth element. See also: `head`, `skip`.  
 Usage:  
 `stripe Seq[a], UInt -> Seq[a]`  
 `stripe Arr[a], UInt -> Seq[a]`
 
-`sum`
-: Computes a sum of the elements of a sequence or array. See also `add`, `mul`, `product`.  
+> `sum`
+
+Computes a sum of the elements of a sequence or array. See also `add`, `mul`, `product`.  
 Usage:  
 `sum Arr[Number] -> Number`  
 `sum Seq[Number] -> Number`  
 `sum Number -> Number` -- **Note:** this version of this function will mark the value to be aggregated as a sum when stored as a value into an existing key of a map.
 
-`take`
-: Returns the first element in a sequence. Equivalent to `array(head(@, 1))[0]`. See also: `peek`, `glue`.  
+> `take`
+
+Returns the first element in a sequence. Equivalent to `array(head(@, 1))[0]`. See also: `peek`, `glue`.  
 Usage:  
 `take Seq[a] -> a` -- gives an error on empty sequence.  
 `take Seq[a], a -> a` -- returns the second argument on empty sequence.
 
-`tan`
-: The tangent function.  
+> `tan`
+
+The tangent function.  
 Usage:  
 `tan Number -> Real`
 
-`tabulate`
-: A synonym for `seq`.
+> `tabulate`
 
-`time`
-: Converts a UNIX timestamp to a textual representation of a UTC time.  
+A synonym for `seq`.
+
+> `time`
+
+Converts a UNIX timestamp to a textual representation of a UTC time.  
 Usage:  
 `time Int -> String` -- returns a UTC time in the `"HH:MM:SS"` format.
 
-`tolower`
-: Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
+> `tolower`
+
+Converts to bytes of a string to lowercase. *Note:* only works on ASCII data, Unicode is not supported.  
 Usage:  
 `tolower String -> String`
 
-`toupper`
-: Converts to bytes of a string to uppercase. *Note:* only works on ASCII data, Unicode is not supported.  
+> `toupper`
+
+Converts to bytes of a string to uppercase. *Note:* only works on ASCII data, Unicode is not supported.  
 Usage:  
 `toupper String -> String`
 
-`triplets`
-: Similar to `pairs`, except returns triplets of before-previous, previous and current elements. (See also: `pairs` and `ngrams`.)  
+> `triplets`
+
+Similar to `pairs`, except returns triplets of before-previous, previous and current elements. (See also: `pairs` and `ngrams`.)  
 Usage:  
 `triplets Seq[a] -> Seq[(a,a,a)]`
 
-`tuple`
-: Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples. See also: `lines`.  
+> `tuple`
+
+Returns its arguments as a tuple. Meant for grouping when defining tuples within tuples. See also: `lines`.  
 Usage:  
 `tuple (a,b,...) -> (a,b,...)`
 
-`uint`
-: Converts a signed integer, floating-point number or string to an unsigned integer.  
+> `uint`
+
+Converts a signed integer, floating-point number or string to an unsigned integer.  
 Usage:  
 `uint Int -> UInt`  
 `uint Real -> UInt`  
 `uint String -> UInt`  
 `uint String, Integer -> UInt` -- tries to convert the string to an unsigned integer; if the conversion fails, returns the second argument instead.
 
-`unflatten`
-: Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
+> `unflatten`
+
+Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
 Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`  
 Usage:  
 `unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]`
 
-`uniques`
-: Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also `uniques_estimate`.  
+> `uniques`
+
+Returns an aggregator for counting the number of unique values. Hashes of all values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique items. See also `uniques_estimate`.  
 Usage:  
 `uniques a -> UInt`
 
-`uniques_estimate`
-: Returns an aggregator for estimating the number of unique values. A [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also `uniques`.  
+> `uniques_estimate`
+
+Returns an aggregator for estimating the number of unique values. A [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead of exact counts; memory usage is constant. Note: the estimator works better with larger counts of unique values. See also `uniques`.  
 Usage:  
 `uniques_estimate a -> UInt`
 
-`until`
-: Similar to `filter`, but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See: `filter`, `while`.  
+> `until`
+
+Similar to `filter`, but filters only until the first valid element is found, then stops filtering and returns the sequence as-is. See: `filter`, `while`.  
 Usage:  
 `until Seq[(Integer,a...)] -> Seq[(a...)]`
 
-`url_getparam`
-: Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
+> `url_getparam`
+
+Splits a string with URL query-string parameters into keys and values. Values will be automatically percent-decoded.  
 Usage:  
 `url_getparam String, String -> String` -- calling `url_getparam(url, key)` will return the first value in `url` for `key`. Example: `url_getparam("http://www.google.com?q=Hello%20World", "q")` will return `"Hello World"`.  
 `url_getparam String -> Seq[(String,String)]` -- returns a sequence of all key/value pairs in the url. Example: `url_getparam."&one=1&two=2"` will return a value equivalent to `seq(tuple("one","1"), tuple("two","2"))`.
 
-`var`
-: Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
+> `var`
+
+Calculates the sample variance of a sequence of numbers. (Defined as the mean of squares minus the square of the mean.) See also: `mean` and `stdev`.  
 Usage:  
 `var Arr[Number] -> Real`  
 `var Seq[Number] -> Real`  
 `var Number -> Real` -- **Note:** this version of this function will mark the returned value to calculate the variance when stored as a value into an existing key of a map.
 
-`variance`
-: Synonym for `var`.
+> `variance`
 
-`while`
-: Similar to `filter`, but stops the output sequence once the first filtered element is reached. See: `filter`, `until`.  
+Synonym for `var`.
+
+> `while`
+
+Similar to `filter`, but stops the output sequence once the first filtered element is reached. See: `filter`, `until`.  
 Usage:  
 `while Seq[(Integer,a...)] -> Seq[(a...)]`
 
-`zip`
-: Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
+> `zip`
+
+Accepts two or more sequences (or arrays) and returns a sequence that returns a tuple of elements from each of the input sequences. The output sequence ends when any of the input sequences end.  
 Usage:  
 `zip Seq[a], Seq[b],... -> Seq[(a,b,...)]`  
 `zip Arr[a], Arr[b],... -> Seq[(a,b,...)]`
@@ -1281,50 +1383,64 @@ Aggregation is performed efficiently: no unnecessary temporary data structures a
 
 Here is a list of aggregators and their effects, sorted alphabetically:
 
-`array`, `[. .]`
-: Arrays are implicit aggregators. When combined together under one key of a map, arrays will concatenate, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: `sort`.
+> `array`, `[. .]`
 
-`avg`
-: Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
+Arrays are implicit aggregators. When combined together under one key of a map, arrays will concatenate, with the resulting elements appearing according to insertion order. (Last inserted elements coming last in the array.) See also: `sort`.
 
-`iarray`
-: Like `array` except all elements are printed on one line.
+> `avg`
 
-`map`, `{ }`
-: Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)
+Accepts a numeric value, returns a floating-point number. When combined together, the arithmetic mean of the numbers will be computed.
 
-`max`
-: Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.
+> `iarray`
 
-`mean`
-: Synonymous with `avg`.
+Like `array` except all elements are printed on one line.
 
-`min`
-: Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.
+> `map`, `{ }`
 
-`sort`
-: Like `array`, except that the resulting elements will be sorted in ascending order.
+Maps are implicit aggregators. When a value of a map is another map, those maps will merge when aggregated under one key. (See below for an example.)
+
+> `max`
+
+Accepts a numeric value, returns a value of the same type. When combined together, the maximum value is computed.
+
+> `mean`
+
+Synonymous with `avg`.
+
+> `min`
+
+Accepts a numeric value, returns a value of the same type. When combined together, the minimum value is computed.
+
+> `sort`
+
+Like `array`, except that the resulting elements will be sorted in ascending order.
 
 `stddev`
 : Synonymous with `stddev`.
 
-`stdev`
-: Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: `var`.
+> `stdev`
 
-`sum`
-: Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.
+Accepts a numeric value, returns a floating-point number. When combined together, the sample standard deviation is computed, defined as the square root of the variance. See also: `var`.
 
-`uniques`
-: Accepts any value and returns a `UInt`-valued aggregator that counts the number of unique values when combined. *Note:* hashes of values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique values.
+> `sum`
 
-`uniques_estimate`
-: Like `uniques`, except that a [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead. The result is not exact but the estimator uses constant memory. *Note:* the estimator works better with larger counts of unique values.
+Accepts a numeric value, returns a value of the same type. When combined together, the sum of the values is computed.
 
-`var`
-: Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.
+> `uniques`
 
-`variance`
-: Synonymous with `var`.
+Accepts any value and returns a `UInt`-valued aggregator that counts the number of unique values when combined. *Note:* hashes of values are stored, so the result is exact as long as there are no hash collisions. Memory usage is proportional to the count of unique values.
+
+> `uniques_estimate`
+
+Like `uniques`, except that a [statistical estimator](http://en.wikipedia.org/wiki/HyperLogLog) is used instead. The result is not exact but the estimator uses constant memory. *Note:* the estimator works better with larger counts of unique values.
+
+> `var`
+
+Accepts a numeric value, returns a floating-point number. When combined together, the sample variance is computed, defined as the mean of squares minus the square of the mean.
+
+> `variance`
+
+Synonymous with `var`.
 
 An explanation of how arrays and maps are aggregated implicitly:
 
