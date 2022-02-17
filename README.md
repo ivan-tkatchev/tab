@@ -38,27 +38,31 @@ Copy the resulting binary of `tab` somewhere in your path.
 
 If you want to use a compiler other than gcc, e.g., clang, then type this:
 
-    :::bash
+```bash
     $ CXX=clang++ make
+```
 
 ## Usage ##
 
 The default is to read from standard input:
 
-    :::bash
+```bash
     $ cat mydata | tab <expression>...
+```
 
 The result will be written to standard output.
 
 You can also use the `-i` flag to read from a named file:
 
-    :::bash
+```bash
     $ tab -i mydata <expression>...
+```
 
 If your `<expression>` is too long, you can pass it in via a file, with the `-f` flag:
 
-    :::bash
+```bash
     $ tab -f mycode <expression>...
+```
 
 (In this case, the contents of `mycode` will be appended to `<expression>`, separated with a comma.)
 
@@ -122,33 +126,37 @@ An introduction to `tab` in 10 easy steps.
 
 ###### 1.
 
-    :::bash
+```bash
     $ ./tab '@'
+```
 
 This command is equivalent to `cat`. `@` is a variable holding the top-level input, which is the stdin as a sequence of strings. Printing a sequence means printing each element in the sequence; thus, the effect of this whole expression is to read stdin line-by-line and output each line on stdout.
 
 ###### 2.
 
-    :::bash
+```bash
     $ ./tab 'sin(pi()/2)'
     1
     
     $ ./tab 'cos(1)**2+sin(1)**2'
     1
+```
 
 `tab` can also be used as a desktop calculator. `pi()` is a function that returns the value of *pi*, `cos()` and `sin()` are the familiar trigonometric functions. The usual mathematical infix operators are supported; `**` is the exponentiation oprator.
 
 ###### 3.
 
-    :::bash
+```bash
     $ ./tab 'count(@)'
+```
 
 This command is equivalent to `wc -l`. `count()` is a function that will count the number of elements in a sequence, array or map. Each element in `@` (the stdin) is a line, thus counting elements in `@` means counting lines in stdin.
 
 ###### 4.
 
-    :::bash
+```bash
     $ ./tab '[ grep(@,"[a-zA-Z]+") ]'
+```
 
 This command is equivalent to `egrep -o "[a-zA-Z]+"`. `grep()` is a function that takes two strings, where the second argument is a regular expression, and outputs an array of strings -- the array of any found matches.
 
@@ -166,8 +174,9 @@ The variables defined in `<element>` (on the left side of `:`) are *scoped*: you
 
 ###### 5.
 
-    :::bash
+```bash
     $ ./tab 'zip(count(), @)'
+```
 
 This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a line number prefixed to each line.
 
@@ -177,8 +186,9 @@ This command is equivalent to `nl -ba -w1`; that is, it outputs stdin with a lin
 
 ###### 6.
 
-    :::bash
+```bash
     $ ./tab 'count(:[ grep(@,"\\S+") ])'
+```
 
 This command is equivalent to `wc -w`: it prints the number of words in stdin. `[ grep(@,"\\S+") ]` is an expression we have seen earlier -- it returns a sequence of arrays of regex matches.
 
@@ -192,8 +202,9 @@ Thus, the result of `:[ grep(@,"\\S+") ]` is a sequence of strings, regex matche
 
 ###### 7.
 
-    :::bash
+```bash
     $ ./tab '{ @ : :[ grep(@,"\\S+") ] }'
+```
 
 This command will output an unsorted list of unique words in stdin.
 
@@ -209,8 +220,9 @@ You can also wrap the expression in `count(...)` if you just want the number of 
 
 ###### 8.
 
-    :::bash
+```bash
     $ ./tab '?[ grepif(@,"this"), @ ]'
+```
 
 This command is equivalent to `grep`; it will output all lines from stdin having the string `"this"`.
 
@@ -234,8 +246,9 @@ To write a tuple, simply list its elements separated by commas.
 
 ###### 9.
 
-    :::bash
+```bash
     $ ./tab '{ @[0] % 2 -> sum(count(@[1])) : zip(count(), @) }'
+```
 
 This command will output the number of bytes on even lines versus the number of bytes on odd lines in stdin.
 
@@ -251,8 +264,9 @@ This command will output the number of bytes on even lines versus the number of 
 
 ###### 10.
 
-    :::bash
+```bash
     $ ./tab 'z={ tolower(@) -> sum(1) :: [grep(@,"[a-zA-Z]+")] }, sort([ @~1, @~0 : z ])[-5,-1]'
+```
 
 This command will tally a count for each word (first lowercased) in a file, sort by word frequency, and output the top 5 most frequent words.
 
@@ -283,7 +297,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
 
 ###### Bonus track
 
-    :::bash
+```bash
     $ ./tab -i req.log '
      def stats tuple(avg.@, stdev.@, max.@, min.@, sort.@),
      def uniq { 1 -> stats(@) }[1],
@@ -300,6 +314,7 @@ In this case a sub-array of five elements is returned -- the last five elements 
     95-percentile   2101.75 1992
     99-percentile   2270.35 2419
     min and max     0       2508
+```
 
 Here we run a crude test for the normal distribution in the response lengths (in bytes) in a webserver log. (The distrubution of lengths doesn't look to be normally-distributed.)
 
@@ -309,15 +324,16 @@ Here we run a crude test for the normal distribution in the response lengths (in
 
 You can use parentheses to delimit code blocks in function definitions. For example:
 
-    :::bash
+```bash
     def square_of_square ( def square @*@; square(@)*square(@) );
     square_of_square(4)
+```
 
 **Note**: The semicolon is an equivalent way of writing the comma, because multi-line code looks better with semicolons.
 
 Let's check the distribution visually, with a histogram: (The first column is a size in bytes, the second column is the number of log lines; for example, there were 227 log lines with a response size between 1504.8 and 1755.6 bytes.)
 
-    :::bash
+```bash
     $ ./tab -i req.log 'hist([. uint.cut(@,"|",3) .], 10)'
     250.8   23
     501.6   0
@@ -329,6 +345,7 @@ Let's check the distribution visually, with a histogram: (The first column is a 
     2006.4  19986
     2257.2  490
     2508    1792
+```
 
 ## Comparison ##
 
@@ -338,14 +355,15 @@ The input file is around 100000 lines of web server logs, and we want to find ou
 
 Here is a solution using standard shell utilities:
 
-    :::bash
+```bash
     $ cat req.log | cut -d' ' -f3 | cut -d'?' -f1 | sort | uniq -c
+```
 
 Running time: around 2.7 seconds on my particular (slow) laptop.
 
 Here is an equivalent Python script:
 
-    :::python
+```python
     import sys
     
     d = {}
@@ -355,12 +373,13 @@ Here is an equivalent Python script:
     
     for k,v in d.iteritems():
         print k,v
+```
 
 Running time: around 3.1 seconds.
 
 Perl:
 
-    :::perl
+```perl
     my %counts;
     for my $line (<>) {
         my $path = (split /\?/, (split / /, $line)[2])[0];
@@ -371,20 +390,23 @@ Perl:
         my $count = $counts{$path};
         print("$count $path\n");
     }
+```
 
 Running time: around 4.1 seconds.
 
 A resonably simple solution using `awk`:
 
-    ::awk
+```awk
     $ awk -F" " '{ split($3,x,"?"); paths[x[1]]++; } END { for (path in paths) { print paths[path], path }}'
+```
 
 Running time: around 2.1 seconds.
 
 Here is the solution using `tab`:
 
-    :::bash
+```bash
     $ ./tab -i req.log '{ cut(@," ",2) .. cut(@,"?",0) -> sum(1) }'
+```
 
 Running time: around 0.9 seconds.
 
@@ -502,8 +524,9 @@ Note: tuples cannot be surrounded by parentheses; if you need to nest tuples, us
 
 This expression produces the tuple `(0, 1)`:
 
-    :::tab
+```tab
     0, a = 1, def b @; b(a)
+```
 
 ##### Variables
 
@@ -513,13 +536,15 @@ Assigning to a variable with a name that already exists will create a new variab
 
 This is a legal expression that returns `2`:
 
-    :::tab
+```tab
     a = 1, a = a + 1, a
+```
 
 This is also a legal expression, and will return a sequence of ten numbers `2`:
 
-    :::tab
+```tab
     a = 1, [ a = a + 1, a : count.10 ]
+```
 
 ##### Defining functions
 
@@ -543,13 +568,15 @@ Additionally, there is a special function called `$` which allows a shorter form
 
 This is best demonstrated with an example. This code
 
-    :::tab
+```tab
     def $ cut(@[0], "\t", @[1]); [ $0, $2 ]
+```
 
 is equivalent to this:
 
-    :::tab
+```tab
     [ cut(@, "\t", 0), cut(@, "\t", 2) ]
+```
 
 By default `$` is defined as `index.@`, which means that, for example, `$0` is shorthand for `@[0]` and `@~0`. 
 
@@ -583,10 +610,11 @@ The `&&` and `||` operators are there because otherwise an expression like `a ==
 The "pipe operator" `..` is syntactic sugar meant to make composing code blocks easier. (See the section below about [magic variables](#markdown-header-magic-variables).)
 The following two snippets are equivalent:
 
-    :::tab
+```tab
     sample(3, :[ seq.@ : head(cut(@,"\t"), 1000)])
     
     cut(@,"\t") .. head(@, 1000) .. :[ seq.@ ] .. sample(3, @)
+```
 
 (The code snippet selects 3 random values from the first 1000 lines of a tab-separated file.)
 
@@ -644,8 +672,9 @@ The left- and right-hand sides can include assigment and definition statements. 
 
 Thus, this code
 
-    :::tab
+```tab
     [ a=@, @ ], a
+```
 
 Will result in an 'undefined variable' error.
 
@@ -1198,8 +1227,8 @@ Usage:
 
 `unflatten`
 : Turns a sequence into a sequence of sequences, according to user-defined cut-off points. Accepts a sequence of tuples of at least size 2, where the first element of the pair is an integer: 0 to continue the current sequence, or not 0 to start a new sequence. The second and remaining elements form the output sequences.  
-Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`__
-Usage:__
+Best demonstrated with an example: `count(9) .. unflatten.[ (@ % 3) == 0, @ ]` returns the sequence `seq(seq(1,2), seq(3,4,5), seq(6,7,8), seq(9))`  
+Usage:  
 `unflatten Seq[(UInt, a, ...)] -> Seq[Seq[(a, ...)]]`
 
 `uniques`
@@ -1360,8 +1389,9 @@ Parallel evaluation is not quite automatic: `tab` uses a simple scatter/gather e
 
 The syntax for parallel evaluation looks like this:
 
-    :::bash
+```bash
     $ tab -tN scatter --> gather
+```
 
 The `-->` is a special token that separates 'scatter' and 'gather' expressions. 
 
