@@ -59,6 +59,7 @@ void show_help(const std::string& help_section) {
               << std::endl
               << "  -i:   read data from this file instead of stdin." << std::endl
               << "  -f:   prepend code from this file to <expressions...>" << std::endl
+              << "  -p:   use this code as the prelude; this code will be prepended to code from file and command line args." << std::endl
               << "  -r:   use a specific random seed." << std::endl
               << "  -s:   use maps with keys in sorted order instead of the unsorted default." << std::endl
 #ifdef _REENTRANT
@@ -69,6 +70,11 @@ void show_help(const std::string& help_section) {
               << "  -vv:  verbosity flag -- print type of the result and VM instructions." << std::endl
               << "  -vvv: verbosity flag -- print type of the result, VM instructions and parse tree." << std::endl
               << "  -h:   show help from given section." << std::endl
+              << std::endl
+              << "Note:" << std::endl
+              << "  Expressions from '-p' come first, then expressions from '-f', and finally those from the command line." << std::endl
+              << "  If '-p' is set, the default prelude will be overwritten." 
+              << "  (The default prelude is 'def $ index.@')" << std::endl
               << std::endl
               << "Help sections:" << std::endl
               << "  'overview'      -- show an overview of types and concepts." << std::endl
@@ -114,7 +120,7 @@ int main(int argc, char** argv) {
             return 1;
         }
 
-        static const std::string prelude = "def $ index.@,";
+        std::string prelude = "def $ index.@";
 
         unsigned int debuglevel = 0;
         bool sorted = false;
@@ -149,6 +155,8 @@ int main(int argc, char** argv) {
             } else if (arg == "-s") {
 
                 sorted = true;
+
+            } else if (getopt('p', argc, argv, i, prelude)) {
 
             } else if (getopt('f', argc, argv, i, programfile)) {
 
@@ -200,7 +208,9 @@ int main(int argc, char** argv) {
             return 1;
         }
 
-        program = prelude + program;
+        if (!prelude.empty()) {
+            program = prelude + "," + program;
+        }
 
         // //
 
