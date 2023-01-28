@@ -7,18 +7,24 @@ namespace obj {
 
 struct Printer {
 
-    virtual void val(tab::UInt v) { printf("%lu", v); }
-    virtual void val(tab::Int v)  { printf("%ld", v); }
-    virtual void val(tab::Real v) { printf("%g", v); }
-    virtual void hex(tab::UInt v) { printf("0x%lX", v); }
+    bool null;
+    Printer() : null(true) {}
+
+    void bump() { null = false; }
+
+    virtual void val(tab::UInt v) { bump(); printf("%lu", v); }
+    virtual void val(tab::Int v)  { bump(); printf("%ld", v); }
+    virtual void val(tab::Real v) { bump(); printf("%g", v); }
+    virtual void hex(tab::UInt v) { bump(); printf("0x%lX", v); }
 
     virtual void val(const std::string& v) {
+        bump();
         fwrite(v.data(), sizeof(char), v.size(), stdout);
     }
 
-    virtual void rs() { printf("\t"); }
-    virtual void nl() { printf("\n"); }
-    virtual void alts() { printf(";"); }
+    virtual void rs() { bump(); printf("\t"); }
+    virtual void nl() { bump(); printf("\n"); }
+    virtual void alts() { bump(); printf(";"); }
 };
 
 template <bool COMPACT=false>
@@ -555,7 +561,7 @@ struct SeqBase : public Object {
     void print(Printer& p) {
 
         bool first = true;
-        
+
         while (1) {
 
             Object* v = this->next();

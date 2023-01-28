@@ -41,7 +41,11 @@ void run(size_t seed, const std::string& program, const std::string& infile, uns
 
     tab::obj::Printer p;
     output->print(p);
-    p.nl();
+
+    // https://github.com/ivan-tkatchev/tab/issues/4
+    if (!p.null) {
+        p.nl();
+    }
 }
 
 void show_help(const std::string& help_section) {
