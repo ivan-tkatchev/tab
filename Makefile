@@ -12,17 +12,18 @@ INCLUDE = \
 SRC = tab.cc help.cc
 
 CXX ?= g++
+STATIC_LIBS ?= 
 
 tab: $(SRC) $(INCLUDE) $(FUNCS)
 	$(CXX) -std=c++11 -O3 -Wall -Iaxe -pthread -lm $(SRC) -o tab
-
-dist: $(SRC) $(INCLUDE) $(FUNCS)
-	$(CXX) -std=c++11 -O3 -Wall -Iaxe -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lm -pthread $(SRC) -static -o tab-linux-x86_64
-	strip tab-linux-x86_64
-
-install: tab
 	strip tab
-	cp tab /usr/local/bin/
+
+tab-static: $(SRC) $(INCLUDE) $(FUNCS)
+	$(CXX) $(STATIC_LIBS) -std=c++11 -O3 -Wall -Iaxe -Wl,--whole-archive -lpthread -Wl,--no-whole-archive -lm -pthread $(SRC) -static -o tab-static
+	strip tab-static
+
+install: tab tab-static
+	cp tab tab-static /usr/local/bin/
 
 clean:
 	rm tab

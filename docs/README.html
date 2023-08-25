@@ -148,6 +148,7 @@ td+td {
 </code></pre></div>
 
 <p>The official git repository is found <a href="https://github.com/ivan-tkatchev/tab">here</a>.</p>
+<p>A default.nix for reproducible builds is provided.</p>
 <h1 id="usage">Usage</h1>
 <p>The default is to read from standard input:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">$</span> <span class="nx">cat</span> <span class="nx">mydata</span> <span class="o">|</span> <span class="nx">tab</span> <span class="o">&lt;</span><span class="nx">expression</span><span class="o">&gt;...</span>
@@ -494,6 +495,7 @@ td+td {
 <span class="nx">string_interpolation</span> <span class="nv">=</span> <span class="s2">&quot;${&quot;</span> <span class="nx">expr</span> <span class="s2">&quot;}&quot;</span>
 </code></pre></div>
 
+<p>Comments start with the <code>#</code> symbol and continue until the end of line. Comments are parsed as whitespace.</p>
 <h2 id="semantics">Semantics</h2>
 <h3 id="expressions">Expressions</h3>
 <p>An expression is either an atomic value, an assignment or definition. Assignments and definitions do not produce a value and return nothing.</p>

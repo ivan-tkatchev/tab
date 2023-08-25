@@ -166,7 +166,7 @@ Type parse(I beg, I end, const Type& toplevel_type, TypeRuntime& typer, std::vec
     axe::r_rule<I> x_expr_bit;
     axe::r_rule<I> x_expr_bottom;
     
-    auto x_ws = *axe::r_any(" \t\n");
+    auto x_ws = *(axe::r_any(" \t\n") | (axe::r_lit('#') & axe::r_many(axe::r_any() - axe::r_lit('\n'), 0)));
 
     auto y_int = axe::e_ref([&](I b, I e) {
             try {

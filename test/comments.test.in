@@ -1,0 +1,7 @@
+#! hashbang
+1 + # comment
+ count(@) # another .
+ # end
+===>
+24
+

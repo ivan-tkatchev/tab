@@ -93,6 +93,8 @@ static const char* _help[][2] = {
       "generator expression.\n"
       "\n"
       "Recursive calculations: << expr : start, seq >>\n"
+      "\n"
+      "Comments start with '#' and continue until end of line.\n"
     },
 
     { "examples",

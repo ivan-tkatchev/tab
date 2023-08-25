@@ -30,6 +30,8 @@ If you want to use a compiler other than gcc, e.g., clang, then type this:
 
 The official git repository is found [here](https://github.com/ivan-tkatchev/tab).
 
+A default.nix for reproducible builds is provided.
+
 # Usage #
 
 The default is to read from standard input:
@@ -481,6 +483,9 @@ chars := ("\t" | "\n" | "\r" | "\e" | "\\" | any)*
 
 string_interpolation = "${" expr "}"
 ```
+
+Comments start with the `#` symbol and continue until the end of line. Comments are parsed as whitespace.
+
 
 ## Semantics ##
 

@@ -587,7 +587,7 @@ Type infer_expr(std::vector<Command>& commands, TypeRuntime& typer, bool allow_e
             Type t = stack.back();
 
             if (!check_integer(t)) 
-                throw std::runtime_error("Use of '~' numeric operator on something other "
+                throw std::runtime_error("Use of '!' numeric operator on something other "
                                          "than integer or unsigned integer.");
 
             break;
