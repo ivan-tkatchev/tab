@@ -17,7 +17,7 @@ std::istream& file_or_stdin(const std::string& file) {
         throw std::runtime_error("Could not open input file: " + file);
 
     return ret;
-}        
+}
 
 #ifdef _REENTRANT
 #include "threaded.h"
@@ -61,6 +61,7 @@ void show_help(const std::string& help_section) {
         "Usage: tab [-i inputdata_file] [-f expression_file] [-t N] [-r random seed] [-s] [-v|-vv|-vvv] [-h section] "
               << "<expressions...>"
               << std::endl
+              << "  -V, --version:   show version." << std::endl
               << "  -i:   read data from this file instead of stdin." << std::endl
               << "  -f:   prepend code from this file to <expressions...>" << std::endl
               << "  -p:   use this code as the prelude; this code will be prepended to code from file and command line args." << std::endl
@@ -175,6 +176,10 @@ int main(int argc, char** argv) {
 
                 nthreads = std::stoul(out);
 #endif
+            } else if (arg == "-V" || arg == "--version") {
+                std::cout << "tab 9.3" << std::endl << " →→→ https://github.com/ivan-tkatchev/tab/" << std::endl;
+                return 0;
+
             } else {
                 has_program = true;
 

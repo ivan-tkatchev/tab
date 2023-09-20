@@ -4,12 +4,12 @@
 with pkgs;
 gcc12Stdenv.mkDerivation {
   name = "tab";
-  version = "9.2";
+  version = "9.3";
   src = ./.;
   nativeBuildInputs = [ python3 ];
   buildPhase = ''
-    make
-    STATIC_LIBS=-L${glibc.static}/lib make tab-static
+    make -B
+    STATIC_LIBS=-L${glibc.static}/lib make -B tab-static
   '';
   installPhase = ''
     mkdir -p $out/bin
