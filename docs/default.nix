@@ -14,8 +14,10 @@ stdenvNoCC.mkDerivation {
   version = "9.3";
   src = ./.;
   nativeBuildInputs = [ gnumake pyenv ];
-  unpackPhase = "true";
-  buildPhase = "make";
+  buildPhase = ''
+    rm *.html
+    make
+  '';
   installPhase = ''
     mkdir -p $out/website
     cp *.html $out
