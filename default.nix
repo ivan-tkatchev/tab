@@ -1,8 +1,8 @@
 {
-  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/23.05.tar.gz") {}
+  pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/24.11.tar.gz") {}
 } :
 with pkgs;
-gcc12Stdenv.mkDerivation {
+gcc13Stdenv.mkDerivation {
   name = "tab";
   version = "9.3";
   src = ./.;
