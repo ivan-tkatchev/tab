@@ -1,0 +1,8 @@
+temps.tsv
+===>
+z = { x=cut(@,"\t"), uint(x~0)/50 -> uniques.x~3, uniques_estimate.x~3 }, lines(sort.z, merge.first.second.z)
+===>
+38	221	330
+39	589	834
+40	528	783
+608
